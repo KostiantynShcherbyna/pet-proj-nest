@@ -3,6 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH, myStatusEnum, } from 'src/utils/constants/constants';
 
 
+export type CommentsDocument = HydratedDocument<Comments>;
 export interface ICommentatorInfo {
     userId: string,
     userLogin: string
@@ -17,8 +18,6 @@ export interface ILike {
     status: string,
 }
 
-
-export type CommentsDocument = HydratedDocument<Comments>;
 
 @Schema()
 export class Comments {
@@ -83,7 +82,6 @@ export class Comments {
         ],
     })
     likesInfo: ILikesInfo
-
 }
 
 export const CommentsSchema = SchemaFactory.createForClass(Comments);
