@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 import { POSTS_CONTENT_MAX_LENGTH, POSTS_SHORTDESCRIPTION_MAX_LENGTH, POSTS_TITLE_MAX_LENGTH, myStatusEnum, } from 'src/utils/constants/constants';
 
 
-export type PostsDocument = HydratedDocument<Posts>;
 
 export interface IExtendedLikesInfo {
     likesCount: number
@@ -107,5 +106,7 @@ export class Posts {
     extendedLikesInfo: IExtendedLikesInfo
 
 }
+export type PostsDocument = HydratedDocument<Posts>;
 
 export const PostsSchema = SchemaFactory.createForClass(Posts);
+export type PostsModel = Model<PostsDocument>
