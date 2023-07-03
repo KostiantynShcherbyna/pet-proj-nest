@@ -2,6 +2,7 @@ import { ObjectId, WithId } from "mongodb"
 import { myStatusEnum } from "../constants/constants"
 import { HydratedDocument } from "mongoose"
 import { Blogs } from "src/schemas/blogs.schema"
+import { Posts } from "src/schemas/posts.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 
@@ -77,105 +78,107 @@ export const dtoModify = {
 
         return createdBlog
     },
+
+    //     // ↓↓↓ POSTS
+    //     changePostView(data: WithId<Posts>) {
+
+    //         return {
+    //             id: data._id.toString(),
+    //             title: data.title,
+    //             shortDescription: data.shortDescription,
+    //             content: data.content,
+    //             blogId: data.blogId,
+    //             blogName: data.blogName,
+    //             createdAt: data.createdAt,
+    //         }
+
+    //     },
+
+    changePostViewMngs(post: Posts, myStatus: string) {
+
+        const newestLikes = (post: WithId<Posts>) => post.extendedLikesInfo.newestLikes
+            .slice(-3)
+            .map(like => {
+                return {
+                    addedAt: like.addedAt,
+                    userId: like.userId,
+                    login: like.login
+                }
+            }).reverse()
+
+
+        return {
+            id: post._id.toString(),
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt,
+            extendedLikesInfo: {
+                likesCount: post.extendedLikesInfo.likesCount,
+                dislikesCount: post.extendedLikesInfo.dislikesCount,
+                myStatus: myStatus,
+                newestLikes: newestLikes(post),
+            },
+
+        }
+
+    },
+
+
+    //     changePostsView(posts: WithId<Posts>[]) {
+
+    //         return posts.map(post => {
+    //             return {
+    //                 id: post._id.toString(),
+    //                 title: post.title,
+    //                 shortDescription: post.shortDescription,
+    //                 content: post.content,
+    //                 blogId: post.blogId,
+    //                 blogName: post.blogName,
+    //                 createdAt: post.createdAt
+    //             }
+    //         })
+
+    //     },
+
+    changePostsViewMngs(posts: WithId<Posts>[], userId?: string) {
+
+        const myStatus = (post: WithId<Posts>) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
+        const newestLikes = (post: WithId<Posts>) => post.extendedLikesInfo.newestLikes
+            .slice(-3)
+            .map(like => {
+                return {
+                    addedAt: like.addedAt,
+                    userId: like.userId,
+                    login: like.login
+                }
+            }).reverse()
+
+
+        return posts.map(post => {
+            return {
+                id: post._id.toString(),
+                title: post.title,
+                shortDescription: post.shortDescription,
+                content: post.content,
+                blogId: post.blogId,
+                blogName: post.blogName,
+                createdAt: post.createdAt,
+                extendedLikesInfo: {
+                    likesCount: post.extendedLikesInfo.likesCount,
+                    dislikesCount: post.extendedLikesInfo.dislikesCount,
+                    myStatus: myStatus(post),
+                    newestLikes: newestLikes(post),
+                },
+
+            }
+        })
+
+    },
 }
 
-//     // ↓↓↓ POSTS
-//     changePostView(data: WithId<Posts>) {
-
-//         return {
-//             id: data._id.toString(),
-//             title: data.title,
-//             shortDescription: data.shortDescription,
-//             content: data.content,
-//             blogId: data.blogId,
-//             blogName: data.blogName,
-//             createdAt: data.createdAt,
-//         }
-
-//     },
-
-//     changePostViewMngs(post: WithId<Posts>, myStatus: string) {
-
-//         const newestLikes = (post: WithId<Posts>) => post.extendedLikesInfo.newestLikes
-//             .slice(-3)
-//             .map(like => {
-//                 return {
-//                     addedAt: like.addedAt,
-//                     userId: like.userId,
-//                     login: like.login
-//                 }
-//             }).reverse()
-
-
-//         return {
-//             id: post._id.toString(),
-//             title: post.title,
-//             shortDescription: post.shortDescription,
-//             content: post.content,
-//             blogId: post.blogId,
-//             blogName: post.blogName,
-//             createdAt: post.createdAt,
-//             extendedLikesInfo: {
-//                 likesCount: post.extendedLikesInfo.likesCount,
-//                 dislikesCount: post.extendedLikesInfo.dislikesCount,
-//                 myStatus: myStatus,
-//                 newestLikes: newestLikes(post),
-//             },
-
-//         }
-
-//     },
-
-//     changePostsView(posts: WithId<Posts>[]) {
-
-//         return posts.map(post => {
-//             return {
-//                 id: post._id.toString(),
-//                 title: post.title,
-//                 shortDescription: post.shortDescription,
-//                 content: post.content,
-//                 blogId: post.blogId,
-//                 blogName: post.blogName,
-//                 createdAt: post.createdAt
-//             }
-//         })
-
-//     },
-
-//     changePostsViewMngs(posts: WithId<Posts>[], userId?: string) {
-
-//         const myStatus = (post: WithId<Posts>) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
-//         const newestLikes = (post: WithId<Posts>) => post.extendedLikesInfo.newestLikes
-//             .slice(-3)
-//             .map(like => {
-//                 return {
-//                     addedAt: like.addedAt,
-//                     userId: like.userId,
-//                     login: like.login
-//                 }
-//             }).reverse()
-
-
-//         return posts.map(post => {
-//             return {
-//                 id: post._id.toString(),
-//                 title: post.title,
-//                 shortDescription: post.shortDescription,
-//                 content: post.content,
-//                 blogId: post.blogId,
-//                 blogName: post.blogName,
-//                 createdAt: post.createdAt,
-//                 extendedLikesInfo: {
-//                     likesCount: post.extendedLikesInfo.likesCount,
-//                     dislikesCount: post.extendedLikesInfo.dislikesCount,
-//                     myStatus: myStatus(post),
-//                     newestLikes: newestLikes(post),
-//                 },
-
-//             }
-//         })
-
-//     },
 
 //     createPostView(post: Posts, mongoId: ObjectId) {
 
