@@ -6,9 +6,7 @@ import { BLOGS_DESCRIPTION_MAX_LENGTH, BLOGS_NAME_MAX_LENGTH, BLOGS_WEBSITEURL_M
 
 @Schema()
 export class Blogs {
-    @Prop({
-        type: Types.ObjectId
-    })
+
     _id: Types.ObjectId
 
     @Prop({
@@ -62,13 +60,21 @@ export class Blogs {
         return newBlog
     }
 
-}
-export const BlogsSchema = SchemaFactory.createForClass(Blogs);
+    updateBlog(newBlogDto: bodyBlogModel) {
+        this.name = newBlogDto.name
+        this.description = newBlogDto.description
+        this.websiteUrl = newBlogDto.websiteUrl
+    }
 
+}
 interface BlogsStatics {
     createBlog(bodyBlogModel: bodyBlogModel, BlogsModel: BlogsModel): Blogs;
 }
+
+export const BlogsSchema = SchemaFactory.createForClass(Blogs);
+
 BlogsSchema.statics.createBlog = Blogs.createBlog
+BlogsSchema.methods.updateBlog = Blogs.prototype.updateBlog
 
 
 export type BlogsDocument = HydratedDocument<Blogs>;

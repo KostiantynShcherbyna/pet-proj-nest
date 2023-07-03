@@ -12,6 +12,8 @@ export enum errorEnums {
     // ↓↓↓ BLOGS
     NOT_FOUND_BLOG = `NOT_FOUND_BLOG`,
     NEW_BLOG_NOT_CREATED = `NEW_BLOG_NOT_CREATED`,
+    NOT_DELETE_BLOG = `NOT_DELETE_BLOG`,
+
 
 
     // ↓↓↓ POSTS
