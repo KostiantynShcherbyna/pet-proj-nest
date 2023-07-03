@@ -15,9 +15,9 @@ export class BlogsService {
     ) { }
 
 
-    async createBlog(body: bodyBlogModel): Promise<blogView> {
+    async createBlog(bodyBlogModel: bodyBlogModel): Promise<blogView> {
 
-        const newBlog = this.BlogsModel.createBlog(body, this.BlogsModel)
+        const newBlog = this.BlogsModel.createBlog(bodyBlogModel, this.BlogsModel)
         await this.BlogsRepository.saveDocument(newBlog)
 
         const newBlogView = dtoModify.createBlogViewMngs(newBlog)

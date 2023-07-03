@@ -36,7 +36,6 @@ export class Blogs {
     @Prop({
         type: String,
         required: true,
-        maxlength: BLOGS_NAME_MAX_LENGTH
     })
     createdAt: string
 
@@ -51,7 +50,7 @@ export class Blogs {
         const date = new Date().toISOString()
 
         const newBlogDto = {
-
+            _id: new Types.ObjectId(),
             name: bodyBlogModel.name,
             description: bodyBlogModel.description,
             websiteUrl: bodyBlogModel.websiteUrl,
