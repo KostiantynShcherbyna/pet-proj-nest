@@ -64,6 +64,23 @@ import { POSTS_CONTENT_MAX_LENGTH, POSTS_SHORTDESCRIPTION_MAX_LENGTH, POSTS_TITL
 // export const PostsSchema = SchemaFactory.createForClass(Posts);
 
 
+export interface IExtendedLikesInfo {
+    likesCount: number
+    dislikesCount: number
+    like: ILike[]
+    newestLikes: INewestLikes[]
+}
+export interface ILike {
+    userId: string
+    status: string
+}
+export interface INewestLikes {
+    addedAt: string
+    userId: string
+    login: string
+}
+
+
 @Schema()
 export class Posts {
 
@@ -178,29 +195,21 @@ export class Posts {
         return newPost
     }
 
+    updatePost(bodyPostDto: bodyPostModel) {
+        this.title = bodyPostDto.title
+        this.shortDescription = bodyPostDto.shortDescription
+        this.content = bodyPostDto.content
+        this.blogId = bodyPostDto.blogId
+    }
+
 }
 export const PostsSchema = SchemaFactory.createForClass(Posts);
-
-
-export interface IExtendedLikesInfo {
-    likesCount: number
-    dislikesCount: number
-    like: {
-        userId: string
-        status: string
-    }[]
-    newestLikes: {
-        addedAt: string
-        userId: string
-        login: string
-    }[]
-}
-
 
 interface PostsStatics {
     createPost(bodyPostModel: bodyPostModel, blogName: string, PostsModel: PostsModel): Posts
 }
 PostsSchema.statics.createPost = Posts.createPost
+PostsSchema.methods.updatePost = Posts.prototype.updatePost
 
 
 export type PostsDocument = HydratedDocument<Posts>;

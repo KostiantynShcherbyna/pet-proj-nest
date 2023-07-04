@@ -10,21 +10,18 @@ import { queryPostModel } from "src/models/query/queryPostModel"
 import { postView, postsView } from "src/views/postView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import { myStatusEnum } from "src/utils/constants/constants"
+import { queryCommentModel } from "src/models/query/queryCommentModel"
+import { commentsView } from "src/views/commentView"
+import { Comments, CommentsModel } from "src/schemas/comments.schema"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
-export class PostsQueryRepository {
+export class CommentsQueryRepository {
     constructor(
-        @InjectModel(Posts.name) protected PostsModel: PostsModel,
-        @Inject(BlogsRepository) protected blogsRepositoryMngs: BlogsRepository
+        @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     ) { }
 
-    async findPosts(query: queryPostModel, blogId?: string, userId?: string): Promise<null | postsView> {
-
-        if (blogId) {
-            const blog = await this.blogsRepositoryMngs.findBlog(blogId)
-            if (blog === null) return null
-        }
+    async findComments(postId: string, query: queryCommentModel, userId?: string): Promise<commentsView> {
 
         const PAGE_SIZE_DEFAULT = 10
         const PAGE_NUMBER_DEFAULT = 1
@@ -36,46 +33,30 @@ export class PostsQueryRepository {
         const sortBy = query.sortBy || SORT_BY_DEFAULT
         const sortDirection = query.sortDirection === "asc" ? 1 : SORT_DIRECTION_DEFAULT
 
-        const skippedPostsCount = (pageNumber - 1) * pageSize
+        const skippedCommentsCount = (pageNumber - 1) * pageSize
 
-        const totalCount = blogId ? await this.PostsModel.countDocuments({ blogId: blogId }) : await this.PostsModel.countDocuments({})
+        const totalCount = await this.CommentsModel.countDocuments({ postId: postId })
 
         const pagesCount = Math.ceil(totalCount / pageSize)
 
-        const foundedPosts = await this.PostsModel
-            .find({ blogId: blogId })
+
+        const comments = await this.CommentsModel
+            .find({ postId: postId })
             .sort({ [sortBy]: sortDirection })
             .limit(pageSize)
-            .skip(skippedPostsCount)
+            .skip(skippedCommentsCount)
             .lean()
 
+        // Mapping dto
+        const mappedComments = dtoModify.changeCommentsView(comments, userId,)
 
-        const mappedPosts = dtoModify.changePostsViewMngs(foundedPosts, userId)
-
-        const postsView = {
+        return {
             pagesCount: pagesCount,
             page: pageNumber,
             pageSize: pageSize,
             totalCount: totalCount,
-            items: mappedPosts
+            items: mappedComments
         }
-
-        return postsView
     }
-
-    async findPost(postId: string, userId?: string): Promise<null | postView> {
-
-        const foundPost = await this.PostsModel.findOne({ _id: new Types.ObjectId(postId) })
-        if (foundPost === null) return null
-
-        // Looking for a Like if userId is defined
-        let like: ILike | undefined
-        if (userId) like = foundPost.extendedLikesInfo.like.find(like => like.userId === userId)
-
-        const postView = dtoModify.changePostViewMngs(foundPost, like?.status || myStatusEnum.None)
-
-        return postView
-    }
-
 
 }

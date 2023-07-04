@@ -12,6 +12,9 @@ import { PostsService } from './services/posts.service';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsQueryRepository } from './repositories/query/postsQuery.repository';
 import { Posts, PostsSchema } from './schemas/posts.schema';
+import { CommentsQueryRepository } from './repositories/query/commentsQuery.repository';
+import { Comments, CommentsSchema } from './schemas/comments.schema';
+import { PostsController } from './controllers/posts.controller';
 // import { Posts, PostsSchema } from './schemas/posts.schema';
 
 // const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
@@ -22,11 +25,15 @@ import { Posts, PostsSchema } from './schemas/posts.schema';
     MongooseModule.forFeature(
       [
         { name: Blogs.name, schema: BlogsSchema },
-        { name: Posts.name, schema: PostsSchema }
+        { name: Posts.name, schema: PostsSchema },
+        { name: Comments.name, schema: CommentsSchema },
       ]
     ),
   ],
-  controllers: [BlogsController],
+  controllers: [
+    BlogsController,
+    PostsController,
+  ],
   providers: [
     BlogsService,
     BlogsRepository,
@@ -34,6 +41,8 @@ import { Posts, PostsSchema } from './schemas/posts.schema';
 
     PostsService,
     PostsRepository,
-    PostsQueryRepository,]
+    PostsQueryRepository,
+
+    CommentsQueryRepository,]
 })
 export class AppModule { }

@@ -3,13 +3,15 @@ import { myStatusEnum } from "../constants/constants"
 import { HydratedDocument } from "mongoose"
 import { Blogs } from "src/schemas/blogs.schema"
 import { Posts } from "src/schemas/posts.schema"
+import { Comments } from "src/schemas/comments.schema"
+import { commentView } from "src/views/commentView"
 // import { Posts } from "src/schemas/posts.schema"
 
 
 export const dtoModify = {
 
     // ↓↓↓ BLOGS
-    changeBlogView(data: WithId<Blogs>) {
+    changeBlogView(data: Blogs) {
 
         return {
             id: data._id.toString(),
@@ -51,7 +53,7 @@ export const dtoModify = {
 
     },
 
-    createBlogView(blog: WithId<Blogs>, mId: ObjectId) {
+    createBlogView(blog: Blogs, mId: ObjectId) {
 
         const createdBlog = {
             id: mId.toString(),
@@ -96,7 +98,7 @@ export const dtoModify = {
 
     changePostViewMngs(post: Posts, myStatus: string) {
 
-        const newestLikes = (post: WithId<Posts>) => post.extendedLikesInfo.newestLikes
+        const newestLikes = (post: Posts) => post.extendedLikesInfo.newestLikes
             .slice(-3)
             .map(like => {
                 return {
@@ -143,10 +145,10 @@ export const dtoModify = {
 
     //     },
 
-    changePostsViewMngs(posts: WithId<Posts>[], userId?: string) {
+    changePostsViewMngs(posts: Posts[], userId?: string) {
 
-        const myStatus = (post: WithId<Posts>) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
-        const newestLikes = (post: WithId<Posts>) => post.extendedLikesInfo.newestLikes
+        const myStatus = (post: Posts) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
+        const newestLikes = (post: Posts) => post.extendedLikesInfo.newestLikes
             .slice(-3)
             .map(like => {
                 return {
@@ -177,85 +179,85 @@ export const dtoModify = {
         })
 
     },
+
+
+    //     createPostView(post: Posts, mongoId: ObjectId) {
+
+    //         return {
+    //             id: mongoId.toString(),
+    //             title: post.title,
+    //             shortDescription: post.shortDescription,
+    //             content: post.content,
+    //             blogId: post.blogId,
+    //             blogName: post.blogName,
+    //             createdAt: post.createdAt
+    //         }
+
+    //     },
+
+    //     createPostViewMngs(post: Posts, id: ObjectId) {
+
+    //         return {
+    //             id: id.toString(),
+    //             title: post.title,
+    //             shortDescription: post.shortDescription,
+    //             content: post.content,
+    //             blogId: post.blogId,
+    //             blogName: post.blogName,
+    //             createdAt: post.createdAt
+    //         }
+
+    //     },
+
+    // }
+    //     // ↓↓↓ POST COMMENTS
+
+    // //     changeCommentView(data: WithId<IComment>, myStatus: string): commentView {
+
+    // //         return {
+    // //             id: data._id.toString(),
+    // //             content: data.content,
+    // //             commentatorInfo: {
+    // //                 userId: data.commentatorInfo.userId,
+    // //                 userLogin: data.commentatorInfo.userLogin,
+    // //             },
+    // //             createdAt: data.createdAt,
+    // //             likesInfo: {
+    // //                 likesCount: data.likesInfo.likesCount,
+    // //                 dislikesCount: data.likesInfo.dislikesCount,
+    // //                 myStatus: myStatus,
+    // //             },
+    // //         }
+
+    // //     },
+
+
+
+    changeCommentsView(comments: Comments[], userId?: string): commentView[] {
+
+        // Looking for a myStatus of Like in each comment
+        const myStatusFunc = (comment: Comments) => comment.likesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
+
+        return comments.map(comment => {
+            return {
+                id: comment._id.toString(),
+                content: comment.content,
+                commentatorInfo: {
+                    userId: comment.commentatorInfo.userId,
+                    userLogin: comment.commentatorInfo.userLogin,
+                },
+                createdAt: comment.createdAt,
+                likesInfo: {
+                    likesCount: comment.likesInfo.likesCount,
+                    dislikesCount: comment.likesInfo.dislikesCount,
+                    myStatus: myStatusFunc(comment),
+                },
+            }
+        })
+
+
+    }
 }
-
-
-//     createPostView(post: Posts, mongoId: ObjectId) {
-
-//         return {
-//             id: mongoId.toString(),
-//             title: post.title,
-//             shortDescription: post.shortDescription,
-//             content: post.content,
-//             blogId: post.blogId,
-//             blogName: post.blogName,
-//             createdAt: post.createdAt
-//         }
-
-//     },
-
-//     createPostViewMngs(post: Posts, id: ObjectId) {
-
-//         return {
-//             id: id.toString(),
-//             title: post.title,
-//             shortDescription: post.shortDescription,
-//             content: post.content,
-//             blogId: post.blogId,
-//             blogName: post.blogName,
-//             createdAt: post.createdAt
-//         }
-
-//     },
-
-// }
-//     // ↓↓↓ POST COMMENTS
-
-// //     changeCommentView(data: WithId<IComment>, myStatus: string): commentView {
-
-// //         return {
-// //             id: data._id.toString(),
-// //             content: data.content,
-// //             commentatorInfo: {
-// //                 userId: data.commentatorInfo.userId,
-// //                 userLogin: data.commentatorInfo.userLogin,
-// //             },
-// //             createdAt: data.createdAt,
-// //             likesInfo: {
-// //                 likesCount: data.likesInfo.likesCount,
-// //                 dislikesCount: data.likesInfo.dislikesCount,
-// //                 myStatus: myStatus,
-// //             },
-// //         }
-
-// //     },
-
-
-
-// //     changeCommentsView(comments: WithId<IComment>[], userId?: string): commentView[] {
-
-// //         // Looking for a myStatus of Like in each comment
-// //         const myStatusFunc = (comment: WithId<IComment>) => comment.likesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
-
-// //         return comments.map(comment => {
-// //             return {
-// //                 id: comment._id.toString(),
-// //                 content: comment.content,
-// //                 commentatorInfo: {
-// //                     userId: comment.commentatorInfo.userId,
-// //                     userLogin: comment.commentatorInfo.userLogin,
-// //                 },
-// //                 createdAt: comment.createdAt,
-// //                 likesInfo: {
-// //                     likesCount: comment.likesInfo.likesCount,
-// //                     dislikesCount: comment.likesInfo.dislikesCount,
-// //                     myStatus: myStatusFunc(comment),
-// //                 },
-// //             }
-// //         })
-
-
-// //     },
 
 
 // //     createCommentView(data: IComment, mongoId: ObjectId, myStatus: string): commentView {

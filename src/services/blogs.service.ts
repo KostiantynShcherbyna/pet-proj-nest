@@ -56,15 +56,15 @@ export class BlogsService {
     }
 
 
-    async createPost(bodyPostModel: bodyBlogPostModel, blogId: string): Promise<Contract<null | postView>> {
+    async createPost(bodyBlogPostModel: bodyBlogPostModel, blogId: string): Promise<Contract<null | postView>> {
 
         const foundBlog = await this.BlogsRepository.findBlog(blogId)
         if (foundBlog === null) return new Contract(null, errorEnums.NOT_FOUND_BLOG)
 
         const bodyPostModelExt = {
-            title: bodyPostModel.title,
-            shortDescription: bodyPostModel.shortDescription,
-            content: bodyPostModel.content,
+            title: bodyBlogPostModel.title,
+            shortDescription: bodyBlogPostModel.shortDescription,
+            content: bodyBlogPostModel.content,
             blogId: blogId,
         }
 

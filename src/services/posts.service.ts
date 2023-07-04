@@ -25,6 +25,8 @@ export class PostsService {
         @Inject(PostsRepository) protected PostsRepository: PostsRepository,
     ) { }
 
+
+
     async createPost(bodyPostModel: bodyPostModel): Promise<Contract<null | postView>> {
 
         const foundBlog = await this.BlogsRepository.findBlog(bodyPostModel.blogId)
@@ -35,6 +37,26 @@ export class PostsService {
 
         const newPostView = dtoModify.changePostViewMngs(newPost, myStatusEnum.None)
         return new Contract(newPostView, null)
+    }
+
+
+    async updatePost(body: bodyPostModel, id: string): Promise<Contract<null | boolean>> {
+
+        const post = await this.PostsModel.findById(id)
+        if (post === null) return new Contract(null, errorEnums.NOT_FOUND_POST)
+
+        post.updatePost(body)
+        await this.PostsRepository.saveDocument(post)
+
+        return new Contract(true, null)
+    }
+
+    async deletePost(id: string): Promise<Contract<null | boolean>> {
+
+        const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(id) })
+        if (deletedPostResult.deletedCount === 0) return new Contract(null, errorEnums.NOT_FOUND_POST)
+
+        return new Contract(true, null)
     }
 
 

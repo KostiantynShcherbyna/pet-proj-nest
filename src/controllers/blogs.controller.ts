@@ -3,11 +3,9 @@ import { BlogsService } from '../services/blogs.service';
 import { BlogsQueryRepository } from '../repositories/query/blogsQuery.repository';
 import { bodyBlogModel } from '../models/body/bodyBlogModel';
 import { queryBlogModel } from '../models/query/queryBlogModel';
-import { idModel } from '../models/uri/idModel';
 import { PostsQueryRepository } from 'src/repositories/query/postsQuery.repository';
-import { PostsService } from 'src/services/posts.service';
-import { bodyPostModel } from 'src/models/body/bodyPostModel';
 import { queryPostModel } from 'src/models/query/queryPostModel';
+import { bodyBlogPostModel } from 'src/models/body/bodyBlogPostModel';
 
 @Controller("blogs")
 export class BlogsController {
@@ -15,7 +13,6 @@ export class BlogsController {
     @Inject(BlogsService) protected BlogsService: BlogsService,
     @Inject(BlogsQueryRepository) protected BlogsQueryRepository: BlogsQueryRepository,
     @Inject(PostsQueryRepository) protected PostsQueryRepository: PostsQueryRepository,
-    @Inject(PostsService) protected PostsService: PostsService,
   ) { }
 
   @Get()
@@ -70,7 +67,7 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() queryPostModel: queryPostModel
   ) {
-    const foundPostsView = await this.PostsQueryRepository.findPosts(blogId, queryPostModel)
+    const foundPostsView = await this.PostsQueryRepository.findPosts(queryPostModel, blogId)
     if (foundPostsView === null) throw new NotFoundException()
     return foundPostsView
   }
@@ -78,9 +75,9 @@ export class BlogsController {
   @Post(':blogId/posts')
   async createPost(
     @Param('blogId') blogId: string,
-    @Body() bodyPostModel: bodyPostModel,
+    @Body() bodyBlogPostModel: bodyBlogPostModel,
   ) {
-    const result = await this.BlogsService.createPost(bodyPostModel, blogId);
+    const result = await this.BlogsService.createPost(bodyBlogPostModel, blogId);
     if (result.error !== null) throw new NotFoundException()
     return
   }

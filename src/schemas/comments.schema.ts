@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
 import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH, myStatusEnum, } from 'src/utils/constants/constants';
 
 
-export type CommentsDocument = HydratedDocument<Comments>;
 export interface ICommentatorInfo {
     userId: string,
     userLogin: string
@@ -21,6 +20,9 @@ export interface ILike {
 
 @Schema()
 export class Comments {
+
+    _id: Types.ObjectId
+
     @Prop({
         type: String,
         required: true,
@@ -84,4 +86,7 @@ export class Comments {
     likesInfo: ILikesInfo
 }
 
-export const CommentsSchema = SchemaFactory.createForClass(Comments);
+export const CommentsSchema = SchemaFactory.createForClass(Comments)
+
+export type CommentsDocument = HydratedDocument<Comments>
+export type CommentsModel = Model<CommentsDocument>
