@@ -6,7 +6,7 @@ import { queryPostModel } from 'src/models/query/queryPostModel';
 import { queryCommentModel } from 'src/models/query/queryCommentModel';
 import { CommentsQueryRepository } from 'src/repositories/query/commentsQuery.repository';
 
-@Controller("blogs")
+@Controller('posts')
 export class PostsController {
   constructor(
     @Inject(PostsQueryRepository) protected PostsQueryRepository: PostsQueryRepository,
@@ -23,7 +23,7 @@ export class PostsController {
 
   @Get(':id')
   async findPost(
-    @Param("id") id: string,
+    @Param('id') id: string,
   ) {
     return await this.PostsQueryRepository.findPost(id)
   }

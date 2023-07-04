@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
+import { bodyUserModel } from 'src/models/body/bodyUserModel';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
+import { generateHash } from 'src/utils/hashFunctions/generateHash';
 
 
-export type UsersDocument = HydratedDocument<Users>;
 
 export interface IAccountData {
     login: string
@@ -21,6 +22,9 @@ export interface IEmailConfirmation {
 
 @Schema()
 export class Users {
+
+    _id: Types.ObjectId
+
     @Prop({
         login: {
             type: String,
@@ -66,6 +70,38 @@ export class Users {
     })
     emailConfirmation: IEmailConfirmation
 
-}
+    static async createUser(newUserData: bodyUserModel, UsersModel: UsersModel) {
 
-export const UsersSchema = SchemaFactory.createForClass(Users);
+        const passwordHash = await generateHash(newUserData.password)
+
+        const date = new Date()
+
+        const newUserDto = {
+            accountData: {
+                login: newUserData.login,
+                email: newUserData.email,
+                passwordHash: passwordHash,
+                createdAt: date.toISOString(),
+            },
+            emailConfirmation: {
+                confirmationCode: null,
+                expirationDate: null,
+                isConfirmed: true,
+                sentEmails: []
+            }
+        }
+
+        const newUser = new UsersModel(newUserDto)
+        return newUser
+    }
+
+}
+export const UsersSchema = SchemaFactory.createForClass(Users)
+
+interface UsersStatics {
+    createUser(bodyUserModel: bodyUserModel, UsersModel: UsersModel): Promise<Users>
+}
+UsersSchema.statics.createUser = Users.createUser
+
+export type UsersDocument = HydratedDocument<Users>;
+export type UsersModel = Model<UsersDocument> & UsersStatics

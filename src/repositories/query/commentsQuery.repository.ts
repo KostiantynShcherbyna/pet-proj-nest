@@ -11,7 +11,7 @@ import { postView, postsView } from "src/views/postView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import { myStatusEnum } from "src/utils/constants/constants"
 import { queryCommentModel } from "src/models/query/queryCommentModel"
-import { commentsView } from "src/views/commentView"
+import { commentView, commentsView } from "src/views/commentView"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -20,6 +20,23 @@ export class CommentsQueryRepository {
     constructor(
         @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     ) { }
+
+    async findComment(postCommentId: string, userId?: string): Promise<null | commentView> {
+
+        const foundComment = await this.CommentsModel.findOne({ _id: new Types.ObjectId(postCommentId) })
+        if (foundComment === null) return null
+
+        // Looking for a Like if userId is defined
+        let like: ILike | undefined
+        if (userId) {
+            like = foundComment.likesInfo.like.find(like => like.userId === userId)
+        }
+
+        // Mapping dto
+        const commentView = dtoModify.changeCommentView(foundComment, like?.status || myStatusEnum.None)
+        return commentView
+    }
+
 
     async findComments(postId: string, query: queryCommentModel, userId?: string): Promise<commentsView> {
 

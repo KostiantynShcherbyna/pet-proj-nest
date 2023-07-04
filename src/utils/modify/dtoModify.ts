@@ -5,6 +5,7 @@ import { Blogs } from "src/schemas/blogs.schema"
 import { Posts } from "src/schemas/posts.schema"
 import { Comments } from "src/schemas/comments.schema"
 import { commentView } from "src/views/commentView"
+import { Users } from "src/schemas/users.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 
@@ -212,24 +213,24 @@ export const dtoModify = {
     // }
     //     // ↓↓↓ POST COMMENTS
 
-    // //     changeCommentView(data: WithId<IComment>, myStatus: string): commentView {
+    changeCommentView(data: Comments, myStatus: string): commentView {
 
-    // //         return {
-    // //             id: data._id.toString(),
-    // //             content: data.content,
-    // //             commentatorInfo: {
-    // //                 userId: data.commentatorInfo.userId,
-    // //                 userLogin: data.commentatorInfo.userLogin,
-    // //             },
-    // //             createdAt: data.createdAt,
-    // //             likesInfo: {
-    // //                 likesCount: data.likesInfo.likesCount,
-    // //                 dislikesCount: data.likesInfo.dislikesCount,
-    // //                 myStatus: myStatus,
-    // //             },
-    // //         }
+        return {
+            id: data._id.toString(),
+            content: data.content,
+            commentatorInfo: {
+                userId: data.commentatorInfo.userId,
+                userLogin: data.commentatorInfo.userLogin,
+            },
+            createdAt: data.createdAt,
+            likesInfo: {
+                likesCount: data.likesInfo.likesCount,
+                dislikesCount: data.likesInfo.dislikesCount,
+                myStatus: myStatus,
+            },
+        }
 
-    // //     },
+    },
 
 
 
@@ -256,89 +257,91 @@ export const dtoModify = {
         })
 
 
+    },
+
+
+    // //     createCommentView(data: IComment, mongoId: ObjectId, myStatus: string): commentView {
+
+    // //         return {
+
+    // //             id: mongoId.toString(),
+    // //             content: data.content,
+    // //             commentatorInfo: {
+    // //                 userId: data.commentatorInfo.userId,
+    // //                 userLogin: data.commentatorInfo.userLogin,
+    // //             },
+    // //             createdAt: data.createdAt,
+    // //             likesInfo: {
+    // //                 likesCount: data.likesInfo.likesCount,
+    // //                 dislikesCount: data.likesInfo.dislikesCount,
+    // //                 myStatus: myStatus,
+    // //             },
+    // //         }
+
+
+    // //     },
+
+    // //     // createCommentViewMngs(data: IComment, id: string): commentView {
+
+    // //     //     return {
+
+    // //     //         id: id,
+    // //     //         content: data.content,
+    // //     //         commentatorInfo: {
+    // //     //             userId: data.commentatorInfo.userId,
+    // //     //             userLogin: data.commentatorInfo.userLogin,
+    // //     //         },
+    // //     //         createdAt: data.createdAt,
+    // //     //         likesInfo: {
+    // //     //             likesCount: data.likesInfo.likesCount,
+    // //     //             dislikesCount: data.likesInfo.dislikesCount,
+    // //     //             myStatus: data.likesInfo.myStatus,
+    // //     //         },
+    // //     //     }
+
+    // //     // },
+
+
+    // //     // ↓↓↓ USERS
+    changeUserView(data: Users) {
+
+        return {
+            userId: data._id.toString(),
+            login: data.accountData.login,
+            email: data.accountData.email,
+        }
+
+
+    },
+
+
+
+    changeUsersView(data: Users[]) {
+
+        return data.map(i => {
+            return {
+                id: i._id.toString(),
+                login: i.accountData.login,
+                email: i.accountData.email,
+                createdAt: i.accountData.createdAt,
+            }
+        })
+    },
+
+
+
+
+    createUserView(data: Users) {
+
+        return {
+            id: data._id.toString(),
+            login: data.accountData.login,
+            email: data.accountData.email,
+            createdAt: data.accountData.createdAt,
+        }
     }
 }
 
-
-// //     createCommentView(data: IComment, mongoId: ObjectId, myStatus: string): commentView {
-
-// //         return {
-
-// //             id: mongoId.toString(),
-// //             content: data.content,
-// //             commentatorInfo: {
-// //                 userId: data.commentatorInfo.userId,
-// //                 userLogin: data.commentatorInfo.userLogin,
-// //             },
-// //             createdAt: data.createdAt,
-// //             likesInfo: {
-// //                 likesCount: data.likesInfo.likesCount,
-// //                 dislikesCount: data.likesInfo.dislikesCount,
-// //                 myStatus: myStatus,
-// //             },
-// //         }
-
-
-// //     },
-
-// //     // createCommentViewMngs(data: IComment, id: string): commentView {
-
-// //     //     return {
-
-// //     //         id: id,
-// //     //         content: data.content,
-// //     //         commentatorInfo: {
-// //     //             userId: data.commentatorInfo.userId,
-// //     //             userLogin: data.commentatorInfo.userLogin,
-// //     //         },
-// //     //         createdAt: data.createdAt,
-// //     //         likesInfo: {
-// //     //             likesCount: data.likesInfo.likesCount,
-// //     //             dislikesCount: data.likesInfo.dislikesCount,
-// //     //             myStatus: data.likesInfo.myStatus,
-// //     //         },
-// //     //     }
-
-// //     // },
-
-
-// //     // ↓↓↓ USERS
-// //     changeUserView(data: WithId<IUser>) {
-
-// //         return {
-// //             userId: data._id.toString(),
-// //             login: data.accountData.login,
-// //             email: data.accountData.email,
-// //         }
-
-
-// //     },
-
-// //     changeUsersView(data: WithId<IUser>[]) {
-
-// //         return data.map(i => {
-// //             return {
-// //                 id: i._id.toString(),
-// //                 login: i.accountData.login,
-// //                 email: i.accountData.email,
-// //                 createdAt: i.accountData.createdAt,
-// //             }
-// //         })
-
-
-// //     },
-
-// //     createUserView(data: IUser, mongoId: ObjectId) {
-
-// //         return {
-// //             id: mongoId.toString(),
-// //             login: data.accountData.login,
-// //             email: data.accountData.email,
-// //             createdAt: data.accountData.createdAt,
-// //         }
-
-
-// //     },
 
 
 

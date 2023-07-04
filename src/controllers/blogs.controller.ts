@@ -7,7 +7,7 @@ import { PostsQueryRepository } from 'src/repositories/query/postsQuery.reposito
 import { queryPostModel } from 'src/models/query/queryPostModel';
 import { bodyBlogPostModel } from 'src/models/body/bodyBlogPostModel';
 
-@Controller("blogs")
+@Controller('blogs')
 export class BlogsController {
   constructor(
     @Inject(BlogsService) protected BlogsService: BlogsService,

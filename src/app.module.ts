@@ -15,6 +15,10 @@ import { Posts, PostsSchema } from './schemas/posts.schema';
 import { CommentsQueryRepository } from './repositories/query/commentsQuery.repository';
 import { Comments, CommentsSchema } from './schemas/comments.schema';
 import { PostsController } from './controllers/posts.controller';
+import { UsersController } from './controllers/users.controller';
+import { Users, UsersSchema } from './schemas/users.schema';
+import { UsersQueryRepository } from './repositories/query/usersQuery.repository';
+import { UsersService } from './services/users.service';
 // import { Posts, PostsSchema } from './schemas/posts.schema';
 
 // const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
@@ -27,12 +31,14 @@ import { PostsController } from './controllers/posts.controller';
         { name: Blogs.name, schema: BlogsSchema },
         { name: Posts.name, schema: PostsSchema },
         { name: Comments.name, schema: CommentsSchema },
+        { name: Users.name, schema: UsersSchema },
       ]
     ),
   ],
   controllers: [
     BlogsController,
     PostsController,
+    UsersController,
   ],
   providers: [
     BlogsService,
@@ -43,6 +49,10 @@ import { PostsController } from './controllers/posts.controller';
     PostsRepository,
     PostsQueryRepository,
 
-    CommentsQueryRepository,]
+    CommentsQueryRepository,
+
+    UsersService,
+    UsersQueryRepository,
+  ]
 })
 export class AppModule { }
