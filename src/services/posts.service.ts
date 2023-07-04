@@ -1,21 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Model, Types } from "mongoose"
+import { Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
-import { httpStatuses } from "src/httpStatuses"
-import { bodyBlogModel } from "src/models/body/bodyBlogModel"
 import { bodyPostModel } from "src/models/body/bodyPostModel"
-import { queryPostModel } from "src/models/query/queryPostModel"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
-import { BlogsQueryRepository } from "src/repositories/query/blogsQuery.repository"
-import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { myStatusEnum } from "src/utils/constants/constants"
 import { errorEnums } from "src/utils/errors/errorEnums"
 import { dtoModify } from "src/utils/modify/dtoModify"
-import { blogView } from "src/views/blogView"
-import { postView, postsView } from "src/views/postView"
+import { postView } from "src/views/postView"
 
 @Injectable()
 export class PostsService {
@@ -42,7 +36,7 @@ export class PostsService {
 
     async updatePost(body: bodyPostModel, id: string): Promise<Contract<null | boolean>> {
 
-        const post = await this.PostsModel.findById(id)
+        const post = await this.PostsRepository.findPost(id)
         if (post === null) return new Contract(null, errorEnums.NOT_FOUND_POST)
 
         post.updatePost(body)
@@ -60,6 +54,6 @@ export class PostsService {
     }
 
 
-    
+
 }
 

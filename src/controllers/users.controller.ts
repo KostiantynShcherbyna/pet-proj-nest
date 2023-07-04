@@ -1,7 +1,4 @@
 import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject } from '@nestjs/common';
-import { PostsQueryRepository } from 'src/repositories/query/postsQuery.repository';
-import { PostsService } from 'src/services/posts.service';
-import { CommentsQueryRepository } from 'src/repositories/query/commentsQuery.repository';
 import { queryUserModel } from 'src/models/query/queryUserModel';
 import { UsersQueryRepository } from 'src/repositories/query/usersQuery.repository';
 import { bodyUserModel } from 'src/models/body/bodyUserModel';
@@ -28,7 +25,7 @@ export class UsersController {
     return await this.UsersService.createUser(bodyUserModel);
   }
 
-  @Delete()
+  @Delete(':id')
   @HttpCode(204)
   async deletePost(
     @Param() id: string,

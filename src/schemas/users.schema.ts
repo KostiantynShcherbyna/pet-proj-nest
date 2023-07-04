@@ -25,49 +25,51 @@ export class Users {
 
     _id: Types.ObjectId
 
-    @Prop({
-        login: {
-            type: String,
-            required: true,
-            minlength: LOGIN_MIN_LENGTH,
-            maxlength: LOGIN_MAX_LENGTH,
-        },
-        email: {
-            type: String,
-            required: true,
-            match: EMAIL_REGISTRATION_REGEX,
-        },
-        passwordHash: {
-            type: String,
-            required: true,
-        },
-        createdAt: {
-            type: String,
-            required: true,
-        },
-    })
+    @Prop(
+        raw({
+            login: {
+                type: String,
+                required: true,
+                minlength: LOGIN_MIN_LENGTH,
+                maxlength: LOGIN_MAX_LENGTH,
+            },
+            email: {
+                type: String,
+                required: true,
+                match: EMAIL_REGISTRATION_REGEX,
+            },
+            passwordHash: {
+                type: String,
+                required: true,
+            },
+            createdAt: {
+                type: String,
+                required: true,
+            },
+        }))
     accountData: IAccountData
 
-    @Prop({
-        confirmationCode: {
-            type: String,
-        },
-        expirationDate: {
-            type: Date,
-        },
-        isConfirmed: {
-            type: Boolean,
-            required: true,
-        },
-        sentEmails: [
-            {
-                sentDate: {
-                    type: Date,
-                    require: true,
+    @Prop(
+        raw({
+            confirmationCode: {
+                type: String,
+            },
+            expirationDate: {
+                type: Date,
+            },
+            isConfirmed: {
+                type: Boolean,
+                required: true,
+            },
+            sentEmails: [
+                {
+                    sentDate: {
+                        type: Date,
+                        require: true,
+                    }
                 }
-            }
-        ],
-    })
+            ],
+        }))
     emailConfirmation: IEmailConfirmation
 
     static async createUser(newUserData: bodyUserModel, UsersModel: UsersModel) {

@@ -1,21 +1,17 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, ServiceUnavailableException } from '@nestjs/common';
-import { PostsQueryRepository } from 'src/repositories/query/postsQuery.repository';
-import { PostsService } from 'src/services/posts.service';
-import { bodyPostModel } from 'src/models/body/bodyPostModel';
-import { queryPostModel } from 'src/models/query/queryPostModel';
-import { queryCommentModel } from 'src/models/query/queryCommentModel';
-import { CommentsQueryRepository } from 'src/repositories/query/commentsQuery.repository';
+import { Controller, Delete, HttpCode, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Posts, PostsModel } from 'src/schemas/posts.schema';
 import { Blogs, BlogsModel } from 'src/schemas/blogs.schema';
 import { Comments, CommentsModel } from 'src/schemas/comments.schema';
+import { Users, UsersModel } from 'src/schemas/users.schema';
 
 @Controller('testing')
-export class CommentsController {
+export class TestingController {
   constructor(
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
     @InjectModel(Posts.name) protected PostsModel: PostsModel,
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
+    @InjectModel(Users.name) protected UsersModel: UsersModel,
   ) { }
 
   @Delete('all-data')
@@ -28,8 +24,10 @@ export class CommentsController {
           await this.BlogsModel.deleteMany({}),
           await this.PostsModel.deleteMany({}),
           await this.CommentsModel.deleteMany({}),
+          await this.UsersModel.deleteMany({}),
         ]
       )
+      return
     } catch (err) {
       throw new ServiceUnavailableException()
     }

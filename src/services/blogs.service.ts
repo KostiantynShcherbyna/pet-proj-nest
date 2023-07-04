@@ -36,7 +36,7 @@ export class BlogsService {
 
     async updateBlog(id: string, body: bodyBlogModel): Promise<Contract<null | boolean>> {
 
-        const blog = await this.BlogsModel.findById(id)
+        const blog = await this.BlogsRepository.findBlog(id)
         if (blog === null) return new Contract(null, errorEnums.NOT_FOUND_BLOG)
 
         blog.updateBlog(body)

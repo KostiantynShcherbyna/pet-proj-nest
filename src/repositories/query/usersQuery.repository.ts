@@ -19,7 +19,7 @@ export class UsersQueryRepository {
         const PAGE_NUMBER_DEFAULT = 1
         const SEARCH_LOGIN_TERM_DEFAULT = '' // is Null ????
         const SEARCH_EMAIL_TERM_DEFAULT = '' // is Null ????
-        const SORT_BY_DEFAULT = 'accountData.createdAt'
+        const SORT_BY_DEFAULT = 'createdAt'
         const SORT_DIRECTION_DEFAULT = -1
 
         const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT

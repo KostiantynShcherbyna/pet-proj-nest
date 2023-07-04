@@ -37,16 +37,17 @@ export class Comments {
     })
     content: string
 
-    @Prop({
-        userId: {
-            type: String,
-            required: true,
-        },
-        userLogin: {
-            type: String,
-            required: true,
-        }
-    })
+    @Prop(
+        raw({
+            userId: {
+                type: String,
+                required: true,
+            },
+            userLogin: {
+                type: String,
+                required: true,
+            }
+        }))
     commentatorInfo: ICommentatorInfo
 
     @Prop({
@@ -55,34 +56,35 @@ export class Comments {
     })
     createdAt: string
 
-    @Prop({
-        likesCount: {
-            type: Number,
-            required: true,
-            default: 0,
-            min: 0,
-        },
-        dislikesCount: {
-            type: Number,
-            required: true,
-            default: 0,
-            min: 0,
-        },
-        like: [
-            {
-                userId: {
-                    type: String,
-                    required: true,
-                },
-                status: {
-                    type: String,
-                    required: true,
-                    enum: myStatusEnum,
-                    default: myStatusEnum.None,
+    @Prop(
+        raw({
+            likesCount: {
+                type: Number,
+                required: true,
+                default: 0,
+                min: 0,
+            },
+            dislikesCount: {
+                type: Number,
+                required: true,
+                default: 0,
+                min: 0,
+            },
+            like: [
+                {
+                    userId: {
+                        type: String,
+                        required: true,
+                    },
+                    status: {
+                        type: String,
+                        required: true,
+                        enum: myStatusEnum,
+                        default: myStatusEnum.None,
+                    }
                 }
-            }
-        ],
-    })
+            ],
+        }))
     likesInfo: ILikesInfo
 }
 

@@ -12,7 +12,7 @@ export class PostsRepository {
 
     async findPost(postId: string) {
 
-        const foundPost = await this.PostsModel.findOne({ _id: new Types.ObjectId(postId) })
+        const foundPost = await this.PostsModel.findById(new Types.ObjectId(postId))
         if (foundPost === null) return null
 
         return foundPost

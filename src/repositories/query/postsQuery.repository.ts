@@ -38,19 +38,28 @@ export class PostsQueryRepository {
 
         const skippedPostsCount = (pageNumber - 1) * pageSize
 
-        const totalCount = blogId ? await this.PostsModel.countDocuments({ blogId: blogId }) : await this.PostsModel.countDocuments({})
+        const totalCount = blogId ?
+            await this.PostsModel.countDocuments({ blogId: blogId })
+            : await this.PostsModel.countDocuments({})
 
         const pagesCount = Math.ceil(totalCount / pageSize)
 
-        const foundedPosts = await this.PostsModel
-            .find({ blogId: blogId })
-            .sort({ [sortBy]: sortDirection })
-            .limit(pageSize)
-            .skip(skippedPostsCount)
-            .lean()
+        const foundPosts = blogId ?
+            await this.PostsModel
+                .find({ blogId: blogId })
+                .sort({ [sortBy]: sortDirection })
+                .limit(pageSize)
+                .skip(skippedPostsCount)
+                .lean()
+            : await this.PostsModel
+                .find({})
+                .sort({ [sortBy]: sortDirection })
+                .limit(pageSize)
+                .skip(skippedPostsCount)
+                .lean()
 
 
-        const mappedPosts = dtoModify.changePostsViewMngs(foundedPosts, userId)
+        const mappedPosts = dtoModify.changePostsViewMngs(foundPosts, userId)
 
         const postsView = {
             pagesCount: pagesCount,

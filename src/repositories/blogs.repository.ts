@@ -11,7 +11,7 @@ export class BlogsRepository {
 
     async findBlog(id: string) {
 
-        const foundBlog = await this.BlogsModel.findOne({ _id: new Types.ObjectId(id) })
+        const foundBlog = await this.BlogsModel.findById(new Types.ObjectId(id))
         if (foundBlog === null) return null
 
         return foundBlog

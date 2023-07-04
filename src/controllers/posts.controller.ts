@@ -23,9 +23,11 @@ export class PostsController {
 
   @Get(':id')
   async findPost(
-    @Param('id') id: string,
+    @Param() id: string,
   ) {
-    return await this.PostsQueryRepository.findPost(id)
+    const post = await this.PostsQueryRepository.findPost(id)
+    if (post === null) throw new NotFoundException()
+    return post
   }
 
   @Post()
@@ -34,12 +36,13 @@ export class PostsController {
   ) {
     const result = await this.PostsService.createPost(bodyPostModel);
     if (result.error !== null) throw new NotFoundException()
-    return
+    return result.data
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updatePost(
-    @Param('id') id: string,
+    @Param() id: string,
     @Body() bodyPostModel: bodyPostModel,
   ) {
     const result = await this.PostsService.updatePost(bodyPostModel, id);
@@ -47,7 +50,7 @@ export class PostsController {
     return
   }
 
-  @Delete()
+  @Delete(':id')
   @HttpCode(204)
   async deletePost(
     @Param() id: string,
@@ -62,7 +65,9 @@ export class PostsController {
     @Param("postId") postId: string,
     @Query() queryCommentModel: queryCommentModel
   ) {
-    return await this.CommentsQueryRepository.findComments(postId, queryCommentModel)
+    const comments = await this.CommentsQueryRepository.findComments(postId, queryCommentModel)
+    if (!comments.items.length) throw new NotFoundException()
+    return comments
   }
 
 

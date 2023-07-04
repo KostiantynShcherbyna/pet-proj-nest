@@ -1,5 +1,4 @@
 import { Response } from "express"
-import { httpStatuses } from "../../httpStatuses"
 
 export const errorMessages = {
 

@@ -19,6 +19,9 @@ import { UsersController } from './controllers/users.controller';
 import { Users, UsersSchema } from './schemas/users.schema';
 import { UsersQueryRepository } from './repositories/query/usersQuery.repository';
 import { UsersService } from './services/users.service';
+import { UsersRepository } from './repositories/users.repository';
+import { CommentsController } from './controllers/comments.controller';
+import { TestingController } from './controllers/testing.controller';
 // import { Posts, PostsSchema } from './schemas/posts.schema';
 
 // const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
@@ -39,6 +42,8 @@ import { UsersService } from './services/users.service';
     BlogsController,
     PostsController,
     UsersController,
+    CommentsController,
+    TestingController,
   ],
   providers: [
     BlogsService,
@@ -52,6 +57,7 @@ import { UsersService } from './services/users.service';
     CommentsQueryRepository,
 
     UsersService,
+    UsersRepository,
     UsersQueryRepository,
   ]
 })
