@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
+import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
+import { bodyRegistrationModel } from 'src/models/body/bodyRegistrationModel';
 import { bodyUserModel } from 'src/models/body/bodyUserModel';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
 import { generateHash } from 'src/utils/hashFunctions/generateHash';
@@ -17,7 +20,10 @@ export interface IEmailConfirmation {
     confirmationCode: string | null
     expirationDate: Date | null
     isConfirmed: boolean | null
-    sentEmails: Date[]
+    sentEmails: ISentEmail[]
+}
+export interface ISentEmail {
+    sentDate: Date
 }
 
 @Schema()
@@ -26,7 +32,7 @@ export class Users {
     _id: Types.ObjectId
 
     @Prop(
-        raw({
+        {
             login: {
                 type: String,
                 required: true,
@@ -46,7 +52,8 @@ export class Users {
                 type: String,
                 required: true,
             },
-        }))
+        }
+    )
     accountData: IAccountData
 
     @Prop(
@@ -97,13 +104,49 @@ export class Users {
         return newUser
     }
 
+    static async registrationUser(registrationBody: bodyRegistrationModel) {
+
+        const passwordHash = await generateHash(registrationBody.password)
+
+        const date = new Date()
+
+        const newUserDto = {
+            _id: new Types.ObjectId(),
+            accountData: {
+                email: registrationBody.email,
+                login: registrationBody.login,
+                passwordHash: passwordHash,
+                createdAt: date.toISOString(),
+            },
+            emailConfirmation: {
+                confirmationCode: randomUUID(),
+                expirationDate: add(new Date(), {
+                    hours: 1,
+                    minutes: 3,
+                }),
+                isConfirmed: false,
+                sentEmails: []
+            }
+        }
+
+        console.log("confirmationCode - " + newUserDto.emailConfirmation.confirmationCode)
+
+        return newUserDto
+    }
+
+    addSentDate() {
+        this.emailConfirmation.sentEmails.push({ sentDate: new Date() })
+    }
+
 }
 export const UsersSchema = SchemaFactory.createForClass(Users)
 
 interface UsersStatics {
     createUser(bodyUserModel: bodyUserModel, UsersModel: UsersModel): Promise<Users>
+    registrationUser(registrationBody: bodyRegistrationModel): Promise<Users>
 }
 UsersSchema.statics.createUser = Users.createUser
+UsersSchema.methods.addSentDate = Users.prototype.addSentDate
 
 export type UsersDocument = HydratedDocument<Users>;
 export type UsersModel = Model<UsersDocument> & UsersStatics

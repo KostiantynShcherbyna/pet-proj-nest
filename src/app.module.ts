@@ -1,7 +1,5 @@
 import dotenv from 'dotenv'
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blogs, BlogsSchema } from './schemas/blogs.schema';
 import { BlogsService } from './services/blogs.service';
@@ -22,7 +20,11 @@ import { UsersService } from './services/users.service';
 import { UsersRepository } from './repositories/users.repository';
 import { CommentsController } from './controllers/comments.controller';
 import { TestingController } from './controllers/testing.controller';
-// import { Posts, PostsSchema } from './schemas/posts.schema';
+import { settings } from './settings';
+import { Devices, DevicesSchema } from './schemas/devices.schema';
+import { AuthController } from './controllers/auth.controller';
+import { DevicesService } from './services/devices.service';
+import { DevicesRepository } from './repositories/devices.repository';
 
 // const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
 
@@ -35,6 +37,7 @@ import { TestingController } from './controllers/testing.controller';
         { name: Posts.name, schema: PostsSchema },
         { name: Comments.name, schema: CommentsSchema },
         { name: Users.name, schema: UsersSchema },
+        { name: Devices.name, schema: DevicesSchema },
       ]
     ),
   ],
@@ -44,21 +47,23 @@ import { TestingController } from './controllers/testing.controller';
     UsersController,
     CommentsController,
     TestingController,
+    AuthController,
   ],
   providers: [
     BlogsService,
+    PostsService,
+    UsersService,
+    DevicesService,
+
     BlogsRepository,
     BlogsQueryRepository,
-
-    PostsService,
     PostsRepository,
     PostsQueryRepository,
-
-    CommentsQueryRepository,
-
-    UsersService,
     UsersRepository,
     UsersQueryRepository,
+    CommentsQueryRepository,
+    DevicesRepository,
+
   ]
 })
 export class AppModule { }

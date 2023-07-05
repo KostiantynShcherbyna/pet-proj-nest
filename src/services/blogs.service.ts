@@ -19,7 +19,7 @@ export class BlogsService {
     constructor(
         @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
         @InjectModel(Posts.name) protected PostsModel: PostsModel,
-        @Inject(BlogsRepository) protected readonly BlogsRepository: BlogsRepository,
+        @Inject(BlogsRepository) protected BlogsRepository: BlogsRepository,
         @Inject(PostsRepository) protected PostsRepository: PostsRepository,
     ) { }
 
