@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Users, UsersModel } from "src/schemas/users.schema"
+import { HydratedDocument } from "mongoose"
+import { Users, UsersDocument, UsersModel } from "src/schemas/users.schema"
 
 @Injectable()
 export class UsersRepository {
@@ -34,7 +35,7 @@ export class UsersRepository {
     }
 
 
-    async saveDocument(document: any) {
+    async saveDocument(document: UsersDocument) {
         await document.save()
     }
 

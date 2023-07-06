@@ -23,8 +23,11 @@ import { TestingController } from './controllers/testing.controller';
 import { settings } from './settings';
 import { Devices, DevicesSchema } from './schemas/devices.schema';
 import { AuthController } from './controllers/auth.controller';
-import { DevicesService } from './services/devices.service';
+import { AuthService } from './services/auth.service';
 import { DevicesRepository } from './repositories/devices.repository';
+import { RecoveryCodes, RecoveryCodesSchema } from './schemas/recoveryCode.schema';
+import { CommentsRepository } from './repositories/comments.repository';
+import { CommentsService } from './services/comments.service';
 
 // const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
 
@@ -38,6 +41,7 @@ import { DevicesRepository } from './repositories/devices.repository';
         { name: Comments.name, schema: CommentsSchema },
         { name: Users.name, schema: UsersSchema },
         { name: Devices.name, schema: DevicesSchema },
+        { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
       ]
     ),
   ],
@@ -53,7 +57,8 @@ import { DevicesRepository } from './repositories/devices.repository';
     BlogsService,
     PostsService,
     UsersService,
-    DevicesService,
+    AuthService,
+    CommentsService,
 
     BlogsRepository,
     BlogsQueryRepository,
@@ -61,6 +66,7 @@ import { DevicesRepository } from './repositories/devices.repository';
     PostsQueryRepository,
     UsersRepository,
     UsersQueryRepository,
+    CommentsRepository,
     CommentsQueryRepository,
     DevicesRepository,
 

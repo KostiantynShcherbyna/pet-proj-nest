@@ -79,13 +79,14 @@ export class Users {
         }))
     emailConfirmation: IEmailConfirmation
 
-    static async createUser(newUserData: bodyUserModel, UsersModel: UsersModel) {
+    static async createUser(newUserData: bodyUserModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHash(newUserData.password)
 
         const date = new Date()
 
         const newUserDto = {
+            _id: new Types.ObjectId(),
             accountData: {
                 login: newUserData.login,
                 email: newUserData.email,
@@ -104,7 +105,7 @@ export class Users {
         return newUser
     }
 
-    static async registrationUser(registrationBody: bodyRegistrationModel) {
+    static async registrationUser(registrationBody: bodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHash(registrationBody.password)
 
@@ -131,7 +132,28 @@ export class Users {
 
         console.log("confirmationCode - " + newUserDto.emailConfirmation.confirmationCode)
 
-        return newUserDto
+        const newUser = new UsersModel(newUserDto)
+        return newUser
+    }
+
+    checkConfirmation() {
+        return this.emailConfirmation.isConfirmed === false ? false : true
+    }
+    checkExpiration() {
+        return this.emailConfirmation.expirationDate && this.emailConfirmation.expirationDate < new Date() ? false : true
+    }
+
+    updateUserConfirmation() {
+        this.emailConfirmation.isConfirmed = true
+    }
+
+    updateUserConfirmationCode() {
+        this.emailConfirmation.confirmationCode = randomUUID()
+    }
+
+    async updatePasswordHash(newPassword: string) {
+        const newPasswordHash = await generateHash(newPassword)
+        this.accountData.passwordHash = newPasswordHash
     }
 
     addSentDate() {
@@ -142,11 +164,16 @@ export class Users {
 export const UsersSchema = SchemaFactory.createForClass(Users)
 
 interface UsersStatics {
-    createUser(bodyUserModel: bodyUserModel, UsersModel: UsersModel): Promise<Users>
-    registrationUser(registrationBody: bodyRegistrationModel): Promise<Users>
+    createUser(bodyUserModel: bodyUserModel, UsersModel: UsersModel): Promise<UsersDocument>
+    registrationUser(registrationBody: bodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
 }
 UsersSchema.statics.createUser = Users.createUser
 UsersSchema.methods.addSentDate = Users.prototype.addSentDate
+UsersSchema.methods.checkConfirmation = Users.prototype.checkConfirmation
+UsersSchema.methods.checkExpiration = Users.prototype.checkExpiration
+UsersSchema.methods.updateUserConfirmation = Users.prototype.updateUserConfirmation
+UsersSchema.methods.updateUserConfirmationCode = Users.prototype.updateUserConfirmationCode
+UsersSchema.methods.updatePasswordHash = Users.prototype.updatePasswordHash
 
 export type UsersDocument = HydratedDocument<Users>;
 export type UsersModel = Model<UsersDocument> & UsersStatics

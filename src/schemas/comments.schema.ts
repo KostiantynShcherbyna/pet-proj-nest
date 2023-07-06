@@ -86,9 +86,73 @@ export class Comments {
             ],
         }))
     likesInfo: ILikesInfo
-}
 
+    checkCommentator(userId: string) {
+        return this.commentatorInfo.userId === userId
+    }
+
+    updateComment(content: string) {
+        this.content = content
+    }
+
+    createOrUpdateLike(userId: string, newLikeStatus: string) {
+
+        const like = this.likesInfo.like.find(like => like.userId === userId)
+        if (!like) {
+            const newLike = {
+                userId: userId,
+                status: newLikeStatus
+            }
+
+            newLikeStatus === myStatusEnum.Like ? this.likesInfo.likesCount++ : this.likesInfo.dislikesCount++
+
+            this.likesInfo.like.push(newLike)
+
+            return
+        }
+
+        if (like.status === newLikeStatus) return
+
+        // Looking for matches in Old status and New status
+        if (like.status === myStatusEnum.None && newLikeStatus === myStatusEnum.Like) {
+            this.likesInfo.likesCount++
+            like.status = newLikeStatus
+            return
+        }
+        if (like.status === myStatusEnum.None && newLikeStatus === myStatusEnum.Dislike) {
+            this.likesInfo.dislikesCount++
+            like.status = newLikeStatus
+            return
+        }
+        if (like.status === myStatusEnum.Like && newLikeStatus === myStatusEnum.None) {
+            this.likesInfo.likesCount--
+            like.status = newLikeStatus
+            return
+        }
+        if (like.status === myStatusEnum.Like && newLikeStatus === myStatusEnum.Dislike) {
+            this.likesInfo.likesCount--
+            this.likesInfo.dislikesCount++
+            like.status = newLikeStatus
+            return
+        }
+        if (like.status === myStatusEnum.Dislike && newLikeStatus === myStatusEnum.None) {
+            this.likesInfo.dislikesCount--
+            like.status = newLikeStatus
+            return
+        }
+        if (like.status === myStatusEnum.Dislike && newLikeStatus === myStatusEnum.Like) {
+            this.likesInfo.dislikesCount--
+            this.likesInfo.likesCount++
+            like.status = newLikeStatus
+            return
+        }
+    }
+
+}
 export const CommentsSchema = SchemaFactory.createForClass(Comments)
+
+CommentsSchema.methods.checkCommentator = Comments.prototype.checkCommentator
+CommentsSchema.methods.updateComment = Comments.prototype.updateComment
 
 export type CommentsDocument = HydratedDocument<Comments>
 export type CommentsModel = Model<CommentsDocument>

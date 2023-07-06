@@ -7,7 +7,7 @@ import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { myStatusEnum } from "src/utils/constants/constants"
-import { errorEnums } from "src/utils/errors/errorEnums"
+import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { dtoModify } from "src/utils/modify/dtoModify"
 import { postView } from "src/views/postView"
 
@@ -15,19 +15,19 @@ import { postView } from "src/views/postView"
 export class PostsService {
     constructor(
         @InjectModel(Posts.name) protected PostsModel: PostsModel,
-        @Inject(BlogsRepository) protected BlogsRepository: BlogsRepository,
-        @Inject(PostsRepository) protected PostsRepository: PostsRepository,
+        @Inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+        @Inject(PostsRepository) protected postsRepository: PostsRepository,
     ) { }
 
 
 
     async createPost(bodyPostModel: bodyPostModel): Promise<Contract<null | postView>> {
 
-        const foundBlog = await this.BlogsRepository.findBlog(bodyPostModel.blogId)
-        if (foundBlog === null) return new Contract(null, errorEnums.NOT_FOUND_BLOG)
+        const foundBlog = await this.blogsRepository.findBlog(bodyPostModel.blogId)
+        if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
 
         const newPost = this.PostsModel.createPost(bodyPostModel, foundBlog.name, this.PostsModel)
-        await this.PostsRepository.saveDocument(newPost)
+        await this.postsRepository.saveDocument(newPost)
 
         const newPostView = dtoModify.changePostViewMngs(newPost, myStatusEnum.None)
         return new Contract(newPostView, null)
@@ -36,11 +36,11 @@ export class PostsService {
 
     async updatePost(body: bodyPostModel, id: string): Promise<Contract<null | boolean>> {
 
-        const post = await this.PostsRepository.findPost(id)
-        if (post === null) return new Contract(null, errorEnums.NOT_FOUND_POST)
+        const post = await this.postsRepository.findPost(id)
+        if (post === null) return new Contract(null, ErrorEnums.NOT_FOUND_POST)
 
         post.updatePost(body)
-        await this.PostsRepository.saveDocument(post)
+        await this.postsRepository.saveDocument(post)
 
         return new Contract(true, null)
     }
@@ -48,7 +48,7 @@ export class PostsService {
     async deletePost(id: string): Promise<Contract<null | boolean>> {
 
         const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(id) })
-        if (deletedPostResult.deletedCount === 0) return new Contract(null, errorEnums.NOT_FOUND_POST)
+        if (deletedPostResult.deletedCount === 0) return new Contract(null, ErrorEnums.NOT_FOUND_POST)
 
         return new Contract(true, null)
     }

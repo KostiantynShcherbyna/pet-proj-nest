@@ -1,3 +1,4 @@
+import { RecoveryCodesDocument } from "src/schemas/recoveryCode.schema"
 import { emailAdapter } from "../../adapters/emailAdapter"
 
 export const emailManager = {
@@ -29,7 +30,7 @@ export const emailManager = {
     },
 
 
-    async sendPasswordRecovery(email: string, passwordRecoveryToken: string) {
+    async sendPasswordRecovery(email: string, passwordRecoveryToken: RecoveryCodesDocument | string) {
 
         const domain = `https://somesite.com`
         // const your_confirmation_code = `your_confirmation_code`

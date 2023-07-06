@@ -9,7 +9,7 @@ import { PostsRepository } from "src/repositories/posts.repository"
 import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { myStatusEnum } from "src/utils/constants/constants"
-import { errorEnums } from "src/utils/errors/errorEnums"
+import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { dtoModify } from "src/utils/modify/dtoModify"
 import { blogView } from "src/views/blogView"
 import { postView } from "src/views/postView"
@@ -19,15 +19,15 @@ export class BlogsService {
     constructor(
         @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
         @InjectModel(Posts.name) protected PostsModel: PostsModel,
-        @Inject(BlogsRepository) protected BlogsRepository: BlogsRepository,
-        @Inject(PostsRepository) protected PostsRepository: PostsRepository,
+        @Inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+        @Inject(PostsRepository) protected postsRepository: PostsRepository,
     ) { }
 
 
     async createBlog(bodyBlogModel: bodyBlogModel): Promise<blogView> {
 
         const newBlog = this.BlogsModel.createBlog(bodyBlogModel, this.BlogsModel)
-        await this.BlogsRepository.saveDocument(newBlog)
+        await this.blogsRepository.saveDocument(newBlog)
 
         const newBlogView = dtoModify.createBlogViewMngs(newBlog)
 
@@ -36,11 +36,11 @@ export class BlogsService {
 
     async updateBlog(id: string, body: bodyBlogModel): Promise<Contract<null | boolean>> {
 
-        const blog = await this.BlogsRepository.findBlog(id)
-        if (blog === null) return new Contract(null, errorEnums.NOT_FOUND_BLOG)
+        const blog = await this.blogsRepository.findBlog(id)
+        if (blog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
 
         blog.updateBlog(body)
-        await this.BlogsRepository.saveDocument(blog)
+        await this.blogsRepository.saveDocument(blog)
 
         return new Contract(true, null)
     }
@@ -49,17 +49,17 @@ export class BlogsService {
     async deleteBlog(id: string): Promise<Contract<null | boolean>> {
 
         const deletedBlog = await this.BlogsModel.deleteOne({ _id: new Types.ObjectId(id) })
-        // const deletedPostsOfDeletedBlog = postsDB.deleteMany({ blogId: id })
+        await this.PostsModel.deleteMany({ blogId: id })
 
-        if (deletedBlog.deletedCount === 0) return new Contract(null, errorEnums.NOT_DELETE_BLOG)
+        if (deletedBlog.deletedCount === 0) return new Contract(null, ErrorEnums.NOT_DELETE_BLOG)
         return new Contract(true, null)
     }
 
 
     async createPost(bodyBlogPostModel: bodyBlogPostModel, blogId: string): Promise<Contract<null | postView>> {
 
-        const foundBlog = await this.BlogsRepository.findBlog(blogId)
-        if (foundBlog === null) return new Contract(null, errorEnums.NOT_FOUND_BLOG)
+        const foundBlog = await this.blogsRepository.findBlog(blogId)
+        if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
 
         const bodyPostModelExt = {
             title: bodyBlogPostModel.title,
@@ -69,7 +69,7 @@ export class BlogsService {
         }
 
         const newPost = this.PostsModel.createPost(bodyPostModelExt, foundBlog.name, this.PostsModel)
-        await this.PostsRepository.saveDocument(newPost)
+        await this.postsRepository.saveDocument(newPost)
 
         const newPostView = dtoModify.changePostViewMngs(newPost, myStatusEnum.None)
         return new Contract(newPostView, null)

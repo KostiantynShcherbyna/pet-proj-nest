@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { addMinutes } from 'date-fns';
-import { HydratedDocument, Model } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
 import { Contract } from 'src/contracts/Contract';
 import { returnTokensDto } from 'src/models/dto/returnTokensDto';
 import { settings } from 'src/settings';
 import { EXPIRES_TIME_ACCESS, EXPIRES_TIME_REFRESH, EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH } from 'src/utils/constants/constants';
-import { errorEnums } from 'src/utils/errors/errorEnums';
+import { ErrorEnums } from 'src/utils/errors/errorEnums';
 import { errorMessages } from 'src/utils/errors/errorMessages';
 import { compareHash } from 'src/utils/hashFunctions/compareHash';
 import { tokensView } from 'src/views/tokensView';
@@ -15,6 +15,9 @@ import { tokensView } from 'src/views/tokensView';
 
 @Schema()
 export class Devices {
+
+    _id: Types.ObjectId
+
     @Prop({
         type: String,
         required: true,
@@ -51,14 +54,7 @@ export class Devices {
     })
     expireAt: string
 
-    static async createDevice({ deviceIp, userAgent, loginBody, usersRepositoryMngs }) {
-
-        const user = await usersRepositoryMngs.findUserLoginOrEmail({ login: loginBody.loginOrEmail, email: loginBody.loginOrEmail })
-        if (user === null) return new Contract(null, errorEnums.NOT_FOUND_USER)
-        if (user.emailConfirmation.isConfirmed === false) return new Contract(null, errorEnums.USER_EMAIL_NOT_CONFIRMED)
-
-        const isPassword = await compareHash(user.accountData.passwordHash, loginBody.password)
-        if (isPassword === false) return new Contract(null, errorEnums.PASSWORD_NOT_COMPARED)
+    static async createDevice({ deviceIp, userAgent, userId }) {
 
         const newIssueAt = new Date(Date.now())
 
@@ -66,16 +62,17 @@ export class Devices {
             ip: deviceIp,
             title: userAgent,
             deviceId: randomUUID(),
-            userId: user._id.toString(),
+            userId: userId,
 
             lastActiveDate: newIssueAt.toISOString(),
             expireAt: addMinutes(newIssueAt, EXPIRE_AT_ACCESS)
         }
         const refreshPayload = {
+            _id: new Types.ObjectId(),
             ip: deviceIp,
             title: userAgent,
             deviceId: accessPayload.deviceId,
-            userId: user._id.toString(),
+            userId: userId,
 
             lastActiveDate: newIssueAt.toISOString(),
             expireAt: addMinutes(newIssueAt, EXPIRE_AT_REFRESH)
@@ -140,7 +137,7 @@ export class Devices {
 
 }
 interface DevicesStatics {
-    createDevice({ deviceIp, userAgent, loginBody, usersRepositoryMngs }): Promise<returnTokensDto>
+    createDevice({ deviceIp, userAgent, userId }): Promise<returnTokensDto>
 }
 
 export const DevicesSchema = SchemaFactory.createForClass(Devices)
