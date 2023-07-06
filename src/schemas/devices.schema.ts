@@ -91,6 +91,23 @@ export class Devices {
 
     }
 
+
+    static async deleteDevice(deviceId: string, DevicesModel: DevicesModel): Promise<number> {
+
+        const deletedResult = await DevicesModel.deleteOne({ deviceId: deviceId })
+        return deletedResult.deletedCount
+    }
+
+    static async deleteOtherDevices(userId: string, deviceId: string, DevicesModel: DevicesModel): Promise<number> {
+
+        const deletedResult = await DevicesModel.deleteMany(
+            { $and: [{ userId: userId }, { deviceId: { $ne: deviceId } }] }
+        )
+        return deletedResult.deletedCount
+    }
+
+
+
     // static async deleteDevice(deviceId: string): Promise<number> {
 
     //     const deletedResult = await this.deleteOne({ deviceId: deviceId })
@@ -134,16 +151,24 @@ export class Devices {
 
     }
 
+    checkOwner(userId: string) {
+        return this.userId === userId
+    }
 
 }
 interface DevicesStatics {
     createDevice({ deviceIp, userAgent, userId }): Promise<returnTokensDto>
+    deleteDevice(deviceId: string, DevicesModel: DevicesModel): Promise<number>
+    deleteOtherDevices(userId: string, deviceId: string, DevicesModel: DevicesModel): Promise<number>
 }
 
 export const DevicesSchema = SchemaFactory.createForClass(Devices)
 
 DevicesSchema.statics.createDevice = Devices.createDevice
+DevicesSchema.statics.deleteDevice = Devices.deleteDevice
+
 DevicesSchema.methods.refreshDevice = Devices.prototype.refreshDevice
+DevicesSchema.methods.checkOwner = Devices.prototype.checkOwner
 
 export type DevicesDocument = HydratedDocument<Devices>
 export type DevicesModel = Model<DevicesDocument> & DevicesStatics

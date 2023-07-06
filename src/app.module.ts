@@ -28,6 +28,7 @@ import { DevicesRepository } from './repositories/devices.repository';
 import { RecoveryCodes, RecoveryCodesSchema } from './schemas/recoveryCode.schema';
 import { CommentsRepository } from './repositories/comments.repository';
 import { CommentsService } from './services/comments.service';
+import { DevicesService } from './services/devices.service';
 
 // const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
 
@@ -59,6 +60,7 @@ import { CommentsService } from './services/comments.service';
     UsersService,
     AuthService,
     CommentsService,
+    DevicesService,
 
     BlogsRepository,
     BlogsQueryRepository,
