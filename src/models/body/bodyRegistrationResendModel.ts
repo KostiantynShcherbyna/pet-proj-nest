@@ -1,3 +1,3 @@
-export type bodyRegistrationResendModel = {
+export type bodyRegistrationConfirmationResendModel = {
     email: string
 }

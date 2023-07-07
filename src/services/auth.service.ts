@@ -27,7 +27,7 @@ export class AuthService {
         @Inject(AuthRepository) protected authRepository: AuthRepository,
     ) { }
 
-    async toLogin(loginBody: bodyAuthModel, deviceIp: string, userAgent: string) {
+    async toLogin(loginBody: bodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
 
         const user = await this.usersRepository.findUserLoginOrEmail({ login: loginBody.loginOrEmail, email: loginBody.loginOrEmail })
         if (user === null) return new Contract(null, ErrorEnums.NOT_FOUND_USER)
@@ -36,13 +36,15 @@ export class AuthService {
         const isPassword = await compareHash(user.accountData.passwordHash, loginBody.password)
         if (isPassword === false) return new Contract(null, ErrorEnums.PASSWORD_NOT_COMPARED)
 
-        const tokens = await this.DevicesModel.createDevice({ deviceIp, userAgent, userId: user._id.toString() })
-        await this.devicesRepository.saveDocument(tokens.refreshToken)
+        const newTokens = await this.DevicesModel.createDevice({ deviceIp, userAgent, userId: user._id.toString() })
+        await this.devicesRepository.saveDocument(newTokens.refreshToken)
 
-        return {
-            accessJwt: { accessToken: tokens.accessToken },
-            refreshToken: tokens.refreshToken
+        const tokensDto = {
+            accessJwt: { accessToken: newTokens.accessToken },
+            refreshToken: newTokens.refreshToken
         }
+
+        return new Contract(tokensDto, null)
     }
 
 
@@ -120,7 +122,7 @@ export class AuthService {
     }
 
 
-    async confirmationResend(email: string) {
+    async confirmationResend(email: string): Promise<Contract<null | boolean>> {
 
         const emailDto = { "accountData.email": email }
         const user = await this.usersRepository.findUser(emailDto)
@@ -146,7 +148,7 @@ export class AuthService {
             return new Contract(null, ErrorEnums.NOT_SEND_EMAIL)
         }
 
-        return true
+        return new Contract(true, null)
     }
 
 
@@ -155,8 +157,8 @@ export class AuthService {
         const oldRecoveryCode = await this.authRepository.findRecoveryCode(email)
 
         const newRecoveryCode = oldRecoveryCode === null ?
-            this.RecoveryCodesModel.createRecoveryCode(email, this.RecoveryCodesModel) :
-            oldRecoveryCode.updateRecoveryCode()
+            this.RecoveryCodesModel.createRecoveryCode(email, this.RecoveryCodesModel)
+            : oldRecoveryCode.updateRecoveryCode()
 
         await this.authRepository.saveDocument(newRecoveryCode)
 

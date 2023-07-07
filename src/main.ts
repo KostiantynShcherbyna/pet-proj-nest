@@ -1,4 +1,3 @@
-import dotenv from 'dotenv'
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { settings } from './settings';

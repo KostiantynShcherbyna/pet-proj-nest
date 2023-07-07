@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blogs, BlogsSchema } from './schemas/blogs.schema';
@@ -30,11 +30,12 @@ import { CommentsRepository } from './repositories/comments.repository';
 import { CommentsService } from './services/comments.service';
 import { DevicesService } from './services/devices.service';
 
-// const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
+const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
 
 @Module({
   imports: [
-    MongooseModule.forRoot("mongodb+srv://kostyalys:bagrat10n@cluster0.7mo0iox.mongodb.net/BE-2-0-DEV?retryWrites=true&w=majority"),
+    MongooseModule.forRoot(mongooseURI),
+    // ConfigModule.forRoot(),
     MongooseModule.forFeature(
       [
         { name: Blogs.name, schema: BlogsSchema },

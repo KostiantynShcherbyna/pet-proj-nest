@@ -13,16 +13,16 @@ export class UsersController {
 
   @Get()
   async findUsers(
-    @Query() queryUserModel: queryUserModel,
+    @Query() queryUser: queryUserModel,
   ) {
-    return await this.UsersQueryRepository.findUsers(queryUserModel)
+    return await this.UsersQueryRepository.findUsers(queryUser)
   }
 
   @Post()
   async createUser(
-    @Body() bodyUserModel: bodyUserModel,
+    @Body() bodyUser: bodyUserModel,
   ) {
-    return await this.UsersService.createUser(bodyUserModel);
+    return await this.UsersService.createUser(bodyUser);
   }
 
   @Delete(':id')
