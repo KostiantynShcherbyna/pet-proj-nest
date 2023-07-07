@@ -1,3 +1,6 @@
-export type bodyRegistrationConfirmationModel = {
-    code: string
+import { IsString } from 'class-validator';
+
+export class BodyRegistrationConfirmationModel {
+  @IsString()
+  code: string;
 }

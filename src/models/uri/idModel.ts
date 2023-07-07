@@ -1,3 +1,6 @@
-export type idModel = {
-    id: string
+import { IsString } from 'class-validator';
+
+export class IdModel {
+  @IsString()
+  id: string;
 }

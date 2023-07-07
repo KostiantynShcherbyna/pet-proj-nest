@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { bodyBlogModel } from 'src/models/body/bodyBlogModel';
+import { BodyBlogModel } from 'src/models/body/BodyBlogModel';
 import { BLOGS_DESCRIPTION_MAX_LENGTH, BLOGS_NAME_MAX_LENGTH, BLOGS_WEBSITEURL_MAX_LENGTH, BLOGS_WEBSITEURL_REGEX } from 'src/utils/constants/constants';
 
 
@@ -43,7 +43,7 @@ export class Blogs {
     })
     isMembership: boolean
 
-    static createBlog(bodyBlogModel: bodyBlogModel, BlogsModel: BlogsModel) {
+    static createBlog(bodyBlogModel: BodyBlogModel, BlogsModel: BlogsModel) {
 
         const date = new Date().toISOString()
 
@@ -60,7 +60,7 @@ export class Blogs {
         return newBlog
     }
 
-    updateBlog(newBlogDto: bodyBlogModel) {
+    updateBlog(newBlogDto: BodyBlogModel) {
         this.name = newBlogDto.name
         this.description = newBlogDto.description
         this.websiteUrl = newBlogDto.websiteUrl
@@ -68,7 +68,7 @@ export class Blogs {
 
 }
 interface BlogsStatics {
-    createBlog(bodyBlogModel: bodyBlogModel, BlogsModel: BlogsModel): Blogs;
+    createBlog(bodyBlogModel: BodyBlogModel, BlogsModel: BlogsModel): Blogs;
 }
 
 export const BlogsSchema = SchemaFactory.createForClass(Blogs);

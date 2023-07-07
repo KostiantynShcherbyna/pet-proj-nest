@@ -1,3 +1,6 @@
-export type bodyCommentModel = {
-    content: string
+import { IsString } from 'class-validator';
+
+export class BodyCommentModel {
+  @IsString()
+  content: string;
 }

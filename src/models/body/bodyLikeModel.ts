@@ -1,5 +1,7 @@
-import { myStatusEnum } from "../../utils/constants/constants"
+import { IsString } from 'class-validator';
+import { myStatusEnum } from '../../utils/constants/constants';
 
-export type bodyLikeModel = {
-    likeStatus: myStatusEnum
+export class BodyLikeModel {
+  @IsString()
+  likeStatus: myStatusEnum;
 }

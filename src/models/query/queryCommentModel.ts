@@ -1,6 +1,12 @@
-export type queryCommentModel = {
-    sortBy: string
-    sortDirection: string
-    pageNumber: number
-    pageSize: number
+import { IsNumber, IsString } from 'class-validator';
+
+export class QueryCommentModel {
+  @IsString()
+  sortBy: string;
+  @IsString()
+  sortDirection: string;
+  @IsNumber()
+  pageNumber: number;
+  @IsNumber()
+  pageSize: number;
 }

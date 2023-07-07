@@ -2,8 +2,8 @@ import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { bodyRegistrationModel } from 'src/models/body/bodyRegistrationModel';
-import { bodyUserModel } from 'src/models/body/bodyUserModel';
+import { bodyRegistrationModel } from 'src/models/body/BodyRegistrationModel';
+import { BodyUserModel } from 'src/models/body/BodyUserModel';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
 import { generateHash } from 'src/utils/hashFunctions/generateHash';
 
@@ -79,7 +79,7 @@ export class Users {
         }))
     emailConfirmation: IEmailConfirmation
 
-    static async createUser(newUserData: bodyUserModel, UsersModel: UsersModel): Promise<UsersDocument> {
+    static async createUser(newUserData: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHash(newUserData.password)
 
@@ -164,7 +164,7 @@ export class Users {
 export const UsersSchema = SchemaFactory.createForClass(Users)
 
 interface UsersStatics {
-    createUser(bodyUserModel: bodyUserModel, UsersModel: UsersModel): Promise<UsersDocument>
+    createUser(bodyUserModel: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument>
     registrationUser(registrationBody: bodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
 }
 UsersSchema.statics.createUser = Users.createUser

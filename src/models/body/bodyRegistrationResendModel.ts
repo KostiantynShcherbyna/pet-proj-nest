@@ -1,3 +1,7 @@
-export type bodyRegistrationConfirmationResendModel = {
-    email: string
+import { IsEmail, IsString } from 'class-validator';
+
+export class BodyRegistrationConfirmationResendModel {
+  @IsString()
+  @IsEmail()
+  email: string;
 }

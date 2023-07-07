@@ -2,8 +2,8 @@ import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Model, Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
-import { bodyBlogModel } from "src/models/body/bodyBlogModel"
-import { bodyBlogPostModel } from "src/models/body/bodyBlogPostModel"
+import { BodyBlogModel } from "src/models/body/BodyBlogModel"
+import { BodyBlogPostModel } from "src/models/body/BodyBlogPostModel"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
@@ -24,7 +24,7 @@ export class BlogsService {
     ) { }
 
 
-    async createBlog(bodyBlogModel: bodyBlogModel): Promise<blogView> {
+    async createBlog(bodyBlogModel: BodyBlogModel): Promise<blogView> {
 
         const newBlog = this.BlogsModel.createBlog(bodyBlogModel, this.BlogsModel)
         await this.blogsRepository.saveDocument(newBlog)
@@ -34,7 +34,7 @@ export class BlogsService {
         return newBlogView
     }
 
-    async updateBlog(id: string, body: bodyBlogModel): Promise<Contract<null | boolean>> {
+    async updateBlog(id: string, body: BodyBlogModel): Promise<Contract<null | boolean>> {
 
         const blog = await this.blogsRepository.findBlog(id)
         if (blog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
@@ -56,7 +56,7 @@ export class BlogsService {
     }
 
 
-    async createPost(bodyBlogPostModel: bodyBlogPostModel, blogId: string): Promise<Contract<null | postView>> {
+    async createPost(bodyBlogPostModel: BodyBlogPostModel, blogId: string): Promise<Contract<null | postView>> {
 
         const foundBlog = await this.blogsRepository.findBlog(blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)

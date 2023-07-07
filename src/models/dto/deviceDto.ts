@@ -1,4 +1,4 @@
-import { bodyAuthModel } from "../body/bodyAuthModel"
+import { BodyAuthModel } from "../body/BodyAuthModel"
 
 export type deviceDto = {
     ip: string

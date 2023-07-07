@@ -1,3 +1,6 @@
-export type blogIdModel = {
-    blogId: string
+import { IsString } from 'class-validator';
+
+export class BlogIdModel {
+  @IsString()
+  blogId: string;
 }

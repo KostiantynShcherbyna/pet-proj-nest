@@ -1,4 +1,8 @@
-export type bodyAuthModel = {
-    loginOrEmail: string,
-    password: string
+import { IsString } from 'class-validator';
+
+export class BodyAuthModel {
+  @IsString()
+  loginOrEmail: string;
+  @IsString()
+  password: string;
 }

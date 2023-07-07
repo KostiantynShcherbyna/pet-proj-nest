@@ -1,8 +1,8 @@
 import nodemailer from "nodemailer"
-import { bodyEmailModel } from "../models/body/bodyEmailModel";
+import { BodyEmailModel } from "../models/body/BodyEmailModel";
 
 export const emailAdapter = {
-    async sendEmail(emailBody: bodyEmailModel) {
+    async sendEmail(emailBody: BodyEmailModel) {
 
 
         let transporter = nodemailer.createTransport({

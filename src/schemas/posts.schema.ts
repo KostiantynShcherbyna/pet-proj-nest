@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { bodyPostModel } from 'src/models/body/bodyPostModel';
+import { BodyPostModel } from 'src/models/body/BodyPostModel';
 import { POSTS_CONTENT_MAX_LENGTH, POSTS_SHORTDESCRIPTION_MAX_LENGTH, POSTS_TITLE_MAX_LENGTH, myStatusEnum, } from 'src/utils/constants/constants';
 
 
@@ -171,7 +171,7 @@ export class Posts {
         }))
     extendedLikesInfo: IExtendedLikesInfo
 
-    static createPost(bodyPostModel: bodyPostModel, blogName: string, PostsModel: PostsModel) {
+    static createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel) {
 
         const date = new Date().toISOString()
 
@@ -195,7 +195,7 @@ export class Posts {
         return newPost
     }
 
-    updatePost(bodyPostDto: bodyPostModel) {
+    updatePost(bodyPostDto: BodyPostModel) {
         this.title = bodyPostDto.title
         this.shortDescription = bodyPostDto.shortDescription
         this.content = bodyPostDto.content
@@ -206,7 +206,7 @@ export class Posts {
 export const PostsSchema = SchemaFactory.createForClass(Posts);
 
 interface PostsStatics {
-    createPost(bodyPostModel: bodyPostModel, blogName: string, PostsModel: PostsModel): Posts
+    createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel): Posts
 }
 PostsSchema.statics.createPost = Posts.createPost
 PostsSchema.methods.updatePost = Posts.prototype.updatePost

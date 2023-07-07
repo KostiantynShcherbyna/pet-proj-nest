@@ -1,10 +1,19 @@
-export type bodyEmailModel = {
-    service: string
-    user: string
-    pass: string
-    from: string
+import { IsEmail, IsString } from 'class-validator';
 
-    email: string
-    subject: string
-    message: string
+export class BodyEmailModel {
+  @IsString()
+  service: string;
+  @IsString()
+  user: string;
+  @IsString()
+  pass: string;
+  @IsString()
+  from: string;
+  @IsString()
+  @IsEmail()
+  email: string;
+  @IsString()
+  subject: string;
+  @IsString()
+  message: string;
 }

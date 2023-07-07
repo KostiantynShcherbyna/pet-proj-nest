@@ -3,7 +3,7 @@ import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoModify } from "src/utils/modify/dtoModify"
 import { Users, UsersModel } from "src/schemas/users.schema"
-import { queryUserModel } from "src/models/query/queryUserModel"
+import { QueryUserModel } from "src/models/query/QueryUserModel"
 import { usersView } from "src/views/userView"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -13,7 +13,7 @@ export class UsersQueryRepository {
         @InjectModel(Users.name) protected UsersModel: UsersModel,
     ) { }
 
-    async findUsers(query: queryUserModel): Promise<usersView> {
+    async findUsers(query: QueryUserModel): Promise<usersView> {
 
         const PAGE_SIZE_DEFAULT = 10
         const PAGE_NUMBER_DEFAULT = 1

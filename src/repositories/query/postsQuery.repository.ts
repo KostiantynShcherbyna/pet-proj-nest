@@ -1,12 +1,12 @@
 import { Injectable, Inject } from "@nestjs/common"
 import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
-import { queryBlogModel } from "src/models/query/queryBlogModel"
+import { QueryBlogModel } from "src/models/query/QueryBlogModel"
 import { blogView, blogsView } from "src/views/blogView"
 import { BlogsModel, Blogs } from "src/schemas/blogs.schema"
 import { dtoModify } from "src/utils/modify/dtoModify"
 import { Types } from "mongoose"
-import { queryPostModel } from "src/models/query/queryPostModel"
+import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { postView, postsView } from "src/views/postView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import { myStatusEnum } from "src/utils/constants/constants"
@@ -19,7 +19,7 @@ export class PostsQueryRepository {
         @Inject(BlogsRepository) protected blogsRepositoryMngs: BlogsRepository
     ) { }
 
-    async findPosts(query: queryPostModel, blogId?: string, userId?: string): Promise<null | postsView> {
+    async findPosts(query: QueryPostModel, blogId?: string, userId?: string): Promise<null | postsView> {
 
         if (blogId) {
             const blog = await this.blogsRepositoryMngs.findBlog(blogId)

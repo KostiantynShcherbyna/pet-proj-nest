@@ -1,5 +1,11 @@
-export type bodyRegistrationModel = {
-    login: string
-    password: string
-    email: string
+import { IsEmail, IsString } from 'class-validator';
+
+export class BodyRegistrationModel {
+  @IsString()
+  login: string;
+  @IsString()
+  password: string;
+  @IsString()
+  @IsEmail()
+  email: string;
 }

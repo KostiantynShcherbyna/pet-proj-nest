@@ -2,8 +2,8 @@ import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Model, Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
-import { bodyAuthModel } from "src/models/body/bodyAuthModel"
-import { bodyRegistrationModel } from "src/models/body/bodyRegistrationModel"
+import { BodyAuthModel } from "src/models/body/BodyAuthModel"
+import { bodyRegistrationModel } from "src/models/body/BodyRegistrationModel"
 import { deviceDto } from "src/models/dto/deviceDto"
 import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
@@ -27,7 +27,7 @@ export class AuthService {
         @Inject(AuthRepository) protected authRepository: AuthRepository,
     ) { }
 
-    async toLogin(loginBody: bodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
+    async toLogin(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
 
         const user = await this.usersRepository.findUserLoginOrEmail({ login: loginBody.loginOrEmail, email: loginBody.loginOrEmail })
         if (user === null) return new Contract(null, ErrorEnums.NOT_FOUND_USER)

@@ -1,5 +1,11 @@
-export type bodyUserModel = {
-    login: string
-    password: string
-    email: string
+import { IsEmail, IsString } from 'class-validator';
+
+export class BodyUserModel {
+  @IsString()
+  login: string;
+  @IsString()
+  password: string;
+  @IsString()
+  @IsEmail()
+  email: string;
 }

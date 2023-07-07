@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
-import { bodyPostModel } from "src/models/body/bodyPostModel"
+import { BodyPostModel } from "src/models/body/BodyPostModel"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
@@ -21,7 +21,7 @@ export class PostsService {
 
 
 
-    async createPost(bodyPostModel: bodyPostModel): Promise<Contract<null | postView>> {
+    async createPost(bodyPostModel: BodyPostModel): Promise<Contract<null | postView>> {
 
         const foundBlog = await this.blogsRepository.findBlog(bodyPostModel.blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
@@ -34,7 +34,7 @@ export class PostsService {
     }
 
 
-    async updatePost(body: bodyPostModel, id: string): Promise<Contract<null | boolean>> {
+    async updatePost(body: BodyPostModel, id: string): Promise<Contract<null | boolean>> {
 
         const post = await this.postsRepository.findPost(id)
         if (post === null) return new Contract(null, ErrorEnums.NOT_FOUND_POST)
