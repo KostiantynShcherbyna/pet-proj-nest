@@ -7,6 +7,17 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
+@Catch(Error)
+export class ErrorExceptionFilter implements ExceptionFilter {
+  catch(host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    response
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send('Something wrong...');
+  }
+}
+
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {

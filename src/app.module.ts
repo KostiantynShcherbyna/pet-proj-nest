@@ -20,32 +20,32 @@ import { UsersService } from './services/users.service';
 import { UsersRepository } from './repositories/users.repository';
 import { CommentsController } from './controllers/comments.controller';
 import { TestingController } from './controllers/testing.controller';
-import { settings } from './settings';
 import { Devices, DevicesSchema } from './schemas/devices.schema';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { DevicesRepository } from './repositories/devices.repository';
-import { RecoveryCodes, RecoveryCodesSchema } from './schemas/recoveryCode.schema';
+import {
+  RecoveryCodes,
+  RecoveryCodesSchema,
+} from './schemas/recoveryCode.schema';
 import { CommentsRepository } from './repositories/comments.repository';
 import { CommentsService } from './services/comments.service';
 import { DevicesService } from './services/devices.service';
 
-const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
+const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017';
 
 @Module({
   imports: [
     MongooseModule.forRoot(mongooseURI),
     // ConfigModule.forRoot(),
-    MongooseModule.forFeature(
-      [
-        { name: Blogs.name, schema: BlogsSchema },
-        { name: Posts.name, schema: PostsSchema },
-        { name: Comments.name, schema: CommentsSchema },
-        { name: Users.name, schema: UsersSchema },
-        { name: Devices.name, schema: DevicesSchema },
-        { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
-      ]
-    ),
+    MongooseModule.forFeature([
+      { name: Blogs.name, schema: BlogsSchema },
+      { name: Posts.name, schema: PostsSchema },
+      { name: Comments.name, schema: CommentsSchema },
+      { name: Users.name, schema: UsersSchema },
+      { name: Devices.name, schema: DevicesSchema },
+      { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
+    ]),
   ],
   controllers: [
     BlogsController,
@@ -72,7 +72,6 @@ const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017'
     CommentsRepository,
     CommentsQueryRepository,
     DevicesRepository,
-
-  ]
+  ],
 })
-export class AppModule { }
+export class AppModule {}
