@@ -12,10 +12,10 @@ import {
   Inject,
 } from '@nestjs/common';
 import { BlogsService } from '../services/blogs.service';
-import { BlogsQueryRepository } from '../repositories/query/blogsQuery.repository';
+import { BlogsQueryRepository } from '../repositories/query/blogs.query.repository';
 import { BodyBlogModel } from '../models/body/BodyBlogModel';
 import { QueryBlogModel } from '../models/query/QueryBlogModel';
-import { PostsQueryRepository } from 'src/repositories/query/postsQuery.repository';
+import { PostsQueryRepository } from 'src/repositories/query/posts.query.repository';
 import { QueryPostModel } from 'src/models/query/QueryPostModel';
 import { BodyBlogPostModel } from 'src/models/body/BodyBlogPostModel';
 

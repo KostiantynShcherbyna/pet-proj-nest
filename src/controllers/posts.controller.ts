@@ -11,12 +11,12 @@ import {
   HttpCode,
   Inject,
 } from '@nestjs/common';
-import { PostsQueryRepository } from 'src/repositories/query/postsQuery.repository';
+import { PostsQueryRepository } from 'src/repositories/query/posts.query.repository';
 import { PostsService } from 'src/services/posts.service';
 import { BodyPostModel } from 'src/models/body/BodyPostModel';
 import { QueryPostModel } from 'src/models/query/QueryPostModel';
 import { QueryCommentModel } from 'src/models/query/QueryCommentModel';
-import { CommentsQueryRepository } from 'src/repositories/query/commentsQuery.repository';
+import { CommentsQueryRepository } from 'src/repositories/query/comments.query.repository';
 
 @Controller('posts')
 export class PostsController {

@@ -5,6 +5,8 @@ import { dtoModify } from "src/utils/modify/dtoModify"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { QueryUserModel } from "src/models/query/QueryUserModel"
 import { usersView } from "src/views/userView"
+import { Types } from "mongoose"
+import { meView } from "src/views/meView"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
@@ -12,6 +14,16 @@ export class UsersQueryRepository {
     constructor(
         @InjectModel(Users.name) protected UsersModel: UsersModel,
     ) { }
+
+    async findUser(userId: string): Promise<null | meView> {
+
+        const user = await this.UsersModel.findById(userId)
+        if (user === null) return null
+
+        const userView = dtoModify.changeUserView(user)
+        return userView
+    }
+
 
     async findUsers(query: QueryUserModel): Promise<usersView> {
 

@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
+
 
 export interface IRecoveryCode {
     email: string,
@@ -21,24 +23,25 @@ export class RecoveryCodes {
     })
     recoveryCode: string
 
-    static createRecoveryCode(email: string, RecoveryCodesModel: RecoveryCodesModel): RecoveryCodesDocument {
+    static async createRecoveryCode(email: string, RecoveryCodesModel: RecoveryCodesModel, jwtService: JwtService): Promise<RecoveryCodesDocument> {
 
         // const passwordRecoveryCode = this.jwtServiceMngs.createToken({ email: email }, settings.PASSWORD_RECOVERY_CODE, "5m") // TODO
-
-        const passwordRecoveryCode = "TODO"
+        const passwordRecoveryCode = await jwtService.signAsync({ email: email })
         const recoveryCodeDto = {
             email: email,
             recoveryCode: passwordRecoveryCode
         }
 
-        const newRecoveryCode = new RecoveryCodesModel(recoveryCodeDto)
-        return newRecoveryCode
+        const newRecoveryCodeDocument = new RecoveryCodesModel(recoveryCodeDto)
+        return newRecoveryCodeDocument
     }
 
-    updateRecoveryCode() {
+    async updateRecoveryCode(email: string, jwtService: JwtService): Promise<any> {
         // const newRecoveryCode = this.jwtServiceMngs.createToken({ email: email }, settings.PASSWORD_RECOVERY_CODE, "5m") // TODO
-        const newRecoveryCode = "a"
-        return this.recoveryCode = newRecoveryCode
+        const newRecoveryCode = await jwtService.signAsync({ email: email })
+        this.recoveryCode = newRecoveryCode
+
+        return this
     }
 
 
@@ -49,7 +52,7 @@ export class RecoveryCodes {
 export const RecoveryCodesSchema = SchemaFactory.createForClass(RecoveryCodes)
 
 interface RecoveryCodesStatics {
-    createRecoveryCode(email: string, RecoveryCodesModel: RecoveryCodesModel): RecoveryCodesDocument
+    createRecoveryCode(email: string, RecoveryCodesModel: RecoveryCodesModel, jwtService: JwtService): Promise<RecoveryCodesDocument>
 }
 RecoveryCodesSchema.statics.createRecoveryCode = RecoveryCodes.createRecoveryCode
 RecoveryCodesSchema.methods.updateRecoveryCode = RecoveryCodes.prototype.updateRecoveryCode

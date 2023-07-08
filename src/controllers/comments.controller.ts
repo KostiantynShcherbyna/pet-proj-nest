@@ -5,9 +5,9 @@ import {
   Inject,
   NotFoundException,
 } from '@nestjs/common';
-import { PostsQueryRepository } from 'src/repositories/query/postsQuery.repository';
+import { PostsQueryRepository } from 'src/repositories/query/posts.query.repository';
 import { PostsService } from 'src/services/posts.service';
-import { CommentsQueryRepository } from 'src/repositories/query/commentsQuery.repository';
+import { CommentsQueryRepository } from 'src/repositories/query/comments.query.repository';
 
 @Controller('comments')
 export class CommentsController {

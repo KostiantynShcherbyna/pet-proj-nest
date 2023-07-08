@@ -6,6 +6,7 @@ import { Posts } from "src/schemas/posts.schema"
 import { Comments } from "src/schemas/comments.schema"
 import { commentView } from "src/views/commentView"
 import { Users } from "src/schemas/users.schema"
+import { Devices } from "src/schemas/devices.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 
@@ -339,26 +340,27 @@ export const dtoModify = {
             email: data.accountData.email,
             createdAt: data.accountData.createdAt,
         }
-    }
+    },
+
+
+
+
+    // //     // ↓↓↓ DEVICES
+
+    createDevicesView(data: Devices[]) {
+
+        return data.map(i => {
+            return {
+                ip: i.ip,
+                title: i.title,
+                lastActiveDate: i.lastActiveDate,
+                deviceId: i.deviceId,
+            }
+        })
+
+    },
 }
 
-
-
-
-// //     // ↓↓↓ DEVICES
-
-// //     createDevicesView(data: WithId<IDevice>[]) {
-
-// //         return data.map(i => {
-// //             return {
-// //                 ip: i.ip,
-// //                 title: i.title,
-// //                 lastActiveDate: i.lastActiveDate,
-// //                 deviceId: i.deviceId,
-// //             }
-// //         })
-
-// //     },
 // //     createDeviceView(data: WithId<IDevice>) {
 
 // //         return {

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { bodyRegistrationModel } from 'src/models/body/BodyRegistrationModel';
+import { BodyRegistrationModel } from 'src/models/body/BodyRegistrationModel';
 import { BodyUserModel } from 'src/models/body/BodyUserModel';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
 import { generateHash } from 'src/utils/hashFunctions/generateHash';
@@ -105,7 +105,7 @@ export class Users {
         return newUser
     }
 
-    static async registrationUser(registrationBody: bodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
+    static async registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHash(registrationBody.password)
 
@@ -165,7 +165,7 @@ export const UsersSchema = SchemaFactory.createForClass(Users)
 
 interface UsersStatics {
     createUser(bodyUserModel: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument>
-    registrationUser(registrationBody: bodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
+    registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
 }
 UsersSchema.statics.createUser = Users.createUser
 UsersSchema.methods.addSentDate = Users.prototype.addSentDate

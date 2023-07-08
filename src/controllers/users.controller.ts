@@ -11,7 +11,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { QueryUserModel } from 'src/models/query/QueryUserModel';
-import { UsersQueryRepository } from 'src/repositories/query/usersQuery.repository';
+import { UsersQueryRepository } from 'src/repositories/query/users.query.repository';
 import { BodyUserModel } from 'src/models/body/BodyUserModel';
 import { UsersService } from 'src/services/users.service';
 
