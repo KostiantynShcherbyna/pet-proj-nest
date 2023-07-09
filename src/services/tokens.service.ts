@@ -1,21 +1,25 @@
 import { Injectable } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import jwt from 'jsonwebtoken'
 
 
 @Injectable()
 export class TokensService {
+    constructor(
+        private jwtService: JwtService
+    ) { }
 
-    createToken(newTokenPayload: any, secret: string, expires: string): string {
+    async createToken(newTokenPayload: any, secret: string, expiresIn: string): Promise<string> {
 
-        const newToken = jwt.sign(newTokenPayload, secret, { expiresIn: expires })
+        const newToken = await this.jwtService.signAsync(newTokenPayload, { secret, expiresIn })
         return newToken
     }
 
 
-    verifyToken(token: string, secret: string): null | any {
+    async verifyToken(token: string, secret: string): Promise<null | any> {
 
         try {
-            const result = jwt.verify(token, secret) as any
+            const result = await this.jwtService.verifyAsync(token, { secret })
             return result
 
         } catch (err) {

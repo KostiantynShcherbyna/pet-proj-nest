@@ -5,7 +5,7 @@ import { settings } from './settings';
 import { Request } from 'express';
 
 @Injectable()
-export class RefreshGuard implements CanActivate {
+export class AccessGuard implements CanActivate {
   constructor(
     protected jwtCustomService: TokensService
   ) { }
@@ -15,21 +15,22 @@ export class RefreshGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Not found token in request');
+      throw new UnauthorizedException();
     }
     try {
-      const payload = await this.jwtCustomService.verifyToken(token, settings.REFRESH_JWT_SECRET);
+      const payload = await this.jwtCustomService.verifyToken(token, settings.ACCESS_JWT_SECRET);
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException('Not verify token');
+      throw new UnauthorizedException();
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string {
-    return request.cookies.refreshToken;
+  private extractTokenFromHeader(request: Request): string | null {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : null;
   }
   // private extractTokenFromHeader(request: Request): string | undefined {
   //   const [type, token] = request.headers.authorization?.split(' ') ?? [];

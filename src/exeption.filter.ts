@@ -21,24 +21,61 @@ export class ErrorExceptionFilter implements ExceptionFilter {
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    const response = host.switchToHttp().getResponse<Response>();
     const status = exception.getStatus();
     const exceptionResponse: any = exception.getResponse();
-    if (
-      status === HttpStatus.BAD_REQUEST &&
-      Array.isArray(exceptionResponse.message)
-    ) {
-      const errorMessages = exceptionResponse.message.map((err) => {
+
+    if (status === HttpStatus.BAD_REQUEST) {
+      const errorMessages = exceptionResponse.message.length() ? exceptionResponseMap(exceptionResponse) : null
+      return errorMessages ? response.status(status).json({ errorMessages }) : response.sendStatus(status);
+    }
+
+    return response.sendStatus(status);
+
+
+
+    function exceptionResponseMap(exceptionResponse: any) {
+      return exceptionResponse.message.map(err => {
         return {
           field: err.field,
           message: err.message[0],
         };
       });
-
-      response.status(status).json({ errorMessages });
-    } else {
-      response.sendStatus(status);
     }
   }
+
+
 }
+// @Catch(HttpException)
+// export class HttpExceptionFilter implements ExceptionFilter {
+//   catch(exception: HttpException, host: ArgumentsHost) {
+//     const response = host.switchToHttp().getResponse<Response>();
+//     const status = exception.getStatus();
+//     const exceptionResponse: any = exception.getResponse();
+//     if (status === HttpStatus.BAD_REQUEST && Array.isArray(exceptionResponse.message)) {
+//       const errorMessages = exceptionResponseMap(exceptionResponse)
+
+//       response.status(status).json({ errorMessages });
+//       return
+//     }
+
+//     response.sendStatus(status);
+//     return
+
+
+//     function exceptionResponseMap(exceptionResponse: any) {
+//       const errorMessages = exceptionResponse.message.map(err => {
+//         return {
+//           field: err.field,
+//           message: err.message[0],
+//         };
+//       });
+
+//       return errorMessages
+//     }
+//   }
+
+
+// }
+
+
