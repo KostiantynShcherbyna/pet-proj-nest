@@ -33,13 +33,16 @@ import { CommentsService } from './services/comments.service';
 import { DevicesService } from './services/devices.service';
 import { TokensService } from './services/tokens.service';
 import { AuthQueryRepository } from './repositories/query/auth.query.repository';
+import { AuthRepository } from './repositories/auth.repository';
+import { JwtService } from '@nestjs/jwt';
+import { settings } from './settings';
 
-const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017';
+// const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(mongooseURI),
-    // ConfigModule.forRoot(),
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot("mongodb+srv://kostyalys:bagrat10n@cluster0.7mo0iox.mongodb.net/BE-2-0-DEV?retryWrites=true&w=majority"),
     MongooseModule.forFeature([
       { name: Blogs.name, schema: BlogsSchema },
       { name: Posts.name, schema: PostsSchema },
@@ -65,6 +68,7 @@ const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017';
     CommentsService,
     DevicesService,
     TokensService,
+    JwtService,
 
     BlogsRepository,
     BlogsQueryRepository,
@@ -75,6 +79,7 @@ const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017';
     CommentsRepository,
     CommentsQueryRepository,
     AuthQueryRepository,
+    AuthRepository,
     DevicesRepository,
   ],
 })

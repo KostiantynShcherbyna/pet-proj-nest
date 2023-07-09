@@ -1,5 +1,6 @@
 export const settings = {
-    PORT: process.env.PORT || 3000,
+    // PORT: process.env.PORT || 5000,
+    PORT: 3000,
     MONGOOSE_URI: process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017',
 
     ACCESS_JWT_SECRET: process.env.JWT_SECRET || "ACCESSJWTSECRET",

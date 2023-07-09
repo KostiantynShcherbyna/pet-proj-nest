@@ -32,7 +32,7 @@ export class Users {
     _id: Types.ObjectId
 
     @Prop(
-        {
+        raw({
             login: {
                 type: String,
                 required: true,
@@ -52,8 +52,7 @@ export class Users {
                 type: String,
                 required: true,
             },
-        }
-    )
+        }))
     accountData: IAccountData
 
     @Prop(

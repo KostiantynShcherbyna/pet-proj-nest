@@ -23,11 +23,9 @@ import { BodyBlogPostModel } from 'src/models/body/BodyBlogPostModel';
 export class BlogsController {
   constructor(
     @Inject(BlogsService) protected BlogsService: BlogsService,
-    @Inject(BlogsQueryRepository)
-    protected BlogsQueryRepository: BlogsQueryRepository,
-    @Inject(PostsQueryRepository)
-    protected PostsQueryRepository: PostsQueryRepository,
-  ) {}
+    @Inject(BlogsQueryRepository) protected BlogsQueryRepository: BlogsQueryRepository,
+    @Inject(PostsQueryRepository) protected PostsQueryRepository: PostsQueryRepository,
+  ) { }
 
   @Get()
   async findBlogs(@Query() queryBlog: QueryBlogModel) {
@@ -81,7 +79,10 @@ export class BlogsController {
     @Body() bodyBlogPost: BodyBlogPostModel,
   ) {
     const result = await this.BlogsService.createPost(bodyBlogPost, blogId);
-    if (result.error !== null) throw new NotFoundException();
+    if (result.error !== null) throw new NotFoundException([{
+      message: `blog with blogId: '${blogId}' does't exist`,
+      field: `blogId`
+    }]);
     return result.data;
   }
 }

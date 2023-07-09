@@ -26,24 +26,33 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const exceptionResponse: any = exception.getResponse();
 
     if (status === HttpStatus.BAD_REQUEST) {
-      const errorMessages = exceptionResponse.message.length() ? exceptionResponseMap(exceptionResponse) : null
-      return errorMessages ? response.status(status).json({ errorMessages }) : response.sendStatus(status);
+      const errorMessages = this.messagesModify(exceptionResponse)
+      return errorMessages
+        ? response.status(status).json({ errorMessages })
+        : response.sendStatus(status);
+    }
+    if (status === HttpStatus.NOT_FOUND) {
+      const errorMessages = this.messagesModify(exceptionResponse)
+      return errorMessages
+        ? response.status(status).json({ errorMessages })
+        : response.sendStatus(status);
     }
 
     return response.sendStatus(status);
-
-
-
-    function exceptionResponseMap(exceptionResponse: any) {
-      return exceptionResponse.message.map(err => {
-        return {
-          field: err.field,
-          message: err.message[0],
-        };
-      });
-    }
   }
 
+
+  private messagesModify(exceptionResponse: any) {
+
+    return Array.isArray(exceptionResponse.message)
+      ? exceptionResponse.message.map(err => {
+        return {
+          field: err.field,
+          message: err.messages[0],
+        }
+      })
+      : null
+  }
 
 }
 // @Catch(HttpException)
