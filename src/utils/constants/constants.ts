@@ -35,23 +35,13 @@ export const EXPIRES_TIME_REFRESH = "200m"
 export const EXPIRE_AT_ACCESS = +EXPIRES_TIME_ACCESS.slice(0, EXPIRES_TIME_ACCESS.length - 1)
 export const EXPIRE_AT_REFRESH = +EXPIRES_TIME_REFRESH.slice(0, EXPIRES_TIME_REFRESH.length - 1)
 
-
-export enum myStatusEnum {
-    None = "None",
-    Like = "Like",
-    Dislike = "Dislike",
+export enum MyStatus {
+  None = "None",
+  Like = "Like",
+  Dislike = "Dislike",
 }
 
-export enum HttpStatuses {
-    OK = 200,
-    CREATED = 201,
-    NO_CONTENT = 204,
-
-    BAD_REQUEST = 400,
-    UNAUTHORIZED = 401,
-    FORBIDDEN = 403,
-    NOT_FOUND = 404,
-    TOO_MANY_REQUESTS = 429,
-
-    INTERNAL_SERVER_ERROR = 500
+export enum SortDirection {
+  asc = "1",
+  desc = "-1",
 }

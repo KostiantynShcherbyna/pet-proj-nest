@@ -1,5 +1,5 @@
 import { ObjectId, WithId } from "mongodb"
-import { myStatusEnum } from "../constants/constants"
+import { MyStatus } from "../constants/constants"
 import { HydratedDocument } from "mongoose"
 import { Blogs } from "src/schemas/blogs.schema"
 import { Posts } from "src/schemas/posts.schema"
@@ -149,7 +149,7 @@ export const dtoModify = {
 
     changePostsViewMngs(posts: Posts[], userId?: string) {
 
-        const myStatus = (post: Posts) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
+        const myStatus = (post: Posts) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
         const newestLikes = (post: Posts) => post.extendedLikesInfo.newestLikes
             .slice(-3)
             .map(like => {
@@ -238,7 +238,7 @@ export const dtoModify = {
     changeCommentsView(comments: Comments[], userId?: string): commentView[] {
 
         // Looking for a myStatus of Like in each comment
-        const myStatusFunc = (comment: Comments) => comment.likesInfo.like.find(like => like.userId === userId)?.status || myStatusEnum.None
+        const myStatusFunc = (comment: Comments) => comment.likesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
 
         return comments.map(comment => {
             return {

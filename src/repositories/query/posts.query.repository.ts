@@ -9,7 +9,7 @@ import { Types } from "mongoose"
 import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { postView, postsView } from "src/views/postView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
-import { myStatusEnum } from "src/utils/constants/constants"
+import { MyStatus } from "src/utils/constants/constants"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
@@ -81,7 +81,7 @@ export class PostsQueryRepository {
         let like: ILike | undefined
         if (userId) like = foundPost.extendedLikesInfo.like.find(like => like.userId === userId)
 
-        const postView = dtoModify.changePostViewMngs(foundPost, like?.status || myStatusEnum.None)
+        const postView = dtoModify.changePostViewMngs(foundPost, like?.status || MyStatus.None)
 
         return postView
     }

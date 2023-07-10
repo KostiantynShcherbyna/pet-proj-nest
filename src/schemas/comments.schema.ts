@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH, myStatusEnum, } from 'src/utils/constants/constants';
+import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH, MyStatus, } from 'src/utils/constants/constants';
 
 
 export interface ICommentatorInfo {
@@ -79,8 +79,8 @@ export class Comments {
                     status: {
                         type: String,
                         required: true,
-                        enum: myStatusEnum,
-                        default: myStatusEnum.None,
+                        enum: MyStatus,
+                        default: MyStatus.None,
                     }
                 }
             ],
@@ -104,7 +104,7 @@ export class Comments {
                 status: newLikeStatus
             }
 
-            newLikeStatus === myStatusEnum.Like ? this.likesInfo.likesCount++ : this.likesInfo.dislikesCount++
+            newLikeStatus === MyStatus.Like ? this.likesInfo.likesCount++ : this.likesInfo.dislikesCount++
 
             this.likesInfo.like.push(newLike)
 
@@ -114,33 +114,33 @@ export class Comments {
         if (like.status === newLikeStatus) return
 
         // Looking for matches in Old status and New status
-        if (like.status === myStatusEnum.None && newLikeStatus === myStatusEnum.Like) {
+        if (like.status === MyStatus.None && newLikeStatus === MyStatus.Like) {
             this.likesInfo.likesCount++
             like.status = newLikeStatus
             return
         }
-        if (like.status === myStatusEnum.None && newLikeStatus === myStatusEnum.Dislike) {
+        if (like.status === MyStatus.None && newLikeStatus === MyStatus.Dislike) {
             this.likesInfo.dislikesCount++
             like.status = newLikeStatus
             return
         }
-        if (like.status === myStatusEnum.Like && newLikeStatus === myStatusEnum.None) {
+        if (like.status === MyStatus.Like && newLikeStatus === MyStatus.None) {
             this.likesInfo.likesCount--
             like.status = newLikeStatus
             return
         }
-        if (like.status === myStatusEnum.Like && newLikeStatus === myStatusEnum.Dislike) {
+        if (like.status === MyStatus.Like && newLikeStatus === MyStatus.Dislike) {
             this.likesInfo.likesCount--
             this.likesInfo.dislikesCount++
             like.status = newLikeStatus
             return
         }
-        if (like.status === myStatusEnum.Dislike && newLikeStatus === myStatusEnum.None) {
+        if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.None) {
             this.likesInfo.dislikesCount--
             like.status = newLikeStatus
             return
         }
-        if (like.status === myStatusEnum.Dislike && newLikeStatus === myStatusEnum.Like) {
+        if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.Like) {
             this.likesInfo.dislikesCount--
             this.likesInfo.likesCount++
             like.status = newLikeStatus

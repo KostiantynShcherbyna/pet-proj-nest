@@ -6,7 +6,7 @@ import { BodyPostModel } from "src/models/body/BodyPostModel";
 import { BlogsRepository } from "src/repositories/blogs.repository";
 import { PostsRepository } from "src/repositories/posts.repository";
 import { Posts, PostsModel } from "src/schemas/posts.schema";
-import { myStatusEnum } from "src/utils/constants/constants";
+import { MyStatus } from "src/utils/constants/constants";
 import { ErrorEnums } from "src/utils/errors/errorEnums";
 import { dtoModify } from "src/utils/modify/dtoModify";
 import { postView } from "src/views/postView";
@@ -31,7 +31,7 @@ export class PostsService {
     const newPost = this.PostsModel.createPost(bodyPostModel, foundBlog.name, this.PostsModel);
     await this.postsRepository.saveDocument(newPost);
 
-    const newPostView = dtoModify.changePostViewMngs(newPost, myStatusEnum.None);
+    const newPostView = dtoModify.changePostViewMngs(newPost, MyStatus.None);
     return new Contract(newPostView, null);
   }
 

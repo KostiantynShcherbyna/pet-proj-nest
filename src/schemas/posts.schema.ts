@@ -5,7 +5,7 @@ import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH,
-  myStatusEnum
+  MyStatus
 } from "src/utils/constants/constants";
 import { UsersDocument } from "./users.schema";
 
@@ -155,8 +155,8 @@ export class Posts {
           status: {
             type: String,
             required: true,
-            enum: myStatusEnum,
-            default: myStatusEnum.None
+            enum: MyStatus,
+            default: MyStatus.None
           }
         }
       ],
@@ -219,7 +219,7 @@ export class Posts {
         status: newLikeStatus
       };
 
-      if (newLikeStatus === myStatusEnum.Like) {
+      if (newLikeStatus === MyStatus.Like) {
         this.extendedLikesInfo.likesCount++;
 
         const newDate = new Date(Date.now()).toISOString();
@@ -242,7 +242,7 @@ export class Posts {
     if (like.status === newLikeStatus) return;
 
     // Looking for matches in Old status and New status
-    if (like.status === myStatusEnum.None && newLikeStatus === myStatusEnum.Like) {
+    if (like.status === MyStatus.None && newLikeStatus === MyStatus.Like) {
       this.extendedLikesInfo.likesCount++;
       like.status = newLikeStatus;
 
@@ -256,19 +256,19 @@ export class Posts {
 
       return;
     }
-    if (like.status === myStatusEnum.None && newLikeStatus === myStatusEnum.Dislike) {
+    if (like.status === MyStatus.None && newLikeStatus === MyStatus.Dislike) {
       this.extendedLikesInfo.dislikesCount++;
       like.status = newLikeStatus;
       return;
     }
-    if (like.status === myStatusEnum.Like && newLikeStatus === myStatusEnum.None) {
+    if (like.status === MyStatus.Like && newLikeStatus === MyStatus.None) {
       const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString());
       this.extendedLikesInfo.newestLikes = newArray;
       this.extendedLikesInfo.likesCount--;
       like.status = newLikeStatus;
       return;
     }
-    if (like.status === myStatusEnum.Like && newLikeStatus === myStatusEnum.Dislike) {
+    if (like.status === MyStatus.Like && newLikeStatus === MyStatus.Dislike) {
       const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString());
       this.extendedLikesInfo.newestLikes = newArray;
       this.extendedLikesInfo.likesCount--;
@@ -276,12 +276,12 @@ export class Posts {
       like.status = newLikeStatus;
       return;
     }
-    if (like.status === myStatusEnum.Dislike && newLikeStatus === myStatusEnum.None) {
+    if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.None) {
       this.extendedLikesInfo.dislikesCount--;
       like.status = newLikeStatus;
       return;
     }
-    if (like.status === myStatusEnum.Dislike && newLikeStatus === myStatusEnum.Like) {
+    if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.Like) {
       this.extendedLikesInfo.dislikesCount--;
       this.extendedLikesInfo.likesCount++;
       like.status = newLikeStatus;

@@ -8,7 +8,7 @@ import { BlogsRepository } from 'src/repositories/blogs.repository';
 import { PostsRepository } from 'src/repositories/posts.repository';
 import { BlogsModel, Blogs, BlogsDocument } from 'src/schemas/blogs.schema';
 import { Posts, PostsModel } from 'src/schemas/posts.schema';
-import { myStatusEnum } from 'src/utils/constants/constants';
+import { MyStatus } from 'src/utils/constants/constants';
 import { ErrorEnums } from 'src/utils/errors/errorEnums';
 import { dtoModify } from 'src/utils/modify/dtoModify';
 import { validateOrRejectFunc } from 'src/validateOrRejectFunc';
@@ -85,7 +85,7 @@ export class BlogsService {
 
     const newPostView = dtoModify.changePostViewMngs(
       newPost,
-      myStatusEnum.None,
+      MyStatus.None,
     );
     return new Contract(newPostView, null);
   }

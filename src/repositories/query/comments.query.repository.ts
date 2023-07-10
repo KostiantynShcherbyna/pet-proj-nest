@@ -9,7 +9,7 @@ import { Types } from "mongoose"
 import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { postView, postsView } from "src/views/postView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
-import { myStatusEnum } from "src/utils/constants/constants"
+import { MyStatus } from "src/utils/constants/constants"
 import { QueryCommentModel } from "src/models/query/QueryCommentModel"
 import { commentView, commentsView } from "src/views/commentView"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
@@ -33,7 +33,7 @@ export class CommentsQueryRepository {
         }
 
         // Mapping dto
-        const commentView = dtoModify.changeCommentView(foundComment, like?.status || myStatusEnum.None)
+        const commentView = dtoModify.changeCommentView(foundComment, like?.status || MyStatus.None)
         return commentView
     }
 

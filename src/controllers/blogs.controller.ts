@@ -19,6 +19,7 @@ import { PostsQueryRepository } from "src/repositories/query/posts.query.reposit
 import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { BodyBlogPostModel } from "src/models/body/BodyBlogPostModel"
 import ParseObjectIdPipe from "src/objectId-parser.pipe"
+import { ObjectIdModel } from "../models/uri/objectIdModel"
 
 @Controller("blogs")
 export class BlogsController {
@@ -31,9 +32,9 @@ export class BlogsController {
 
   @Get(":id")
   async findBlog(
-    @Param("id" /*ParseObjectIdPipe*/) id: string
+    @Param("id" /*ParseObjectIdPipe*/) id: ObjectIdModel,
   ) {
-    const foundBlogView = await this.blogsQueryRepository.findBlog(id)
+    const foundBlogView = await this.blogsQueryRepository.findBlog(id.id)
     if (foundBlogView === null) throw new NotFoundException()
     return foundBlogView
   }

@@ -147,11 +147,11 @@ export class AuthController {
   async newPassword(
     @Body() bodyNewPassword: BodyNewPasswordModel
   ) {
-    const tokensContract = await this.authService.newPassword(bodyNewPassword.newPassword, bodyNewPassword.recoveryCode)
-    if (tokensContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException()
-    if (tokensContract.error === ErrorEnums.RECOVERY_CODE_NOT_FOUND) throw new BadRequestException()
-    if (tokensContract.error === ErrorEnums.RECOVERY_CODE_INVALID) throw new BadRequestException()
-    if (tokensContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException()
+    const newPasswordContract = await this.authService.newPassword(bodyNewPassword.newPassword, bodyNewPassword.recoveryCode)
+    if (newPasswordContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException()
+    if (newPasswordContract.error === ErrorEnums.RECOVERY_CODE_NOT_FOUND) throw new BadRequestException()
+    if (newPasswordContract.error === ErrorEnums.RECOVERY_CODE_INVALID) throw new BadRequestException()
+    if (newPasswordContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException()
     return
   }
 }
