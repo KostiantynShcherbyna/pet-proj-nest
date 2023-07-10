@@ -37,18 +37,18 @@ export class AuthController {
   @Post("login")
   @HttpCode(HttpStatus.OK)
   async login(
-    @Headers("user-agent") userAgent: string = "defaultName",
+    @Headers("user-agent") userAgent: string | "defaultName",
     @Ip() ip: string,
     @Body() bodyAuth: BodyAuthModel,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const tokensContract = await this.authService.login(bodyAuth, ip, userAgent)
-    if (tokensContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (tokensContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
-    if (tokensContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
+    const loginContract = await this.authService.login(bodyAuth, ip, userAgent)
+    if (loginContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
+    if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
+    if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
 
-    res.cookie("refreshToken", tokensContract.data?.refreshToken)
-    return tokensContract.data?.accessJwt
+    res.cookie("refreshToken", loginContract.data?.refreshToken)
+    return loginContract.data?.accessJwt
   }
 
 
@@ -58,9 +58,9 @@ export class AuthController {
   async logout(
     @Req() deviceSession: DeviceSessionModel
   ) {
-    const tokensContract = await this.authService.logout(deviceSession)
-    if (tokensContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (tokensContract.error === ErrorEnums.NOT_DELETE_DEVICE) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_DELETE_DEVICE)) // TODO EXCEPTION
+    const logoutContract = await this.authService.logout(deviceSession)
+    if (logoutContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
+    if (logoutContract.error === ErrorEnums.NOT_DELETE_DEVICE) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_DELETE_DEVICE)) // TODO EXCEPTION
     return
   }
 
@@ -69,14 +69,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refreshToken(
     @Req() deviceSession: DeviceSessionModel,
-    @Headers("user-agent") userAgent: string,
+    @Headers("user-agent") userAgent: string | "defaultName",
     @Ip() ip: string,
   ) {
-    const tokensContract = await this.authService.refreshToken(deviceSession, ip, userAgent)
-    if (tokensContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (tokensContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
-    if (tokensContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
-    return tokensContract.data
+    const refreshTokenContract = await this.authService.refreshToken(deviceSession, ip, userAgent)
+    if (refreshTokenContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
+    if (refreshTokenContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
+    if (refreshTokenContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
+    return refreshTokenContract.data
   }
 
 
@@ -85,11 +85,11 @@ export class AuthController {
   async registration(
     @Body() bodyRegistration: BodyRegistrationModel
   ) {
-    const tokensContract = await this.authService.registration(bodyRegistration)
-    if (tokensContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(Object.values(ErrorEnums.USER_EMAIL_EXIST))
-    if (tokensContract.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(Object.values(ErrorEnums.USER_LOGIN_EXIST))
-    if (tokensContract.error === ErrorEnums.NOT_DELETE_USER) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_DELETE_USER))
-    if (tokensContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_SEND_EMAIL))
+    const registrationContract = await this.authService.registration(bodyRegistration)
+    if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(Object.values(ErrorEnums.USER_EMAIL_EXIST))
+    if (registrationContract.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(Object.values(ErrorEnums.USER_LOGIN_EXIST))
+    if (registrationContract.error === ErrorEnums.NOT_DELETE_USER) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_DELETE_USER))
+    if (registrationContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_SEND_EMAIL))
     return
   }
 
@@ -99,10 +99,10 @@ export class AuthController {
   async confirmation(
     @Body() bodyConfirmation: BodyConfirmationModel
   ) {
-    const tokensContract = await this.authService.confirmation(bodyConfirmation.code)
-    if (tokensContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (tokensContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(Object.values(ErrorEnums.USER_EMAIL_CONFIRMED))
-    if (tokensContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException(Object.values(ErrorEnums.CONFIRMATION_CODE_EXPIRED))
+    const confirmationContract = await this.authService.confirmation(bodyConfirmation.code)
+    if (confirmationContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException(Object.values(ErrorEnums.NOT_FOUND_USER))
+    if (confirmationContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(Object.values(ErrorEnums.USER_EMAIL_CONFIRMED))
+    if (confirmationContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException(Object.values(ErrorEnums.CONFIRMATION_CODE_EXPIRED))
     return
   }
 
@@ -112,10 +112,10 @@ export class AuthController {
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendModel
   ) {
-    const tokensContract = await this.authService.confirmationResend(bodyConfirmationResend.email)
-    if (tokensContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException()
-    if (tokensContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException()
-    if (tokensContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException()
+    const confirmationResendContract = await this.authService.confirmationResend(bodyConfirmationResend.email)
+    if (confirmationResendContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException()
+    if (confirmationResendContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException()
+    if (confirmationResendContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException()
     return
   }
 
@@ -124,8 +124,8 @@ export class AuthController {
   async getMe(
     @Req() deviceSession: DeviceSessionModel
   ) {
-    const tokensContract = await this.usersQueryRepository.findUser(deviceSession.userId)
-    if (tokensContract === null) throw new BadRequestException()
+    const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
+    if (userView === null) throw new BadRequestException()
     return
   }
 
@@ -135,9 +135,9 @@ export class AuthController {
   async passwordRecovery(
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
   ) {
-    const tokensContract = await this.authService.passwordRecovery(bodyPasswordRecovery.email)
-    if (tokensContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
-    if (tokensContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException()
+    const isRecoveryContract = await this.authService.passwordRecovery(bodyPasswordRecovery.email)
+    if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
+    if (isRecoveryContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException()
     return
   }
 
