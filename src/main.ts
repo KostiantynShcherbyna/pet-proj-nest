@@ -12,7 +12,7 @@ async function bootstrap() {
       stopAtFirstError: true,
       transform: true,
       exceptionFactory: (errors) => {
-        const customErrors = errors.map((err) => {
+        const customErrors = errors.map(err => {
           return {
             field: err.property,
             messages: Object.values(err.constraints!),

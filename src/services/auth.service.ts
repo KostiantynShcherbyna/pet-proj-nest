@@ -4,7 +4,7 @@ import { Model, Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
 import { BodyAuthModel } from "src/models/body/BodyAuthModel"
 import { BodyRegistrationModel } from "src/models/body/BodyRegistrationModel"
-import { deviceDto } from "src/models/dto/deviceDto"
+import { DeviceSessionModel } from "src/models/request/DeviceSessionModel"
 import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
@@ -53,7 +53,7 @@ export class AuthService {
   }
 
 
-  async refreshToken(deviceSession: deviceDto, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
+  async refreshToken(deviceSession: DeviceSessionModel, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
 
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)
@@ -74,7 +74,7 @@ export class AuthService {
   }
 
 
-  async logout(deviceSession: deviceDto): Promise<Contract<null | boolean>> {
+  async logout(deviceSession: DeviceSessionModel): Promise<Contract<null | boolean>> {
 
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)
@@ -184,14 +184,14 @@ export class AuthService {
 
     // const foundedEmailDto = this.jwtServiceMngs.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
     // const foundedEmailDto = await this.jwtService.verifyAsync(recoveryCode)
-    const verifyedEmailDto = await this.jwtCustomService.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
-    if (verifyedEmailDto === null) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
+    const verifiedEmailDto = await this.jwtCustomService.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
+    if (verifiedEmailDto === null) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
-    const oldRecoveryCodeDto = await this.authRepository.findRecoveryCode(verifyedEmailDto.email)
+    const oldRecoveryCodeDto = await this.authRepository.findRecoveryCode(verifiedEmailDto.email)
     if (oldRecoveryCodeDto === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_FOUND)
     if (oldRecoveryCodeDto.checkRecoveryCode(recoveryCode) === false) return new Contract(null, ErrorEnums.RECOVERY_CODE_INVALID)
 
-    const emailDto = { "accountData.email": verifyedEmailDto.email }
+    const emailDto = { "accountData.email": verifiedEmailDto.email }
 
     const user = await this.usersRepository.findUser(emailDto)
     if (user === null) return new Contract(null, ErrorEnums.NOT_FOUND_USER)

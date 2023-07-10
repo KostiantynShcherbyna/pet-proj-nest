@@ -1,14 +1,24 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { DefaultValuePipe } from "@nestjs/common";
 
 export class QueryBlogModel {
   @IsString()
-  searchNameTerm: string;
+  @IsNotEmpty()
+  searchNameTerm: string = "";
+
   @IsString()
-  sortBy: string;
+  @IsNotEmpty()
+  sortBy: string = "createdAt";
+
   @IsString()
-  sortDirection: string;
+  @IsNotEmpty()
+  sortDirection: string = "-1";
+
   @IsNumber()
-  pageNumber: number;
+  @IsNotEmpty()
+  pageNumber: number = 1;
+
   @IsNumber()
-  pageSize: number;
+  @IsNotEmpty()
+  pageSize: number = 10;
 }

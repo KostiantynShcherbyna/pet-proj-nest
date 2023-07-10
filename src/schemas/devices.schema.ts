@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { addMinutes } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { returnTokensDto } from 'src/models/dto/returnTokensDto';
+import { returnTokensDto } from 'src/dto/returnTokensDto';
 import { EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH } from 'src/utils/constants/constants';
 
 

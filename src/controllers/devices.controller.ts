@@ -10,47 +10,48 @@ import {
   HttpCode,
   Inject,
   Req,
-  UseGuards,
-} from '@nestjs/common';
-import { QueryUserModel } from 'src/models/query/QueryUserModel';
-import { UsersQueryRepository } from 'src/repositories/query/users.query.repository';
-import { BodyUserModel } from 'src/models/body/BodyUserModel';
-import { UsersService } from 'src/services/users.service';
-import { DevicesService } from 'src/services/devices.service';
-import { AuthQueryRepository } from 'src/repositories/query/auth.query.repository';
-import { RefreshGuard } from 'src/refresh.guard';
-import { deviceDto } from 'src/models/dto/deviceDto';
+  UseGuards
+} from "@nestjs/common";
+import { QueryUserModel } from "src/models/query/QueryUserModel";
+import { UsersQueryRepository } from "src/repositories/query/users.query.repository";
+import { BodyUserModel } from "src/models/body/BodyUserModel";
+import { UsersService } from "src/services/users.service";
+import { DevicesService } from "src/services/devices.service";
+import { AuthQueryRepository } from "src/repositories/query/auth.query.repository";
+import { RefreshGuard } from "src/refresh.guard";
+import { DeviceSessionModel } from "src/models/request/DeviceSessionModel";
 
-@Controller('devices')
+@Controller("devices")
 export class DevicesController {
   constructor(
     @Inject(DevicesService) protected devicesService: DevicesService,
-    @Inject(AuthQueryRepository) protected AuthQueryRepository: AuthQueryRepository,
-  ) { }
+    @Inject(AuthQueryRepository) protected authQueryRepository: AuthQueryRepository
+  ) {
+  }
 
   @UseGuards(RefreshGuard)
   @Get()
   async getDevices(
-    @Req() deviceSession: deviceDto,
+    @Req() deviceSession: DeviceSessionModel
   ) {
-    return await this.AuthQueryRepository.findDevicesByUserIdView(deviceSession.userId);
+    return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId);
   }
 
   @UseGuards(RefreshGuard)
   @Post()
   @HttpCode(204)
   async deleteOtherDevices(
-    @Req() deviceSession: deviceDto
+    @Req() deviceSession: DeviceSessionModel
   ) {
     return await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId);
   }
 
   @UseGuards(RefreshGuard)
-  @Delete(':deviceId')
+  @Delete(":deviceId")
   @HttpCode(204)
   async deleteSpecialDevice(
     @Param() deviceId: string,
-    @Req() deviceSession: deviceDto,
+    @Req() deviceSession: DeviceSessionModel
   ) {
     const result = await this.devicesService.deleteSpecialDevice(deviceId, deviceSession);
     if (result.error !== null) throw new NotFoundException();

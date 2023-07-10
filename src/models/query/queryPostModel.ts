@@ -1,12 +1,8 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
 
 export class QueryPostModel {
-  @IsNumber()
   pageNumber: number;
-  @IsNumber()
   pageSize: number;
-  @IsString()
   sortBy: string;
-  @IsString()
   sortDirection: string;
 }

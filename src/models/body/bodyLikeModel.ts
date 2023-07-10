@@ -1,7 +1,9 @@
-import { IsString } from 'class-validator';
-import { myStatusEnum } from '../../utils/constants/constants';
+import { IsIn, IsNotEmpty, IsString } from "class-validator"
+import { myStatusEnum } from "../../utils/constants/constants"
 
 export class BodyLikeModel {
   @IsString()
-  likeStatus: myStatusEnum;
+  @IsNotEmpty()
+  @IsIn(Object.values(myStatusEnum))
+  likeStatus: myStatusEnum
 }

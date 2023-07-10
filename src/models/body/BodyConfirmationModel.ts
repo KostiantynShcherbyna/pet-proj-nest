@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class BodyRegistrationConfirmationModel {
+export class BodyConfirmationModel {
   @IsString()
   code: string;
 }

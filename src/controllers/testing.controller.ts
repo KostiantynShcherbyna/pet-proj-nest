@@ -2,24 +2,31 @@ import {
   Controller,
   Delete,
   HttpCode,
-  ServiceUnavailableException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Posts, PostsModel } from 'src/schemas/posts.schema';
-import { Blogs, BlogsModel } from 'src/schemas/blogs.schema';
-import { Comments, CommentsModel } from 'src/schemas/comments.schema';
-import { Users, UsersModel } from 'src/schemas/users.schema';
+  ServiceUnavailableException
+} from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Posts, PostsModel } from "src/schemas/posts.schema";
+import { Blogs, BlogsModel } from "src/schemas/blogs.schema";
+import { Comments, CommentsModel } from "src/schemas/comments.schema";
+import { Users, UsersModel } from "src/schemas/users.schema";
+import { Devices, DevicesModel } from "../schemas/devices.schema";
+import { AttemptRequests, AttemptRequestsModel } from "../schemas/attemptRequests.schema";
+import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recoveryCode.schema";
 
-@Controller('testing')
+@Controller("testing")
 export class TestingController {
   constructor(
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
     @InjectModel(Posts.name) protected PostsModel: PostsModel,
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     @InjectModel(Users.name) protected UsersModel: UsersModel,
-  ) {}
+    @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
+    @InjectModel(AttemptRequests.name) protected AttemptRequestsModel: AttemptRequestsModel,
+    @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel
+  ) {
+  }
 
-  @Delete('all-data')
+  @Delete("all-data")
   @HttpCode(204)
   async deleteAllData() {
     try {
@@ -28,6 +35,9 @@ export class TestingController {
         await this.PostsModel.deleteMany({}),
         await this.CommentsModel.deleteMany({}),
         await this.UsersModel.deleteMany({}),
+        await this.DevicesModel.deleteMany({}),
+        await this.AttemptRequestsModel.deleteMany({}),
+        await this.RecoveryCodesModel.deleteMany({})
       ]);
       return;
     } catch (err) {

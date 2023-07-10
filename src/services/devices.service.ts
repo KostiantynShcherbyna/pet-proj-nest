@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
 import { BodyPostModel } from "src/models/body/BodyPostModel"
-import { deviceDto } from "src/models/dto/deviceDto"
+import { DeviceSessionModel } from "src/models/request/DeviceSessionModel"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
@@ -32,7 +32,7 @@ export class DevicesService {
         return new Contract(true, null)
     }
 
-    async deleteSpecialDevice(deviceId: string, deviceSession: deviceDto): Promise<Contract<null | boolean>> {
+    async deleteSpecialDevice(deviceId: string, deviceSession: DeviceSessionModel): Promise<Contract<null | boolean>> {
 
         const device = await this.devicesRepository.findDeviceByDeviceId(deviceId)
         if (device === null) return new Contract(null, ErrorEnums.NOT_FOUND_DEVICE)
