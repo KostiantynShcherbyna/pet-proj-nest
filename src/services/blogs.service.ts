@@ -12,8 +12,8 @@ import { MyStatus } from 'src/utils/constants/constants';
 import { ErrorEnums } from 'src/utils/errors/errorEnums';
 import { dtoModify } from 'src/utils/modify/dtoModify';
 import { validateOrRejectFunc } from 'src/validateOrRejectFunc';
-import { blogView } from 'src/views/blogView';
-import { postView } from 'src/views/postView';
+import { BlogView } from 'src/views/BlogView';
+import { PostView } from 'src/views/PostView';
 
 @Injectable()
 export class BlogsService {
@@ -24,7 +24,7 @@ export class BlogsService {
     @Inject(PostsRepository) protected postsRepository: PostsRepository,
   ) {}
 
-  async createBlog(bodyBlog: BodyBlogModel): Promise<blogView> {
+  async createBlog(bodyBlog: BodyBlogModel): Promise<BlogView> {
     await validateOrRejectFunc(bodyBlog, BodyBlogModel);
 
     const newBlog = this.BlogsModel.createBlog(bodyBlog, this.BlogsModel);
@@ -64,7 +64,7 @@ export class BlogsService {
   async createPost(
     bodyBlogPostModel: BodyBlogPostModel,
     blogId: string,
-  ): Promise<Contract<null | postView>> {
+  ): Promise<Contract<null | PostView>> {
     const foundBlog = await this.blogsRepository.findBlog(blogId);
     if (foundBlog === null)
       return new Contract(null, ErrorEnums.NOT_FOUND_BLOG);

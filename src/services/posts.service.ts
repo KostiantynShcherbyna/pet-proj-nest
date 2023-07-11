@@ -9,7 +9,7 @@ import { Posts, PostsModel } from "src/schemas/posts.schema";
 import { MyStatus } from "src/utils/constants/constants";
 import { ErrorEnums } from "src/utils/errors/errorEnums";
 import { dtoModify } from "src/utils/modify/dtoModify";
-import { postView } from "src/views/postView";
+import { PostView } from "src/views/PostView";
 import { UsersRepository } from "../repositories/users.repository";
 
 @Injectable()
@@ -23,7 +23,7 @@ export class PostsService {
   }
 
 
-  async createPost(bodyPostModel: BodyPostModel): Promise<Contract<null | postView>> {
+  async createPost(bodyPostModel: BodyPostModel): Promise<Contract<null | PostView>> {
 
     const foundBlog = await this.blogsRepository.findBlog(bodyPostModel.blogId);
     if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG);

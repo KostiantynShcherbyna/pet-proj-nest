@@ -4,9 +4,9 @@ import { InjectModel } from "@nestjs/mongoose"
 import { dtoModify } from "src/utils/modify/dtoModify"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { QueryUserModel } from "src/models/query/QueryUserModel"
-import { usersView } from "src/views/userView"
+import { UsersView } from "src/views/UserView"
 import { Types } from "mongoose"
-import { meView } from "src/views/meView"
+import { MeView } from "src/views/MeView"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
@@ -15,7 +15,7 @@ export class UsersQueryRepository {
         @InjectModel(Users.name) protected UsersModel: UsersModel,
     ) { }
 
-    async findUser(userId: string): Promise<null | meView> {
+    async findUser(userId: string): Promise<null | MeView> {
 
         const user = await this.UsersModel.findById(userId)
         if (user === null) return null
@@ -25,7 +25,7 @@ export class UsersQueryRepository {
     }
 
 
-    async findUsers(query: QueryUserModel): Promise<usersView> {
+    async findUsers(query: QueryUserModel): Promise<UsersView> {
 
         const PAGE_SIZE_DEFAULT = 10
         const PAGE_NUMBER_DEFAULT = 1

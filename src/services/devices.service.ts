@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
 import { BodyPostModel } from "src/models/body/BodyPostModel"
-import { DeviceSessionModel } from "src/models/request/DeviceSessionModel"
+import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
@@ -12,7 +12,7 @@ import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { MyStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { dtoModify } from "src/utils/modify/dtoModify"
-import { postView } from "src/views/postView"
+import { PostView } from "src/views/PostView"
 
 @Injectable()
 export class DevicesService {

@@ -4,7 +4,7 @@ import { Model, Types } from "mongoose"
 import { Contract } from "src/contracts/Contract"
 import { BodyAuthModel } from "src/models/body/BodyAuthModel"
 import { BodyRegistrationModel } from "src/models/body/BodyRegistrationModel"
-import { DeviceSessionModel } from "src/models/request/DeviceSessionModel"
+import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
@@ -14,8 +14,8 @@ import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { compareHash } from "src/utils/hashFunctions/compareHash"
 import { emailManager } from "src/utils/managers/emailManager"
-import { tokensView } from "src/views/tokensView"
-import { JwtService } from '@nestjs/jwt'
+import { TokensView } from "src/views/TokensView"
+import { JwtService } from "@nestjs/jwt"
 import { TokensService } from "./tokens.service"
 import { settings } from "src/settings"
 
@@ -30,18 +30,26 @@ export class AuthService {
     @Inject(AuthRepository) protected authRepository: AuthRepository,
     @Inject(TokensService) protected jwtCustomService: TokensService,
     @Inject(JwtService) protected jwtService: JwtService,
-  ) { }
+  ) {
+  }
 
-  async login(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
-
-    const user = await this.usersRepository.findUserLoginOrEmail({ login: loginBody.loginOrEmail, email: loginBody.loginOrEmail })
+  async login(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
+    //  TODO всю проверку юзера сделать методом
+    const user = await this.usersRepository.findUserLoginOrEmail({
+      login: loginBody.loginOrEmail,
+      email: loginBody.loginOrEmail
+    })
     if (user === null) return new Contract(null, ErrorEnums.NOT_FOUND_USER)
     if (user.checkConfirmation() === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
 
     const isPassword = await compareHash(user.accountData.passwordHash, loginBody.password)
     if (isPassword === false) return new Contract(null, ErrorEnums.PASSWORD_NOT_COMPARED)
 
-    const newTokens = await this.DevicesModel.createDevice({ deviceIp, userAgent, userId: user._id.toString() }, this.jwtService)
+    const newTokens = await this.DevicesModel.createDevice({
+      deviceIp,
+      userAgent,
+      userId: user._id.toString()
+    }, this.jwtService)
     await this.devicesRepository.saveDocument(newTokens.refreshPayload!)
 
     const tokensDto = {
@@ -53,7 +61,7 @@ export class AuthService {
   }
 
 
-  async refreshToken(deviceSession: DeviceSessionModel, deviceIp: string, userAgent: string): Promise<Contract<null | tokensView>> {
+  async refreshToken(deviceSession: DeviceSessionModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
 
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)
@@ -160,7 +168,7 @@ export class AuthService {
   async passwordRecovery(email: string): Promise<Contract<null | boolean>> {
 
     const oldRecoveryCode = await this.authRepository.findRecoveryCode(email)
-    //  TODO TS-INGORE
+    //  TODO ANY
     const newRecoveryCodeDocument = oldRecoveryCode === null
       ? await this.RecoveryCodesModel.createRecoveryCode(email, this.RecoveryCodesModel, this.jwtService)
       : await oldRecoveryCode.updateRecoveryCode(email, this.jwtService)

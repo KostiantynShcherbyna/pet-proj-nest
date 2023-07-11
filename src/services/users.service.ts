@@ -7,7 +7,7 @@ import { UsersRepository } from "src/repositories/users.repository"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { dtoModify } from "src/utils/modify/dtoModify"
-import { userView } from "src/views/userView"
+import { UserView } from "src/views/UserView"
 
 @Injectable()
 export class UsersService {
@@ -17,7 +17,7 @@ export class UsersService {
     ) { }
 
 
-    async createUser(newUserData: BodyUserModel): Promise<userView> {
+    async createUser(newUserData: BodyUserModel): Promise<UserView> {
 
         const newUser = await this.UsersModel.createUser(newUserData, this.UsersModel)
         await this.usersRepository.saveDocument(newUser)

@@ -1,25 +1,20 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
   Post,
-  Query,
   Param,
   NotFoundException,
   HttpCode,
   Inject,
   Req,
-  UseGuards
-} from "@nestjs/common";
-import { QueryUserModel } from "src/models/query/QueryUserModel";
-import { UsersQueryRepository } from "src/repositories/query/users.query.repository";
-import { BodyUserModel } from "src/models/body/BodyUserModel";
-import { UsersService } from "src/services/users.service";
+  UseGuards, HttpStatus
+} from "@nestjs/common"
 import { DevicesService } from "src/services/devices.service";
 import { AuthQueryRepository } from "src/repositories/query/auth.query.repository";
-import { RefreshGuard } from "src/refresh.guard";
-import { DeviceSessionModel } from "src/models/request/DeviceSessionModel";
+import { RefreshGuard } from "src/guards/refresh.guard";
+import { DeviceSessionModel } from "src/models/request/device-session.model";
+import { ObjectIdDeviceIdModel } from "../models/uri/ObjectId-deviceId.model"
 
 @Controller("devices")
 export class DevicesController {
@@ -39,7 +34,7 @@ export class DevicesController {
 
   @UseGuards(RefreshGuard)
   @Post()
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
     @Req() deviceSession: DeviceSessionModel
   ) {
@@ -48,12 +43,12 @@ export class DevicesController {
 
   @UseGuards(RefreshGuard)
   @Delete(":deviceId")
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
-    @Param() deviceId: string,
+    @Param("deviceId") deviceId: ObjectIdDeviceIdModel,
     @Req() deviceSession: DeviceSessionModel
   ) {
-    const result = await this.devicesService.deleteSpecialDevice(deviceId, deviceSession);
+    const result = await this.devicesService.deleteSpecialDevice(deviceId.deviceId, deviceSession);
     if (result.error !== null) throw new NotFoundException();
     return;
   }

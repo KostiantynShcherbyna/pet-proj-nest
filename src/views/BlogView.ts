@@ -1,4 +1,4 @@
-export type blogView = {
+export type BlogView = {
     id: string
     name: string
     description: string
@@ -7,10 +7,10 @@ export type blogView = {
     isMembership: boolean
 }
 
-export type blogsView = {
+export type BlogsView = {
     pagesCount: number;
     page: number;
     pageSize: number;
     totalCount: number;
-    items: blogView[];
+    items: BlogView[];
 }

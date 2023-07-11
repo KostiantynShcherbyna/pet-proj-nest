@@ -17,7 +17,7 @@ export class AuthRepository {
         return recoveryCode
     }
 
-    async saveDocument(document: RecoveryCodesDocument) {
+    async saveDocument(document: any) {
 
         await document.save()
     }

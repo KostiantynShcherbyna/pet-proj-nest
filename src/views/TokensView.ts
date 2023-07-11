@@ -1,4 +1,4 @@
-export type tokensView = {
+export type TokensView = {
     accessJwt: {
         accessToken: string;
     };

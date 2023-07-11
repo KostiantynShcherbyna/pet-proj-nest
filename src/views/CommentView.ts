@@ -1,23 +1,22 @@
-
-export type commentsView = {
+export type CommentsView = {
     pagesCount: number,
     page: number,
     pageSize: number,
     totalCount: number,
-    items: commentView[]
+    items: CommentView[]
 }
-export type commentView = {
+export type CommentView = {
     id: string,
     content: string,
-    commentatorInfo: commentatorInfo,
+    commentatorInfo: CommentatorInfo,
     createdAt: string,
-    likesInfo: likesInfo
+    likesInfo: LikesInfo
 }
-export type commentatorInfo = {
+export type CommentatorInfo = {
     userId: string,
     userLogin: string
 }
-export type likesInfo = {
+export type LikesInfo = {
     likesCount: number,
     dislikesCount: number,
     myStatus: string,

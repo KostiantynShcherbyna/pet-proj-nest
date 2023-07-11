@@ -2,12 +2,12 @@ import { Injectable, Inject } from "@nestjs/common"
 import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { QueryBlogModel } from "src/models/query/QueryBlogModel"
-import { blogView, blogsView } from "src/views/blogView"
+import { BlogView, BlogsView } from "src/views/BlogView"
 import { BlogsModel, Blogs } from "src/schemas/blogs.schema"
 import { dtoModify } from "src/utils/modify/dtoModify"
 import { Types } from "mongoose"
 import { QueryPostModel } from "src/models/query/QueryPostModel"
-import { postView, postsView } from "src/views/postView"
+import { PostView, PostsView } from "src/views/PostView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import { MyStatus } from "src/utils/constants/constants"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
@@ -19,7 +19,7 @@ export class PostsQueryRepository {
         @Inject(BlogsRepository) protected blogsRepositoryMngs: BlogsRepository
     ) { }
 
-    async findPosts(query: QueryPostModel, blogId?: string, userId?: string): Promise<null | postsView> {
+    async findPosts(queryPost: QueryPostModel, blogId?: string, userId?: string): Promise<null | PostsView> {
 
         if (blogId) {
             const blog = await this.blogsRepositoryMngs.findBlog(blogId)
@@ -31,10 +31,10 @@ export class PostsQueryRepository {
         const SORT_BY_DEFAULT = 'createdAt'
         const SORT_DIRECTION_DEFAULT = -1
 
-        const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
-        const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-        const sortBy = query.sortBy || SORT_BY_DEFAULT
-        const sortDirection = query.sortDirection === "asc" ? 1 : SORT_DIRECTION_DEFAULT
+        const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
+        const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
+        const sortBy = queryPost.sortBy || SORT_BY_DEFAULT
+        const sortDirection = queryPost.sortDirection === "asc" ? 1 : SORT_DIRECTION_DEFAULT
 
         const skippedPostsCount = (pageNumber - 1) * pageSize
 
@@ -72,9 +72,9 @@ export class PostsQueryRepository {
         return postsView
     }
 
-    async findPost(postId: string, userId?: string): Promise<null | postView> {
+    async findPost(postId: string, userId?: string): Promise<null | PostView> {
 
-        const foundPost = await this.PostsModel.findOne({ _id: new Types.ObjectId(postId) })
+        const foundPost = await this.PostsModel.findById(postId)
         if (foundPost === null) return null
 
         // Looking for a Like if userId is defined

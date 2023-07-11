@@ -1,4 +1,4 @@
-export type deviceView = {
+export type DeviceView = {
     ip: string,
     title: string,
     lastActiveDate: string,

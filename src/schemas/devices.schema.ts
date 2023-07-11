@@ -1,10 +1,10 @@
-import { JwtService } from '@nestjs/jwt';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { randomUUID } from 'crypto';
-import { addMinutes } from 'date-fns';
-import { HydratedDocument, Model, Types } from 'mongoose';
-import { returnTokensDto } from 'src/dto/returnTokensDto';
-import { EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH } from 'src/utils/constants/constants';
+import { JwtService } from "@nestjs/jwt"
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
+import { randomUUID } from "crypto"
+import { addMinutes } from "date-fns"
+import { HydratedDocument, Model, Types } from "mongoose"
+import { ReturnTokensDto } from "src/dto/ReturnTokensDto"
+import { EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH } from "src/utils/constants/constants"
 
 
 @Schema()
@@ -100,7 +100,7 @@ export class Devices {
   }
 
 
-  async refreshDevice({ deviceIp, userAgent, userId }, jwtService: JwtService): Promise<returnTokensDto> {
+  async refreshDevice({ deviceIp, userAgent, userId }, jwtService: JwtService): Promise<ReturnTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -142,9 +142,12 @@ export class Devices {
   }
 
 }
+
 interface DevicesStatics {
-  createDevice({ deviceIp, userAgent, userId }, jwtService: JwtService): Promise<returnTokensDto>
+  createDevice({ deviceIp, userAgent, userId }, jwtService: JwtService): Promise<ReturnTokensDto>
+
   deleteDevice(deviceId: string, DevicesModel: DevicesModel): Promise<number>
+
   deleteOtherDevices(userId: string, deviceId: string, DevicesModel: DevicesModel): Promise<number>
 }
 

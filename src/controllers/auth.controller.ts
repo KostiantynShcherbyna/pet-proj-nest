@@ -19,8 +19,8 @@ import { BodyPasswordRecoveryModel } from "src/models/body/BodyPasswordRecoveryM
 import { BodyConfirmationModel } from "src/models/body/BodyConfirmationModel"
 import { BodyRegistrationModel } from "src/models/body/BodyRegistrationModel"
 import { BodyConfirmationResendModel } from "src/models/body/BodyRegistrationResendModel"
-import { DeviceSessionModel } from "src/models/request/DeviceSessionModel"
-import { RefreshGuard } from "src/refresh.guard"
+import { DeviceSessionModel } from "src/models/request/device-session.model"
+import { RefreshGuard } from "src/guards/refresh.guard"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
 import { AuthService } from "src/services/auth.service"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
@@ -47,7 +47,7 @@ export class AuthController {
     if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
     if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
 
-    res.cookie("refreshToken", loginContract.data?.refreshToken)
+    res.cookie("refreshToken", loginContract.data?.refreshToken, { httpOnly: true, secure: true })
     return loginContract.data?.accessJwt
   }
 

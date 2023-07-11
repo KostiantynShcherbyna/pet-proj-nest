@@ -2,12 +2,12 @@ import { Injectable, Inject } from "@nestjs/common";
 import { BlogsRepository } from "../blogs.repository";
 import { InjectModel } from "@nestjs/mongoose";
 import { QueryBlogModel } from "src/models/query/QueryBlogModel";
-import { blogView, blogsView } from "src/views/blogView";
+import { BlogView, BlogsView } from "src/views/BlogView";
 import { BlogsModel, Blogs } from "src/schemas/blogs.schema";
 import { dtoModify } from "src/utils/modify/dtoModify";
 import { Types } from "mongoose";
 import { QueryPostModel } from "src/models/query/QueryPostModel";
-import { postsView } from "src/views/postView";
+import { PostsView } from "src/views/PostView";
 import { Posts, PostsModel } from "src/schemas/posts.schema";
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
@@ -19,7 +19,7 @@ export class BlogsQueryRepository {
   ) {
   }
 
-  async findBlog(id: string): Promise<null | blogView> {
+  async findBlog(id: string): Promise<null | BlogView> {
     const foundBlog = await this.BlogsModel.findById(id);
     if (foundBlog === null) return null;
 
@@ -27,7 +27,7 @@ export class BlogsQueryRepository {
     return foundBlogView;
   }
 
-  async findBlogs(query: QueryBlogModel): Promise<blogsView> {
+  async findBlogs(query: QueryBlogModel): Promise<BlogsView> {
     const PAGE_SIZE_DEFAULT = 10;
     const PAGE_NUMBER_DEFAULT = 1;
     const SEARCH_NAME_TERM_DEFAULT = "";

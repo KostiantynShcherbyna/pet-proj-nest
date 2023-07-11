@@ -1,4 +1,4 @@
-export type postView = {
+export type PostView = {
     id: string;
     title: string;
     shortDescription: string;
@@ -8,10 +8,10 @@ export type postView = {
     createdAt: string;
 }
 
-export type postsView = {
+export type PostsView = {
     pagesCount: number;
     page: number;
     pageSize: number;
     totalCount: number;
-    items: postView[];
+    items: PostView[];
 }
