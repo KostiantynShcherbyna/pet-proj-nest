@@ -45,3 +45,6 @@ export enum SortDirection {
   asc = "1",
   desc = "-1",
 }
+export enum BasicToken {
+ token= "YWRtaW46cXdlcnR5"
+}

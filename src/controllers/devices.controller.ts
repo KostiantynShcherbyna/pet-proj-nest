@@ -45,10 +45,10 @@ export class DevicesController {
   @Delete(":deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
+    @Req() deviceSession: DeviceSessionModel,
     @Param("deviceId") deviceId: ObjectIdDeviceIdModel,
-    @Req() deviceSession: DeviceSessionModel
   ) {
-    const result = await this.devicesService.deleteSpecialDevice(deviceId.deviceId, deviceSession);
+    const result = await this.devicesService.deleteSpecialDevice(deviceId.deviceId, deviceSession.userId);
     if (result.error !== null) throw new NotFoundException();
     return;
   }

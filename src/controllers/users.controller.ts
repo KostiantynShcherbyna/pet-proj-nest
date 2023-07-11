@@ -8,12 +8,13 @@ import {
   Param,
   NotFoundException,
   HttpCode,
-  Inject
-} from "@nestjs/common";
-import { QueryUserModel } from "src/models/query/QueryUserModel";
-import { UsersQueryRepository } from "src/repositories/query/users.query.repository";
-import { BodyUserModel } from "src/models/body/BodyUserModel";
-import { UsersService } from "src/services/users.service";
+  Inject, HttpStatus
+} from "@nestjs/common"
+import { QueryUserModel } from "src/models/query/QueryUserModel"
+import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
+import { BodyUserModel } from "src/models/body/BodyUserModel"
+import { UsersService } from "src/services/users.service"
+import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
 
 @Controller("users")
 export class UsersController {
@@ -27,23 +28,23 @@ export class UsersController {
   async findUsers(
     @Query() queryUser: QueryUserModel
   ) {
-    return await this.usersQueryRepository.findUsers(queryUser);
+    return await this.usersQueryRepository.findUsers(queryUser)
   }
 
   @Post()
   async createUser(
     @Body() bodyUser: BodyUserModel
   ) {
-    return await this.usersService.createUser(bodyUser);
+    return await this.usersService.createUser(bodyUser)
   }
 
   @Delete(":id")
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
-    @Param() id: string
+    @Param() id: ObjectIdIdModel
   ) {
-    const result = await this.usersService.deleteUser(id);
-    if (result.error !== null) throw new NotFoundException();
-    return;
+    const result = await this.usersService.deleteUser(id.id)
+    if (result.error !== null) throw new NotFoundException()
+    return
   }
 }

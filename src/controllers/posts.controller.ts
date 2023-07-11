@@ -1,5 +1,18 @@
 import {
-  Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Query,
+  Param,
+  NotFoundException,
+  HttpCode,
+  Inject,
+  Req,
+  UseGuards,
+  HttpStatus
 } from "@nestjs/common"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { PostsService } from "src/services/posts.service"
@@ -13,15 +26,20 @@ import { OptionalDeviceSessionModel } from "../models/request/optional-device-se
 import { DeviceSessionModel } from "../models/request/device-session.model"
 import { AccessMiddleware } from "../guards/access.middleware"
 import { AccessGuard } from "../guards/access.guard"
+import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
+import { BasicGuard } from "../guards/basic.guard"
+import { ObjectIdPostIdModel } from "../models/uri/ObjectId-postId.model"
 
 @Controller("posts")
 export class PostsController {
   constructor(
     @Inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+    @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
     @Inject(PostsService) protected postsService: PostsService,
-    @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository) {
+  ) {
   }
 
+  @UseGuards(AccessMiddleware)
   @Get()
   async findPosts(
     @Req() deviceSession: OptionalDeviceSessionModel,
@@ -29,15 +47,18 @@ export class PostsController {
     return await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
   }
 
+  @UseGuards(AccessMiddleware)
   @Get(":id")
   async findPost(
     @Req() deviceSession: OptionalDeviceSessionModel,
-    @Param() id: string) {
-    const post = await this.postsQueryRepository.findPost(id, deviceSession?.userId)
+    @Param("id") id: ObjectIdIdModel,
+  ) {
+    const post = await this.postsQueryRepository.findPost(id.id, deviceSession?.userId)
     if (post === null) throw new NotFoundException()
     return post
   }
 
+  @UseGuards(BasicGuard)
   @Post()
   async createPost(
     @Body() bodyPost: BodyPostModel
@@ -47,21 +68,23 @@ export class PostsController {
     return result.data
   }
 
-  @Put(":id") @HttpCode(204)
+  @Put(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
-    @Param() id: string,
-    @Body() bodyPost: BodyPostModel
+    @Param() id: ObjectIdIdModel,
+    @Body() bodyPost: BodyPostModel,
   ) {
-    const result = await this.postsService.updatePost(bodyPost, id)
+    const result = await this.postsService.updatePost(bodyPost, id.id)
     if (result.error !== null) throw new NotFoundException()
     return
   }
 
-  @Delete(":id") @HttpCode(204)
+  @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
-    @Param() id: string
+    @Param() id: ObjectIdIdModel
   ) {
-    const result = await this.postsService.deletePost(id)
+    const result = await this.postsService.deletePost(id.id)
     if (result.error !== null) throw new NotFoundException()
     return
   }
@@ -70,10 +93,10 @@ export class PostsController {
   @Get(":postId/comments")
   async findComments(
     @Req() deviceSession: OptionalDeviceSessionModel,
-    @Param("postId") postId: string,
-    @Query() queryComment: QueryCommentModel
+    @Param("postId") postId: ObjectIdPostIdModel,
+    @Query() queryComment: QueryCommentModel,
   ) {
-    const comments = await this.commentsQueryRepository.findComments(postId, queryComment, deviceSession?.userId)
+    const comments = await this.commentsQueryRepository.findComments(postId.postId, queryComment, deviceSession?.userId)
     if (!comments.items.length) throw new NotFoundException()
     return comments
   }
@@ -82,10 +105,10 @@ export class PostsController {
   @Get(":postId/comments")
   async createComment(
     @Req() deviceSession: OptionalDeviceSessionModel,
-    @Param("postId") postId: string,
-    @Query() queryComment: QueryCommentModel
+    @Param("postId") postId: ObjectIdPostIdModel,
+    @Query() queryComment: QueryCommentModel,
   ) {
-    const comments = await this.commentsQueryRepository.findComments(postId, queryComment, deviceSession?.userId)
+    const comments = await this.commentsQueryRepository.findComments(postId.postId, queryComment, deviceSession?.userId)
     if (!comments.items.length) throw new NotFoundException()
     return comments
   }
@@ -94,9 +117,10 @@ export class PostsController {
   @Put(":postId/like-status")
   async likeStatus(
     @Req() deviceSession: DeviceSessionModel,
-    @Param("postId") postId: string,
-    @Body() bodyLike: BodyLikeModel) {
-    const comments = await this.postsService.updateLike(deviceSession.userId, postId, bodyLike.likeStatus)
+    @Param("postId") postId: ObjectIdPostIdModel,
+    @Body() bodyLike: BodyLikeModel,
+  ) {
+    const comments = await this.postsService.updateLike(deviceSession.userId, postId.postId, bodyLike.likeStatus)
     if (comments.error === ErrorEnums.NOT_FOUND_POST) throw new NotFoundException()
     if (comments.error === ErrorEnums.NOT_FOUND_USER) throw new NotFoundException()
     return comments

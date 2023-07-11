@@ -32,11 +32,11 @@ export class DevicesService {
         return new Contract(true, null)
     }
 
-    async deleteSpecialDevice(deviceId: string, deviceSession: DeviceSessionModel): Promise<Contract<null | boolean>> {
+    async deleteSpecialDevice(deviceId: string, userId: string): Promise<Contract<null | boolean>> {
 
         const device = await this.devicesRepository.findDeviceByDeviceId(deviceId)
         if (device === null) return new Contract(null, ErrorEnums.NOT_FOUND_DEVICE)
-        if (device.checkOwner(deviceSession.userId) === false) return new Contract(null, ErrorEnums.NOT_DELETE_FOREIGN_DEVICE)
+        if (device.checkOwner(userId) === false) return new Contract(null, ErrorEnums.NOT_DELETE_FOREIGN_DEVICE)
 
         const deleteCount = await this.DevicesModel.deleteDevice(deviceId, this.DevicesModel)
         if (deleteCount === 0) return new Contract(null, ErrorEnums.NOT_DELETE_DEVICE)

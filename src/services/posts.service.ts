@@ -23,12 +23,12 @@ export class PostsService {
   }
 
 
-  async createPost(bodyPostModel: BodyPostModel): Promise<Contract<null | PostView>> {
+  async createPost(bodyPost: BodyPostModel): Promise<Contract<null | PostView>> {
 
-    const foundBlog = await this.blogsRepository.findBlog(bodyPostModel.blogId);
+    const foundBlog = await this.blogsRepository.findBlog(bodyPost.blogId);
     if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG);
 
-    const newPost = this.PostsModel.createPost(bodyPostModel, foundBlog.name, this.PostsModel);
+    const newPost = this.PostsModel.createPost(bodyPost, foundBlog.name, this.PostsModel);
     await this.postsRepository.saveDocument(newPost);
 
     const newPostView = dtoModify.changePostViewMngs(newPost, MyStatus.None);

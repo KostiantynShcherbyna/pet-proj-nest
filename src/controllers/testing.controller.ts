@@ -1,17 +1,17 @@
 import {
   Controller,
   Delete,
-  HttpCode,
+  HttpCode, HttpStatus,
   ServiceUnavailableException
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Posts, PostsModel } from "src/schemas/posts.schema";
-import { Blogs, BlogsModel } from "src/schemas/blogs.schema";
-import { Comments, CommentsModel } from "src/schemas/comments.schema";
-import { Users, UsersModel } from "src/schemas/users.schema";
-import { Devices, DevicesModel } from "../schemas/devices.schema";
-import { AttemptRequests, AttemptRequestsModel } from "../schemas/attemptRequests.schema";
-import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recoveryCode.schema";
+} from "@nestjs/common"
+import { InjectModel } from "@nestjs/mongoose"
+import { Posts, PostsModel } from "src/schemas/posts.schema"
+import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
+import { Comments, CommentsModel } from "src/schemas/comments.schema"
+import { Users, UsersModel } from "src/schemas/users.schema"
+import { Devices, DevicesModel } from "../schemas/devices.schema"
+import { AttemptRequests, AttemptRequestsModel } from "../schemas/attemptRequests.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recoveryCode.schema"
 
 @Controller("testing")
 export class TestingController {
@@ -27,21 +27,23 @@ export class TestingController {
   }
 
   @Delete("all-data")
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllData() {
     try {
-      await Promise.all([
-        await this.BlogsModel.deleteMany({}),
-        await this.PostsModel.deleteMany({}),
-        await this.CommentsModel.deleteMany({}),
-        await this.UsersModel.deleteMany({}),
-        await this.DevicesModel.deleteMany({}),
-        await this.AttemptRequestsModel.deleteMany({}),
-        await this.RecoveryCodesModel.deleteMany({})
-      ]);
-      return;
-    } catch (err) {
-      throw new ServiceUnavailableException();
+      await Promise.all(
+        [
+          await this.BlogsModel.deleteMany({}),
+          await this.PostsModel.deleteMany({}),
+          await this.CommentsModel.deleteMany({}),
+          await this.UsersModel.deleteMany({}),
+          await this.DevicesModel.deleteMany({}),
+          await this.AttemptRequestsModel.deleteMany({}),
+          await this.RecoveryCodesModel.deleteMany({})
+        ]
+      )
+      return
+    } catch {
+      throw new ServiceUnavailableException()
     }
   }
 }
