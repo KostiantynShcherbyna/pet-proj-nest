@@ -24,10 +24,7 @@ import { Devices, DevicesSchema } from "./schemas/devices.schema"
 import { AuthController } from "./controllers/auth.controller"
 import { AuthService } from "./services/auth.service"
 import { DevicesRepository } from "./repositories/devices.repository"
-import {
-  RecoveryCodes,
-  RecoveryCodesSchema,
-} from "./schemas/recoveryCode.schema"
+import { RecoveryCodes, RecoveryCodesSchema, } from "./schemas/recoveryCode.schema"
 import { CommentsRepository } from "./repositories/comments.repository"
 import { CommentsService } from "./services/comments.service"
 import { DevicesService } from "./services/devices.service"
@@ -36,12 +33,15 @@ import { AuthQueryRepository } from "./repositories/query/auth.query.repository"
 import { AuthRepository } from "./repositories/auth.repository"
 import { JwtService } from "@nestjs/jwt"
 import { settings } from "./settings"
+import { AttemptRequests, AttemptRequestsSchema } from "./schemas/attemptRequests.schema"
+import { AppService } from "./app.service"
+import { AppController } from "./app.controller"
 
-// const mongooseURI = process.env.MONGOOSE_URL || 'mongodb://0.0.0.0:27017';
+// const mongooseURI = process.env.MONGOOSE_URL || "mongodb://0.0.0.0:27017"
 
 @Module({
   imports: [
-    // ConfigModule.forRoot(),
+    ConfigModule.forRoot(),
     MongooseModule.forRoot("mongodb+srv://kostyalys:bagrat10n@cluster0.7mo0iox.mongodb.net/BE-2-0-DEV?retryWrites=true&w=majority"),
     MongooseModule.forFeature([
       { name: Blogs.name, schema: BlogsSchema },
@@ -50,6 +50,7 @@ import { settings } from "./settings"
       { name: Users.name, schema: UsersSchema },
       { name: Devices.name, schema: DevicesSchema },
       { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
+      { name: AttemptRequests.name, schema: AttemptRequestsSchema },
     ]),
   ],
   controllers: [
@@ -59,6 +60,7 @@ import { settings } from "./settings"
     CommentsController,
     TestingController,
     AuthController,
+    AppController,
   ],
   providers: [
     BlogsService,
@@ -69,6 +71,7 @@ import { settings } from "./settings"
     DevicesService,
     TokensService,
     JwtService,
+    AppService,
 
     BlogsRepository,
     BlogsQueryRepository,

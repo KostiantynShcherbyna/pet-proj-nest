@@ -10,10 +10,10 @@ import {
   Req,
   UseGuards, HttpStatus
 } from "@nestjs/common"
-import { DevicesService } from "src/services/devices.service";
-import { AuthQueryRepository } from "src/repositories/query/auth.query.repository";
-import { RefreshGuard } from "src/guards/refresh.guard";
-import { DeviceSessionModel } from "src/models/request/device-session.model";
+import { DevicesService } from "src/services/devices.service"
+import { AuthQueryRepository } from "src/repositories/query/auth.query.repository"
+import { RefreshGuard } from "src/guards/refresh.guard"
+import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { ObjectIdDeviceIdModel } from "../models/uri/ObjectId-deviceId.model"
 
 @Controller("devices")
@@ -29,7 +29,7 @@ export class DevicesController {
   async getDevices(
     @Req() deviceSession: DeviceSessionModel
   ) {
-    return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId);
+    return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
   }
 
   @UseGuards(RefreshGuard)
@@ -38,7 +38,7 @@ export class DevicesController {
   async deleteOtherDevices(
     @Req() deviceSession: DeviceSessionModel
   ) {
-    return await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId);
+    return await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId)
   }
 
   @UseGuards(RefreshGuard)
@@ -48,8 +48,8 @@ export class DevicesController {
     @Req() deviceSession: DeviceSessionModel,
     @Param("deviceId") deviceId: ObjectIdDeviceIdModel,
   ) {
-    const result = await this.devicesService.deleteSpecialDevice(deviceId.deviceId, deviceSession.userId);
-    if (result.error !== null) throw new NotFoundException();
-    return;
+    const result = await this.devicesService.deleteSpecialDevice(deviceId.deviceId, deviceSession.userId)
+    if (result.error !== null) throw new NotFoundException()
+    return
   }
 }

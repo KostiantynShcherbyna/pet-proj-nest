@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber, IsString } from "class-validator"
 
 export class QueryUserModel {
   @IsString()
@@ -17,11 +17,11 @@ export class QueryUserModel {
   @IsNotEmpty()
   sortDirection: string;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   pageNumber: number;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   pageSize: number;
 }

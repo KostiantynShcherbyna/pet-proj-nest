@@ -9,7 +9,7 @@ import {
   Param,
   NotFoundException,
   HttpCode,
-  Inject, Req, UseGuards
+  Inject, Req, UseGuards, HttpStatus
 } from "@nestjs/common"
 import { BlogsService } from "../services/blogs.service"
 import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
@@ -58,7 +58,7 @@ export class BlogsController {
   }
 
   @Put(":id")
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
     @Param("id", /*ParseObjectIdPipe*/) id: ObjectIdIdModel,
     @Body() bodyBlog: BodyBlogModel
@@ -69,7 +69,7 @@ export class BlogsController {
   }
 
   @Delete(":id")
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(
     @Param("id", /*ParseObjectIdPipe*/) id: ObjectIdIdModel
   ) {

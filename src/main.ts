@@ -25,7 +25,19 @@ async function bootstrap() {
   )
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter())
 
-  await app.listen(settings.PORT)
+
+  await app.listen(3000)
 }
+
+// const customErrorsFunc = (errors) => {
+//   const customErrors = errors.map(err => {
+//     return {
+//       field: err.property,
+//       messages: Object.values(err.constraints!),
+//     }
+//   })
+//
+//   throw new BadRequestException(customErrors)
+// }
 
 bootstrap()

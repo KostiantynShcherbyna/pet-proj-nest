@@ -1,46 +1,41 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, } from "@nestjs/common"
+import { Response } from "express"
 
 @Catch(Error)
 export class ErrorExceptionFilter implements ExceptionFilter {
   catch(host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    response
+    const ctx = host.switchToHttp()
+    const response = ctx.getResponse<Response>()
+    return response
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .send('Something wrong...');
+      .send("Something wrong...")
   }
 }
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
-    const response = host.switchToHttp().getResponse<Response>();
-    const status = exception.getStatus();
-    const exceptionResponse: any = exception.getResponse();
+    const response = host.switchToHttp().getResponse<Response>()
+    const status = exception.getStatus()
+    const exceptionResponse: any = exception.getResponse()
 
     if (status === HttpStatus.BAD_REQUEST) {
       const errorMessages = this.messagesModify(exceptionResponse)
+      console.log("BAD_REQUEST - " + errorMessages)
       return errorMessages
         ? response.status(status).json({ errorMessages })
-        : response.sendStatus(status);
+        : response.sendStatus(status)
     }
     if (status === HttpStatus.NOT_FOUND) {
       const errorMessages = this.messagesModify(exceptionResponse)
+      console.log("NOT_FOUND - " + errorMessages)
       return errorMessages
         ? response.status(status).json({ errorMessages })
-        : response.sendStatus(status);
+        : response.sendStatus(status)
     }
 
-    return response.sendStatus(status);
+    return response.sendStatus(status)
   }
-
 
   private messagesModify(exceptionResponse: any) {
 
@@ -55,6 +50,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
 }
+
 // @Catch(HttpException)
 // export class HttpExceptionFilter implements ExceptionFilter {
 //   catch(exception: HttpException, host: ArgumentsHost) {

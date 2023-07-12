@@ -25,6 +25,7 @@ import { UsersQueryRepository } from "src/repositories/query/users.query.reposit
 import { AuthService } from "src/services/auth.service"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { Response } from "express"
+import { Throttle } from "@nestjs/throttler"
 
 @Controller("auth")
 export class AuthController {
@@ -35,6 +36,7 @@ export class AuthController {
   }
 
   @Post("login")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.OK)
   async login(
     @Headers("user-agent") userAgent: string | "defaultName",
@@ -81,6 +83,7 @@ export class AuthController {
 
 
   @Post("registration")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
     @Body() bodyRegistration: BodyRegistrationModel
@@ -95,6 +98,7 @@ export class AuthController {
 
 
   @Post("registration-confirmation")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
     @Body() bodyConfirmation: BodyConfirmationModel
@@ -108,6 +112,7 @@ export class AuthController {
 
 
   @Post("registration-email-resending")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendModel
@@ -131,6 +136,7 @@ export class AuthController {
 
 
   @Post("password-recovery")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
@@ -143,6 +149,7 @@ export class AuthController {
 
 
   @Post("new-password")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
     @Body() bodyNewPassword: BodyNewPasswordModel
