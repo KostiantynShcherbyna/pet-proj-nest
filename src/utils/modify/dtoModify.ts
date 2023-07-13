@@ -1,11 +1,11 @@
 import { ObjectId, WithId } from "mongodb"
 import { MyStatus } from "../constants/constants"
 import { HydratedDocument } from "mongoose"
-import { Blogs } from "src/schemas/blogs.schema"
-import { Posts } from "src/schemas/posts.schema"
-import { Comments } from "src/schemas/comments.schema"
+import { Blogs, BlogsDocument } from "src/schemas/blogs.schema"
+import { Posts, PostsDocument } from "src/schemas/posts.schema"
+import { Comments, CommentsDocument } from "src/schemas/comments.schema"
 import { CommentView } from "src/views/CommentView"
-import { Users } from "src/schemas/users.schema"
+import { Users, UsersDocument } from "src/schemas/users.schema"
 import { Devices } from "src/schemas/devices.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
@@ -13,10 +13,10 @@ import { Devices } from "src/schemas/devices.schema"
 export const dtoModify = {
 
   // ↓↓↓ BLOGS
-  changeBlogView(data: Blogs) {
+  changeBlogView(data: BlogsDocument) {
 
     return {
-      id: data._id.toString(),
+      id: data.id,
       name: data.name,
       description: data.description,
       websiteUrl: data.websiteUrl,
@@ -69,10 +69,10 @@ export const dtoModify = {
     return createdBlog
   },
 
-  createBlogViewMngs(blog: Blogs) {
+  createBlogViewMngs(blog: BlogsDocument) {
 
     const createdBlog = {
-      id: blog._id.toString(),
+      id: blog.id,
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
@@ -98,9 +98,9 @@ export const dtoModify = {
 
   //     },
 
-  changePostViewMngs(post: Posts, myStatus: string) {
+  changePostViewMngs(post: PostsDocument, myStatus: string) {
 
-    const newestLikes = (post: Posts) => post.extendedLikesInfo.newestLikes
+    const newestLikes = (post: PostsDocument) => post.extendedLikesInfo.newestLikes
       .slice(-3)
       .map(like => {
         return {
@@ -112,7 +112,7 @@ export const dtoModify = {
 
 
     return {
-      id: post._id.toString(),
+      id: post.id,
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
@@ -147,10 +147,10 @@ export const dtoModify = {
 
   //     },
 
-  changePostsViewMngs(posts: Posts[], userId?: string) {
+  changePostsViewMngs(posts: PostsDocument[], userId?: string) {
 
-    const myStatus = (post: Posts) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
-    const newestLikes = (post: Posts) => post.extendedLikesInfo.newestLikes
+    const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
+    const newestLikes = (post: PostsDocument) => post.extendedLikesInfo.newestLikes
       .slice(-3)
       .map(like => {
         return {
@@ -163,7 +163,7 @@ export const dtoModify = {
 
     return posts.map(post => {
       return {
-        id: post._id.toString(),
+        id: post.id,
         title: post.title,
         shortDescription: post.shortDescription,
         content: post.content,
@@ -214,10 +214,10 @@ export const dtoModify = {
   // }
   //     // ↓↓↓ POST COMMENTS
 
-  changeCommentView(data: Comments, myStatus: string): CommentView {
+  changeCommentView(data: CommentsDocument, myStatus: string): CommentView {
 
     return {
-      id: data._id.toString(),
+      id: data.id,
       content: data.content,
       commentatorInfo: {
         userId: data.commentatorInfo.userId,
@@ -234,14 +234,14 @@ export const dtoModify = {
   },
 
 
-  changeCommentsView(comments: Comments[], userId?: string): CommentView[] {
+  changeCommentsView(comments: CommentsDocument[], userId?: string): CommentView[] {
 
     // Looking for a myStatus of Like in each comment
-    const myStatusFunc = (comment: Comments) => comment.likesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
+    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
 
     return comments.map(comment => {
       return {
-        id: comment._id.toString(),
+        id: comment.id,
         content: comment.content,
         commentatorInfo: {
           userId: comment.commentatorInfo.userId,
@@ -303,10 +303,10 @@ export const dtoModify = {
 
 
   // //     // ↓↓↓ USERS
-  changeUserView(data: Users) {
+  changeUserView(data: UsersDocument) {
 
     return {
-      userId: data._id.toString(),
+      userId: data.id,
       login: data.accountData.login,
       email: data.accountData.email,
     }
@@ -315,11 +315,11 @@ export const dtoModify = {
   },
 
 
-  changeUsersView(data: Users[]) {
+  changeUsersView(data: UsersDocument[]) {
 
     return data.map(i => {
       return {
-        id: i._id.toString(),
+        id: i.id,
         login: i.accountData.login,
         email: i.accountData.email,
         createdAt: i.accountData.createdAt,
@@ -328,10 +328,10 @@ export const dtoModify = {
   },
 
 
-  createUserView(data: Users) {
+  createUserView(data: UsersDocument) {
 
     return {
-      id: data._id.toString(),
+      id: data.id,
       login: data.accountData.login,
       email: data.accountData.email,
       createdAt: data.accountData.createdAt,
@@ -355,16 +355,3 @@ export const dtoModify = {
   },
 }
 
-// //     createDeviceView(data: WithId<IDevice>) {
-
-// //         return {
-// //             ip: data.ip,
-// //             title: data.title,
-// //             lastActiveDate: data.lastActiveDate,
-// //             deviceId: data.deviceId,
-// //         }
-
-
-// //     },
-
-// // }

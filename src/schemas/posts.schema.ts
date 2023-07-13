@@ -1,73 +1,13 @@
-import { Prop, Schema, SchemaFactory, raw } from "@nestjs/mongoose";
-import { HydratedDocument, Model, Types } from "mongoose";
-import { BodyPostModel } from "src/models/body/BodyPostModel";
+import { Prop, Schema, SchemaFactory, raw } from "@nestjs/mongoose"
+import { HydratedDocument, Model, Types } from "mongoose"
+import { BodyPostModel } from "src/models/body/BodyPostModel"
 import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH,
   MyStatus
-} from "src/utils/constants/constants";
-import { UsersDocument } from "./users.schema";
-
-
-// @Schema()
-// export class ExtendedLikesInfo {
-
-//     @Prop({
-//         type: Number,
-//         required: true,
-//         default: 0,
-//         min: 0,
-//     })
-//     likesCount: number
-
-//     @Prop({
-//         type: Number,
-//         required: true,
-//         default: 0,
-//         min: 0,
-//     })
-//     dislikesCount: number
-
-//     @Prop(
-//         raw([
-//             {
-//                 userId: {
-//                     type: String,
-//                     required: true,
-//                 },
-//                 status: {
-//                     type: String,
-//                     required: true,
-//                     enum: myStatusEnum,
-//                     default: myStatusEnum.None,
-//                 }
-//             }
-//         ])
-//     )
-//     like: string
-
-//     @Prop(
-//         raw([
-//             {
-//                 addedAt: {
-//                     type: String,
-//                     required: true,
-//                 },
-//                 userId: {
-//                     type: String,
-//                     required: true,
-//                 },
-//                 login: {
-//                     type: String,
-//                     required: true,
-//                 }
-//             }
-//         ]))
-//     newestLikes: 
-
-// }
-// export const PostsSchema = SchemaFactory.createForClass(Posts);
+} from "src/utils/constants/constants"
+import { UsersDocument } from "./users.schema"
 
 
 export interface IExtendedLikesInfo {
@@ -92,45 +32,43 @@ export interface INewestLikes {
 @Schema()
 export class Posts {
 
-  _id: Types.ObjectId;
-
   @Prop({
     type: String,
     required: true,
     maxlength: POSTS_TITLE_MAX_LENGTH
   })
-  title: string;
+  title: string
 
   @Prop({
     type: String,
     required: true,
     maxlength: POSTS_SHORTDESCRIPTION_MAX_LENGTH
   })
-  shortDescription: string;
+  shortDescription: string
 
   @Prop({
     type: String,
     maxlength: POSTS_CONTENT_MAX_LENGTH
   })
-  content: string;
+  content: string
 
   @Prop({
     type: String,
     required: true
   })
-  blogId: string;
+  blogId: string
 
   @Prop({
     type: String,
     required: true
   })
-  blogName: string;
+  blogName: string
 
   @Prop({
     type: String,
     required: true
   })
-  createdAt: string;
+  createdAt: string
 
   @Prop(
     raw({
@@ -177,14 +115,13 @@ export class Posts {
         }
       ]
     }))
-  extendedLikesInfo: IExtendedLikesInfo;
+  extendedLikesInfo: IExtendedLikesInfo
 
-  static createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel) {
+  static createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel): PostsDocument {
 
-    const date = new Date().toISOString();
+    const date = new Date().toISOString()
 
     const newPostDto = {
-      _id: new Types.ObjectId(),
       title: bodyPostModel.title,
       shortDescription: bodyPostModel.shortDescription,
       content: bodyPostModel.content,
@@ -197,118 +134,118 @@ export class Posts {
         like: [],
         newestLikes: []
       }
-    };
+    }
 
-    const newPost = new PostsModel(newPostDto);
-    return newPost;
+    const newPost = new PostsModel(newPostDto)
+    return newPost
   }
 
   updatePost(bodyPostDto: BodyPostModel) {
-    this.title = bodyPostDto.title;
-    this.shortDescription = bodyPostDto.shortDescription;
-    this.content = bodyPostDto.content;
-    this.blogId = bodyPostDto.blogId;
+    this.title = bodyPostDto.title
+    this.shortDescription = bodyPostDto.shortDescription
+    this.content = bodyPostDto.content
+    this.blogId = bodyPostDto.blogId
   }
 
   createOrUpdateLike(user: UsersDocument, newLikeStatus: string) {
 
-    const like = this.extendedLikesInfo.like.find(like => like.userId === user._id.toString());
+    const like = this.extendedLikesInfo.like.find(like => like.userId === user.id)
     if (!like) {
       const newLikeDto = {
-        userId: user._id.toString(),
+        userId: user.id,
         status: newLikeStatus
-      };
+      }
 
       if (newLikeStatus === MyStatus.Like) {
-        this.extendedLikesInfo.likesCount++;
+        this.extendedLikesInfo.likesCount++
 
-        const newDate = new Date(Date.now()).toISOString();
+        const newDate = new Date(Date.now()).toISOString()
         const newestLikesDto = {
           addedAt: newDate,
           userId: user._id.toString(),
           login: user.accountData.login //    TODO
-        };
-        this.extendedLikesInfo.like.push(newLikeDto);
-        this.extendedLikesInfo.newestLikes.push(newestLikesDto);
+        }
+        this.extendedLikesInfo.like.push(newLikeDto)
+        this.extendedLikesInfo.newestLikes.push(newestLikesDto)
 
       } else {
-        this.extendedLikesInfo.dislikesCount++;
-        this.extendedLikesInfo.like.push(newLikeDto);
+        this.extendedLikesInfo.dislikesCount++
+        this.extendedLikesInfo.like.push(newLikeDto)
       }
 
-      return;
+      return
     }
 
-    if (like.status === newLikeStatus) return;
+    if (like.status === newLikeStatus) return
 
     // Looking for matches in Old status and New status
     if (like.status === MyStatus.None && newLikeStatus === MyStatus.Like) {
-      this.extendedLikesInfo.likesCount++;
-      like.status = newLikeStatus;
+      this.extendedLikesInfo.likesCount++
+      like.status = newLikeStatus
 
-      const newDate = new Date(Date.now()).toISOString();
+      const newDate = new Date(Date.now()).toISOString()
       const newestLikesDto = {
         addedAt: newDate,
         userId: user._id.toString(),
         login: user.accountData.login
-      };
-      this.extendedLikesInfo.newestLikes.push(newestLikesDto);
+      }
+      this.extendedLikesInfo.newestLikes.push(newestLikesDto)
 
-      return;
+      return
     }
     if (like.status === MyStatus.None && newLikeStatus === MyStatus.Dislike) {
-      this.extendedLikesInfo.dislikesCount++;
-      like.status = newLikeStatus;
-      return;
+      this.extendedLikesInfo.dislikesCount++
+      like.status = newLikeStatus
+      return
     }
     if (like.status === MyStatus.Like && newLikeStatus === MyStatus.None) {
-      const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString());
-      this.extendedLikesInfo.newestLikes = newArray;
-      this.extendedLikesInfo.likesCount--;
-      like.status = newLikeStatus;
-      return;
+      const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString())
+      this.extendedLikesInfo.newestLikes = newArray
+      this.extendedLikesInfo.likesCount--
+      like.status = newLikeStatus
+      return
     }
     if (like.status === MyStatus.Like && newLikeStatus === MyStatus.Dislike) {
-      const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString());
-      this.extendedLikesInfo.newestLikes = newArray;
-      this.extendedLikesInfo.likesCount--;
-      this.extendedLikesInfo.dislikesCount++;
-      like.status = newLikeStatus;
-      return;
+      const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString())
+      this.extendedLikesInfo.newestLikes = newArray
+      this.extendedLikesInfo.likesCount--
+      this.extendedLikesInfo.dislikesCount++
+      like.status = newLikeStatus
+      return
     }
     if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.None) {
-      this.extendedLikesInfo.dislikesCount--;
-      like.status = newLikeStatus;
-      return;
+      this.extendedLikesInfo.dislikesCount--
+      like.status = newLikeStatus
+      return
     }
     if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.Like) {
-      this.extendedLikesInfo.dislikesCount--;
-      this.extendedLikesInfo.likesCount++;
-      like.status = newLikeStatus;
+      this.extendedLikesInfo.dislikesCount--
+      this.extendedLikesInfo.likesCount++
+      like.status = newLikeStatus
 
-      const newDate = new Date(Date.now()).toISOString();
+      const newDate = new Date(Date.now()).toISOString()
       const newestLikesDto = {
         addedAt: newDate,
         userId: user._id.toString(),
         login: user.accountData.login
-      };
-      this.extendedLikesInfo.newestLikes.push(newestLikesDto);
+      }
+      this.extendedLikesInfo.newestLikes.push(newestLikesDto)
 
-      return;
+      return
     }
   }
 
 }
 
-export const PostsSchema = SchemaFactory.createForClass(Posts);
+export const PostsSchema = SchemaFactory.createForClass(Posts)
 
 interface PostsStatics {
-  createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel): Posts;
+  createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel): PostsDocument;
 }
 
-PostsSchema.statics.createPost = Posts.createPost;
-PostsSchema.methods.updatePost = Posts.prototype.updatePost;
-PostsSchema.methods.createOrUpdateLike = Posts.prototype.createOrUpdateLike;
+PostsSchema.statics.createPost = Posts.createPost
+PostsSchema.methods.updatePost = Posts.prototype.updatePost
+PostsSchema.methods.createOrUpdateLike = Posts.prototype.createOrUpdateLike
 
 
 export type PostsDocument = HydratedDocument<Posts>;

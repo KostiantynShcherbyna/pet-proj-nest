@@ -1,15 +1,25 @@
-import { IsNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { SORT_BY_DEFAULT, SortDirection } from 'src/utils/constants/constants';
 
 export class QueryCommentModel {
-  @IsString()
-  sortBy: string;
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageNumber: number = 1
 
-  @IsString()
-  sortDirection: string;
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageSize: number = 10
 
-  @IsNumber()
-  pageNumber: number;
-  
-  @IsNumber()
-  pageSize: number;
+  @IsOptional()
+  @IsString()
+  sortBy: string = SORT_BY_DEFAULT
+
+  @IsOptional()
+  @IsEnum(SortDirection)
+  sortDirection: SortDirection = SortDirection.desc
 }

@@ -3,10 +3,10 @@ import { HydratedDocument, Model } from "mongoose"
 import { JwtService } from "@nestjs/jwt"
 
 
-export interface IRecoveryCode {
-  email: string,
-  recoveryCode: string
-}
+// export interface IRecoveryCode {
+//   email: string,
+//   recoveryCode: string
+// }
 
 
 @Schema()

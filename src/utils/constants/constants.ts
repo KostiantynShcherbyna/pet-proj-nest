@@ -45,6 +45,10 @@ export enum SortDirection {
   asc = "1",
   desc = "-1",
 }
+export const SORT_BY_DEFAULT = "createdAt"
+export const PAGE_SIZE_DEFAULT = 10
+export const PAGE_NUMBER_DEFAULT = 1
+
 export enum BasicToken {
- token= "YWRtaW46cXdlcnR5"
+  token = "YWRtaW46cXdlcnR5"
 }

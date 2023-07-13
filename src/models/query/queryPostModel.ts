@@ -1,23 +1,25 @@
-import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator"
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Min } from "class-validator"
+import { Type } from "class-transformer"
+import { SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
 
 export class QueryPostModel {
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  @IsNotEmpty()
-  pageNumber: number
+  @Min(1)
+  pageNumber: number = 1
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  @IsNotEmpty()
-  pageSize: number
+  @Min(1)
+  pageSize: number = 10
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  sortBy: string
+  sortBy: string = SORT_BY_DEFAULT
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  sortDirection: string
+  @IsEnum(SortDirection)
+  sortDirection: SortDirection = SortDirection.desc
 }

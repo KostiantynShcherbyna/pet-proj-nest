@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, } from "@nestjs/common"
 import { Response } from "express"
 
-@Catch(Error)
+@Catch()
 export class ErrorExceptionFilter implements ExceptionFilter {
   catch(host: ArgumentsHost) {
     const ctx = host.switchToHttp()
@@ -21,14 +21,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (status === HttpStatus.BAD_REQUEST) {
       const errorMessages = this.messagesModify(exceptionResponse)
-      console.log("BAD_REQUEST - " + errorMessages)
+
       return errorMessages
         ? response.status(status).json({ errorMessages })
         : response.sendStatus(status)
     }
     if (status === HttpStatus.NOT_FOUND) {
       const errorMessages = this.messagesModify(exceptionResponse)
-      console.log("NOT_FOUND - " + errorMessages)
+
       return errorMessages
         ? response.status(status).json({ errorMessages })
         : response.sendStatus(status)
@@ -39,14 +39,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private messagesModify(exceptionResponse: any) {
 
+    // switch (exceptionResponse) {
+    //
+    //   case Array.isArray(exceptionResponse.message):
+    //     return exceptionResponse.message.map(err => {
+    //       return {
+    //         field: err.field,
+    //         message: err.messages[0],
+    //       }
+    //     })
+    //
+    //   case exceptionResponse:
+    //     return exceptionResponse
+    //
+    //   default:
+    //     return null
+    // }
+
     return Array.isArray(exceptionResponse.message)
       ? exceptionResponse.message.map(err => {
         return {
-          field: err.field,
           message: err.messages[0],
+          field: err.field,
         }
       })
-      : null
+      : exceptionResponse.trim()
   }
 
 }

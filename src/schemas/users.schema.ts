@@ -29,8 +29,6 @@ export interface ISentEmail {
 @Schema()
 export class Users {
 
-    _id: Types.ObjectId
-
     @Prop(
         raw({
             login: {
@@ -81,11 +79,8 @@ export class Users {
     static async createUser(newUserData: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHash(newUserData.password)
-
         const date = new Date()
-
         const newUserDto = {
-            _id: new Types.ObjectId(),
             accountData: {
                 login: newUserData.login,
                 email: newUserData.email,
@@ -107,11 +102,8 @@ export class Users {
     static async registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHash(registrationBody.password)
-
         const date = new Date()
-
         const newUserDto = {
-            _id: new Types.ObjectId(),
             accountData: {
                 email: registrationBody.email,
                 login: registrationBody.login,

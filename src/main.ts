@@ -14,8 +14,8 @@ async function bootstrap() {
       exceptionFactory: (errors) => {
         const customErrors = errors.map(err => {
           return {
-            field: err.property,
             messages: Object.values(err.constraints!),
+            field: err.property,
           }
         })
 

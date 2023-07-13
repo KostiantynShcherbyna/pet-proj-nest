@@ -36,9 +36,9 @@ export class BlogsController {
 
   @Get(":id")
   async findBlog(
-    @Param("id" /*ParseObjectIdPipe*/) id: ObjectIdIdModel,
+    @Param() params: ObjectIdIdModel,
   ) {
-    const foundBlogView = await this.blogsQueryRepository.findBlog(id.id)
+    const foundBlogView = await this.blogsQueryRepository.findBlog(params.id)
     if (foundBlogView === null) throw new NotFoundException()
     return foundBlogView
   }
@@ -60,10 +60,11 @@ export class BlogsController {
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param("id", /*ParseObjectIdPipe*/) id: ObjectIdIdModel,
+    @Param() params: ObjectIdIdModel,
     @Body() bodyBlog: BodyBlogModel
   ) {
-    const result = await this.blogsService.updateBlog(id.id, bodyBlog)
+    console.log(params)
+    const result = await this.blogsService.updateBlog(params.id, bodyBlog)
     if (result.error !== null) throw new NotFoundException()
     return
   }
@@ -71,9 +72,9 @@ export class BlogsController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(
-    @Param("id", /*ParseObjectIdPipe*/) id: ObjectIdIdModel
+    @Param() params: ObjectIdIdModel
   ) {
-    const result = await this.blogsService.deleteBlog(id.id)
+    const result = await this.blogsService.deleteBlog(params.id)
     if (result.error !== null) throw new NotFoundException()
     return
   }
@@ -82,22 +83,24 @@ export class BlogsController {
   @Get(":blogId/posts")
   async findPosts(
     @Req() deviceSession: OptionalDeviceSessionModel,
-    @Param("blogId", /*ParseObjectIdPipe*/) blogId: ObjectIdBlogIdModel,
+    @Param() params: ObjectIdBlogIdModel,
     @Query() queryPost: QueryPostModel,
   ) {
-    const foundPostsView = await this.postsQueryRepository.findPosts(queryPost, blogId.blogId, deviceSession.userId)
+    const foundPostsView = await this.postsQueryRepository.findPosts(
+      queryPost, params.blogId, deviceSession.userId
+    )
     if (foundPostsView === null) throw new NotFoundException()
     return foundPostsView
   }
 
   @Post(":blogId/posts")
   async createPost(
-    @Param("blogId", /*ParseObjectIdPipe*/) blogId: ObjectIdBlogIdModel,
+    @Param() params: ObjectIdBlogIdModel,
     @Body() bodyBlogPost: BodyBlogPostModel
   ) {
-    const result = await this.blogsService.createPost(bodyBlogPost, blogId.blogId)
+    const result = await this.blogsService.createPost(bodyBlogPost, params.blogId)
     if (result.error !== null) throw new NotFoundException([{
-      message: `blog with blogId: '${blogId}' doesn't exist`,
+      message: `blog with blogId: '${params.blogId}' doesn't exist`,
       field: `blogId`
     }])
     return result.data

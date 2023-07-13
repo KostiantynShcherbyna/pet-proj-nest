@@ -10,8 +10,6 @@ import { EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH } from "src/utils/constants/constan
 @Schema()
 export class Devices {
 
-  _id: Types.ObjectId
-
   @Prop({
     type: String,
     required: true,
@@ -62,7 +60,6 @@ export class Devices {
       expireAt: addMinutes(newIssueAt, EXPIRE_AT_ACCESS)
     }
     const refreshPayload = {
-      _id: new Types.ObjectId(),
       ip: deviceIp,
       title: userAgent,
       deviceId: accessPayload.deviceId,

@@ -21,8 +21,6 @@ export interface ILike {
 @Schema()
 export class Comments {
 
-    _id: Types.ObjectId
-
     @Prop({
         type: String,
         required: true,
@@ -153,6 +151,7 @@ export const CommentsSchema = SchemaFactory.createForClass(Comments)
 
 CommentsSchema.methods.checkCommentator = Comments.prototype.checkCommentator
 CommentsSchema.methods.updateComment = Comments.prototype.updateComment
+CommentsSchema.methods.createOrUpdateLike = Comments.prototype.createOrUpdateLike
 
 export type CommentsDocument = HydratedDocument<Comments>
 export type CommentsModel = Model<CommentsDocument>
