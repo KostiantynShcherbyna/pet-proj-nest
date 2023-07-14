@@ -14,6 +14,7 @@ import { AccessGuard } from "../guards/access.guard"
 import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
 import { BasicGuard } from "../guards/basic.guard"
 import { ObjectIdPostIdModel } from "../models/uri/ObjectId-postId.model"
+import { callErrorMessage } from "src/utils/errors/callErrorMessage"
 
 @Controller("posts")
 export class PostsController {
@@ -28,7 +29,8 @@ export class PostsController {
   @Get()
   async findPosts(
     @Req() deviceSession: OptionalDeviceSessionModel,
-    @Query() queryPost: QueryPostModel) {
+    @Query() queryPost: QueryPostModel
+  ) {
     return await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
   }
 
@@ -39,7 +41,9 @@ export class PostsController {
     @Param() params: ObjectIdIdModel,
   ) {
     const post = await this.postsQueryRepository.findPost(params.id, deviceSession?.userId)
-    if (post === null) throw new NotFoundException()
+    if (post === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
+    )
     return post
   }
 
@@ -49,7 +53,9 @@ export class PostsController {
     @Body() bodyPost: BodyPostModel
   ) {
     const result = await this.postsService.createPost(bodyPost)
-    if (result.error !== null) throw new NotFoundException()
+    if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
     return result.data
   }
 
@@ -60,7 +66,9 @@ export class PostsController {
     @Body() bodyPost: BodyPostModel,
   ) {
     const result = await this.postsService.updatePost(bodyPost, params.id)
-    if (result.error !== null) throw new NotFoundException()
+    if (result.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
+    )
     return
   }
 
@@ -69,9 +77,7 @@ export class PostsController {
   async deletePost(
     @Param() params: ObjectIdIdModel
   ) {
-    const result = await this.postsService.deletePost(params.id)
-    if (result.error !== null) throw new NotFoundException()
-    return
+    return await this.postsService.deletePost(params.id)
   }
 
   @UseGuards(AccessMiddleware)
@@ -82,7 +88,6 @@ export class PostsController {
     @Query() queryComment: QueryCommentModel,
   ) {
     const comments = await this.commentsQueryRepository.findComments(params.postId, queryComment, deviceSession?.userId)
-    if (!comments.items.length) throw new NotFoundException()
     return comments
   }
 
@@ -94,7 +99,6 @@ export class PostsController {
     @Query() queryComment: QueryCommentModel,
   ) {
     const comments = await this.commentsQueryRepository.findComments(params.postId, queryComment, deviceSession?.userId)
-    if (!comments.items.length) throw new NotFoundException()
     return comments
   }
 
@@ -106,21 +110,14 @@ export class PostsController {
     @Body() bodyLike: BodyLikeModel,
   ) {
     const comments = await this.postsService.updateLike(deviceSession.userId, postId.postId, bodyLike.likeStatus)
-    if (comments.error === ErrorEnums.NOT_FOUND_POST) throw new NotFoundException()
-    if (comments.error === ErrorEnums.NOT_FOUND_USER) throw new NotFoundException()
+    if (comments.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
+    )
+    if (comments.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
+    )
     return comments
   }
 
-  @UseGuards(AccessGuard)
-  @Patch(":postId/like-status")
-  async likeStatus2(
-    @Req() deviceSession: DeviceSessionModel,
-    @Param("postId") postId: ObjectIdPostIdModel,
-    @Body() bodyLike: BodyLikeModel,
-  ) {
-    const comments = await this.postsService.updateLike(deviceSession.userId, postId.postId, bodyLike.likeStatus)
-    if (comments.error === ErrorEnums.NOT_FOUND_POST) throw new NotFoundException()
-    if (comments.error === ErrorEnums.NOT_FOUND_USER) throw new NotFoundException()
-    return comments
-  }
+
 }

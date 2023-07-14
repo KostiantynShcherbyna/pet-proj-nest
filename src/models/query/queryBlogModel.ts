@@ -9,8 +9,7 @@ import {
   MaxLength,
   Min
 } from "class-validator"
-import { DefaultValuePipe } from "@nestjs/common"
-import { SortDirection } from "../../utils/constants/constants"
+import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
 import { Type } from "class-transformer"
 
 export class QueryBlogModel {
@@ -22,7 +21,7 @@ export class QueryBlogModel {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  sortBy: string = "createdAt"
+  sortBy: string = SORT_BY_DEFAULT
 
   @IsOptional()
   @IsEnum(SortDirection)
@@ -32,10 +31,10 @@ export class QueryBlogModel {
   @IsOptional()
   @Type(() => Number)
   @Min(1)
-  pageNumber: number = 1
+  pageNumber: number = PAGE_NUMBER_DEFAULT
 
   @IsOptional()
   @Type(() => Number)
   @Min(1)
-  pageSize: number = 10
+  pageSize: number = PAGE_SIZE_DEFAULT
 }

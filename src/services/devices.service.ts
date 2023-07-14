@@ -24,10 +24,10 @@ export class DevicesService {
     async deleteOtherDevices(userId: string, deviceId: string): Promise<Contract<null | boolean>> {
 
         const device = await this.devicesRepository.findDeviceByDeviceId(deviceId)
-        if (device === null) return new Contract(null, ErrorEnums.NOT_FOUND_DEVICE)
+        if (device === null) return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
 
-        const deleteCount = await this.DevicesModel.deleteOtherDevices(userId, deviceId, this.DevicesModel)
-        if (deleteCount === 0) return new Contract(null, ErrorEnums.NOT_DELETE_DEVICES)
+        let deleteCount = await this.DevicesModel.deleteOtherDevices(userId, deviceId, this.DevicesModel)
+        console.log(deleteCount)
 
         return new Contract(true, null)
     }
@@ -35,11 +35,10 @@ export class DevicesService {
     async deleteSpecialDevice(deviceId: string, userId: string): Promise<Contract<null | boolean>> {
 
         const device = await this.devicesRepository.findDeviceByDeviceId(deviceId)
-        if (device === null) return new Contract(null, ErrorEnums.NOT_FOUND_DEVICE)
-        if (device.checkOwner(userId) === false) return new Contract(null, ErrorEnums.NOT_DELETE_FOREIGN_DEVICE)
+        if (device === null) return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
+        if (device.checkOwner(userId) === false) return new Contract(null, ErrorEnums.FOREIGN_DEVICE_NOT_DELETE)
 
         const deleteCount = await this.DevicesModel.deleteDevice(deviceId, this.DevicesModel)
-        if (deleteCount === 0) return new Contract(null, ErrorEnums.NOT_DELETE_DEVICE)
 
         return new Contract(true, null)
     }

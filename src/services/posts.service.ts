@@ -26,7 +26,7 @@ export class PostsService {
   async createPost(bodyPost: BodyPostModel): Promise<Contract<null | PostView>> {
 
     const foundBlog = await this.blogsRepository.findBlog(bodyPost.blogId);
-    if (foundBlog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG);
+    if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
 
     const newPost = this.PostsModel.createPost(bodyPost, foundBlog.name, this.PostsModel);
     await this.postsRepository.saveDocument(newPost);
@@ -39,7 +39,7 @@ export class PostsService {
   async updatePost(body: BodyPostModel, id: string): Promise<Contract<null | boolean>> {
 
     const post = await this.postsRepository.findPost(id);
-    if (post === null) return new Contract(null, ErrorEnums.NOT_FOUND_POST);
+    if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
 
     post.updatePost(body);
     await this.postsRepository.saveDocument(post);
@@ -50,7 +50,7 @@ export class PostsService {
   async deletePost(id: string): Promise<Contract<null | boolean>> {
 
     const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(id) });
-    if (deletedPostResult.deletedCount === 0) return new Contract(null, ErrorEnums.NOT_FOUND_POST);
+    // if (deletedPostResult.deletedCount === 0) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
 
     return new Contract(true, null);
   }
@@ -58,11 +58,11 @@ export class PostsService {
 
   async updateLike(userId: string, postId: string, newLikeStatus: string) {
     const post = await this.postsRepository.findPost(postId);
-    if (post === null) return new Contract(null, ErrorEnums.NOT_FOUND_POST);
+    if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
 
     const userDto = ["_id", new Types.ObjectId(userId)];
     const user = await this.usersRepository.findUser(userDto);
-    if (user === null) return new Contract(null, ErrorEnums.NOT_FOUND_USER);
+    if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND);
 
     // Create a new Like if there is no Like before or update Like if there is one
     post.createOrUpdateLike(user, newLikeStatus);

@@ -49,6 +49,8 @@ export const SORT_BY_DEFAULT = "createdAt"
 export const PAGE_SIZE_DEFAULT = 10
 export const PAGE_NUMBER_DEFAULT = 1
 
+export const USER_AGENT = "user_agent"
+
 export enum BasicToken {
   token = "YWRtaW46cXdlcnR5"
 }

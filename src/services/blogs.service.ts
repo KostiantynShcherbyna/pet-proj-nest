@@ -40,7 +40,7 @@ export class BlogsService {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
 
     const blog = await this.blogsRepository.findBlog(id)
-    if (blog === null) return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
+    if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 
     blog.updateBlog(bodyBlog)
     await this.blogsRepository.saveDocument(blog)
@@ -49,20 +49,15 @@ export class BlogsService {
   }
 
   async deleteBlog(id: string): Promise<Contract<null | boolean>> {
-    const deletedBlog = await this.BlogsModel.deleteOne({
-      _id: new Types.ObjectId(id),
-    })
+    await this.BlogsModel.deleteOne({ id: new Types.ObjectId(id) })
     await this.PostsModel.deleteMany({ blogId: id })
 
-    if (deletedBlog.deletedCount === 0)
-      return new Contract(null, ErrorEnums.NOT_DELETE_BLOG)
     return new Contract(true, null)
   }
 
   async createPost(bodyBlogPostModel: BodyBlogPostModel, blogId: string): Promise<Contract<null | PostView>> {
     const foundBlog = await this.blogsRepository.findBlog(blogId)
-    if (foundBlog === null)
-      return new Contract(null, ErrorEnums.NOT_FOUND_BLOG)
+    if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 
     const bodyPostModelExt = {
       title: bodyBlogPostModel.title,

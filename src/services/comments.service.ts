@@ -16,11 +16,10 @@ export class CommentsService {
   }
 
   async updateComment(userId: string, commentId: string, content: string): Promise<Contract<null | boolean>> {
-
     // Looking for a comment and check owner
     const comment = await this.commentsRepository.findComment(commentId);
-    if (comment === null) return new Contract(null, ErrorEnums.NOT_FOUND_COMMENT);
-    if (comment.checkCommentator(userId) === false) return new Contract(null, ErrorEnums.CANT_UPDATE_FOREIGN_COMMENT);
+    if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
+    if (comment.checkCommentator(userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_UPDATED);
 
     comment.updateComment(content);
     await this.commentsRepository.saveDocument(comment);
@@ -30,11 +29,10 @@ export class CommentsService {
 
 
   async deleteComment(userId: string, commentId: string): Promise<Contract<null | boolean>> {
-
     // Looking for a comment and check owner
     const comment = await this.commentsRepository.findComment(commentId);
-    if (comment === null) return new Contract(null, ErrorEnums.NOT_FOUND_COMMENT);
-    if (comment.commentatorInfo.userId !== userId) return new Contract(null, ErrorEnums.CANT_DELETE_FOREIGN_COMMENT);
+    if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
+    if (comment.commentatorInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_DELETED);
 
     await this.CommentsModel.deleteOne({ _id: new Types.ObjectId(commentId) });
 
@@ -45,8 +43,7 @@ export class CommentsService {
   async updateLike(userId: string, commentId: string, newLikeStatus: string): Promise<Contract<boolean | null>> {
 
     const comment = await this.commentsRepository.findComment(commentId);
-    if (comment === null) return new Contract(null, ErrorEnums.NOT_FOUND_COMMENT);
-
+    if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
     // Create a new Like if there is no Like before or update Like if there is one
     comment.createOrUpdateLike(userId, newLikeStatus);
     await this.commentsRepository.saveDocument(comment);

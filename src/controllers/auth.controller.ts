@@ -26,6 +26,10 @@ import { AuthService } from "src/services/auth.service"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { Response } from "express"
 import { Throttle } from "@nestjs/throttler"
+import { errorMessages } from "src/utils/errors/errorMessages"
+import { USER_AGENT } from "src/utils/constants/constants"
+import { AccessGuard } from "src/guards/access.guard"
+import { callErrorMessage } from "src/utils/errors/callErrorMessage"
 
 @Controller("auth")
 export class AuthController {
@@ -36,7 +40,7 @@ export class AuthController {
   }
 
   @Post("login")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.OK)
   async login(
     @Headers("user-agent") userAgent: string | "defaultName",
@@ -45,9 +49,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const loginContract = await this.authService.login(bodyAuth, ip, userAgent)
-    if (loginContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
-    if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
+
+    if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
+    )
+    if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(
+      callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "loginOrEmail")
+    )
+    if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(
+      callErrorMessage(ErrorEnums.PASSWORD_NOT_COMPARED, "password")
+    )
 
     res.cookie("refreshToken", loginContract.data?.refreshToken, { httpOnly: true, secure: true })
     return loginContract.data?.accessJwt
@@ -61,104 +72,135 @@ export class AuthController {
     @Req() deviceSession: DeviceSessionModel
   ) {
     const logoutContract = await this.authService.logout(deviceSession)
-    if (logoutContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (logoutContract.error === ErrorEnums.NOT_DELETE_DEVICE) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_DELETE_DEVICE)) // TODO EXCEPTION
+    if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
+    )
     return
   }
 
+  
   @UseGuards(RefreshGuard)
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
   async refreshToken(
     @Req() deviceSession: DeviceSessionModel,
-    @Headers("user-agent") userAgent: string | "defaultName",
+    @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const refreshTokenContract = await this.authService.refreshToken(deviceSession, ip, userAgent)
-    if (refreshTokenContract.error === ErrorEnums.NOT_FOUND_USER) throw new UnauthorizedException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (refreshTokenContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(Object.values(ErrorEnums.USER_EMAIL_NOT_CONFIRMED))
-    if (refreshTokenContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(Object.values(ErrorEnums.PASSWORD_NOT_COMPARED))
-    return refreshTokenContract.data
+    if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
+    )
+    if (refreshTokenContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException(
+      callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
+    )
+
+    res.cookie("refreshToken", refreshTokenContract.data?.refreshToken, { httpOnly: true, secure: true })
+    return refreshTokenContract.data?.accessJwt
   }
 
 
   @Post("registration")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
     @Body() bodyRegistration: BodyRegistrationModel
   ) {
     const registrationContract = await this.authService.registration(bodyRegistration)
-    if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(Object.values(ErrorEnums.USER_EMAIL_EXIST))
-    if (registrationContract.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(Object.values(ErrorEnums.USER_LOGIN_EXIST))
-    if (registrationContract.error === ErrorEnums.NOT_DELETE_USER) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_DELETE_USER))
-    if (registrationContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException(Object.values(ErrorEnums.NOT_SEND_EMAIL))
+    if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_EMAIL_EXIST, "email")
+    )
+    if (registrationContract.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_LOGIN_EXIST, "login")
+    )
+    if (registrationContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
     return
   }
 
 
   @Post("registration-confirmation")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
     @Body() bodyConfirmation: BodyConfirmationModel
   ) {
     const confirmationContract = await this.authService.confirmation(bodyConfirmation.code)
-    if (confirmationContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException(Object.values(ErrorEnums.NOT_FOUND_USER))
-    if (confirmationContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(Object.values(ErrorEnums.USER_EMAIL_CONFIRMED))
-    if (confirmationContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException(Object.values(ErrorEnums.CONFIRMATION_CODE_EXPIRED))
+    if (confirmationContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "code")
+    )
+    if (confirmationContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_EMAIL_CONFIRMED, "code")
+    )
+    if (confirmationContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.CONFIRMATION_CODE_EXPIRED, "code")
+    )
     return
   }
 
 
   @Post("registration-email-resending")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendModel
   ) {
     const confirmationResendContract = await this.authService.confirmationResend(bodyConfirmationResend.email)
-    if (confirmationResendContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException()
-    if (confirmationResendContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException()
-    if (confirmationResendContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException()
+    if (confirmationResendContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "email")
+    )
+    if (confirmationResendContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_EMAIL_CONFIRMED, "email")
+    )
+    if (confirmationResendContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.CONFIRMATION_CODE_EXPIRED, "email")
+    )
     return
   }
 
 
+  @UseGuards(AccessGuard)
   @Get("me")
   async getMe(
     @Req() deviceSession: DeviceSessionModel
   ) {
     const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
-    if (userView === null) throw new BadRequestException()
+    if (userView === null) throw new UnauthorizedException()
     return
   }
 
 
   @Post("password-recovery")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
   ) {
     const isRecoveryContract = await this.authService.passwordRecovery(bodyPasswordRecovery.email)
-    if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
     if (isRecoveryContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException()
     return
   }
 
 
   @Post("new-password")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
     @Body() bodyNewPassword: BodyNewPasswordModel
   ) {
     const newPasswordContract = await this.authService.newPassword(bodyNewPassword.newPassword, bodyNewPassword.recoveryCode)
-    if (newPasswordContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException()
-    if (newPasswordContract.error === ErrorEnums.RECOVERY_CODE_NOT_FOUND) throw new BadRequestException()
-    if (newPasswordContract.error === ErrorEnums.RECOVERY_CODE_INVALID) throw new BadRequestException()
-    if (newPasswordContract.error === ErrorEnums.NOT_FOUND_USER) throw new BadRequestException()
+    if (newPasswordContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.TOKEN_NOT_VERIFY, "recoveryCode")
+    )
+    if (newPasswordContract.error === ErrorEnums.RECOVERY_CODE_NOT_FOUND) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.RECOVERY_CODE_NOT_FOUND, "recoveryCode")
+    )
+    if (newPasswordContract.error === ErrorEnums.RECOVERY_CODE_INVALID) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.RECOVERY_CODE_INVALID, "recoveryCode")
+    )
+    if (newPasswordContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.RECOVERY_CODE_INVALID, "recoveryCode")
+    )
     return
   }
 }

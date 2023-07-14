@@ -1,6 +1,26 @@
 import { Response } from "express"
+import { ErrorEnums } from "./errorEnums"
+import { BadRequestException } from "@nestjs/common"
+
+
+export const callExeption = (message: string, field: string, exeption: any) => {
+    if (exeption instanceof BadRequestException) throw new BadRequestException({
+        message: message,
+        field: field,
+    })
+}
 
 export const errorMessages = {
+
+    universalError(exeption: any, field: string) {
+        if (exeption instanceof BadRequestException) throw new BadRequestException({
+            message: exeption,
+            field: field,
+        })
+    },
+
+
+
 
     internalDbError() {
         return {
@@ -15,32 +35,20 @@ export const errorMessages = {
     // ↓↓↓ BLOGS
     notFoundBlogById(id: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `blog with id: '${id}' does't exist`,
-                    field: `id`
-                }
-            ]
+            message: `blog with id: '${id}' does't exist`,
+            field: `id`
         }
     },
     notFoundBlogByBlogId(blogId: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `blog with blogId: '${blogId}' does't exist`,
-                    field: `blogId`
-                }
-            ]
+            message: `blog with blogId: '${blogId}' does't exist`,
+            field: `blogId`
         }
     },
 
     newBlogNotCreated() {
         return {
-            errorsMessages: [
-                {
-                    message: `new blog didn't create`,
-                }
-            ]
+            message: `new blog didn't create`,
         }
     },
 
@@ -49,70 +57,46 @@ export const errorMessages = {
     // ↓↓↓ POSTS
     notFoundPost(id: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `post with id: '${id}' does't exist`,
-                    field: `id`
-                }
-            ]
+            message: `post with id: '${id}' does't exist`,
+            field: `id`
         }
     },
 
     notFoundPostByPostId(postId: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `post with postId: '${postId}' does't exist`,
-                    field: `postId`
-                }
-            ]
+            message: `post with postId: '${postId}' does't exist`,
+            field: `postId`
         }
     },
 
 
 
     // ↓↓↓ USERS
-    notFoundUserById() {
+    userNotFound(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `user does't exist`,
-                    field: `id`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
     notFoundUserByUserId(userId: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `not found user by '${userId}`,
-                    field: `userId`
-                }
-            ]
+            message: `not found user by '${userId}`,
+            field: `userId`
         }
     },
 
 
     notFoundUserByLoginOrEmail(loginOrEmail: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `user with '${loginOrEmail}' does't exist`,
-                    field: `loginOrEmail`
-                }
-            ]
+            message: `user with '${loginOrEmail}' does't exist`,
+            field: `loginOrEmail`
         }
     },
 
     notFoundUserByEmail(email: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `user with '${email}' does't exist`,
-                    field: `email`
-                }
-            ]
+            message: `user with '${email}' does't exist`,
+            field: `email`
         }
     },
 
@@ -120,100 +104,64 @@ export const errorMessages = {
     // ↓↓↓ AUTH
     confirmationCodeIncorrect() {
         return {
-            errorsMessages: [
-                {
-                    message: `confirmation code is incorrect`,
-                    field: `code`
-                }
-            ]
+            message: `confirmation code is incorrect`,
+            field: `code`
         }
     },
     confirmationCodeExpired() {
         return {
-            errorsMessages: [
-                {
-                    message: `confirmation code is expired`,
-                    field: `code`
-                }
-            ]
+            message: `confirmation code is expired`,
+            field: `code`
         }
     },
 
 
     confirmationCodeApplied() {
         return {
-            errorsMessages: [
-                {
-                    message: `confirmation code is already been applied`,
-                    field: `code`
-                }
-            ]
+            message: `confirmation code is already been applied`,
+            field: `code`
         }
     },
 
     userConfirmed() {
         return {
-            errorsMessages: [
-                {
-                    message: `user is already confirmed`,
-                    field: `email`
-                }
-            ]
+            message: `user is already confirmed`,
+            field: `email`
         }
     },
 
-    notUserConfirmed(loginOrEmail: string) {
+    userNotConfirmed(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `user with '${loginOrEmail}' is not confirmed`,
-                    field: `loginOrEmail`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
 
-    notComparePassword() {
+    passwordNotCompared(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `password is wrong`,
-                    field: `password`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
 
 
-    userEmailExist(email: string) {
+    userEmailExist(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `email '${email}' already exist`,
-                    field: `email`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
-    userLoginExist(login: string) {
+    userLoginExist(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `login '${login}' already exist`,
-                    field: `login`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
 
     userLoginOrEmailExist(loginOrEmail: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `loginOrEmail '${loginOrEmail}' already logged`,
-                    field: `loginOrEmail`
-                }
-            ]
+            message: `loginOrEmail '${loginOrEmail}' already logged`,
+            field: `loginOrEmail`
         }
     },
 
@@ -225,23 +173,15 @@ export const errorMessages = {
 
     notFoundToken() {
         return {
-            errorsMessages: [
-                {
-                    message: `error of login: can't verify token`,
-                    field: `authorization`
-                }
-            ]
+            message: `error of login: can't verify token`,
+            field: `authorization`
         }
     },
 
-    notFoundDevice() {
+    deviceNotFound(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `error of login: can't find any registred device`,
-                    field: `authorization`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
 
@@ -250,78 +190,50 @@ export const errorMessages = {
     // ↓↓↓ POST COMMENTS
     notFoundComment(id: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `comment with 'id': '${id}' does't exist`,
-                    field: `id`
-                }
-            ]
+            message: `comment with 'id': '${id}' does't exist`,
+            field: `id`
         }
     },
 
     notFoundCommentByCommentId(commentId: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `comment with 'commentId': '${commentId}' does't exist`,
-                    field: `commentId`
-                }
-            ]
+            message: `comment with 'commentId': '${commentId}' does't exist`,
+            field: `commentId`
         }
     },
 
     notUpdateForeignComment() {
         return {
-            errorsMessages: [
-                {
-                    message: `can't update foreign comment`,
-                    field: `authorization`
-                }
-            ]
+            message: `can't update foreign comment`,
+            field: `authorization`
         }
     },
     notDeleteForeignComment() {
         return {
-            errorsMessages: [
-                {
-                    message: `can't delete foreign comment`,
-                    field: `authorization`
-                }
-            ]
+            message: `can't delete foreign comment`,
+            field: `authorization`
         }
     },
 
     notUpdatedComment() {
         return {
-            errorsMessages: [
-                {
-                    message: `can't update comment`,
-                    // field: `postId`
-                }
-            ]
+            message: `can't update comment`,
+            // field: `postId`
         }
     },
 
     notDeletedComment() {
         return {
-            errorsMessages: [
-                {
-                    message: `can't delete comment`,
-                    // field: `postId`
-                }
-            ]
+            message: `can't delete comment`,
+            // field: `postId`
         }
     },
 
 
-    notVerifyRecoveryCode() {
+    notVerifyRecoveryCode(message: string, field: string) {
         return {
-            errorsMessages: [
-                {
-                    message: `invalid recoveryCode`,
-                    field: `recoveryCode`
-                }
-            ]
+            message: message,
+            field: field,
         }
     },
 

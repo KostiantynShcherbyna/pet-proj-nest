@@ -9,7 +9,7 @@ import { Types } from "mongoose"
 import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { PostView, PostsView } from "src/views/PostView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
-import { MyStatus } from "src/utils/constants/constants"
+import { MyStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/utils/constants/constants"
 import { QueryCommentModel } from "src/models/query/QueryCommentModel"
 import { CommentView, CommentsView } from "src/views/CommentView"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
@@ -23,9 +23,9 @@ export class CommentsQueryRepository {
   ) {
   }
 
-  async findComment(postCommentId: string, userId?: string): Promise<null | CommentView> {
+  async findComment(commentId: string, userId?: string): Promise<null | CommentView> {
 
-    const foundComment = await this.CommentsModel.findById(postCommentId)
+    const foundComment = await this.CommentsModel.findById(commentId)
     if (foundComment === null) return null
 
     // Looking for a Like if userId is defined
@@ -42,15 +42,12 @@ export class CommentsQueryRepository {
 
   async findComments(postId: string, query: QueryCommentModel, userId?: string): Promise<CommentsView> {
 
-    const PAGE_SIZE_DEFAULT = 10
-    const PAGE_NUMBER_DEFAULT = 1
-    const SORT_BY_DEFAULT = "createdAt"
-    const SORT_DIRECTION_DEFAULT = -1
-
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
     const sortBy = query.sortBy || SORT_BY_DEFAULT
-    const sortDirection = query.sortDirection === "asc" ? 1 : SORT_DIRECTION_DEFAULT
+    const sortDirection = query.sortDirection === SortDirection.asc
+      ? SortDirection.asc // 1
+      : SortDirection.desc // -1
 
     const skippedCommentsCount = (pageNumber - 1) * pageSize
 
@@ -61,7 +58,7 @@ export class CommentsQueryRepository {
 
     const comments = await this.CommentsModel
       .find({ postId: postId })
-      .sort({ [sortBy]: sortDirection })
+      .sort({ [sortBy]: sortDirection as any})
       .limit(pageSize)
       .skip(skippedCommentsCount)
       .lean()

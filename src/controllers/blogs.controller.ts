@@ -18,12 +18,12 @@ import { QueryBlogModel } from "../models/query/QueryBlogModel"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { BodyBlogPostModel } from "src/models/body/BodyBlogPostModel"
-import ValidateObjectIdPipe from "src/objectId-parser.pipe"
 import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
 import { ObjectIdBlogIdModel } from "../models/uri/ObjectId-blogId.model"
-import { DeviceSessionModel } from "../models/request/device-session.model"
 import { AccessMiddleware } from "../guards/access.middleware"
 import { OptionalDeviceSessionModel } from "../models/request/optional-device-session.model"
+import { ErrorEnums } from "src/utils/errors/errorEnums"
+import { callErrorMessage } from "src/utils/errors/callErrorMessage"
 
 @Controller("blogs")
 export class BlogsController {
@@ -39,7 +39,10 @@ export class BlogsController {
     @Param() params: ObjectIdIdModel,
   ) {
     const foundBlogView = await this.blogsQueryRepository.findBlog(params.id)
-    if (foundBlogView === null) throw new NotFoundException()
+
+    if (foundBlogView === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
     return foundBlogView
   }
 
@@ -65,7 +68,10 @@ export class BlogsController {
   ) {
     console.log(params)
     const result = await this.blogsService.updateBlog(params.id, bodyBlog)
-    if (result.error !== null) throw new NotFoundException()
+
+    if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
     return
   }
 
@@ -74,9 +80,7 @@ export class BlogsController {
   async deleteBlog(
     @Param() params: ObjectIdIdModel
   ) {
-    const result = await this.blogsService.deleteBlog(params.id)
-    if (result.error !== null) throw new NotFoundException()
-    return
+    return await this.blogsService.deleteBlog(params.id)
   }
 
   @UseGuards(AccessMiddleware)
@@ -86,11 +90,7 @@ export class BlogsController {
     @Param() params: ObjectIdBlogIdModel,
     @Query() queryPost: QueryPostModel,
   ) {
-    const foundPostsView = await this.postsQueryRepository.findPosts(
-      queryPost, params.blogId, deviceSession.userId
-    )
-    if (foundPostsView === null) throw new NotFoundException()
-    return foundPostsView
+    return await this.postsQueryRepository.findPosts(queryPost, params.blogId, deviceSession.userId)
   }
 
   @Post(":blogId/posts")
@@ -99,10 +99,9 @@ export class BlogsController {
     @Body() bodyBlogPost: BodyBlogPostModel
   ) {
     const result = await this.blogsService.createPost(bodyBlogPost, params.blogId)
-    if (result.error !== null) throw new NotFoundException([{
-      message: `blog with blogId: '${params.blogId}' doesn't exist`,
-      field: `blogId`
-    }])
+    if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
     return result.data
   }
 }

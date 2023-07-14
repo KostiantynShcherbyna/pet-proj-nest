@@ -39,32 +39,47 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private messagesModify(exceptionResponse: any) {
 
-    // switch (exceptionResponse) {
-    //
-    //   case Array.isArray(exceptionResponse.message):
-    //     return exceptionResponse.message.map(err => {
-    //       return {
-    //         field: err.field,
-    //         message: err.messages[0],
-    //       }
-    //     })
-    //
-    //   case exceptionResponse:
-    //     return exceptionResponse
-    //
-    //   default:
-    //     return null
-    // }
+    console.log("exceptionResponse - " + JSON.stringify(exceptionResponse))
 
-    return Array.isArray(exceptionResponse.message)
-      ? exceptionResponse.message.map(err => {
+    if (Array.isArray(exceptionResponse.message)) {
+      return exceptionResponse.message.map(err => {
         return {
-          message: err.messages[0],
           field: err.field,
+          message: err.messages[0].trim(),
         }
       })
-      : exceptionResponse.trim()
+    }
+
+    if (
+      exceptionResponse instanceof Object
+      && exceptionResponse !== null
+      && !exceptionResponse.field
+    ) return {
+      message: exceptionResponse.message.trim(),
+      field: ""
+    }
+
+    if (
+      exceptionResponse instanceof Object
+      && exceptionResponse !== null
+    ) return exceptionResponse.trim()
+
+    if (
+      typeof exceptionResponse === "string"
+    ) return exceptionResponse.trim()
+
+
   }
+  //   return Array.isArray(exceptionResponse.message)
+
+  //     ? exceptionResponse.message.map(err => {
+  //       return {
+  //         message: err.messages[0],
+  //         field: err.field,
+  //       }
+  //     })
+  //     : exceptionResponse.message.trim()
+  // }
 
 }
 
