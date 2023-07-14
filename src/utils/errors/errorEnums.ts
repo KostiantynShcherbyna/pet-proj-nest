@@ -1,7 +1,7 @@
 export enum ErrorEnums {
 
     INTERNAL_SERVER_ERROR = `Internal server error`,
-    NOT_SEND_EMAIL = `Not send email`,
+    EMAIL_NOT_SENT = `Email not sent`,
 
 
     //↓↓↓ AUTH
@@ -13,7 +13,7 @@ export enum ErrorEnums {
     PASSWORD_NOT_COMPARED = `Password not compared`,
     DEVICE_NOT_FOUND = `Device not found`,
     DEVICE_NOT_DELETE = `Device_not deleted`,
-    NOT_DELETE_DEVICES = `NOT_DELETE_DEVICES`,
+    DEVICES_NOT_DELETE = `Devices_not deleted`,
     FOREIGN_DEVICE_NOT_DELETE = `Foreign device not deleted`,
     USER_EMAIL_EXIST = `User email exist`,
     USER_LOGIN_EXIST = `User login exist`,
@@ -28,11 +28,13 @@ export enum ErrorEnums {
     // ↓↓↓ BLOGS
     BLOG_NOT_FOUND = `Blog not found`,
     NEW_BLOG_NOT_CREATED = `NEW_BLOG_NOT_CREATED`,
-    NOT_DELETE_BLOG = `NOT_DELETE_BLOG`,
+    BLOG_NOT_DELETED = `Blog not deleted`,
 
 
 
     // ↓↓↓ POSTS
+    POSTS_NOT_DELETED = `Posts not deleted`,
+    POST_NOT_DELETED = `Post not deleted`,
     POST_NOT_FOUND = `Post not found`,
     NOT_FOUND_POST_BY_POST_ID = `NOT_FOUND_POST_BY_POST_ID`,
     NOT_FOUND_POST_BY_USER_ID = `NOT_FOUND_POST_BY_USER_ID`,
@@ -42,7 +44,7 @@ export enum ErrorEnums {
     USER_NOT_FOUND = `User not found`,
     NOT_FOUND_USER_BY_ID = `NOT_FOUND_USER_BY_ID`,
     NOT_FOUND_USER_BY_LOGIN_OR_EMAIL = `NOT_FOUND_USER_BY_LOGIN_OR_EMAIL`,
-    NOT_DELETE_USER = `Not delete user`,
+    USER_NOT_DELETE = `User not deleted`,
 
 
     // ↓↓↓ COMMENTS
@@ -52,7 +54,7 @@ export enum ErrorEnums {
     FOREIGN_COMMENT_NOT_DELETED = `Foreign comment not deleted`,
     NOT_CREATED_COMMENT = `NOT_CREATED_COMMENT`,
     NOT_UPDATED_COMMENT = `NOT_UPDATED_COMMENT`,
-    NOT_DELETED_COMMENT = `NOT_DELETED_COMMENT`,
+    COMMENT_NOT_DELETE = `Comment not deleted`,
 
 }
 

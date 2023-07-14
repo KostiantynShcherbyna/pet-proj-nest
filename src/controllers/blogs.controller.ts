@@ -68,7 +68,6 @@ export class BlogsController {
   ) {
     console.log(params)
     const result = await this.blogsService.updateBlog(params.id, bodyBlog)
-
     if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
@@ -80,7 +79,14 @@ export class BlogsController {
   async deleteBlog(
     @Param() params: ObjectIdIdModel
   ) {
-    return await this.blogsService.deleteBlog(params.id)
+    const deleteBlogResult = await this.blogsService.deleteBlog(params.id)
+    if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_DELETED) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_DELETED, "id")
+    )
+    if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_DELETED) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POSTS_NOT_DELETED, "id")
+    )
+    return
   }
 
   @UseGuards(AccessMiddleware)

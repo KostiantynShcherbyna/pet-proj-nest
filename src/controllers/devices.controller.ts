@@ -8,7 +8,7 @@ import {
   HttpCode,
   Inject,
   Req,
-  UseGuards, HttpStatus, ForbiddenException
+  UseGuards, HttpStatus, ForbiddenException, UnauthorizedException
 } from "@nestjs/common"
 import { DevicesService } from "src/services/devices.service"
 import { AuthQueryRepository } from "src/repositories/query/auth.query.repository"
@@ -41,9 +41,8 @@ export class DevicesController {
     @Req() deviceSession: DeviceSessionModel
   ) {
     const result = await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId)
-    if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
-    )
+    if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
+    if (result.error === ErrorEnums.DEVICES_NOT_DELETE) throw new UnauthorizedException()
     return
   }
 
@@ -59,6 +58,9 @@ export class DevicesController {
       callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )
     if (result.error === ErrorEnums.FOREIGN_DEVICE_NOT_DELETE) throw new ForbiddenException()
+    if (result.error === ErrorEnums.DEVICE_NOT_DELETE) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.DEVICE_NOT_DELETE, "deviceId")
+    )
     return
   }
 }

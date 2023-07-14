@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
+import { BodyCommentModel } from 'src/models/body/BodyCommentModel';
 import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH, MyStatus, } from 'src/utils/constants/constants';
+import { UsersDocument } from './users.schema';
 
 
 export interface ICommentatorInfo {
@@ -85,6 +87,30 @@ export class Comments {
         }))
     likesInfo: ILikesInfo
 
+    static createComment(postId: string, content: string, user: UsersDocument, CommentsModel: CommentsModel): CommentsDocument {
+
+        const date = new Date().toISOString()
+        const newComment = {
+            postId: postId,
+            content: content,
+            commentatorInfo: {
+                userId: user.id,
+                userLogin: user.accountData.login,
+            },
+            createdAt: date,
+            likesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                like: [],
+            },
+        }
+
+        const newCommentInsertResult = new CommentsModel(newComment)
+        return newCommentInsertResult
+    }
+
+
+
     checkCommentator(userId: string) {
         return this.commentatorInfo.userId === userId
     }
@@ -147,6 +173,10 @@ export class Comments {
     }
 
 }
+interface CommentsStatics {
+    createComment(postId: string, content: string, user: UsersDocument, CommentsModel: CommentsModel): CommentsDocument
+}
+
 export const CommentsSchema = SchemaFactory.createForClass(Comments)
 
 CommentsSchema.methods.checkCommentator = Comments.prototype.checkCommentator
@@ -154,4 +184,4 @@ CommentsSchema.methods.updateComment = Comments.prototype.updateComment
 CommentsSchema.methods.createOrUpdateLike = Comments.prototype.createOrUpdateLike
 
 export type CommentsDocument = HydratedDocument<Comments>
-export type CommentsModel = Model<CommentsDocument>
+export type CommentsModel = Model<CommentsDocument> & CommentsStatics

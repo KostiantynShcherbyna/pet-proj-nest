@@ -11,14 +11,19 @@ import { ErrorEnums } from "src/utils/errors/errorEnums";
 import { dtoModify } from "src/utils/modify/dtoModify";
 import { PostView } from "src/views/PostView";
 import { UsersRepository } from "../repositories/users.repository";
+import { Comments, CommentsModel } from "src/schemas/comments.schema";
+import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository";
+import { CommentView } from "src/views/CommentView";
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Posts.name) protected PostsModel: PostsModel,
+    @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     @Inject(BlogsRepository) protected blogsRepository: BlogsRepository,
     @Inject(PostsRepository) protected postsRepository: PostsRepository,
-    @Inject(UsersRepository) protected usersRepository: UsersRepository
+    @Inject(UsersRepository) protected usersRepository: UsersRepository,
+    @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
   ) {
   }
 
@@ -50,9 +55,28 @@ export class PostsService {
   async deletePost(id: string): Promise<Contract<null | boolean>> {
 
     const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(id) });
-    // if (deletedPostResult.deletedCount === 0) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
+    if (deletedPostResult.deletedCount === 0) return new Contract(null, ErrorEnums.POST_NOT_DELETED);
 
     return new Contract(true, null);
+  }
+
+  async createComment(userId: string, postId: string, content: string): Promise<Contract<CommentView | null>> {
+
+    const userDto = ["_id", new Types.ObjectId(userId)]
+    const user = await this.usersRepository.findUser(userDto)
+    if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+
+    const foundPost = await this.postsRepository.findPost(postId)
+    if (foundPost === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
+
+    const newComment = this.CommentsModel.createComment(postId, content, user, this.CommentsModel)
+
+    const foundCommentView = await this.commentsQueryRepository.findComment(newComment.id)
+    if (foundCommentView === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
+
+    console.log(ErrorEnums.COMMENT_NOT_FOUND)
+
+    return new Contract(foundCommentView, null)
   }
 
 

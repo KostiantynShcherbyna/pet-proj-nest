@@ -45,11 +45,7 @@ export class AuthService {
     const isPassword = await compareHash(user.accountData.passwordHash, loginBody.password)
     if (isPassword === false) return new Contract(null, ErrorEnums.PASSWORD_NOT_COMPARED)
 
-    const newTokens = await this.DevicesModel.createDevice({
-      deviceIp,
-      userAgent,
-      userId: user._id.toString()
-    }, this.jwtService)
+    const newTokens = await this.DevicesModel.createDevice({ deviceIp, userAgent, userId: user._id.toString() }, this.jwtService)
     await this.devicesRepository.saveDocument(newTokens.refreshPayload!)
 
     const tokensDto = {
@@ -89,6 +85,7 @@ export class AuthService {
     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
     const deleteResult = await this.DevicesModel.deleteOne({ deviceId: deviceSession.deviceId })
+    if (deleteResult.deletedCount === 0) return new Contract(null, ErrorEnums.DEVICE_NOT_DELETE)
 
     return new Contract(true, null)
   }
@@ -105,9 +102,10 @@ export class AuthService {
     // SENDING EMAIL ↓↓↓
     const isSend = await emailManager.sendConfirmationCode(newUser)
     if (isSend === false) {
-      await this.UsersModel.deleteOne({ _id: newUser._id })
+      const deletedUsers = await this.UsersModel.deleteOne({ _id: newUser._id })
+      if (deletedUsers.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
 
-      return new Contract(null, ErrorEnums.NOT_SEND_EMAIL)
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     }
 
     newUser.addSentDate()
@@ -152,10 +150,10 @@ export class AuthService {
     const isSend = await emailManager.sendConfirmationCode(updatedUser)
     if (isSend === false) {
 
-      const deletedCount = await this.UsersModel.deleteOne({ _id: updatedUser._id.toString() })
-      if (deletedCount.deletedCount === 0) return new Contract(null, ErrorEnums.NOT_DELETE_USER)
+      const deletedResult = await this.UsersModel.deleteOne({ _id: updatedUser._id.toString() })
+      if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
 
-      return new Contract(null, ErrorEnums.NOT_SEND_EMAIL)
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     }
 
     return new Contract(true, null)
@@ -175,9 +173,11 @@ export class AuthService {
     // SENDING PASSWORD RECOVERY ↓↓↓
     const isSend = await emailManager.sendPasswordRecovery(email, newRecoveryCodeDocument)
     if (isSend === false) {
-      await this.RecoveryCodesModel.deleteOne({ email: email })
 
-      return new Contract(null, ErrorEnums.NOT_SEND_EMAIL)
+      const deletedResult = await this.RecoveryCodesModel.deleteOne({ email: email })
+      if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_DELETE)
+
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     }
 
     return new Contract(true, null)
@@ -186,8 +186,6 @@ export class AuthService {
 
   async newPassword(newPassword: string, recoveryCode: string): Promise<Contract<null | boolean>> {
 
-    // const foundedEmailDto = this.jwtServiceMngs.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
-    // const foundedEmailDto = await this.jwtService.verifyAsync(recoveryCode)
     const verifiedEmailDto = await this.jwtCustomService.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
     if (verifiedEmailDto === null) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 

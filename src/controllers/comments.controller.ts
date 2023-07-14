@@ -67,6 +67,9 @@ export class CommentsController {
     if (comment.error === ErrorEnums.FOREIGN_COMMENT_NOT_DELETED) throw new ForbiddenException(
       callErrorMessage(ErrorEnums.FOREIGN_COMMENT_NOT_DELETED, "userId")
     )
+    if (comment.error === ErrorEnums.COMMENT_NOT_DELETE) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.COMMENT_NOT_DELETE, "commentId")
+    )
     return
   }
 

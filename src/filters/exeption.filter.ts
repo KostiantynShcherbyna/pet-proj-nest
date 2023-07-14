@@ -53,16 +53,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (
       exceptionResponse instanceof Object
       && exceptionResponse !== null
+    ) return exceptionResponse
+
+    if (
+      exceptionResponse instanceof Object
+      && exceptionResponse !== null
       && !exceptionResponse.field
     ) return {
       message: exceptionResponse.message.trim(),
       field: ""
     }
-
-    if (
-      exceptionResponse instanceof Object
-      && exceptionResponse !== null
-    ) return exceptionResponse.trim()
 
     if (
       typeof exceptionResponse === "string"

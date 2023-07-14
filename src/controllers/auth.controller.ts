@@ -49,7 +49,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const loginContract = await this.authService.login(bodyAuth, ip, userAgent)
-
     if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
     )
@@ -72,13 +71,12 @@ export class AuthController {
     @Req() deviceSession: DeviceSessionModel
   ) {
     const logoutContract = await this.authService.logout(deviceSession)
-    if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
-      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
-    )
+    if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    if (logoutContract.error === ErrorEnums.DEVICE_NOT_DELETE) throw new UnauthorizedException()
     return
   }
 
-  
+
   @UseGuards(RefreshGuard)
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
@@ -114,7 +112,8 @@ export class AuthController {
     if (registrationContract.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_LOGIN_EXIST, "login")
     )
-    if (registrationContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
+    if (registrationContract.error === ErrorEnums.USER_NOT_DELETE) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
+    if (registrationContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
     return
   }
 
@@ -152,9 +151,8 @@ export class AuthController {
     if (confirmationResendContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_EMAIL_CONFIRMED, "email")
     )
-    if (confirmationResendContract.error === ErrorEnums.CONFIRMATION_CODE_EXPIRED) throw new BadRequestException(
-      callErrorMessage(ErrorEnums.CONFIRMATION_CODE_EXPIRED, "email")
-    )
+    if (confirmationResendContract.error === ErrorEnums.USER_NOT_DELETE) throw new InternalServerErrorException()
+    if (confirmationResendContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
     return
   }
 
@@ -177,7 +175,8 @@ export class AuthController {
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
   ) {
     const isRecoveryContract = await this.authService.passwordRecovery(bodyPasswordRecovery.email)
-    if (isRecoveryContract.error === ErrorEnums.NOT_SEND_EMAIL) throw new InternalServerErrorException()
+    if (isRecoveryContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
+    if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
     return
   }
 

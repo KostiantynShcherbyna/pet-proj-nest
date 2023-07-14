@@ -34,7 +34,8 @@ export class CommentsService {
     if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
     if (comment.commentatorInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_DELETED);
 
-    await this.CommentsModel.deleteOne({ _id: new Types.ObjectId(commentId) });
+    const deleteCommentResult = await this.CommentsModel.deleteOne({ _id: new Types.ObjectId(commentId) });
+    if (deleteCommentResult.deletedCount) return new Contract(null, ErrorEnums.COMMENT_NOT_DELETE);
 
     return new Contract(true, null);
   }

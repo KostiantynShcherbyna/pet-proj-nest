@@ -49,8 +49,11 @@ export class BlogsService {
   }
 
   async deleteBlog(id: string): Promise<Contract<null | boolean>> {
-    await this.BlogsModel.deleteOne({ id: new Types.ObjectId(id) })
-    await this.PostsModel.deleteMany({ blogId: id })
+    const deleteBlogResult = await this.BlogsModel.deleteOne({ id: new Types.ObjectId(id) })
+    if (deleteBlogResult.deletedCount === 0) return new Contract(null, ErrorEnums.BLOG_NOT_DELETED)
+
+    const deletePostsResult = await this.PostsModel.deleteMany({ blogId: id })
+    if (deletePostsResult.deletedCount === 0) return new Contract(null, ErrorEnums.POSTS_NOT_DELETED)
 
     return new Contract(true, null)
   }
@@ -73,10 +76,7 @@ export class BlogsService {
     )
     await this.postsRepository.saveDocument(newPost)
 
-    const newPostView = dtoModify.changePostViewMngs(
-      newPost,
-      MyStatus.None,
-    )
+    const newPostView = dtoModify.changePostViewMngs(newPost, MyStatus.None)
     return new Contract(newPostView, null)
   }
 }

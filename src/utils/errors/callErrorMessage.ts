@@ -1,6 +1,6 @@
 import { BadRequestException } from "@nestjs/common/exceptions"
 
-export const callErrorMessage = (message: any, field: string) => {
+export const callErrorMessage = (message: string, field: string) => {
     return {
         message: message,
         field: field,

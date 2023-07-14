@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards, HttpStatus, Patch } from "@nestjs/common"
+import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards, HttpStatus, Patch, InternalServerErrorException } from "@nestjs/common"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { PostsService } from "src/services/posts.service"
 import { BodyPostModel } from "src/models/body/BodyPostModel"
@@ -15,6 +15,8 @@ import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
 import { BasicGuard } from "../guards/basic.guard"
 import { ObjectIdPostIdModel } from "../models/uri/ObjectId-postId.model"
 import { callErrorMessage } from "src/utils/errors/callErrorMessage"
+import { CommentsService } from "src/services/comments.service"
+import { BodyCommentModel } from "src/models/body/BodyCommentModel"
 
 @Controller("posts")
 export class PostsController {
@@ -22,6 +24,7 @@ export class PostsController {
     @Inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
     @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
     @Inject(PostsService) protected postsService: PostsService,
+    @Inject(CommentsService) protected commentsService: CommentsService,
   ) {
   }
 
@@ -52,11 +55,11 @@ export class PostsController {
   async createPost(
     @Body() bodyPost: BodyPostModel
   ) {
-    const result = await this.postsService.createPost(bodyPost)
-    if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+    const resultContruct = await this.postsService.createPost(bodyPost)
+    if (resultContruct.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )
-    return result.data
+    return resultContruct.data
   }
 
   @Put(":id")
@@ -65,8 +68,8 @@ export class PostsController {
     @Param() params: ObjectIdIdModel,
     @Body() bodyPost: BodyPostModel,
   ) {
-    const result = await this.postsService.updatePost(bodyPost, params.id)
-    if (result.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+    const resultContruct = await this.postsService.updatePost(bodyPost, params.id)
+    if (resultContruct.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )
     return
@@ -77,7 +80,11 @@ export class PostsController {
   async deletePost(
     @Param() params: ObjectIdIdModel
   ) {
-    return await this.postsService.deletePost(params.id)
+    const resultContruct = await this.postsService.deletePost(params.id)
+    if (resultContruct.error === ErrorEnums.POST_NOT_DELETED) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_DELETED, "id")
+    )
+    return
   }
 
   @UseGuards(AccessMiddleware)
@@ -87,8 +94,7 @@ export class PostsController {
     @Param() params: ObjectIdPostIdModel,
     @Query() queryComment: QueryCommentModel,
   ) {
-    const comments = await this.commentsQueryRepository.findComments(params.postId, queryComment, deviceSession?.userId)
-    return comments
+    return await this.commentsQueryRepository.findComments(params.postId, queryComment, deviceSession?.userId)
   }
 
   @UseGuards(AccessMiddleware)
@@ -96,10 +102,17 @@ export class PostsController {
   async createComment(
     @Req() deviceSession: OptionalDeviceSessionModel,
     @Param("postId") params: ObjectIdPostIdModel,
-    @Query() queryComment: QueryCommentModel,
+    @Body() bodyComment: BodyCommentModel,
   ) {
-    const comments = await this.commentsQueryRepository.findComments(params.postId, queryComment, deviceSession?.userId)
-    return comments
+    const commentContract = await this.postsService.createComment(deviceSession?.userId, params.postId, bodyComment.content)
+    if (commentContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
+    )
+    if (commentContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
+    )
+    if (commentContract.error === ErrorEnums.COMMENT_NOT_FOUND) throw new InternalServerErrorException()
+    return commentContract.data
   }
 
   @UseGuards(AccessGuard)
@@ -109,14 +122,14 @@ export class PostsController {
     @Param("postId") postId: ObjectIdPostIdModel,
     @Body() bodyLike: BodyLikeModel,
   ) {
-    const comments = await this.postsService.updateLike(deviceSession.userId, postId.postId, bodyLike.likeStatus)
-    if (comments.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+    const commentContract = await this.postsService.updateLike(deviceSession.userId, postId.postId, bodyLike.likeStatus)
+    if (commentContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )
-    if (comments.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+    if (commentContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )
-    return comments
+    return true
   }
 
 

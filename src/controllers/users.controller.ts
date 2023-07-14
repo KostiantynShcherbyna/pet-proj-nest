@@ -15,6 +15,8 @@ import { UsersQueryRepository } from "src/repositories/query/users.query.reposit
 import { BodyUserModel } from "src/models/body/BodyUserModel"
 import { UsersService } from "src/services/users.service"
 import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
+import { ErrorEnums } from "src/utils/errors/errorEnums"
+import { callErrorMessage } from "src/utils/errors/callErrorMessage"
 
 @Controller("users")
 export class UsersController {
@@ -43,7 +45,10 @@ export class UsersController {
   async deletePost(
     @Param() params: ObjectIdIdModel
   ) {
-    const result = await this.usersService.deleteUser(params.id)
+    const resultContruct = await this.usersService.deleteUser(params.id)
+    if (resultContruct.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_DELETE, "id")
+    )
     return
   }
 }
