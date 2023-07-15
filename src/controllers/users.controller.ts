@@ -26,6 +26,7 @@ export class UsersController {
   ) {
   }
 
+  
   @Get()
   async findUsers(
     @Query() queryUser: QueryUserModel

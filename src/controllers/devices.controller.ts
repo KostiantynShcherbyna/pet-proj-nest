@@ -38,9 +38,9 @@ export class DevicesController {
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
-    @Req() deviceSession: DeviceSessionModel
+    @Req() req: Request & { deviceSession: DeviceSessionModel },
   ) {
-    const result = await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId)
+    const result = await this.devicesService.deleteOtherDevices(req.deviceSession.userId, req.deviceSession.deviceId)
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
     if (result.error === ErrorEnums.DEVICES_NOT_DELETE) throw new UnauthorizedException()
     return
@@ -50,10 +50,10 @@ export class DevicesController {
   @Delete(":deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
-    @Req() deviceSession: DeviceSessionModel,
-    @Param("deviceId") params: ObjectIdDeviceIdModel,
+    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @Param() params: ObjectIdDeviceIdModel,
   ) {
-    const result = await this.devicesService.deleteSpecialDevice(params.deviceId, deviceSession.userId)
+    const result = await this.devicesService.deleteSpecialDevice(params.deviceId, req.deviceSession.userId)
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )

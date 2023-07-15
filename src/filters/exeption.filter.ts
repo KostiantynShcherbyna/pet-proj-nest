@@ -3,19 +3,22 @@ import { Response } from "express"
 
 @Catch()
 export class ErrorExceptionFilter implements ExceptionFilter {
-  catch(host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
+    console.log({ INTERNAL_ERROR: { message: exception.message, stack: exception.stack } })
     return response
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .send("Something wrong...")
+      .send("Sory, something went wrong...")
   }
 }
+
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
-    const response = host.switchToHttp().getResponse<Response>()
+    const ctx = host.switchToHttp()
+    const response = ctx.getResponse<Response>()
     const status = exception.getStatus()
     const exceptionResponse: any = exception.getResponse()
 

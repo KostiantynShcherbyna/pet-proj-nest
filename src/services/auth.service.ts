@@ -28,13 +28,14 @@ export class AuthService {
     @Inject(UsersRepository) protected usersRepository: UsersRepository,
     @Inject(DevicesRepository) protected devicesRepository: DevicesRepository,
     @Inject(AuthRepository) protected authRepository: AuthRepository,
-    @Inject(TokensService) protected jwtCustomService: TokensService,
+    @Inject(TokensService) protected tokensService: TokensService,
     @Inject(JwtService) protected jwtService: JwtService,
   ) {
   }
 
+
   async login(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
-    //  TODO всю проверку юзера сделать методом
+
     const user = await this.usersRepository.findUserLoginOrEmail({
       login: loginBody.loginOrEmail,
       email: loginBody.loginOrEmail
@@ -45,8 +46,13 @@ export class AuthService {
     const isPassword = await compareHash(user.accountData.passwordHash, loginBody.password)
     if (isPassword === false) return new Contract(null, ErrorEnums.PASSWORD_NOT_COMPARED)
 
-    const newTokens = await this.DevicesModel.createDevice({ deviceIp, userAgent, userId: user._id.toString() }, this.jwtService)
-    await this.devicesRepository.saveDocument(newTokens.refreshPayload!)
+    const newTokens = await this.DevicesModel
+      .createDevice(
+        { deviceIp, userAgent, userId: user._id.toString() },
+        this.tokensService,
+        this.DevicesModel
+      )
+    await this.devicesRepository.saveDocument(newTokens.refreshEntry)
 
     const tokensDto = {
       accessJwt: { accessToken: newTokens.accessToken },
@@ -55,6 +61,7 @@ export class AuthService {
 
     return new Contract(tokensDto, null)
   }
+
 
 
   async refreshToken(deviceSession: DeviceSessionModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
@@ -66,7 +73,7 @@ export class AuthService {
     const device = await this.devicesRepository.findDeviceByDeviceId(deviceSession.deviceId)
     if (device === null) return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
 
-    const newTokens = await device.refreshDevice({ deviceIp, userAgent, userId: user._id.toString() }, this.jwtService)
+    const newTokens = await device.refreshDevice({ deviceIp, userAgent, userId: user._id.toString() })
     await this.devicesRepository.saveDocument(device)
 
     const tokensDto = {
@@ -150,7 +157,7 @@ export class AuthService {
     const isSend = await emailManager.sendConfirmationCode(updatedUser)
     if (isSend === false) {
 
-      const deletedResult = await this.UsersModel.deleteOne({ _id: updatedUser._id.toString() })
+      const deletedResult = await this.UsersModel.deleteOne({ _id: updatedUser._id })
       if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
 
       return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
@@ -186,7 +193,7 @@ export class AuthService {
 
   async newPassword(newPassword: string, recoveryCode: string): Promise<Contract<null | boolean>> {
 
-    const verifiedEmailDto = await this.jwtCustomService.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
+    const verifiedEmailDto = await this.tokensService.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
     if (verifiedEmailDto === null) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
     const oldRecoveryCodeDto = await this.authRepository.findRecoveryCode(verifiedEmailDto.email)
@@ -198,13 +205,8 @@ export class AuthService {
     const user = await this.usersRepository.findUser(emailDto)
     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-    // const newPasswordHash = await generateHash(newPassword)
-
     await user.updatePasswordHash(newPassword)
     await this.usersRepository.saveDocument(user)
-
-    // const deleteRecoveryCodeCount = await RecoveryCodes.deleteRecoveryCode(foundedEmailDto.email)
-    // if (deleteRecoveryCodeCount === 0) throw new RecoveryCodeNotDeleted()
 
     return new Contract(true, null)
   }

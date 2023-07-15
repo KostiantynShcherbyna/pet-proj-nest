@@ -5,6 +5,7 @@ import { ObjectId } from "mongodb"
 export class ObjectIdIdModel {
   @IsString()
   @MaxLength(100)
+  @IsNotEmpty()
   @IsMongoId()
   id: string
 }

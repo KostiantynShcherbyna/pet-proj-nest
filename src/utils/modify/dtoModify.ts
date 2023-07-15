@@ -16,7 +16,7 @@ export const dtoModify = {
   changeBlogView(data: BlogsDocument) {
 
     return {
-      id: data.id,
+      id: data._id.toString(),
       name: data.name,
       description: data.description,
       websiteUrl: data.websiteUrl,
@@ -72,7 +72,7 @@ export const dtoModify = {
   createBlogViewMngs(blog: BlogsDocument) {
 
     const createdBlog = {
-      id: blog.id,
+      id: blog._id.toString(),
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
@@ -112,7 +112,7 @@ export const dtoModify = {
 
 
     return {
-      id: post.id,
+      id: post._id.toString(),
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
@@ -149,7 +149,8 @@ export const dtoModify = {
 
   changePostsViewMngs(posts: PostsDocument[], userId?: string) {
 
-    const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
+    const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status
+      || MyStatus.None
     const newestLikes = (post: PostsDocument) => post.extendedLikesInfo.newestLikes
       .slice(-3)
       .map(like => {
@@ -163,7 +164,7 @@ export const dtoModify = {
 
     return posts.map(post => {
       return {
-        id: post.id,
+        id: post._id.toString(),
         title: post.title,
         shortDescription: post.shortDescription,
         content: post.content,
@@ -217,7 +218,7 @@ export const dtoModify = {
   changeCommentView(data: CommentsDocument, myStatus: string): CommentView {
 
     return {
-      id: data.id,
+      id: data._id.toString(),
       content: data.content,
       commentatorInfo: {
         userId: data.commentatorInfo.userId,
@@ -237,11 +238,12 @@ export const dtoModify = {
   changeCommentsView(comments: CommentsDocument[], userId?: string): CommentView[] {
 
     // Looking for a myStatus of Like in each comment
-    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status || MyStatus.None
+    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status
+      || MyStatus.None
 
     return comments.map(comment => {
       return {
-        id: comment.id,
+        id: comment._id.toString(),
         content: comment.content,
         commentatorInfo: {
           userId: comment.commentatorInfo.userId,
@@ -306,7 +308,7 @@ export const dtoModify = {
   changeUserView(data: UsersDocument) {
 
     return {
-      userId: data.id,
+      userId: data._id.toString(),
       login: data.accountData.login,
       email: data.accountData.email,
     }
@@ -319,7 +321,7 @@ export const dtoModify = {
 
     return data.map(i => {
       return {
-        id: i.id,
+        id: i._id.toString(),
         login: i.accountData.login,
         email: i.accountData.email,
         createdAt: i.accountData.createdAt,
@@ -331,7 +333,7 @@ export const dtoModify = {
   createUserView(data: UsersDocument) {
 
     return {
-      id: data.id,
+      id: data._id.toString(),
       login: data.accountData.login,
       email: data.accountData.email,
       createdAt: data.accountData.createdAt,

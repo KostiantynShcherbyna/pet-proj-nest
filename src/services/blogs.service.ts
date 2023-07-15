@@ -49,7 +49,7 @@ export class BlogsService {
   }
 
   async deleteBlog(id: string): Promise<Contract<null | boolean>> {
-    const deleteBlogResult = await this.BlogsModel.deleteOne({ id: new Types.ObjectId(id) })
+    const deleteBlogResult = await this.BlogsModel.deleteOne({ _id: new Types.ObjectId(id) })
     if (deleteBlogResult.deletedCount === 0) return new Contract(null, ErrorEnums.BLOG_NOT_DELETED)
 
     const deletePostsResult = await this.PostsModel.deleteMany({ blogId: id })

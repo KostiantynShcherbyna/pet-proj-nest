@@ -31,19 +31,19 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get()
   async findPosts(
-    @Req() deviceSession: OptionalDeviceSessionModel,
+    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Query() queryPost: QueryPostModel
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
+    return await this.postsQueryRepository.findPosts(queryPost, req.deviceSession?.userId)
   }
 
   @UseGuards(AccessMiddleware)
   @Get(":id")
   async findPost(
-    @Req() deviceSession: OptionalDeviceSessionModel,
+    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Param() params: ObjectIdIdModel,
   ) {
-    const post = await this.postsQueryRepository.findPost(params.id, deviceSession?.userId)
+    const post = await this.postsQueryRepository.findPost(params.id, req.deviceSession?.userId)
     if (post === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )
@@ -90,21 +90,21 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get(":postId/comments")
   async findComments(
-    @Req() deviceSession: OptionalDeviceSessionModel,
+    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Param() params: ObjectIdPostIdModel,
     @Query() queryComment: QueryCommentModel,
   ) {
-    return await this.commentsQueryRepository.findComments(params.postId, queryComment, deviceSession?.userId)
+    return await this.commentsQueryRepository.findComments(params.postId, queryComment, req.deviceSession?.userId)
   }
 
-  @UseGuards(AccessMiddleware)
+  @UseGuards(AccessGuard)
   @Post(":postId/comments")
   async createComment(
-    @Req() deviceSession: OptionalDeviceSessionModel,
-    @Param("postId") params: ObjectIdPostIdModel,
+    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @Param() params: ObjectIdPostIdModel,
     @Body() bodyComment: BodyCommentModel,
   ) {
-    const commentContract = await this.postsService.createComment(deviceSession?.userId, params.postId, bodyComment.content)
+    const commentContract = await this.postsService.createComment(req.deviceSession?.userId, params.postId, bodyComment.content)
     if (commentContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )
@@ -118,11 +118,11 @@ export class PostsController {
   @UseGuards(AccessGuard)
   @Put(":postId/like-status")
   async likeStatus(
-    @Req() deviceSession: DeviceSessionModel,
-    @Param("postId") postId: ObjectIdPostIdModel,
+    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
+    @Param() postId: ObjectIdPostIdModel,
     @Body() bodyLike: BodyLikeModel,
   ) {
-    const commentContract = await this.postsService.updateLike(deviceSession.userId, postId.postId, bodyLike.likeStatus)
+    const commentContract = await this.postsService.updateLike(req.deviceSession.userId, postId.postId, bodyLike.likeStatus)
     if (commentContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )

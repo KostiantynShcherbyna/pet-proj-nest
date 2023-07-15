@@ -68,9 +68,9 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @Req() deviceSession: DeviceSessionModel
+    @Req() req: Request & { deviceSession: DeviceSessionModel }
   ) {
-    const logoutContract = await this.authService.logout(deviceSession)
+    const logoutContract = await this.authService.logout(req.deviceSession)
     if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (logoutContract.error === ErrorEnums.DEVICE_NOT_DELETE) throw new UnauthorizedException()
     return
@@ -81,12 +81,12 @@ export class AuthController {
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
   async refreshToken(
-    @Req() deviceSession: DeviceSessionModel,
+    @Req() req: Request & { deviceSession: DeviceSessionModel },
     @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshTokenContract = await this.authService.refreshToken(deviceSession, ip, userAgent)
+    const refreshTokenContract = await this.authService.refreshToken(req.deviceSession, ip, userAgent)
     if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )
@@ -160,9 +160,9 @@ export class AuthController {
   @UseGuards(AccessGuard)
   @Get("me")
   async getMe(
-    @Req() deviceSession: DeviceSessionModel
+    @Req() req: Request & { deviceSession: DeviceSessionModel },
   ) {
-    const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
+    const userView = await this.usersQueryRepository.findUser(req.deviceSession.userId)
     if (userView === null) throw new UnauthorizedException()
     return
   }

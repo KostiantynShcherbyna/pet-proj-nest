@@ -3,7 +3,9 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { randomUUID } from "crypto"
 import { addMinutes } from "date-fns"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { ReturnTokensDto } from "src/dto/ReturnTokensDto"
+import { CreateTokens } from "src/dto/CreateTokens"
+import { RefreshTokens } from "src/dto/RefreshTokens"
+import { TokensService } from "src/services/tokens.service"
 import { EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH } from "src/utils/constants/constants"
 
 
@@ -46,7 +48,7 @@ export class Devices {
   })
   expireAt: Date
 
-  static async createDevice({ deviceIp, userAgent, userId }, jwtService: JwtService) {
+  static async createDevice({ deviceIp, userAgent, userId }, DevicesModel: DevicesModel): Promise<CreateTokens> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -69,13 +71,22 @@ export class Devices {
       expireAt: addMinutes(newIssueAt, EXPIRE_AT_REFRESH)
     }
 
-    const accessToken = await jwtService.signAsync(accessPayload)
-    const refreshToken = await jwtService.signAsync(refreshPayload)
+    // const accessToken = await tokensService.createToken(accessPayload, "ACCESSJWTSECRET", "100m")
+    // const refreshToken = await tokensService.createToken(refreshPayload, "REFRESHJWTSECRET", "200m")
+
+
+
+    const jwtService = new JwtService()
+    const accessToken = await jwtService.signAsync(accessPayload, { secret: "ACCESSJWTSECRET", expiresIn: "100m" })
+    const refreshToken = await jwtService.signAsync(accessPayload, { secret: "REFRESHJWTSECRET", expiresIn: "200m" })
+
+
+    const refreshEntry = new DevicesModel(refreshPayload)
 
     return {
       accessToken,
       refreshToken,
-      refreshPayload,
+      refreshEntry,
     }
 
   }
@@ -97,7 +108,7 @@ export class Devices {
   }
 
 
-  async refreshDevice({ deviceIp, userAgent, userId }, jwtService: JwtService): Promise<ReturnTokensDto> {
+  async refreshDevice({ deviceIp, userAgent, userId }): Promise<RefreshTokens> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -120,8 +131,13 @@ export class Devices {
       expireAt: addMinutes(newIssueAt, EXPIRE_AT_REFRESH)
     }
 
-    const accessToken = await jwtService.signAsync(accessPayload)
-    const refreshToken = await jwtService.signAsync(refreshPayload)
+    // const accessToken = await tokensService.createToken(accessPayload, "ACCESSJWTSECRET", "100m")
+    // const refreshToken = await tokensService.createToken(refreshPayload, "REFRESHJWTSECRET", "200m")
+
+    const jwtService = new JwtService()
+    const accessToken = await jwtService.signAsync(accessPayload, { secret: "ACCESSJWTSECRET", expiresIn: "100m" })
+    const refreshToken = await jwtService.signAsync(accessPayload, { secret: "REFRESHJWTSECRET", expiresIn: "200m" })
+
 
     this.lastActiveDate = refreshPayload.lastActiveDate
     this.expireAt = refreshPayload.expireAt
@@ -141,10 +157,8 @@ export class Devices {
 }
 
 interface DevicesStatics {
-  createDevice({ deviceIp, userAgent, userId }, jwtService: JwtService): Promise<ReturnTokensDto>
-
+  createDevice({ deviceIp, userAgent, userId }, tokensService: TokensService, DevicesModel: DevicesModel): Promise<CreateTokens>
   deleteDevice(deviceId: string, DevicesModel: DevicesModel): Promise<number>
-
   deleteOtherDevices(userId: string, deviceId: string, DevicesModel: DevicesModel): Promise<number>
 }
 

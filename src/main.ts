@@ -3,9 +3,11 @@ import { AppModule } from "./app.module"
 import { settings } from "./settings"
 import { ValidationPipe, BadRequestException } from "@nestjs/common"
 import { ErrorExceptionFilter, HttpExceptionFilter } from "./filters/exeption.filter"
+import cookieParser from "cookie-parser"
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+  app.use(cookieParser());
   app.enableCors()
   app.useGlobalPipes(
     new ValidationPipe({
@@ -28,16 +30,5 @@ async function bootstrap() {
 
   await app.listen(3000)
 }
-
-// const customErrorsFunc = (errors) => {
-//   const customErrors = errors.map(err => {
-//     return {
-//       field: err.property,
-//       messages: Object.values(err.constraints!),
-//     }
-//   })
-//
-//   throw new BadRequestException(customErrors)
-// }
 
 bootstrap()

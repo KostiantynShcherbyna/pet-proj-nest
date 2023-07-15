@@ -92,11 +92,11 @@ export class BlogsController {
   @UseGuards(AccessMiddleware)
   @Get(":blogId/posts")
   async findPosts(
-    @Req() deviceSession: OptionalDeviceSessionModel,
+    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Param() params: ObjectIdBlogIdModel,
     @Query() queryPost: QueryPostModel,
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, params.blogId, deviceSession.userId)
+    return await this.postsQueryRepository.findPosts(queryPost, params.blogId, req.deviceSession.userId)
   }
 
   @Post(":blogId/posts")

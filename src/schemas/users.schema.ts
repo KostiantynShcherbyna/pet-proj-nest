@@ -159,6 +159,8 @@ interface UsersStatics {
     registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
 }
 UsersSchema.statics.createUser = Users.createUser
+UsersSchema.statics.registrationUser = Users.registrationUser
+
 UsersSchema.methods.addSentDate = Users.prototype.addSentDate
 UsersSchema.methods.checkConfirmation = Users.prototype.checkConfirmation
 UsersSchema.methods.checkExpiration = Users.prototype.checkExpiration
