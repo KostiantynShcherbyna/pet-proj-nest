@@ -48,7 +48,7 @@ export class RecoveryCodes {
   }
 
 
-  async updateRecoveryCode(
+  async updatePasswordRecovery(
     email: string,
     tokensService: TokensService
   ): Promise<RecoveryCodes> {
@@ -82,7 +82,7 @@ interface RecoveryCodesStatics {
 
 RecoveryCodesSchema.statics.passwordRecovery = RecoveryCodes.passwordRecovery
 
-RecoveryCodesSchema.methods.updateRecoveryCode = RecoveryCodes.prototype.updateRecoveryCode
+RecoveryCodesSchema.methods.updateRecoveryCode = RecoveryCodes.prototype.updatePasswordRecovery
 RecoveryCodesSchema.methods.checkRecoveryCode = RecoveryCodes.prototype.checkRecoveryCode
 
 export type RecoveryCodesDocument = HydratedDocument<RecoveryCodes>

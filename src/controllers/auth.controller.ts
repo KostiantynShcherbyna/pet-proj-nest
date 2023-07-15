@@ -171,7 +171,7 @@ export class AuthController {
     const userView = await this.usersQueryRepository.findUser(req.deviceSession.userId)
     
     if (userView === null) throw new UnauthorizedException()
-    return
+    return userView
   }
 
 
@@ -196,7 +196,7 @@ export class AuthController {
     @Body() bodyNewPassword: BodyNewPasswordModel
   ) {
     const newPasswordContract = await this.authService.newPassword(bodyNewPassword.newPassword, bodyNewPassword.recoveryCode)
-    
+
     if (newPasswordContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException(
       callErrorMessage(ErrorEnums.TOKEN_NOT_VERIFY, "recoveryCode")
     )

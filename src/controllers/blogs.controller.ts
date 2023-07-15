@@ -24,6 +24,7 @@ import { AccessMiddleware } from "../guards/access.middleware"
 import { OptionalDeviceSessionModel } from "../models/request/optional-device-session.model"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { callErrorMessage } from "src/utils/errors/callErrorMessage"
+import { BasicGuard } from "src/guards/basic.guard"
 
 @Controller("blogs")
 export class BlogsController {
@@ -53,6 +54,7 @@ export class BlogsController {
     return await this.blogsQueryRepository.findBlogs(queryBlog)
   }
 
+  @UseGuards(BasicGuard)
   @Post()
   async createBlog(
     @Body() bodyBlog: BodyBlogModel
@@ -60,6 +62,7 @@ export class BlogsController {
     return await this.blogsService.createBlog(bodyBlog)
   }
 
+  @UseGuards(BasicGuard)
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
@@ -74,6 +77,7 @@ export class BlogsController {
     return
   }
 
+  @UseGuards(BasicGuard)
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(
@@ -99,6 +103,7 @@ export class BlogsController {
     return await this.postsQueryRepository.findPosts(queryPost, params.blogId, req.deviceSession.userId)
   }
 
+  @UseGuards(BasicGuard)
   @Post(":blogId/posts")
   async createPost(
     @Param() params: ObjectIdBlogIdModel,

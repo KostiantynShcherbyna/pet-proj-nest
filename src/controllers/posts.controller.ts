@@ -62,6 +62,7 @@ export class PostsController {
     return resultContruct.data
   }
 
+  @UseGuards(BasicGuard)
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
@@ -75,6 +76,7 @@ export class PostsController {
     return
   }
 
+  @UseGuards(BasicGuard)
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(

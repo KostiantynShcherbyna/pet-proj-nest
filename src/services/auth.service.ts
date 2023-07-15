@@ -49,7 +49,6 @@ export class AuthService {
     const newTokens = await this.DevicesModel
       .createDevice(
         { deviceIp, userAgent, userId: user._id.toString() },
-        this.tokensService,
         this.DevicesModel
       )
     await this.devicesRepository.saveDocument(newTokens.refreshEntry)
@@ -173,7 +172,7 @@ export class AuthService {
     //  TODO ANY
     const newRecoveryCodeDocument = oldRecoveryCode === null
       ? await this.RecoveryCodesModel.passwordRecovery(email, this.RecoveryCodesModel, this.tokensService)
-      : await oldRecoveryCode.updateRecoveryCode(email, this.tokensService)
+      : await oldRecoveryCode.updatePasswordRecovery(email, this.tokensService)
 
     await this.authRepository.saveDocument(newRecoveryCodeDocument)
 

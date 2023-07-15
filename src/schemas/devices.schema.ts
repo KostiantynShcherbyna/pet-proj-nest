@@ -48,7 +48,10 @@ export class Devices {
   })
   expireAt: Date
 
-  static async createDevice({ deviceIp, userAgent, userId }, DevicesModel: DevicesModel): Promise<CreateTokens> {
+  static async createDevice(
+    { deviceIp, userAgent, userId },
+    DevicesModel: DevicesModel
+  ): Promise<CreateTokens> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -73,7 +76,6 @@ export class Devices {
 
     // const accessToken = await tokensService.createToken(accessPayload, "ACCESSJWTSECRET", "100m")
     // const refreshToken = await tokensService.createToken(refreshPayload, "REFRESHJWTSECRET", "200m")
-
 
 
     const jwtService = new JwtService()
@@ -135,9 +137,23 @@ export class Devices {
     // const refreshToken = await tokensService.createToken(refreshPayload, "REFRESHJWTSECRET", "200m")
 
     const jwtService = new JwtService()
-    const accessToken = await jwtService.signAsync(accessPayload, { secret: "ACCESSJWTSECRET", expiresIn: "100m" })
-    const refreshToken = await jwtService.signAsync(accessPayload, { secret: "REFRESHJWTSECRET", expiresIn: "200m" })
+    const accessToken = await jwtService
+      .signAsync(
+        accessPayload,
+        {
+          secret: "ACCESSJWTSECRET",
+          expiresIn: "100m"
+        }
+      )
 
+    const refreshToken = await jwtService
+      .signAsync(
+        accessPayload,
+        {
+          secret: "REFRESHJWTSECRET",
+          expiresIn: "200m"
+        }
+      )
 
     this.lastActiveDate = refreshPayload.lastActiveDate
     this.expireAt = refreshPayload.expireAt
@@ -157,9 +173,21 @@ export class Devices {
 }
 
 interface DevicesStatics {
-  createDevice({ deviceIp, userAgent, userId }, tokensService: TokensService, DevicesModel: DevicesModel): Promise<CreateTokens>
-  deleteDevice(deviceId: string, DevicesModel: DevicesModel): Promise<number>
-  deleteOtherDevices(userId: string, deviceId: string, DevicesModel: DevicesModel): Promise<number>
+  createDevice(
+    { deviceIp, userAgent, userId },
+    DevicesModel: DevicesModel
+  ): Promise<CreateTokens>
+
+  deleteDevice(
+    deviceId: string,
+    DevicesModel: DevicesModel
+  ): Promise<number>
+
+  deleteOtherDevices(
+    userId: string,
+    deviceId: string,
+    DevicesModel: DevicesModel
+  ): Promise<number>
 }
 
 export const DevicesSchema = SchemaFactory.createForClass(Devices)
