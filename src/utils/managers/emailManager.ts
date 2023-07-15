@@ -31,6 +31,7 @@ export const emailManager = {
 
 
     async sendPasswordRecovery(email: string, passwordRecoveryToken: any | string) {
+        console.log("passwordRecoveryToken - " + passwordRecoveryToken)
 
         const domain = `https://somesite.com`
         // const your_confirmation_code = `your_confirmation_code`

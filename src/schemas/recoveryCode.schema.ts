@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { HydratedDocument, Model } from "mongoose"
 import { JwtService } from "@nestjs/jwt"
+import { TokensService } from "src/services/tokens.service"
+import { settings } from "src/settings"
+import { ACCESS_EXPIRES_TIME, PASSWORD_HASH_EXPIRES_TIME } from "src/utils/constants/constants"
 
 
 // export interface IRecoveryCode {
@@ -23,10 +26,18 @@ export class RecoveryCodes {
   })
   recoveryCode: string
 
-  static async createRecoveryCode(email: string, RecoveryCodesModel, jwtService: JwtService): Promise<RecoveryCodesDocument> {
+  static async passwordRecovery(
+    email: string,
+    RecoveryCodesModel: RecoveryCodesModel,
+    tokensService: TokensService
+  ): Promise<RecoveryCodesDocument> {
 
-    // const passwordRecoveryCode = this.jwtServiceMngs.createToken({ email: email }, settings.PASSWORD_RECOVERY_CODE, "5m") // TODO
-    const passwordRecoveryCode = await jwtService.signAsync({ email: email })
+    const passwordRecoveryCode = await tokensService
+      .createToken(
+        { email },
+        settings.PASSWORD_RECOVERY_CODE,
+        PASSWORD_HASH_EXPIRES_TIME
+      )
     const recoveryCodeDto = {
       email: email,
       recoveryCode: passwordRecoveryCode
@@ -36,9 +47,18 @@ export class RecoveryCodes {
     return newRecoveryCodeDocument
   }
 
-  async updateRecoveryCode(email: string, jwtService: JwtService): Promise<RecoveryCodes> {
-    // const newRecoveryCode = this.jwtServiceMngs.createToken({ email: email }, settings.PASSWORD_RECOVERY_CODE, "5m") // TODO
-    const newRecoveryCode = await jwtService.signAsync({ email: email })
+
+  async updateRecoveryCode(
+    email: string,
+    tokensService: TokensService
+  ): Promise<RecoveryCodes> {
+
+    const newRecoveryCode = await tokensService
+      .createToken(
+        { email },
+        settings.PASSWORD_RECOVERY_CODE,
+        PASSWORD_HASH_EXPIRES_TIME
+      )
     this.recoveryCode = newRecoveryCode
 
     return this
@@ -53,10 +73,15 @@ export class RecoveryCodes {
 export const RecoveryCodesSchema = SchemaFactory.createForClass(RecoveryCodes)
 
 interface RecoveryCodesStatics {
-  createRecoveryCode(email: string, RecoveryCodesModel: RecoveryCodesModel, jwtService: JwtService): Promise<RecoveryCodesDocument>
+  passwordRecovery(
+    email: string,
+    RecoveryCodesModel: RecoveryCodesModel,
+    tokensService: TokensService
+  ): Promise<RecoveryCodesDocument>
 }
 
-RecoveryCodesSchema.statics.createRecoveryCode = RecoveryCodes.createRecoveryCode
+RecoveryCodesSchema.statics.passwordRecovery = RecoveryCodes.passwordRecovery
+
 RecoveryCodesSchema.methods.updateRecoveryCode = RecoveryCodes.prototype.updateRecoveryCode
 RecoveryCodesSchema.methods.checkRecoveryCode = RecoveryCodes.prototype.checkRecoveryCode
 

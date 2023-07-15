@@ -29,11 +29,12 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const EXPIRES_TIME_ACCESS = "100m"
-export const EXPIRES_TIME_REFRESH = "200m"
+export const ACCESS_EXPIRES_TIME = "100m"
+export const REFRESH_EXPIRES_TIME = "200m"
+export const PASSWORD_HASH_EXPIRES_TIME = "50m"
 
-export const EXPIRE_AT_ACCESS = +EXPIRES_TIME_ACCESS.slice(0, EXPIRES_TIME_ACCESS.length - 1)
-export const EXPIRE_AT_REFRESH = +EXPIRES_TIME_REFRESH.slice(0, EXPIRES_TIME_REFRESH.length - 1)
+export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)
+export const EXPIRE_AT_REFRESH = +REFRESH_EXPIRES_TIME.slice(0, REFRESH_EXPIRES_TIME.length - 1)
 
 export enum MyStatus {
   None = "None",

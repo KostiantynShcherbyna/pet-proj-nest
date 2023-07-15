@@ -49,6 +49,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const loginContract = await this.authService.login(bodyAuth, ip, userAgent)
+
     if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
     )
@@ -71,6 +72,7 @@ export class AuthController {
     @Req() req: Request & { deviceSession: DeviceSessionModel }
   ) {
     const logoutContract = await this.authService.logout(req.deviceSession)
+
     if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (logoutContract.error === ErrorEnums.DEVICE_NOT_DELETE) throw new UnauthorizedException()
     return
@@ -87,6 +89,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshTokenContract = await this.authService.refreshToken(req.deviceSession, ip, userAgent)
+
     if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )
@@ -106,6 +109,7 @@ export class AuthController {
     @Body() bodyRegistration: BodyRegistrationModel
   ) {
     const registrationContract = await this.authService.registration(bodyRegistration)
+
     if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_EMAIL_EXIST, "email")
     )
@@ -125,6 +129,7 @@ export class AuthController {
     @Body() bodyConfirmation: BodyConfirmationModel
   ) {
     const confirmationContract = await this.authService.confirmation(bodyConfirmation.code)
+
     if (confirmationContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "code")
     )
@@ -145,6 +150,7 @@ export class AuthController {
     @Body() bodyConfirmationResend: BodyConfirmationResendModel
   ) {
     const confirmationResendContract = await this.authService.confirmationResend(bodyConfirmationResend.email)
+
     if (confirmationResendContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "email")
     )
@@ -163,6 +169,7 @@ export class AuthController {
     @Req() req: Request & { deviceSession: DeviceSessionModel },
   ) {
     const userView = await this.usersQueryRepository.findUser(req.deviceSession.userId)
+    
     if (userView === null) throw new UnauthorizedException()
     return
   }
@@ -175,6 +182,7 @@ export class AuthController {
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
   ) {
     const isRecoveryContract = await this.authService.passwordRecovery(bodyPasswordRecovery.email)
+
     if (isRecoveryContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
     if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
     return
@@ -188,6 +196,7 @@ export class AuthController {
     @Body() bodyNewPassword: BodyNewPasswordModel
   ) {
     const newPasswordContract = await this.authService.newPassword(bodyNewPassword.newPassword, bodyNewPassword.recoveryCode)
+    
     if (newPasswordContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException(
       callErrorMessage(ErrorEnums.TOKEN_NOT_VERIFY, "recoveryCode")
     )

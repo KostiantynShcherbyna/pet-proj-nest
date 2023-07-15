@@ -29,7 +29,7 @@ export class AuthService {
     @Inject(DevicesRepository) protected devicesRepository: DevicesRepository,
     @Inject(AuthRepository) protected authRepository: AuthRepository,
     @Inject(TokensService) protected tokensService: TokensService,
-    @Inject(JwtService) protected jwtService: JwtService,
+    // @Inject(JwtService) protected jwtService: JwtService,
   ) {
   }
 
@@ -172,13 +172,13 @@ export class AuthService {
     const oldRecoveryCode = await this.authRepository.findRecoveryCode(email)
     //  TODO ANY
     const newRecoveryCodeDocument = oldRecoveryCode === null
-      ? await this.RecoveryCodesModel.createRecoveryCode(email, this.RecoveryCodesModel, this.jwtService)
-      : await oldRecoveryCode.updateRecoveryCode(email, this.jwtService)
+      ? await this.RecoveryCodesModel.passwordRecovery(email, this.RecoveryCodesModel, this.tokensService)
+      : await oldRecoveryCode.updateRecoveryCode(email, this.tokensService)
 
     await this.authRepository.saveDocument(newRecoveryCodeDocument)
 
     // SENDING PASSWORD RECOVERY ↓↓↓
-    const isSend = await emailManager.sendPasswordRecovery(email, newRecoveryCodeDocument)
+    const isSend = await emailManager.sendPasswordRecovery(newRecoveryCodeDocument.email, newRecoveryCodeDocument.recoveryCode)
     if (isSend === false) {
 
       const deletedResult = await this.RecoveryCodesModel.deleteOne({ email: email })
