@@ -28,7 +28,7 @@ export class BodyPostModel {
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsMongoId()
-  // @Validate(BlogIdExistValidatorConstraint)
+  // @Validate(BlogIdIsExist)
   @BlogIdIsExist()
   blogId: string;
 }

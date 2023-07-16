@@ -2,48 +2,44 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import {
   ValidationArguments,
   ValidationOptions,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
-    registerDecorator,
-  } from 'class-validator';
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  registerDecorator,
+} from 'class-validator';
 import { BlogsRepository } from 'src/repositories/blogs.repository';
 import { callErrorMessage } from 'src/utils/errors/callErrorMessage';
 import { ErrorEnums } from 'src/utils/errors/errorEnums';
 
-  
-  @ValidatorConstraint({name: 'BlogExists', async: true })
-  @Injectable()
-  export class BlogIdIsExistConstraint implements ValidatorConstraintInterface {
-    constructor(private readonly blogsRepository: BlogsRepository,) { }
-  
-    async validate(blogId: string) {
-      try{
-        const foundBlog = await this.blogsRepository.findBlog(blogId)
-        return !!foundBlog
-      }
-      catch (e) {
-          return false
-      }
-        
-    }
 
-    defaultMessage(validationArguments?: ValidationArguments ): string {
-      return "Blog doesn't exist"
-    }
+@ValidatorConstraint({ name: 'BlogExists', async: true })
+@Injectable()
+export class BlogIdIsExistConstraint implements ValidatorConstraintInterface {
+  constructor(private readonly blogsRepository: BlogsRepository,) { }
 
+  async validate(blogId: string) {
+    const foundBlog = await this.blogsRepository.findBlog(blogId)
+    if (foundBlog === null) return false
+    return true
+  }
+  defaultMessage(): string {
+    return "Blog not found"
   }
 
-  export function BlogIdIsExist(validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
-      registerDecorator({
-        name: 'BlogExists',
-        target: object.constructor,
-        propertyName: propertyName,
-        options: validationOptions,
-        validator: BlogIdIsExistConstraint,
-      });
-    };
-  }
+}
+
+
+
+export function BlogIdIsExist(validationOptions?: ValidationOptions) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'BlogExists',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: BlogIdIsExistConstraint,
+    });
+  };
+}
 
 
 // @ValidatorConstraint({ async: true })
