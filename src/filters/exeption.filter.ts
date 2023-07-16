@@ -6,10 +6,9 @@ export class ErrorExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
+
     console.log({ INTERNAL_ERROR: { message: exception.message, stack: exception.stack } })
-    return response
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .send("Sory, something went wrong...")
+    return response.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Sorry, something went wrong...")
   }
 }
 
@@ -23,17 +22,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const exceptionResponse = exception.getResponse()
 
     if (status === HttpStatus.BAD_REQUEST) {
-      const errorMessages = this.messagesModify(exceptionResponse)
+      const errorsMessages = this.messagesModify(exceptionResponse)
 
-      return errorMessages
-        ? response.status(status).json({ errorMessages })
+      return errorsMessages
+        ? response.status(status).send({ errorsMessages })
         : response.sendStatus(status)
     }
     if (status === HttpStatus.NOT_FOUND) {
-      const errorMessages = this.messagesModify(exceptionResponse)
+      const errorsMessages = this.messagesModify(exceptionResponse)
 
-      return errorMessages
-        ? response.status(status).json({ errorMessages })
+      return errorsMessages
+        ? response.status(status).send({ errorsMessages })
         : response.sendStatus(status)
     }
 
@@ -47,8 +46,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (Array.isArray(exceptionResponse.message)) {
       return exceptionResponse.message.map(err => {
         return {
-          field: err.field,
           message: err.messages[0].trim(),
+          field: err.field,
         }
       })
     }
@@ -56,20 +55,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (
       exceptionResponse instanceof Object
       && exceptionResponse !== null
-    ) return exceptionResponse
+    ) return [exceptionResponse]
 
-    if (
-      exceptionResponse instanceof Object
-      && exceptionResponse !== null
-      && !exceptionResponse.field
-    ) return {
-      message: exceptionResponse.message.trim(),
-      field: ""
-    }
+    // if (
+    //   exceptionResponse instanceof Object
+    //   && exceptionResponse !== null
+    //   && !exceptionResponse.field
+    // ) return [
+    //   {
+    //     message: exceptionResponse.message.trim(),
+    //     field: ""
+    //   }
+    // ]
 
-    if (
-      typeof exceptionResponse === "string"
-    ) return exceptionResponse.trim()
+    // if (
+    //   typeof exceptionResponse === "string"
+    // ) return exceptionResponse.trim()
 
 
   }

@@ -77,7 +77,7 @@ export class CommentsController {
   }
 
   @UseGuards(AccessGuard)
-  @Put(":commentId")
+  @Put(":commentId/like-status")
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @Req() req: Request & { deviceSession: DeviceSessionModel },

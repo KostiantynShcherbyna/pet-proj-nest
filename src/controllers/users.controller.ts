@@ -49,7 +49,7 @@ export class UsersController {
     @Param() params: ObjectIdIdModel
   ) {
     const resultContruct = await this.usersService.deleteUser(params.id)
-    if (resultContruct.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+    if (resultContruct.error === ErrorEnums.USER_NOT_DELETE) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_DELETE, "id")
     )
     return

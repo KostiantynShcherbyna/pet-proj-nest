@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
-import { BlogsModel, Blogs } from "src/schemas/blogs.schema"
+import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
 import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
 
 @Injectable()
@@ -10,6 +10,7 @@ export class BlogsRepository {
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
   ) {
   }
+  
   async findBlog(id: string) {
 
     const foundBlog = await this.BlogsModel.findById(id)
@@ -17,7 +18,8 @@ export class BlogsRepository {
 
     return foundBlog
   }
-  async saveDocument(document: any) {
+
+  async saveDocument(document: BlogsDocument) {
     await document.save()
   }
 

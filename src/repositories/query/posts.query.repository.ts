@@ -14,6 +14,7 @@ import {
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT,
+  SORT_DIRECTION_DEFAULT,
   SortDirection
 } from "src/utils/constants/constants"
 
@@ -29,23 +30,23 @@ export class PostsQueryRepository {
 
   async findPosts(queryPost: QueryPostModel, blogId?: string, userId?: string): Promise<null | PostsView> {
 
-    console.log(
-      "queryPost - " + JSON.stringify(queryPost),
-      "blogId - " + blogId,
-      "userId - " + userId,
-    )
-
     if (blogId) {
       const blog = await this.blogsRepositoryMngs.findBlog(blogId)
-      if (blog === null) return null
+      if (blog === null) return {
+        pagesCount: 0,
+        page: PAGE_NUMBER_DEFAULT,
+        pageSize: PAGE_SIZE_DEFAULT,
+        totalCount: 0,
+        items: []
+      }
     }
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
     const sortBy = queryPost.sortBy || SORT_BY_DEFAULT
-    const sortDirection = queryPost.sortDirection === SortDirection.asc
-      ? SortDirection.asc // 1
-      : SortDirection.desc // -1
+    const sortDirection = queryPost.sortDirection === SortDirection.Asc
+      ? 1
+      : -1
     const skippedPostsCount = (pageNumber - 1) * pageSize
 
     const totalCount = blogId
@@ -54,16 +55,17 @@ export class PostsQueryRepository {
 
     const pagesCount = Math.ceil(totalCount / pageSize)
 
+
     const foundPosts = blogId
       ? await this.PostsModel
         .find({ blogId: blogId })
-        .sort({ [sortBy]: sortDirection as any })
+        .sort({ [sortBy]: sortDirection })
         .limit(pageSize)
         .skip(skippedPostsCount)
         .lean()
       : await this.PostsModel
         .find({})
-        .sort({ [sortBy]: sortDirection as any })
+        .sort({ [sortBy]: sortDirection })
         .limit(pageSize)
         .skip(skippedPostsCount)
         .lean()

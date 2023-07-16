@@ -25,16 +25,18 @@ export class QueryBlogModel {
 
   @IsOptional()
   @IsEnum(SortDirection)
-  @MaxLength(100)
-  sortDirection: SortDirection = SortDirection.desc
+  @MaxLength(4)
+  sortDirection: SortDirection = SortDirection.Desc
 
   @IsOptional()
   @Type(() => Number)
+  @IsInt()
   @Min(1)
   pageNumber: number = PAGE_NUMBER_DEFAULT
 
   @IsOptional()
   @Type(() => Number)
+  @IsInt()
   @Min(1)
   pageSize: number = PAGE_SIZE_DEFAULT
 }

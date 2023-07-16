@@ -29,9 +29,9 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const ACCESS_EXPIRES_TIME = "100m"
-export const REFRESH_EXPIRES_TIME = "200m"
-export const PASSWORD_HASH_EXPIRES_TIME = "50m"
+export const ACCESS_EXPIRES_TIME = "10m"
+export const REFRESH_EXPIRES_TIME = "20m"
+export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)
 export const EXPIRE_AT_REFRESH = +REFRESH_EXPIRES_TIME.slice(0, REFRESH_EXPIRES_TIME.length - 1)
@@ -43,12 +43,17 @@ export enum MyStatus {
 }
 
 export enum SortDirection {
-  asc = "1",
-  desc = "-1",
+  Asc = "asc",
+  Desc = "desc",
 }
 export const SORT_BY_DEFAULT = "createdAt"
 export const PAGE_SIZE_DEFAULT = 10
 export const PAGE_NUMBER_DEFAULT = 1
+export const SEARCH_NAME_TERM_DEFAULT = ""
+export const SEARCH_LOGIN_TERM_DEFAULT = "" // is Null ????
+export const SEARCH_EMAIL_TERM_DEFAULT = "" // is Null ????
+export const SORT_DIRECTION_DEFAULT = -1
+
 
 export const USER_AGENT = "user_agent"
 

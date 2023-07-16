@@ -4,7 +4,7 @@ import { QueryBlogModel } from "src/models/query/QueryBlogModel"
 import { BlogsView, BlogView } from "src/views/BlogView"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { dtoModify } from "src/utils/modify/dtoModify"
-import { SortDirection } from "../../utils/constants/constants"
+import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_DIRECTION_DEFAULT, SortDirection } from "../../utils/constants/constants"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -24,17 +24,15 @@ export class BlogsQueryRepository {
   }
 
   async findBlogs(query: QueryBlogModel): Promise<BlogsView> {
-    const PAGE_SIZE_DEFAULT = 10
-    const PAGE_NUMBER_DEFAULT = 1
-    const SEARCH_NAME_TERM_DEFAULT = ""
-    const SORT_BY_DEFAULT = "createdAt"
-    const SORT_DIRECTION_DEFAULT = -1
+
 
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
     const sortBy = query.sortBy || SORT_BY_DEFAULT
-    const sortDirection = query.sortDirection === SortDirection.asc ? 1 : SORT_DIRECTION_DEFAULT
+    const sortDirection = query.sortDirection === SortDirection.Asc
+      ? 1
+      : -1
 
     const skippedBlogsCount = (pageNumber - 1) * pageSize
 

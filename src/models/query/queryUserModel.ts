@@ -1,27 +1,37 @@
-import { IsInt, IsNotEmpty, IsNumber, IsString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator"
+import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/utils/constants/constants"
 
 export class QueryUserModel {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  searchLoginTerm: string;
+  @MaxLength(100)
+  searchLoginTerm: string = ""
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  searchEmailTerm: string;
+  @MaxLength(100)
+  searchEmailTerm: string = ""
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  sortBy: string;
+  @MaxLength(100)
+  sortBy: string = SORT_BY_DEFAULT
 
-  @IsString()
-  @IsNotEmpty()
-  sortDirection: string;
+  @IsOptional()
+  @IsEnum(SortDirection)
+  @MaxLength(4)
+  sortDirection: SortDirection = SortDirection.Desc
 
+  @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  @IsNotEmpty()
-  pageNumber: number;
+  @Min(1)
+  pageNumber: number = PAGE_NUMBER_DEFAULT
 
+  @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  @IsNotEmpty()
-  pageSize: number;
+  @Min(1)
+  pageSize: number = PAGE_SIZE_DEFAULT
 }

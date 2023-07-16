@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards, HttpStatus, Patch, InternalServerErrorException } from "@nestjs/common"
+import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards, HttpStatus, Patch, InternalServerErrorException, UsePipes } from "@nestjs/common"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { PostsService } from "src/services/posts.service"
 import { BodyPostModel } from "src/models/body/BodyPostModel"
@@ -17,6 +17,7 @@ import { ObjectIdPostIdModel } from "../models/uri/ObjectId-postId.model"
 import { callErrorMessage } from "src/utils/errors/callErrorMessage"
 import { CommentsService } from "src/services/comments.service"
 import { BodyCommentModel } from "src/models/body/BodyCommentModel"
+import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
 
 @Controller("posts")
 export class PostsController {
@@ -25,6 +26,7 @@ export class PostsController {
     @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
     @Inject(PostsService) protected postsService: PostsService,
     @Inject(CommentsService) protected commentsService: CommentsService,
+    @Inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
   ) {
   }
 
@@ -119,6 +121,7 @@ export class PostsController {
 
   @UseGuards(AccessGuard)
   @Put(":postId/like-status")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Param() postId: ObjectIdPostIdModel,

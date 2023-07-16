@@ -9,7 +9,7 @@ import { Types } from "mongoose"
 import { QueryPostModel } from "src/models/query/QueryPostModel"
 import { PostView, PostsView } from "src/views/PostView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
-import { MyStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/utils/constants/constants"
+import { MyStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SORT_DIRECTION_DEFAULT, SortDirection } from "src/utils/constants/constants"
 import { QueryCommentModel } from "src/models/query/QueryCommentModel"
 import { CommentView, CommentsView } from "src/views/CommentView"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
@@ -42,12 +42,13 @@ export class CommentsQueryRepository {
 
   async findComments(postId: string, query: QueryCommentModel, userId?: string): Promise<CommentsView> {
 
+
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
     const sortBy = query.sortBy || SORT_BY_DEFAULT
-    const sortDirection = query.sortDirection === SortDirection.asc
-      ? SortDirection.asc // 1
-      : SortDirection.desc // -1
+    const sortDirection = query.sortDirection === SortDirection.Asc
+      ? 1
+      : -1
 
     const skippedCommentsCount = (pageNumber - 1) * pageSize
 
@@ -58,7 +59,7 @@ export class CommentsQueryRepository {
 
     const comments = await this.CommentsModel
       .find({ postId: postId })
-      .sort({ [sortBy]: sortDirection as any})
+      .sort({ [sortBy]: sortDirection })
       .limit(pageSize)
       .skip(skippedCommentsCount)
       .lean()

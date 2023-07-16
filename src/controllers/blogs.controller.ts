@@ -100,7 +100,7 @@ export class BlogsController {
     @Param() params: ObjectIdBlogIdModel,
     @Query() queryPost: QueryPostModel,
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, params.blogId, req.deviceSession.userId)
+    return await this.postsQueryRepository.findPosts(queryPost, params.blogId, req.deviceSession?.userId)
   }
 
   @UseGuards(BasicGuard)

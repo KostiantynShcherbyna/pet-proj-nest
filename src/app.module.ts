@@ -36,6 +36,7 @@ import { settings } from "./settings"
 import { AttemptRequests, AttemptRequestsSchema } from "./schemas/attemptRequests.schema"
 import { AppService } from "./app.service"
 import { AppController } from "./app.controller"
+import { BlogIdIsExistConstraint } from "./validators/blogId.validator"
 
 // const mongooseURI = process.env.MONGOOSE_URL || "mongodb://0.0.0.0:27017"
 
@@ -84,7 +85,8 @@ import { AppController } from "./app.controller"
     AuthQueryRepository,
     AuthRepository,
     DevicesRepository,
+
+    BlogIdIsExistConstraint,
   ],
 })
-export class AppModule {
-}
+export class AppModule { }

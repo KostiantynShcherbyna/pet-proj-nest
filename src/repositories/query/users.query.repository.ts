@@ -7,6 +7,7 @@ import { QueryUserModel } from "src/models/query/QueryUserModel"
 import { UsersView } from "src/views/UserView"
 import { Types } from "mongoose"
 import { MeView } from "src/views/MeView"
+import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_EMAIL_TERM_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_DIRECTION_DEFAULT, SortDirection } from "src/utils/constants/constants"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
@@ -27,30 +28,26 @@ export class UsersQueryRepository {
 
     async findUsers(query: QueryUserModel): Promise<UsersView> {
 
-        const PAGE_SIZE_DEFAULT = 10
-        const PAGE_NUMBER_DEFAULT = 1
-        const SEARCH_LOGIN_TERM_DEFAULT = '' // is Null ????
-        const SEARCH_EMAIL_TERM_DEFAULT = '' // is Null ????
-        const SORT_BY_DEFAULT = 'createdAt'
-        const SORT_DIRECTION_DEFAULT = -1
-
         const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
         const searchEmailTerm = query.searchEmailTerm || SEARCH_EMAIL_TERM_DEFAULT
         const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
         const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
         const sortBy = query.sortBy || SORT_BY_DEFAULT
-        const sortDirection = query.sortDirection === "asc" ? 1 : SORT_DIRECTION_DEFAULT
+        const sortDirection = query.sortDirection === SortDirection.Asc
+            ? 1
+            : -1
 
         const skippedUsersCount = (pageNumber - 1) * pageSize
 
-        const totalCount = await this.UsersModel.countDocuments(
-            {
-                $or: [
-                    { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
-                    { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
-                ]
-            }
-        )
+        const totalCount = await this.UsersModel
+            .countDocuments(
+                {
+                    $or: [
+                        { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
+                        { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
+                    ]
+                }
+            )
 
         const pagesCount = Math.ceil(totalCount / pageSize)
 
