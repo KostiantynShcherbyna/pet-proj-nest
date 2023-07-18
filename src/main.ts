@@ -5,6 +5,7 @@ import { ValidationPipe, BadRequestException } from "@nestjs/common"
 import { ErrorExceptionFilter, HttpExceptionFilter } from "./filters/exeption.filter"
 import cookieParser from "cookie-parser"
 import { useContainer } from "class-validator"
+import { errorsFactory } from "./utils/factory/errors.factory"
 
 
 
@@ -18,24 +19,13 @@ async function bootstrap() {
       whitelist: true,
       stopAtFirstError: true,
       transform: true,
-      exceptionFactory: (errors) => {
-        console.log("exceptionFactory - " + errors)
-        const customErrors = errors.map(err => {
-          return {
-            messages: Object.values(err.constraints || ""),
-            field: err.property,
-          }
-        })
-
-        throw new BadRequestException(customErrors)
-      },
+      exceptionFactory: errorsFactory
     }),
   )
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter())
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
-
-  await app.listen(3000)
+  await app.listen(settings.PORT)
 }
 
 bootstrap()

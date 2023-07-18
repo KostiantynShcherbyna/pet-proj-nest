@@ -3,7 +3,7 @@ import { HydratedDocument, Model } from "mongoose";
 
 
 @Schema()
-export class AttemptRequests {
+export class RequestAttempts {
   @Prop({
     type: String,
     required: true
@@ -22,8 +22,8 @@ export class AttemptRequests {
   })
   date: Date;
 }
-export const AttemptRequestsSchema = SchemaFactory.createForClass(AttemptRequests);
+export const RequestAttemptsSchema = SchemaFactory.createForClass(RequestAttempts);
 
-export type AttemptRequestsDocument = HydratedDocument<AttemptRequests>;
-export type AttemptRequestsModel = Model<AttemptRequestsDocument>
+export type RequestAttemptsDocument = HydratedDocument<RequestAttempts>;
+export type RequestAttemptsModel = Model<RequestAttemptsDocument>
 

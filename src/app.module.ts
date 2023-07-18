@@ -32,7 +32,7 @@ import { TokensService } from "./services/tokens.service"
 import { AuthQueryRepository } from "./repositories/query/auth.query.repository"
 import { AuthRepository } from "./repositories/auth.repository"
 import { JwtService } from "@nestjs/jwt"
-import { AttemptRequests, AttemptRequestsSchema } from "./schemas/attemptRequests.schema"
+import { RequestAttempts, RequestAttemptsSchema } from "./schemas/requestAttempts.schema"
 import { AppService } from "./app.service"
 import { AppController } from "./app.controller"
 import { BlogIdIsExist } from "./validators/blogId.validator"
@@ -40,13 +40,17 @@ import { DevicesController } from "./controllers/devices.controller"
 import { ThrottlerModule } from "@nestjs/throttler"
 import { throttler } from "./guards/throttler.guard"
 import { APP_GUARD } from "@nestjs/core"
+import { settings } from "./settings"
 
 // const mongooseURI = process.env.MONGOOSE_URL || "mongodb://0.0.0.0:27017"
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot("mongodb+srv://kostyalys:bagrat10n@cluster0.7mo0iox.mongodb.net/BE-2-0-DEV?retryWrites=true&w=majority"),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    MongooseModule.forRoot(process.env.MONGOOSE_URL || settings.MONGOOSE_URI),
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
@@ -58,7 +62,7 @@ import { APP_GUARD } from "@nestjs/core"
       { name: Users.name, schema: UsersSchema },
       { name: Devices.name, schema: DevicesSchema },
       { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
-      { name: AttemptRequests.name, schema: AttemptRequestsSchema },
+      { name: RequestAttempts.name, schema: RequestAttemptsSchema },
     ]),
   ],
   controllers: [

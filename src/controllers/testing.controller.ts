@@ -10,7 +10,7 @@ import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { Devices, DevicesModel } from "../schemas/devices.schema"
-import { AttemptRequests, AttemptRequestsModel } from "../schemas/attemptRequests.schema"
+import { RequestAttempts, RequestAttemptsModel } from "../schemas/requestAttempts.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recoveryCode.schema"
 
 @Controller("testing")
@@ -21,7 +21,7 @@ export class TestingController {
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     @InjectModel(Users.name) protected UsersModel: UsersModel,
     @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
-    @InjectModel(AttemptRequests.name) protected AttemptRequestsModel: AttemptRequestsModel,
+    @InjectModel(RequestAttempts.name) protected AttemptRequestsModel: RequestAttemptsModel,
     @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel
   ) {
   }
