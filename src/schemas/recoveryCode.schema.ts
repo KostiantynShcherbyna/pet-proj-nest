@@ -26,7 +26,7 @@ export class RecoveryCodes {
   })
   recoveryCode: string
 
-  static async passwordRecovery(
+  static async newPasswordRecovery(
     email: string,
     RecoveryCodesModel: RecoveryCodesModel,
     tokensService: TokensService
@@ -51,7 +51,7 @@ export class RecoveryCodes {
   async updatePasswordRecovery(
     email: string,
     tokensService: TokensService
-  ): Promise<RecoveryCodes> {
+  ) {
 
     const newRecoveryCode = await tokensService
       .createToken(
@@ -69,20 +69,17 @@ export class RecoveryCodes {
     return this.recoveryCode === newRecoveryCode
   }
 }
-
-export const RecoveryCodesSchema = SchemaFactory.createForClass(RecoveryCodes)
-
 interface RecoveryCodesStatics {
-  passwordRecovery(
+  newPasswordRecovery(
     email: string,
     RecoveryCodesModel: RecoveryCodesModel,
     tokensService: TokensService
   ): Promise<RecoveryCodesDocument>
 }
 
-RecoveryCodesSchema.statics.passwordRecovery = RecoveryCodes.passwordRecovery
-
-RecoveryCodesSchema.methods.updateRecoveryCode = RecoveryCodes.prototype.updatePasswordRecovery
+export const RecoveryCodesSchema = SchemaFactory.createForClass(RecoveryCodes)
+RecoveryCodesSchema.statics.newPasswordRecovery = RecoveryCodes.newPasswordRecovery
+RecoveryCodesSchema.methods.updatePasswordRecovery = RecoveryCodes.prototype.updatePasswordRecovery
 RecoveryCodesSchema.methods.checkRecoveryCode = RecoveryCodes.prototype.checkRecoveryCode
 
 export type RecoveryCodesDocument = HydratedDocument<RecoveryCodes>

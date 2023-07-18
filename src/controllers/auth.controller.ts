@@ -13,23 +13,22 @@ import {
   NotFoundException,
   Get, Res, UnauthorizedException, InternalServerErrorException
 } from "@nestjs/common"
-import { BodyAuthModel } from "src/models/body/BodyAuthModel"
-import { BodyNewPasswordModel } from "src/models/body/BodyNewPasswordModel"
-import { BodyPasswordRecoveryModel } from "src/models/body/BodyPasswordRecoveryModel"
-import { BodyConfirmationModel } from "src/models/body/BodyConfirmationModel"
-import { BodyRegistrationModel } from "src/models/body/BodyRegistrationModel"
-import { BodyConfirmationResendModel } from "src/models/body/BodyRegistrationResendModel"
+import { BodyAuthModel } from "src/models/body/body-auth.model"
+import { BodyNewPasswordModel } from "src/models/body/body-new-password.model"
+import { BodyPasswordRecoveryModel } from "src/models/body/body-password-recovery.model"
+import { BodyConfirmationModel } from "src/models/body/body-confirmation.model"
+import { BodyRegistrationModel } from "src/models/body/body-registration.model"
+import { BodyConfirmationResendModel } from "src/models/body/body-registration-resend.model"
 import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { RefreshGuard } from "src/guards/refresh.guard"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
 import { AuthService } from "src/services/auth.service"
-import { ErrorEnums } from "src/utils/errors/errorEnums"
+import { ErrorEnums } from "src/utils/errors/error-enums"
 import { Response } from "express"
 import { Throttle } from "@nestjs/throttler"
-import { errorMessages } from "src/utils/errors/errorMessages"
 import { USER_AGENT } from "src/utils/constants/constants"
 import { AccessGuard } from "src/guards/access.guard"
-import { callErrorMessage } from "src/utils/errors/callErrorMessage"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
 
 @Controller("auth")
 export class AuthController {
@@ -146,8 +145,8 @@ export class AuthController {
   }
 
 
-  @Throttle(5, 10)
   @Post("registration-email-resending")
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendModel

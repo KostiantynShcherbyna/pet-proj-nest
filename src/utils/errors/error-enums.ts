@@ -1,60 +1,41 @@
 export enum ErrorEnums {
 
-    INTERNAL_SERVER_ERROR = `Internal server error`,
     EMAIL_NOT_SENT = `Email not sent`,
 
-
     //↓↓↓ AUTH
-    UNAUTHORIZED = `Unauthorized`,
-    CREATE_JWT_ERROR = `CREATE_JWT_ERROR`,
-    VERIFY_JWT_ERROR = `VERIFY_JWT_ERROR`,
-    CONFIRMATION_ERROR = `CONFIRMATION_ERROR`,
-    AUTH_ERROR = `AUTH_ERROR`,
-    PASSWORD_NOT_COMPARED = `Password not compared`,
+    TOKEN_NOT_VERIFY = `Token not verified`,
     DEVICE_NOT_FOUND = `Device not found`,
     DEVICE_NOT_DELETE = `Device_not deleted`,
     DEVICES_NOT_DELETE = `Devices_not deleted`,
-    FOREIGN_DEVICE_NOT_DELETE = `Foreign device not deleted`,
-    USER_EMAIL_EXIST = `User email exist`,
-    USER_LOGIN_EXIST = `User login exist`,
-    USER_EMAIL_NOT_CONFIRMED = `User email not confirmed`,
-    USER_EMAIL_CONFIRMED = `User email is confirmed`,
-    CONFIRMATION_CODE_EXPIRED = `Confirmation code is expired`,
-    RECOVERY_CODE_NOT_DELETE = `RECOVERY_CODE_NOT_DELETE`,
-    RECOVERY_CODE_NOT_FOUND = `RECOVERY_CODE_NOT_FOUND`,
+    PASSWORD_NOT_COMPARED = `Password not compared`,
     RECOVERY_CODE_INVALID = `RECOVERY_CODE_INVALID`,
-    TOKEN_NOT_VERIFY = `Token not verified`,
-
+    RECOVERY_CODE_NOT_FOUND = `RECOVERY_CODE_NOT_FOUND`,
+    RECOVERY_CODE_NOT_DELETE = `RECOVERY_CODE_NOT_DELETE`,
+    FOREIGN_DEVICE_NOT_DELETE = `Foreign device not deleted`,
+    CONFIRMATION_CODE_EXPIRED = `Confirmation code is expired`,
+    
     // ↓↓↓ BLOGS
     BLOG_NOT_FOUND = `Blog not found`,
-    NEW_BLOG_NOT_CREATED = `NEW_BLOG_NOT_CREATED`,
     BLOG_NOT_DELETED = `Blog not deleted`,
-
-
-
+    
     // ↓↓↓ POSTS
-    POSTS_NOT_DELETED = `Posts not deleted`,
-    POST_NOT_DELETED = `Post not deleted`,
     POST_NOT_FOUND = `Post not found`,
-    NOT_FOUND_POST_BY_POST_ID = `NOT_FOUND_POST_BY_POST_ID`,
-    NOT_FOUND_POST_BY_USER_ID = `NOT_FOUND_POST_BY_USER_ID`,
-
-
+    POST_NOT_DELETED = `Post not deleted`,
+    POSTS_NOT_DELETED = `Posts not deleted`,
+    
     // ↓↓↓ USERS
     USER_NOT_FOUND = `User not found`,
-    NOT_FOUND_USER_BY_ID = `NOT_FOUND_USER_BY_ID`,
-    NOT_FOUND_USER_BY_LOGIN_OR_EMAIL = `NOT_FOUND_USER_BY_LOGIN_OR_EMAIL`,
     USER_NOT_DELETE = `User not deleted`,
-
+    USER_EMAIL_EXIST = `User email exist`,
+    USER_LOGIN_EXIST = `User login exist`,
+    USER_EMAIL_CONFIRMED = `User email is confirmed`,
+    USER_EMAIL_NOT_CONFIRMED = `User email not confirmed`,
 
     // ↓↓↓ COMMENTS
     COMMENT_NOT_FOUND = `Comment not found`,
-    NOT_FOUND_COMMENT_BY_COMMENT_ID = `NOT_FOUND_COMMENT_BY_COMMENT_ID`,
+    COMMENT_NOT_DELETE = `Comment not deleted`,
     FOREIGN_COMMENT_NOT_UPDATED = `Foreign comment not updated`,
     FOREIGN_COMMENT_NOT_DELETED = `Foreign comment not deleted`,
-    NOT_CREATED_COMMENT = `NOT_CREATED_COMMENT`,
-    NOT_UPDATED_COMMENT = `NOT_UPDATED_COMMENT`,
-    COMMENT_NOT_DELETE = `Comment not deleted`,
 
 }
 

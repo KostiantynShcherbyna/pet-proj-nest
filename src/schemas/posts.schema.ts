@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory, raw } from "@nestjs/mongoose"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { BodyPostModel } from "src/models/body/BodyPostModel"
+import { BodyPostModel } from "src/models/body/body-post.model"
 import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
@@ -8,6 +8,8 @@ import {
   MyStatus
 } from "src/utils/constants/constants"
 import { UsersDocument } from "./users.schema"
+import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
+import { Contract } from "src/contract"
 
 
 export interface IExtendedLikesInfo {
@@ -117,15 +119,15 @@ export class Posts {
     }))
   extendedLikesInfo: IExtendedLikesInfo
 
-  static createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel): PostsDocument {
+  static createPost(bodyBlogPost: BodyBlogPostModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument {
 
     const date = new Date().toISOString()
 
     const newPostDto = {
-      title: bodyPostModel.title,
-      shortDescription: bodyPostModel.shortDescription,
-      content: bodyPostModel.content,
-      blogId: bodyPostModel.blogId,
+      title: bodyBlogPost.title,
+      shortDescription: bodyBlogPost.shortDescription,
+      content: bodyBlogPost.content,
+      blogId: blogId,
       blogName: blogName,
       createdAt: date,
       extendedLikesInfo: {
@@ -139,6 +141,14 @@ export class Posts {
     const newPost = new PostsModel(newPostDto)
     return newPost
   }
+
+  static async deletePost(id: string, PostsModel: PostsModel): Promise<Contract<number>> {
+    const deletedPostResult = await PostsModel.deleteOne({ _id: new Types.ObjectId(id) })
+    return new Contract(deletedPostResult.deletedCount, null)
+  }
+
+
+
 
   updatePost(bodyPostDto: BodyPostModel) {
     this.title = bodyPostDto.title
@@ -236,17 +246,15 @@ export class Posts {
   }
 
 }
-
-export const PostsSchema = SchemaFactory.createForClass(Posts)
-
 interface PostsStatics {
-  createPost(bodyPostModel: BodyPostModel, blogName: string, PostsModel: PostsModel): PostsDocument;
+  createPost(bodyBlogPost: BodyBlogPostModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument;
+  deletePost(id: string, PostsModel: PostsModel): Promise<Contract<number>>
 }
 
+export const PostsSchema = SchemaFactory.createForClass(Posts)
 PostsSchema.statics.createPost = Posts.createPost
 PostsSchema.methods.updatePost = Posts.prototype.updatePost
 PostsSchema.methods.createOrUpdateLike = Posts.prototype.createOrUpdateLike
-
 
 export type PostsDocument = HydratedDocument<Posts>;
 export type PostsModel = Model<PostsDocument> & PostsStatics

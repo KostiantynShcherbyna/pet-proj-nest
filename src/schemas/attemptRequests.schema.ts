@@ -22,7 +22,6 @@ export class AttemptRequests {
   })
   date: Date;
 }
-
 export const AttemptRequestsSchema = SchemaFactory.createForClass(AttemptRequests);
 
 export type AttemptRequestsDocument = HydratedDocument<AttemptRequests>;

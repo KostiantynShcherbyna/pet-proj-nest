@@ -2,10 +2,14 @@ import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { BodyRegistrationModel } from 'src/models/body/BodyRegistrationModel';
-import { BodyUserModel } from 'src/models/body/BodyUserModel';
+import { Contract } from 'src/contract';
+import { confirmationAndExpirationDto } from 'src/dto/confirmation-and-expiration-dto.type';
+import { BodyRegistrationModel } from 'src/models/body/body-registration.model';
+import { BodyUserModel } from 'src/models/body/body-user.model';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
-import { generateHash } from 'src/utils/hashFunctions/generateHash';
+import { ErrorEnums } from 'src/utils/errors/error-enums';
+import { compareHashManager } from 'src/utils/managers/compare-hash.manager';
+import { generateHashManager } from 'src/utils/managers/generate-hash.manager';
 
 
 
@@ -78,7 +82,7 @@ export class Users {
 
     static async createUser(newUserData: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
-        const passwordHash = await generateHash(newUserData.password)
+        const passwordHash = await generateHashManager(newUserData.password)
         const date = new Date()
         const newUserDto = {
             accountData: {
@@ -98,10 +102,9 @@ export class Users {
         const newUser = new UsersModel(newUserDto)
         return newUser
     }
-
     static async registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
-        const passwordHash = await generateHash(registrationBody.password)
+        const passwordHash = await generateHashManager(registrationBody.password)
         const date = new Date()
         const newUserDto = {
             accountData: {
@@ -126,10 +129,31 @@ export class Users {
         const newUser = new UsersModel(newUserDto)
         return newUser
     }
+    static async deleteUser(id: string, UsersModel: UsersModel): Promise<Contract<number>> {
+        const deleteUserResult = await UsersModel.deleteOne({ _id: new Types.ObjectId(id) })
+        return new Contract(deleteUserResult.deletedCount, null)
+    }
+
+
+
+
 
     checkConfirmation() {
         return this.emailConfirmation.isConfirmed === false ? false : true
     }
+
+    async checkConfirmationAndHash(passwordHash: string, inputPassword: string): Promise<Contract<null | boolean>> {
+        if (this.emailConfirmation.isConfirmed === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
+        if (await compareHashManager(passwordHash, inputPassword) === false) return new Contract(null, ErrorEnums.PASSWORD_NOT_COMPARED)
+        return new Contract(true, null)
+    }
+
+    checkEmailAndLogin({ email, login, inputEmail, inputLogin }: confirmationAndExpirationDto): Contract<null | boolean> {
+        if (email === inputEmail) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
+        if (login === inputLogin) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
+        return new Contract(true, null)
+    }
+
     checkExpiration() {
         return this.emailConfirmation.expirationDate && this.emailConfirmation.expirationDate < new Date() ? false : true
     }
@@ -143,7 +167,7 @@ export class Users {
     }
 
     async updatePasswordHash(newPassword: string) {
-        const newPasswordHash = await generateHash(newPassword)
+        const newPasswordHash = await generateHashManager(newPassword)
         this.accountData.passwordHash = newPasswordHash
     }
 
@@ -152,21 +176,23 @@ export class Users {
     }
 
 }
-export const UsersSchema = SchemaFactory.createForClass(Users)
-
 interface UsersStatics {
     createUser(bodyUserModel: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument>
     registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
+    deleteUser(id: string, UsersModel: UsersModel): Promise<Contract<number>>
 }
+
+export const UsersSchema = SchemaFactory.createForClass(Users)
 UsersSchema.statics.createUser = Users.createUser
 UsersSchema.statics.registrationUser = Users.registrationUser
-
 UsersSchema.methods.addSentDate = Users.prototype.addSentDate
-UsersSchema.methods.checkConfirmation = Users.prototype.checkConfirmation
 UsersSchema.methods.checkExpiration = Users.prototype.checkExpiration
-UsersSchema.methods.updateUserConfirmation = Users.prototype.updateUserConfirmation
-UsersSchema.methods.updateUserConfirmationCode = Users.prototype.updateUserConfirmationCode
+UsersSchema.methods.checkConfirmation = Users.prototype.checkConfirmation
+UsersSchema.methods.checkEmailAndLogin = Users.prototype.checkEmailAndLogin
 UsersSchema.methods.updatePasswordHash = Users.prototype.updatePasswordHash
+UsersSchema.methods.updateUserConfirmation = Users.prototype.updateUserConfirmation
+UsersSchema.methods.checkConfirmationAndHash = Users.prototype.checkConfirmationAndHash
+UsersSchema.methods.updateUserConfirmationCode = Users.prototype.updateUserConfirmationCode
 
 export type UsersDocument = HydratedDocument<Users>;
 export type UsersModel = Model<UsersDocument> & UsersStatics

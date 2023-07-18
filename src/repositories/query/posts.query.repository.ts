@@ -1,12 +1,12 @@
 import { Injectable, Inject, NotFoundException } from "@nestjs/common"
 import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
-import { QueryBlogModel } from "src/models/query/QueryBlogModel"
+import { QueryBlogModel } from "src/models/query/query-blog.model"
 import { BlogView, BlogsView } from "src/views/BlogView"
 import { BlogsModel, Blogs } from "src/schemas/blogs.schema"
-import { dtoModify } from "src/utils/modify/dtoModify"
+import { dtoManager } from "src/utils/managers/dto.manager"
 import { Types } from "mongoose"
-import { QueryPostModel } from "src/models/query/QueryPostModel"
+import { QueryPostModel } from "src/models/query/query-post.model"
 import { PostView, PostsView } from "src/views/PostView"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import {
@@ -65,7 +65,7 @@ export class PostsQueryRepository {
         .lean()
 
 
-    const mappedPosts = dtoModify.changePostsViewMngs(foundPosts, userId)
+    const mappedPosts = dtoManager.changePostsView(foundPosts, userId)
 
     const postsView = {
       pagesCount: pagesCount,
@@ -87,7 +87,7 @@ export class PostsQueryRepository {
     let like: ILike | undefined
     if (userId) like = foundPost.extendedLikesInfo.like.find(like => like.userId === userId)
 
-    const postView = dtoModify.changePostViewMngs(foundPost, like?.status || MyStatus.None)
+    const postView = dtoManager.changePostView(foundPost, like?.status || MyStatus.None)
 
     return postView
   }

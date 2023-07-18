@@ -1,10 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, } from '@nestjs/common';
 import {
-  ValidationArguments,
-  ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  registerDecorator,
 } from 'class-validator';
 import { BlogsRepository } from 'src/repositories/blogs.repository';
 
@@ -25,16 +22,3 @@ export class BlogIdIsExist implements ValidatorConstraintInterface {
     return "Blog not found"
   }
 }
-
-
-// export function BlogIdIsExist(validationOptions?: ValidationOptions) {
-//   return function (object: Object, propertyName: string) {
-//     registerDecorator({
-//       name: 'BlogExists',
-//       target: object.constructor,
-//       propertyName: propertyName,
-//       options: validationOptions,
-//       validator: BlogIdIsExistConstraint,
-//     });
-//   };
-// }

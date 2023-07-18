@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt"
 
-export const compareHash = async (hash: string, dto: string): Promise<boolean> => {
+export const compareHashManager = async (hash: string, dto: string): Promise<boolean> => {
 
   const isCompare = await bcrypt
     .compare(

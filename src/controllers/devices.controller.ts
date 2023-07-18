@@ -14,9 +14,9 @@ import { DevicesService } from "src/services/devices.service"
 import { AuthQueryRepository } from "src/repositories/query/auth.query.repository"
 import { RefreshGuard } from "src/guards/refresh.guard"
 import { DeviceSessionModel } from "src/models/request/device-session.model"
-import { ObjectIdDeviceIdModel } from "../models/uri/ObjectId-deviceId.model"
-import { ErrorEnums } from "src/utils/errors/errorEnums"
-import { callErrorMessage } from "src/utils/errors/callErrorMessage"
+import { ObjectIdDeviceIdModel } from "../models/uri/deviceId.model"
+import { ErrorEnums } from "src/utils/errors/error-enums"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
 
 @Controller("security")
 export class DevicesController {

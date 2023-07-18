@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
-import { dtoModify } from "src/utils/modify/dtoModify"
+import { dtoManager } from "src/utils/managers/dto.manager"
 import { DeviceView } from "src/views/DeviceView"
 
 @Injectable()
@@ -13,7 +13,7 @@ export class AuthQueryRepository {
     async findDevicesByUserIdView(userId: string): Promise<DeviceView[]> {
 
         const devices = await this.DevicesModel.find({ userId: userId })
-        const devicesView = dtoModify.createDevicesView(devices)
+        const devicesView = dtoManager.createDevicesView(devices)
 
         return devicesView
     }

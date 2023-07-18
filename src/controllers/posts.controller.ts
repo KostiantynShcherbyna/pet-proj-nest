@@ -1,22 +1,22 @@
 import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards, HttpStatus, Patch, InternalServerErrorException, UsePipes } from "@nestjs/common"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { PostsService } from "src/services/posts.service"
-import { BodyPostModel } from "src/models/body/BodyPostModel"
-import { QueryPostModel } from "src/models/query/QueryPostModel"
-import { QueryCommentModel } from "src/models/query/QueryCommentModel"
+import { BodyPostModel } from "src/models/body/body-post.model"
+import { QueryPostModel } from "src/models/query/query-post.model"
+import { QueryCommentModel } from "src/models/query/query-comment.model"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
-import { BodyLikeModel } from "../models/body/BodyLikeModel"
-import { ErrorEnums } from "../utils/errors/errorEnums"
+import { BodyLikeModel } from "../models/body/body-like.model"
+import { ErrorEnums } from "../utils/errors/error-enums"
 import { OptionalDeviceSessionModel } from "../models/request/optional-device-session.model"
 import { DeviceSessionModel } from "../models/request/device-session.model"
 import { AccessMiddleware } from "../guards/access.middleware"
 import { AccessGuard } from "../guards/access.guard"
-import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
+import { ObjectIdIdModel } from "../models/uri/id.model"
 import { BasicGuard } from "../guards/basic.guard"
-import { ObjectIdPostIdModel } from "../models/uri/ObjectId-postId.model"
-import { callErrorMessage } from "src/utils/errors/callErrorMessage"
+import { ObjectIdPostIdModel } from "../models/uri/postId.model"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { CommentsService } from "src/services/comments.service"
-import { BodyCommentModel } from "src/models/body/BodyCommentModel"
+import { BodyCommentModel } from "src/models/body/body-comment.model"
 import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
 
 @Controller("posts")
@@ -98,7 +98,12 @@ export class PostsController {
     @Param() params: ObjectIdPostIdModel,
     @Query() queryComment: QueryCommentModel,
   ) {
-    const commentsView = await this.commentsQueryRepository.findComments(params.postId, queryComment, req.deviceSession?.userId)
+    const commentsView = await this.commentsQueryRepository
+      .findComments(
+        params.postId,
+        queryComment,
+        req.deviceSession?.userId
+      )
     if (commentsView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )
@@ -112,7 +117,14 @@ export class PostsController {
     @Param() params: ObjectIdPostIdModel,
     @Body() bodyComment: BodyCommentModel,
   ) {
-    const commentContract = await this.postsService.createComment(req.deviceSession?.userId, params.postId, bodyComment.content)
+    const commentContract = await this.postsService
+      .createComment(
+        {
+          userId: req.deviceSession?.userId,
+          postId: params.postId,
+          content: bodyComment.content
+        }
+      )
     if (commentContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )

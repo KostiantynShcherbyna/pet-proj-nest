@@ -1,20 +1,21 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Types } from "mongoose";
-import { Contract } from "src/contracts/Contract";
-import { BodyPostModel } from "src/models/body/BodyPostModel";
+import { Contract } from "src/contract";
+import { BodyPostModel } from "src/models/body/body-post.model";
 import { BlogsRepository } from "src/repositories/blogs.repository";
 import { PostsRepository } from "src/repositories/posts.repository";
 import { Posts, PostsModel } from "src/schemas/posts.schema";
 import { MyStatus } from "src/utils/constants/constants";
-import { ErrorEnums } from "src/utils/errors/errorEnums";
-import { dtoModify } from "src/utils/modify/dtoModify";
+import { ErrorEnums } from "src/utils/errors/error-enums";
+import { dtoManager } from "src/utils/managers/dto.manager";
 import { PostView } from "src/views/PostView";
 import { UsersRepository } from "../repositories/users.repository";
 import { Comments, CommentsModel } from "src/schemas/comments.schema";
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository";
 import { CommentView } from "src/views/CommentView";
 import { CommentsRepository } from "src/repositories/comments.repository";
+import { CommentDto } from "src/dto/comment-dto.type";
 
 @Injectable()
 export class PostsService {
@@ -35,10 +36,16 @@ export class PostsService {
     const foundBlog = await this.blogsRepository.findBlog(bodyPost.blogId);
     if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
 
-    const newPost = this.PostsModel.createPost(bodyPost, foundBlog.name, this.PostsModel);
+    const newPost = this.PostsModel
+      .createPost(
+        bodyPost,
+        bodyPost.blogId,
+        foundBlog.name,
+        this.PostsModel
+      );
     await this.postsRepository.saveDocument(newPost);
 
-    const newPostView = dtoModify.changePostViewMngs(newPost, MyStatus.None);
+    const newPostView = dtoManager.changePostView(newPost, MyStatus.None);
     return new Contract(newPostView, null);
   }
 
@@ -54,15 +61,17 @@ export class PostsService {
     return new Contract(true, null);
   }
 
+
   async deletePost(id: string): Promise<Contract<null | boolean>> {
 
-    const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(id) });
-    if (deletedPostResult.deletedCount === 0) return new Contract(null, ErrorEnums.POST_NOT_DELETED);
+    const deletedPostContract = await this.PostsModel.deletePost(id, this.PostsModel)
+    if (deletedPostContract.data === 0) return new Contract(null, ErrorEnums.POST_NOT_DELETED);
 
     return new Contract(true, null);
   }
 
-  async createComment(userId: string, postId: string, content: string): Promise<Contract<CommentView | null>> {
+
+  async createComment({ userId, postId, content }: CommentDto): Promise<Contract<CommentView | null>> {
 
     const userDto = ["_id", new Types.ObjectId(userId)]
     const user = await this.usersRepository.findUser(userDto)
@@ -72,7 +81,6 @@ export class PostsService {
     if (foundPost === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
 
     const newComment = this.CommentsModel.createComment(postId, content, user, this.CommentsModel)
-
     await this.commentsRepository.saveDocument(newComment)
 
     const foundCommentView = await this.commentsQueryRepository.findComment(newComment.id)

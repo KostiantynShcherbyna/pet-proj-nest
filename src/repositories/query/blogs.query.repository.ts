@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { QueryBlogModel } from "src/models/query/QueryBlogModel"
+import { QueryBlogModel } from "src/models/query/query-blog.model"
 import { BlogsView, BlogView } from "src/views/BlogView"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
-import { dtoModify } from "src/utils/modify/dtoModify"
+import { dtoManager } from "src/utils/managers/dto.manager"
 import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_DIRECTION_DEFAULT, SortDirection } from "../../utils/constants/constants"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
@@ -19,7 +19,7 @@ export class BlogsQueryRepository {
     const foundBlog = await this.BlogsModel.findById(id)
     if (foundBlog === null) return null
 
-    const foundBlogView = dtoModify.changeBlogView(foundBlog)
+    const foundBlogView = dtoManager.changeBlogView(foundBlog)
     return foundBlogView
   }
 
@@ -50,7 +50,7 @@ export class BlogsQueryRepository {
       .skip(skippedBlogsCount)
       .lean()
 
-    const mappedBlogs = dtoModify.changeBlogsView(requestedBlogs)
+    const mappedBlogs = dtoManager.changeBlogsView(requestedBlogs)
 
     const blogsView = {
       pagesCount: pagesCount,

@@ -6,16 +6,16 @@ import {
   NotFoundException, Put, Body, Req, ForbiddenException, HttpCode, HttpStatus, Delete, UseGuards
 } from "@nestjs/common"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
-import { BodyCommentModel } from "../models/body/BodyCommentModel"
+import { BodyCommentModel } from "../models/body/body-comment.model"
 import { DeviceSessionModel } from "../models/request/device-session.model"
 import { CommentsService } from "../services/comments.service"
-import { ErrorEnums } from "../utils/errors/errorEnums"
-import { BodyLikeModel } from "../models/body/BodyLikeModel"
-import { ObjectIdCommentIdModel } from "../models/uri/ObjectId-commentId.model"
-import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
+import { ErrorEnums } from "../utils/errors/error-enums"
+import { BodyLikeModel } from "../models/body/body-like.model"
+import { ObjectIdCommentIdModel } from "../models/uri/commentId.model"
+import { ObjectIdIdModel } from "../models/uri/id.model"
 import { OptionalDeviceSessionModel } from "../models/request/optional-device-session.model"
 import { AccessMiddleware } from "../guards/access.middleware"
-import { callErrorMessage } from "src/utils/errors/callErrorMessage"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { AccessGuard } from "src/guards/access.guard"
 
 @Controller("comments")

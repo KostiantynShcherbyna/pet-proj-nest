@@ -1,8 +1,8 @@
 import { Transform, TransformFnParams } from "class-transformer";
 import { IsMongoId, IsNotEmpty, IsString, MaxLength, Validate } from "class-validator";
 import { POSTS_CONTENT_MAX_LENGTH, POSTS_SHORTDESCRIPTION_MAX_LENGTH, POSTS_TITLE_MAX_LENGTH } from "src/utils/constants/constants";
-import { callErrorMessage } from "src/utils/errors/callErrorMessage";
-import { ErrorEnums } from "src/utils/errors/errorEnums";
+import { callErrorMessage } from "src/utils/managers/error-message.manager";
+import { ErrorEnums } from "src/utils/errors/error-enums";
 import {  BlogIdIsExist } from "src/validators/blogId.validator";
 
 export class BodyPostModel {

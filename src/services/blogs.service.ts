@@ -1,20 +1,20 @@
 import { HttpException, Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Model, Types } from "mongoose"
-import { Contract } from "src/contracts/Contract"
-import { BodyBlogModel } from "src/models/body/BodyBlogModel"
-import { BodyBlogPostModel } from "src/models/body/BodyBlogPostModel"
+import { Contract } from "src/contract"
+import { BodyBlogModel } from "src/models/body/body-blog.model"
+import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { MyStatus } from "src/utils/constants/constants"
-import { ErrorEnums } from "src/utils/errors/errorEnums"
-import { dtoModify } from "src/utils/modify/dtoModify"
+import { ErrorEnums } from "src/utils/errors/error-enums"
+import { dtoManager } from "src/utils/managers/dto.manager"
 import { validateOrRejectFunc } from "src/validateOrRejectFunc"
 import { BlogView } from "src/views/BlogView"
 import { PostView } from "src/views/PostView"
-import { ObjectIdIdModel } from "../models/uri/ObjectId-id.model"
+import { ObjectIdIdModel } from "../models/uri/id.model"
 
 @Injectable()
 export class BlogsService {
@@ -28,13 +28,19 @@ export class BlogsService {
 
   async createBlog(bodyBlog: BodyBlogModel): Promise<BlogView> {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
-    const newBlog = this.BlogsModel.createBlog(bodyBlog, this.BlogsModel)
+    const newBlog = this.BlogsModel
+      .createBlog(
+        bodyBlog,
+        this.BlogsModel
+      )
     await this.blogsRepository.saveDocument(newBlog)
 
-    const newBlogView = dtoModify.createBlogViewMngs(newBlog)
+    const newBlogView = dtoManager.createBlogView(newBlog)
 
     return newBlogView
   }
+
+
 
   async updateBlog(id: string, bodyBlog: BodyBlogModel): Promise<Contract<null | boolean>> {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
@@ -48,35 +54,37 @@ export class BlogsService {
     return new Contract(true, null)
   }
 
-  async deleteBlog(id: string): Promise<Contract<null | boolean>> {
-    const deleteBlogResult = await this.BlogsModel.deleteOne({ _id: new Types.ObjectId(id) })
-    if (deleteBlogResult.deletedCount === 0) return new Contract(null, ErrorEnums.BLOG_NOT_DELETED)
 
-    const deletePostsResult = await this.PostsModel.deleteMany({ blogId: id })
-    if (deletePostsResult.deletedCount === 0) return new Contract(null, ErrorEnums.POSTS_NOT_DELETED)
+
+  async deleteBlog(id: string): Promise<Contract<null | boolean>> {
+
+    const deleteBlogContract = await Blogs
+      .deleteBlog(
+        id,
+        this.BlogsModel,
+        this.PostsModel
+      )
+    if (deleteBlogContract.error !== null) return new Contract(null, deleteBlogContract.error)
 
     return new Contract(true, null)
   }
+
+
 
   async createPost(bodyBlogPostModel: BodyBlogPostModel, blogId: string): Promise<Contract<null | PostView>> {
     const foundBlog = await this.blogsRepository.findBlog(blogId)
     if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 
-    const bodyPostModelExt = {
-      title: bodyBlogPostModel.title,
-      shortDescription: bodyBlogPostModel.shortDescription,
-      content: bodyBlogPostModel.content,
-      blogId: blogId,
-    }
-
-    const newPost = this.PostsModel.createPost(
-      bodyPostModelExt,
-      foundBlog.name,
-      this.PostsModel,
-    )
+    const newPost = this.PostsModel
+      .createPost(
+        bodyBlogPostModel,
+        blogId,
+        foundBlog.name,
+        this.PostsModel,
+      )
     await this.postsRepository.saveDocument(newPost)
 
-    const newPostView = dtoModify.changePostViewMngs(newPost, MyStatus.None)
+    const newPostView = dtoManager.changePostView(newPost, MyStatus.None)
     return new Contract(newPostView, null)
   }
 }

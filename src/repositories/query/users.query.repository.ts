@@ -1,9 +1,9 @@
 import { Injectable, Inject } from "@nestjs/common"
 import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
-import { dtoModify } from "src/utils/modify/dtoModify"
+import { dtoManager } from "src/utils/managers/dto.manager"
 import { Users, UsersModel } from "src/schemas/users.schema"
-import { QueryUserModel } from "src/models/query/QueryUserModel"
+import { QueryUserModel } from "src/models/query/query-user.model"
 import { UsersView } from "src/views/UserView"
 import { Types } from "mongoose"
 import { MeView } from "src/views/MeView"
@@ -21,7 +21,7 @@ export class UsersQueryRepository {
         const user = await this.UsersModel.findById(userId)
         if (user === null) return null
 
-        const userView = dtoModify.changeUserView(user)
+        const userView = dtoManager.changeUserView(user)
         return userView
     }
 
@@ -65,7 +65,7 @@ export class UsersQueryRepository {
             .skip(skippedUsersCount)
             .lean()
 
-        const mappedUsers = dtoModify.changeUsersView(requestedUsers)
+        const mappedUsers = dtoManager.changeUsersView(requestedUsers)
 
         return {
             pagesCount: pagesCount,

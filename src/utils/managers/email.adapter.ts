@@ -1,13 +1,11 @@
 import { RecoveryCodesDocument } from "src/schemas/recoveryCode.schema"
-import { emailAdapter } from "../../adapters/emailAdapter"
+import { emailManager } from "./email.manager"
+import { UsersDocument } from "src/schemas/users.schema"
 
-export const emailManager = {
-
-    // async sendConfirmationCode(user: HydratedDocument<IUser>) {
-    async sendConfirmationCode(user: any) {
+export const emailAdapter = {
+    async sendConfirmationCode(user: UsersDocument) {
 
         const domain = `https://somesite.com`
-        // const your_confirmation_code = `your_confirmation_code`
 
         const emailDTO = {
             service: "gmail",
@@ -24,17 +22,16 @@ export const emailManager = {
             </p>`
         }
 
-        const isSend = await emailAdapter.sendEmail(emailDTO)
+        const isSend = await emailManager.sendEmail(emailDTO)
 
         return isSend
     },
 
 
-    async sendPasswordRecovery(email: string, passwordRecoveryToken: any | string) {
+    async sendPasswordRecovery(email: string, passwordRecoveryToken: string) {
         console.log("passwordRecoveryToken - " + passwordRecoveryToken)
 
         const domain = `https://somesite.com`
-        // const your_confirmation_code = `your_confirmation_code`
 
         const emailDTO = {
             service: "gmail",
@@ -50,7 +47,7 @@ export const emailManager = {
             </p>`
         }
 
-        const isSend = await emailAdapter.sendEmail(emailDTO)
+        const isSend = await emailManager.sendEmail(emailDTO)
 
         return isSend
     }

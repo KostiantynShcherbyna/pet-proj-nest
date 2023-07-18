@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
-import { BodyCommentModel } from 'src/models/body/BodyCommentModel';
+import { BodyCommentModel } from 'src/models/body/body-comment.model';
 import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH, MyStatus, } from 'src/utils/constants/constants';
 import { UsersDocument } from './users.schema';
+import { Contract } from 'src/contract';
 
 
 export interface ICommentatorInfo {
@@ -108,6 +109,10 @@ export class Comments {
         const newCommentInsertResult = new CommentsModel(newComment)
         return newCommentInsertResult
     }
+    static async deleteComment(commentId: string, CommentsModel: CommentsModel): Promise<Contract<number>> {
+        let deleteCommentResult = await CommentsModel.deleteOne({ _id: new Types.ObjectId(commentId) });
+        return new Contract(deleteCommentResult.deletedCount, null)
+    }
 
 
 
@@ -175,12 +180,11 @@ export class Comments {
 }
 interface CommentsStatics {
     createComment(postId: string, content: string, user: UsersDocument, CommentsModel: CommentsModel): CommentsDocument
+    deleteComment(commentId: string, CommentsModel: CommentsModel): Promise<Contract<number>>
 }
 
 export const CommentsSchema = SchemaFactory.createForClass(Comments)
-
 CommentsSchema.statics.createComment = Comments.createComment
-
 CommentsSchema.methods.checkCommentator = Comments.prototype.checkCommentator
 CommentsSchema.methods.updateComment = Comments.prototype.updateComment
 CommentsSchema.methods.createOrUpdateLike = Comments.prototype.createOrUpdateLike

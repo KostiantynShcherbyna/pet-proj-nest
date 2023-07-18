@@ -1,4 +1,4 @@
-import { BodyAuthModel } from "../body/BodyAuthModel"
+import { BodyAuthModel } from "../body/body-auth.model"
 import { IsDate, IsNotEmpty, IsString } from "class-validator"
 import { Optional } from "@nestjs/common"
 

@@ -3,8 +3,8 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { randomUUID } from "crypto"
 import { addMinutes, addSeconds } from "date-fns"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { CreateTokens } from "src/dto/CreateTokens"
-import { RefreshTokens } from "src/dto/RefreshTokens"
+import { CreateDeviceTokens } from "src/dto/create-device-tokens.type"
+import { RefreshTokens } from "src/dto/refresh-tokens.type"
 import { TokensService } from "src/services/tokens.service"
 import { ACCESS_EXPIRES_TIME, EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH, REFRESH_EXPIRES_TIME } from "src/utils/constants/constants"
 
@@ -51,7 +51,7 @@ export class Devices {
   static async createDevice(
     { deviceIp, userAgent, userId },
     DevicesModel: DevicesModel
-  ): Promise<CreateTokens> {
+  ): Promise<CreateDeviceTokens> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -190,7 +190,7 @@ interface DevicesStatics {
   createDevice(
     { deviceIp, userAgent, userId },
     DevicesModel: DevicesModel
-  ): Promise<CreateTokens>
+  ): Promise<CreateDeviceTokens>
 
   deleteDevice(
     deviceId: string,
@@ -205,11 +205,9 @@ interface DevicesStatics {
 }
 
 export const DevicesSchema = SchemaFactory.createForClass(Devices)
-
 DevicesSchema.statics.createDevice = Devices.createDevice
 DevicesSchema.statics.deleteDevice = Devices.deleteDevice
 DevicesSchema.statics.deleteOtherDevices = Devices.deleteOtherDevices
-
 DevicesSchema.methods.refreshDevice = Devices.prototype.refreshDevice
 DevicesSchema.methods.checkOwner = Devices.prototype.checkOwner
 

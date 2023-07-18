@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
-import { BodyEmailModel } from "../models/body/BodyEmailModel";
+import { BodyEmailModel } from "../../models/body/body-email.model";
 
-export const emailAdapter = {
+export const emailManager = {
     async sendEmail(emailBody: BodyEmailModel) {
 
 
