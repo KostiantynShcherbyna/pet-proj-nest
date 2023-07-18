@@ -1,6 +1,6 @@
 import { Devices, DevicesDocument, DevicesModel } from "src/schemas/devices.schema"
 
-export type RefreshTokens = {
+export type RefreshDeviceTokensDto = {
     accessToken: string
     refreshToken: string
 }

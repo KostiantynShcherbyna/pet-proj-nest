@@ -15,7 +15,7 @@ import { Comments, CommentsModel } from "src/schemas/comments.schema";
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository";
 import { CommentView } from "src/views/CommentView";
 import { CommentsRepository } from "src/repositories/comments.repository";
-import { CommentDto } from "src/dto/comment-dto.type";
+import { CommentDto } from "src/dto/comment.dto";
 
 @Injectable()
 export class PostsService {

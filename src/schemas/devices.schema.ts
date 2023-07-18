@@ -3,8 +3,9 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { randomUUID } from "crypto"
 import { addMinutes, addSeconds } from "date-fns"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { CreateDeviceTokens } from "src/dto/create-device-tokens.type"
-import { RefreshTokens } from "src/dto/refresh-tokens.type"
+import { CreateDeviceDto } from "src/dto/create-device.dto"
+import { CreateDeviceTokensDto } from "src/dto/create-device-tokens.dto"
+import { RefreshDeviceTokensDto } from "src/dto/refresh-device-tokens.dto"
 import { TokensService } from "src/services/tokens.service"
 import { ACCESS_EXPIRES_TIME, EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH, REFRESH_EXPIRES_TIME } from "src/utils/constants/constants"
 
@@ -49,9 +50,9 @@ export class Devices {
   expireAt: Date
 
   static async createDevice(
-    { deviceIp, userAgent, userId },
+    { deviceIp, userAgent, userId }: CreateDeviceDto,
     DevicesModel: DevicesModel
-  ): Promise<CreateDeviceTokens> {
+  ): Promise<CreateDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -124,7 +125,7 @@ export class Devices {
   }
 
 
-  async refreshDevice({ deviceIp, userAgent, device }): Promise<RefreshTokens> {
+  async refreshDevice({ deviceIp, userAgent, device }): Promise<RefreshDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -188,9 +189,9 @@ export class Devices {
 
 interface DevicesStatics {
   createDevice(
-    { deviceIp, userAgent, userId },
+    { deviceIp, userAgent, userId }: CreateDeviceDto,
     DevicesModel: DevicesModel
-  ): Promise<CreateDeviceTokens>
+  ): Promise<CreateDeviceTokensDto>
 
   deleteDevice(
     deviceId: string,

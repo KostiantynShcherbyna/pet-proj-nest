@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Contract } from 'src/contract';
-import { confirmationAndExpirationDto } from 'src/dto/confirmation-and-expiration-dto.type';
+import { confirmationAndExpirationDto } from 'src/dto/confirmation-and-expiration.dto';
 import { BodyRegistrationModel } from 'src/models/body/body-registration.model';
 import { BodyUserModel } from 'src/models/body/body-user.model';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
