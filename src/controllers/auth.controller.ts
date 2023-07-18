@@ -40,7 +40,7 @@ export class AuthController {
   }
 
   @Post("login")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.OK)
   async login(
     @Headers("user-agent") userAgent: string | "defaultName",
@@ -74,7 +74,9 @@ export class AuthController {
     const logoutContract = await this.authService.logout(req.deviceSession)
 
     if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    if (logoutContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
     if (logoutContract.error === ErrorEnums.DEVICE_NOT_DELETE) throw new UnauthorizedException()
+    if (logoutContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new UnauthorizedException()
     return
   }
 
@@ -91,19 +93,20 @@ export class AuthController {
     const refreshTokenContract = await this.authService.refreshToken(req.deviceSession, ip, userAgent)
 
     if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
-      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
+      // callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )
     if (refreshTokenContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException(
-      callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
+      // callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )
+    if (refreshTokenContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new UnauthorizedException()
 
     res.cookie("refreshToken", refreshTokenContract.data?.refreshToken, { httpOnly: true, secure: true })
     return refreshTokenContract.data?.accessJwt
   }
 
 
+  @Throttle(5, 10)
   @Post("registration")
-  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
     @Body() bodyRegistration: BodyRegistrationModel
@@ -123,7 +126,7 @@ export class AuthController {
 
 
   @Post("registration-confirmation")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
     @Body() bodyConfirmation: BodyConfirmationModel
@@ -143,8 +146,8 @@ export class AuthController {
   }
 
 
+  @Throttle(5, 10)
   @Post("registration-email-resending")
-  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendModel
@@ -169,14 +172,14 @@ export class AuthController {
     @Req() req: Request & { deviceSession: DeviceSessionModel },
   ) {
     const userView = await this.usersQueryRepository.findUser(req.deviceSession.userId)
-    
+
     if (userView === null) throw new UnauthorizedException()
     return userView
   }
 
 
   @Post("password-recovery")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
@@ -190,7 +193,7 @@ export class AuthController {
 
 
   @Post("new-password")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
     @Body() bodyNewPassword: BodyNewPasswordModel

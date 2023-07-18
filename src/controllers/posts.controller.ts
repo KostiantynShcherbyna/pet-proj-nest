@@ -36,7 +36,7 @@ export class PostsController {
     @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Query() queryPost: QueryPostModel
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, req.deviceSession?.userId)
+    return await this.postsQueryRepository.findPosts(queryPost, "", req.deviceSession?.userId)
   }
 
   @UseGuards(AccessMiddleware)
@@ -98,7 +98,11 @@ export class PostsController {
     @Param() params: ObjectIdPostIdModel,
     @Query() queryComment: QueryCommentModel,
   ) {
-    return await this.commentsQueryRepository.findComments(params.postId, queryComment, req.deviceSession?.userId)
+    const commentsView = await this.commentsQueryRepository.findComments(params.postId, queryComment, req.deviceSession?.userId)
+    if (commentsView === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
+    )
+    return commentsView
   }
 
   @UseGuards(AccessGuard)

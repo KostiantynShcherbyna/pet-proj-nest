@@ -32,11 +32,11 @@ export class CommentsController {
     @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
     @Param() params: ObjectIdIdModel
   ) {
-    const comment = await this.commentsQueryRepository.findComment(params.id, req.deviceSession.userId)
-    if (comment === null) throw new NotFoundException(
+    const commentView = await this.commentsQueryRepository.findComment(params.id, req.deviceSession?.userId)
+    if (commentView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "id")
     )
-    return
+    return commentView
   }
 
   @UseGuards(AccessGuard)
@@ -59,6 +59,7 @@ export class CommentsController {
 
   @UseGuards(AccessGuard)
   @Delete(":commentId")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(
     @Req() req: Request & { deviceSession: DeviceSessionModel },
     @Param() params: ObjectIdCommentIdModel
@@ -70,7 +71,7 @@ export class CommentsController {
     if (comment.error === ErrorEnums.FOREIGN_COMMENT_NOT_DELETED) throw new ForbiddenException(
       callErrorMessage(ErrorEnums.FOREIGN_COMMENT_NOT_DELETED, "userId")
     )
-    if (comment.error === ErrorEnums.COMMENT_NOT_DELETE) throw new ForbiddenException(
+    if (comment.error === ErrorEnums.COMMENT_NOT_DELETE) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_DELETE, "commentId")
     )
     return

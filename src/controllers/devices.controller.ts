@@ -18,7 +18,7 @@ import { ObjectIdDeviceIdModel } from "../models/uri/ObjectId-deviceId.model"
 import { ErrorEnums } from "src/utils/errors/errorEnums"
 import { callErrorMessage } from "src/utils/errors/callErrorMessage"
 
-@Controller("devices")
+@Controller("security")
 export class DevicesController {
   constructor(
     @Inject(DevicesService) protected devicesService: DevicesService,
@@ -27,15 +27,15 @@ export class DevicesController {
   }
 
   @UseGuards(RefreshGuard)
-  @Get()
+  @Get("devices")
   async getDevices(
-    @Req() deviceSession: DeviceSessionModel
+    @Req() req: Request & { deviceSession: DeviceSessionModel },
   ) {
-    return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
+    return await this.authQueryRepository.findDevicesByUserIdView(req.deviceSession.userId)
   }
 
   @UseGuards(RefreshGuard)
-  @Post()
+  @Delete("devices")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
     @Req() req: Request & { deviceSession: DeviceSessionModel },
@@ -47,7 +47,7 @@ export class DevicesController {
   }
 
   @UseGuards(RefreshGuard)
-  @Delete(":deviceId")
+  @Delete("devices/:deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
     @Req() req: Request & { deviceSession: DeviceSessionModel },

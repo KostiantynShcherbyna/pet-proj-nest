@@ -32,11 +32,14 @@ import { TokensService } from "./services/tokens.service"
 import { AuthQueryRepository } from "./repositories/query/auth.query.repository"
 import { AuthRepository } from "./repositories/auth.repository"
 import { JwtService } from "@nestjs/jwt"
-import { settings } from "./settings"
 import { AttemptRequests, AttemptRequestsSchema } from "./schemas/attemptRequests.schema"
 import { AppService } from "./app.service"
 import { AppController } from "./app.controller"
-import { BlogIdIsExistConstraint } from "./validators/blogId.validator"
+import { BlogIdIsExist } from "./validators/blogId.validator"
+import { DevicesController } from "./controllers/devices.controller"
+import { ThrottlerModule } from "@nestjs/throttler"
+import { throttler } from "./guards/throttler.guard"
+import { APP_GUARD } from "@nestjs/core"
 
 // const mongooseURI = process.env.MONGOOSE_URL || "mongodb://0.0.0.0:27017"
 
@@ -44,6 +47,10 @@ import { BlogIdIsExistConstraint } from "./validators/blogId.validator"
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot("mongodb+srv://kostyalys:bagrat10n@cluster0.7mo0iox.mongodb.net/BE-2-0-DEV?retryWrites=true&w=majority"),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     MongooseModule.forFeature([
       { name: Blogs.name, schema: BlogsSchema },
       { name: Posts.name, schema: PostsSchema },
@@ -62,8 +69,11 @@ import { BlogIdIsExistConstraint } from "./validators/blogId.validator"
     TestingController,
     AuthController,
     AppController,
+    DevicesController,
   ],
   providers: [
+    throttler,
+
     BlogsService,
     PostsService,
     UsersService,
@@ -85,8 +95,7 @@ import { BlogIdIsExistConstraint } from "./validators/blogId.validator"
     AuthQueryRepository,
     AuthRepository,
     DevicesRepository,
-
-    BlogIdIsExistConstraint,
+    BlogIdIsExist,
   ],
 })
 export class AppModule { }

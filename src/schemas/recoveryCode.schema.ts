@@ -3,7 +3,7 @@ import { HydratedDocument, Model } from "mongoose"
 import { JwtService } from "@nestjs/jwt"
 import { TokensService } from "src/services/tokens.service"
 import { settings } from "src/settings"
-import { ACCESS_EXPIRES_TIME, PASSWORD_HASH_EXPIRES_TIME } from "src/utils/constants/constants"
+import { PASSWORD_HASH_EXPIRES_TIME } from "src/utils/constants/constants"
 
 
 // export interface IRecoveryCode {

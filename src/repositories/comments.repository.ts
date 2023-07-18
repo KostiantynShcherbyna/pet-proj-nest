@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
-import { Comments, CommentsModel } from "src/schemas/comments.schema"
+import { Comments, CommentsDocument, CommentsModel } from "src/schemas/comments.schema"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
 import { Users, UsersModel } from "src/schemas/users.schema"
 
@@ -19,7 +19,7 @@ export class CommentsRepository {
         return foundComment
     }
 
-    async saveDocument(document: any) {
+    async saveDocument(document: CommentsDocument) {
         await document.save()
     }
 

@@ -100,7 +100,11 @@ export class BlogsController {
     @Param() params: ObjectIdBlogIdModel,
     @Query() queryPost: QueryPostModel,
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, params.blogId, req.deviceSession?.userId)
+    const postsView = await this.postsQueryRepository.findPosts(queryPost, params.blogId, req.deviceSession?.userId)
+    if (postsView === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
+    return postsView
   }
 
   @UseGuards(BasicGuard)

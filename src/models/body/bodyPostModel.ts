@@ -3,7 +3,7 @@ import { IsMongoId, IsNotEmpty, IsString, MaxLength, Validate } from "class-vali
 import { POSTS_CONTENT_MAX_LENGTH, POSTS_SHORTDESCRIPTION_MAX_LENGTH, POSTS_TITLE_MAX_LENGTH } from "src/utils/constants/constants";
 import { callErrorMessage } from "src/utils/errors/callErrorMessage";
 import { ErrorEnums } from "src/utils/errors/errorEnums";
-import { BlogIdIsExist, BlogIdIsExistConstraint } from "src/validators/blogId.validator";
+import {  BlogIdIsExist } from "src/validators/blogId.validator";
 
 export class BodyPostModel {
   @IsString()
@@ -28,7 +28,6 @@ export class BodyPostModel {
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsMongoId()
-  // @Validate(BlogIdIsExist)
-  @BlogIdIsExist()
+  @Validate(BlogIdIsExist)
   blogId: string;
 }

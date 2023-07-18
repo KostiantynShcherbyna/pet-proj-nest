@@ -1,8 +1,8 @@
-import { IsMongoId, IsNotEmpty, IsString } from "class-validator"
+import { IsMongoId, IsNotEmpty, IsString, IsUUID } from "class-validator"
 
 export class ObjectIdDeviceIdModel {
   @IsString()
-  @IsNotEmpty()
-  @IsMongoId()
+  // @IsMongoId()
+  // @IsUUID()
   deviceId: string
 }

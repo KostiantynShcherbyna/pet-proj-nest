@@ -13,6 +13,7 @@ import { MyStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SORT
 import { QueryCommentModel } from "src/models/query/QueryCommentModel"
 import { CommentView, CommentsView } from "src/views/CommentView"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
+import { PostsQueryRepository } from "./posts.query.repository"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -20,6 +21,7 @@ import { Comments, CommentsModel } from "src/schemas/comments.schema"
 export class CommentsQueryRepository {
   constructor(
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
+    @Inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
   ) {
   }
 
@@ -40,8 +42,10 @@ export class CommentsQueryRepository {
   }
 
 
-  async findComments(postId: string, query: QueryCommentModel, userId?: string): Promise<CommentsView> {
+  async findComments(postId: string, query: QueryCommentModel, userId?: string): Promise<null | CommentsView> {
 
+    const foundPost = await this.postsQueryRepository.findPost(postId, userId)
+    if (foundPost === null) return null
 
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT

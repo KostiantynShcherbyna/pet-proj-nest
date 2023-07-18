@@ -71,8 +71,9 @@ export class AuthService {
 
     const device = await this.devicesRepository.findDeviceByDeviceId(deviceSession.deviceId)
     if (device === null) return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
+    if (deviceSession.lastActiveDate < device.lastActiveDate) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
-    const newTokens = await device.refreshDevice({ deviceIp, userAgent, userId: user._id.toString() })
+    const newTokens = await device.refreshDevice({ deviceIp, userAgent, device })
     await this.devicesRepository.saveDocument(device)
 
     const tokensDto = {
@@ -89,6 +90,10 @@ export class AuthService {
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)
     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+
+    const device = await this.devicesRepository.findDeviceByDeviceId(deviceSession.deviceId)
+    if (device === null) return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
+    if (deviceSession.lastActiveDate < device.lastActiveDate) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
     const deleteResult = await this.DevicesModel.deleteOne({ deviceId: deviceSession.deviceId })
     if (deleteResult.deletedCount === 0) return new Contract(null, ErrorEnums.DEVICE_NOT_DELETE)

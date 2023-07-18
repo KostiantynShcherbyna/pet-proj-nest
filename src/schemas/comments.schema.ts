@@ -179,6 +179,8 @@ interface CommentsStatics {
 
 export const CommentsSchema = SchemaFactory.createForClass(Comments)
 
+CommentsSchema.statics.createComment = Comments.createComment
+
 CommentsSchema.methods.checkCommentator = Comments.prototype.checkCommentator
 CommentsSchema.methods.updateComment = Comments.prototype.updateComment
 CommentsSchema.methods.createOrUpdateLike = Comments.prototype.createOrUpdateLike

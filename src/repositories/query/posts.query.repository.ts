@@ -1,4 +1,4 @@
-import { Injectable, Inject } from "@nestjs/common"
+import { Injectable, Inject, NotFoundException } from "@nestjs/common"
 import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { QueryBlogModel } from "src/models/query/QueryBlogModel"
@@ -32,13 +32,7 @@ export class PostsQueryRepository {
 
     if (blogId) {
       const blog = await this.blogsRepositoryMngs.findBlog(blogId)
-      if (blog === null) return {
-        pagesCount: 0,
-        page: PAGE_NUMBER_DEFAULT,
-        pageSize: PAGE_SIZE_DEFAULT,
-        totalCount: 0,
-        items: []
-      }
+      if (blog === null) return null
     }
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT

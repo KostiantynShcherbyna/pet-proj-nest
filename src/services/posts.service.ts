@@ -14,6 +14,7 @@ import { UsersRepository } from "../repositories/users.repository";
 import { Comments, CommentsModel } from "src/schemas/comments.schema";
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository";
 import { CommentView } from "src/views/CommentView";
+import { CommentsRepository } from "src/repositories/comments.repository";
 
 @Injectable()
 export class PostsService {
@@ -24,6 +25,7 @@ export class PostsService {
     @Inject(PostsRepository) protected postsRepository: PostsRepository,
     @Inject(UsersRepository) protected usersRepository: UsersRepository,
     @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
+    @Inject(CommentsRepository) protected commentsRepository: CommentsRepository,
   ) {
   }
 
@@ -71,10 +73,10 @@ export class PostsService {
 
     const newComment = this.CommentsModel.createComment(postId, content, user, this.CommentsModel)
 
+    await this.commentsRepository.saveDocument(newComment)
+
     const foundCommentView = await this.commentsQueryRepository.findComment(newComment.id)
     if (foundCommentView === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
-
-    console.log(ErrorEnums.COMMENT_NOT_FOUND)
 
     return new Contract(foundCommentView, null)
   }
