@@ -47,10 +47,7 @@ export class Blogs {
   })
   isMembership: boolean
 
-  static createBlog(
-    bodyBlog: BodyBlogModel,
-    BlogsModel: BlogsModel,
-  ): BlogsDocument {
+  static createBlog(bodyBlog: BodyBlogModel, BlogsModel: BlogsModel,): BlogsDocument {
     const date = new Date().toISOString()
 
     const newBlogDto = {
@@ -64,13 +61,8 @@ export class Blogs {
     return newBlog
   }
 
-  static async deleteBlog(
-    id: string,
-    BlogsModel: BlogsModel,
-    PostsModel: PostsModel,
-  ): Promise<Contract<null | number>> {
-    const deleteBlogResult = await BlogsModel
-      .deleteOne({ _id: new Types.ObjectId(id) })
+  static async deleteBlog(id: string, BlogsModel: BlogsModel, PostsModel: PostsModel,): Promise<Contract<null | number>> {
+    const deleteBlogResult = await BlogsModel.deleteOne({ _id: new Types.ObjectId(id) })
     if (deleteBlogResult.deletedCount === 0)
       return new Contract(null, ErrorEnums.BLOG_NOT_DELETED)
 
@@ -89,15 +81,8 @@ export class Blogs {
 }
 
 interface BlogsStatics {
-  createBlog(
-    bodyBlogModel: BodyBlogModel,
-    BlogsModel: BlogsModel,
-  ): BlogsDocument
-  deleteBlog(
-    id: string,
-    BlogsModel: BlogsModel,
-    PostsModel: PostsModel,
-  ): Promise<Contract<null | number>>
+  createBlog(bodyBlogModel: BodyBlogModel, BlogsModel: BlogsModel,): BlogsDocument
+  deleteBlog(id: string, BlogsModel: BlogsModel, PostsModel: PostsModel,): Promise<Contract<null | number>>
 }
 
 export const BlogsSchema = SchemaFactory.createForClass(Blogs)

@@ -8,7 +8,7 @@ import { CreateDeviceTokensDto } from "src/dto/create-device-tokens.dto"
 import { RefreshDeviceTokensDto } from "src/dto/refresh-device-tokens.dto"
 import { TokensService } from "src/services/tokens.service"
 import { ACCESS_EXPIRES_TIME, EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH, REFRESH_EXPIRES_TIME } from "src/utils/constants/constants"
-import { settings } from "src/settings"
+import { configuration } from "src/configuration"
 import { RefreshDeviceDto } from "src/dto/refresh-device.dto"
 
 
@@ -51,7 +51,7 @@ export class Devices {
   })
   expireAt: Date
 
-  static async createDevice({ deviceIp, userAgent, userId }: CreateDeviceDto, DevicesModel: DevicesModel): Promise<CreateDeviceTokensDto> {
+  static async createDevice({ deviceIp, userAgent, userId, accessJwtSecret, refreshJwtSecret }: CreateDeviceDto, DevicesModel: DevicesModel): Promise<CreateDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -74,16 +74,12 @@ export class Devices {
       expireAt: addSeconds(newIssueAt, EXPIRE_AT_REFRESH)
     }
 
-    // const accessToken = await tokensService.createToken(accessPayload, "ACCESSJWTSECRET", "100m")
-    // const refreshToken = await tokensService.createToken(refreshPayload, "REFRESHJWTSECRET", "200m")
-
-
     const jwtService = new JwtService()
     const accessToken = await jwtService
       .signAsync(
         accessPayload,
         {
-          secret: settings.ACCESS_JWT_SECRET,
+          secret: accessJwtSecret,
           expiresIn: ACCESS_EXPIRES_TIME
         }
       )
@@ -91,7 +87,7 @@ export class Devices {
       .signAsync(
         accessPayload,
         {
-          secret: settings.REFRESH_JWT_SECRET,
+          secret: refreshJwtSecret,
           expiresIn: REFRESH_EXPIRES_TIME
         }
       )
@@ -124,7 +120,7 @@ export class Devices {
   }
 
 
-  async refreshDevice({ deviceIp, userAgent, device }: RefreshDeviceDto): Promise<RefreshDeviceTokensDto> {
+  async refreshDevice({ deviceIp, userAgent, device, accessJwtSecret, refreshJwtSecret }: RefreshDeviceDto): Promise<RefreshDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -153,7 +149,7 @@ export class Devices {
       .signAsync(
         accessPayload,
         {
-          secret: settings.ACCESS_JWT_SECRET,
+          secret: accessJwtSecret,
           expiresIn: ACCESS_EXPIRES_TIME
         }
       )
@@ -162,7 +158,7 @@ export class Devices {
       .signAsync(
         accessPayload,
         {
-          secret: settings.REFRESH_JWT_SECRET,
+          secret: refreshJwtSecret,
           expiresIn: REFRESH_EXPIRES_TIME
         }
       )

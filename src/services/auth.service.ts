@@ -9,15 +9,16 @@ import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
-import { RecoveryCodes, RecoveryCodesDocument, RecoveryCodesModel } from "src/schemas/recoveryCode.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "src/schemas/recoveryCode.schema"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
-import { compareHashManager } from "src/utils/managers/compare-hash.manager"
 import { emailAdapter } from "src/utils/managers/email.adapter"
 import { TokensView } from "src/views/TokensView"
 import { JwtService } from "@nestjs/jwt"
 import { TokensService } from "./tokens.service"
-import { settings } from "src/settings"
+import { ConfigType, configuration } from "src/configuration"
+import { ConfigService } from "@nestjs/config"
+import { Secrets } from "src/utils/constants/constants"
 
 @Injectable()
 export class AuthService {
@@ -29,11 +30,15 @@ export class AuthService {
     @Inject(DevicesRepository) protected devicesRepository: DevicesRepository,
     @Inject(AuthRepository) protected authRepository: AuthRepository,
     @Inject(TokensService) protected tokensService: TokensService,
+    @Inject(ConfigService) protected configService: ConfigService<ConfigType, true>,
   ) {
   }
 
 
   async login(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
+    const accessJwtSecret = this.configService.get(Secrets.ACCESS_JWT_SECRET)
+    const refreshJwtSecret = this.configService.get(Secrets.REFRESH_JWT_SECRET)
+
 
     const user = await this.usersRepository.findUserLoginOrEmail({
       login: loginBody.loginOrEmail,
@@ -56,7 +61,13 @@ export class AuthService {
 
     const newTokens = await this.DevicesModel
       .createDevice(
-        { deviceIp, userAgent, userId: user._id.toString() },
+        {
+          deviceIp,
+          userAgent,
+          userId: user._id.toString(),
+          accessJwtSecret,
+          refreshJwtSecret
+        },
         this.DevicesModel
       )
     await this.devicesRepository.saveDocument(newTokens.refreshEntry)
@@ -72,6 +83,9 @@ export class AuthService {
 
 
   async refreshToken(deviceSession: DeviceSessionModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
+    const accessJwtSecret = this.configService.get(Secrets.ACCESS_JWT_SECRET, { infer: true })
+    const refreshJwtSecret = this.configService.get(Secrets.REFRESH_JWT_SECRET, { infer: true })
+
 
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)
@@ -86,7 +100,7 @@ export class AuthService {
       return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
 
-    const newTokens = await device.refreshDevice({ deviceIp, userAgent, device })
+    const newTokens = await device.refreshDevice({ deviceIp, userAgent, device, accessJwtSecret, refreshJwtSecret })
     await this.devicesRepository.saveDocument(device)
 
 
@@ -202,13 +216,15 @@ export class AuthService {
 
 
   async passwordRecovery(email: string): Promise<Contract<null | boolean>> {
+    const passwordRecoveryCodeSecret = this.configService.get(Secrets.PASSWORD_RECOVERY_CODE_SECRET, { infer: true })
 
+    
     const oldRecoveryCode = await this.authRepository.findRecoveryCode(email)
 
     //  TODO ANY
     const newRecoveryCodeDocument = oldRecoveryCode === null
-      ? await this.RecoveryCodesModel.newPasswordRecovery(email, this.RecoveryCodesModel, this.tokensService)
-      : await oldRecoveryCode.updatePasswordRecovery(email, this.tokensService)
+      ? await this.RecoveryCodesModel.newPasswordRecovery(email, passwordRecoveryCodeSecret, this.tokensService, this.RecoveryCodesModel,)
+      : await oldRecoveryCode.updatePasswordRecovery(email, passwordRecoveryCodeSecret, this.tokensService)
     await this.authRepository.saveDocument(newRecoveryCodeDocument)
 
     // SENDING PASSWORD RECOVERY ↓↓↓
@@ -224,8 +240,10 @@ export class AuthService {
 
 
   async newPassword(newPassword: string, recoveryCode: string): Promise<Contract<null | boolean>> {
+    const passwordRecoveryCodeSecret = this.configService.get(Secrets.PASSWORD_RECOVERY_CODE_SECRET, { infer: true })
 
-    const verifiedEmailDto = await this.tokensService.verifyToken(recoveryCode, settings.PASSWORD_RECOVERY_CODE)
+
+    const verifiedEmailDto = await this.tokensService.verifyToken(recoveryCode, passwordRecoveryCodeSecret)
     if (verifiedEmailDto === null) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
 
@@ -238,7 +256,7 @@ export class AuthService {
     const user = await this.usersRepository.findUser(emailDto)
     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-    
+
     await user.updatePasswordHash(newPassword)
     await this.usersRepository.saveDocument(user)
 

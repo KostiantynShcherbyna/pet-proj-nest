@@ -60,3 +60,12 @@ export const USER_AGENT = "user_agent"
 export enum BasicToken {
   token = "YWRtaW46cXdlcnR5"
 }
+export const RESERV_PORT = 5000
+export const MONGOOSE_URI = "mongodb+srv://kostyalys:bagrat10n@cluster0.7mo0iox.mongodb.net/BE-2-0-DEV?retryWrites=true&w=majority"
+export const LOCAL_MONGODB = 'mongodb://0.0.0.0:27017'
+
+export enum Secrets {
+  ACCESS_JWT_SECRET = "ACCESS_JWT_SECRET",
+  REFRESH_JWT_SECRET = "REFRESH_JWT_SECRET",
+  PASSWORD_RECOVERY_CODE_SECRET = "PASSWORD_RECOVERY_CODE_SECRET",
+}

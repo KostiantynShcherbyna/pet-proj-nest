@@ -1,6 +1,6 @@
 import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./app.module"
-import { settings } from "./settings"
+import { configuration } from "./configuration"
 import { ValidationPipe, BadRequestException } from "@nestjs/common"
 import { ErrorExceptionFilter, HttpExceptionFilter } from "./filters/exeption.filter"
 import cookieParser from "cookie-parser"
@@ -16,16 +16,15 @@ async function bootstrap() {
   app.enableCors()
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      stopAtFirstError: true,
       transform: true,
+      stopAtFirstError: true,
       exceptionFactory: errorsFactory
     }),
   )
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter())
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
-  await app.listen(settings.PORT)
+  await app.listen(configuration().PORT)
 }
 
 bootstrap()

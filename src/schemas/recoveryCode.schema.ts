@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { HydratedDocument, Model } from "mongoose"
 import { JwtService } from "@nestjs/jwt"
 import { TokensService } from "src/services/tokens.service"
-import { settings } from "src/settings"
+import { configuration } from "src/configuration"
 import { PASSWORD_HASH_EXPIRES_TIME } from "src/utils/constants/constants"
 
 
@@ -28,19 +28,21 @@ export class RecoveryCodes {
 
   static async newPasswordRecovery(
     email: string,
+    passwordRecoveryCodeSecret: string,
+    tokensService: TokensService,
     RecoveryCodesModel: RecoveryCodesModel,
-    tokensService: TokensService
   ): Promise<RecoveryCodesDocument> {
 
-    const passwordRecoveryCode = await tokensService
+
+    const newPasswordRecoveryCode = await tokensService
       .createToken(
         { email },
-        settings.PASSWORD_RECOVERY_CODE,
+        passwordRecoveryCodeSecret,
         PASSWORD_HASH_EXPIRES_TIME
       )
     const recoveryCodeDto = {
       email: email,
-      recoveryCode: passwordRecoveryCode
+      recoveryCode: newPasswordRecoveryCode
     }
 
     const newRecoveryCodeDocument = new RecoveryCodesModel(recoveryCodeDto)
@@ -50,13 +52,14 @@ export class RecoveryCodes {
 
   async updatePasswordRecovery(
     email: string,
+    passwordRecoveryCodeSecret: string,
     tokensService: TokensService
   ) {
 
     const newRecoveryCode = await tokensService
       .createToken(
         { email },
-        settings.PASSWORD_RECOVERY_CODE,
+        passwordRecoveryCodeSecret,
         PASSWORD_HASH_EXPIRES_TIME
       )
     this.recoveryCode = newRecoveryCode
@@ -72,8 +75,9 @@ export class RecoveryCodes {
 interface RecoveryCodesStatics {
   newPasswordRecovery(
     email: string,
+    passwordRecoveryCodeSecret: string,
+    tokensService: TokensService,
     RecoveryCodesModel: RecoveryCodesModel,
-    tokensService: TokensService
   ): Promise<RecoveryCodesDocument>
 }
 

@@ -1,4 +1,5 @@
-import { ConfigModule } from "@nestjs/config"
+import { ConfigModule, ConfigService } from "@nestjs/config"
+import { configuration } from "./configuration"
 import { Module } from "@nestjs/common"
 import { MongooseModule } from "@nestjs/mongoose"
 import { Blogs, BlogsSchema } from "./schemas/blogs.schema"
@@ -39,18 +40,18 @@ import { BlogIdIsExist } from "./validators/blogId.validator"
 import { DevicesController } from "./controllers/devices.controller"
 import { ThrottlerModule } from "@nestjs/throttler"
 import { throttler } from "./guards/throttler.guard"
-import { APP_GUARD } from "@nestjs/core"
-import { settings } from "./settings"
 
-// const mongooseURI = process.env.MONGOOSE_URL || "mongodb://0.0.0.0:27017"
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [configuration]
     }),
-    MongooseModule.forRoot(process.env.MONGOOSE_URL || settings.MONGOOSE_URI),
+    MongooseModule.forRoot(
+      configuration().MONGOOSE_URI
+    ),
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
