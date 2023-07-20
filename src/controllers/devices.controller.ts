@@ -17,6 +17,7 @@ import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { ObjectIdDeviceIdModel } from "../models/uri/deviceId.model"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
+import { DeviceSessionParamDecorator } from "src/decorators/device-session.param.decorator"
 
 @Controller("security")
 export class DevicesController {
@@ -29,18 +30,18 @@ export class DevicesController {
   @UseGuards(RefreshGuard)
   @Get("devices")
   async getDevices(
-    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
   ) {
-    return await this.authQueryRepository.findDevicesByUserIdView(req.deviceSession.userId)
+    return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
   }
 
   @UseGuards(RefreshGuard)
   @Delete("devices")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
-    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
   ) {
-    const result = await this.devicesService.deleteOtherDevices(req.deviceSession.userId, req.deviceSession.deviceId)
+    const result = await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId)
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
     if (result.error === ErrorEnums.DEVICES_NOT_DELETE) throw new UnauthorizedException()
     return
@@ -50,10 +51,10 @@ export class DevicesController {
   @Delete("devices/:deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
-    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
     @Param() params: ObjectIdDeviceIdModel,
   ) {
-    const result = await this.devicesService.deleteSpecialDevice(params.deviceId, req.deviceSession.userId)
+    const result = await this.devicesService.deleteSpecialDevice(params.deviceId, deviceSession.userId)
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )

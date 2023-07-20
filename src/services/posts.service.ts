@@ -9,11 +9,11 @@ import { Posts, PostsModel } from "src/schemas/posts.schema";
 import { MyStatus } from "src/utils/constants/constants";
 import { ErrorEnums } from "src/utils/errors/error-enums";
 import { dtoManager } from "src/utils/managers/dto.manager";
-import { PostView } from "src/views/PostView";
+import { PostView } from "src/views/post.view";
 import { UsersRepository } from "../repositories/users.repository";
 import { Comments, CommentsModel } from "src/schemas/comments.schema";
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository";
-import { CommentView } from "src/views/CommentView";
+import { CommentView } from "src/views/comment.view";
 import { CommentsRepository } from "src/repositories/comments.repository";
 import { CommentDto } from "src/dto/comment.dto";
 

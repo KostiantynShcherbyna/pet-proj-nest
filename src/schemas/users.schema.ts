@@ -102,6 +102,7 @@ export class Users {
         const newUser = new UsersModel(newUserDto)
         return newUser
     }
+
     static async registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHashManager(registrationBody.password)
@@ -129,11 +130,11 @@ export class Users {
         const newUser = new UsersModel(newUserDto)
         return newUser
     }
+
     static async deleteUser(id: string, UsersModel: UsersModel): Promise<Contract<number>> {
         const deleteUserResult = await UsersModel.deleteOne({ _id: new Types.ObjectId(id) })
         return new Contract(deleteUserResult.deletedCount, null)
     }
-
 
 
 

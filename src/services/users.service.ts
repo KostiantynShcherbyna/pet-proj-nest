@@ -7,7 +7,7 @@ import { UsersRepository } from "src/repositories/users.repository"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { dtoManager } from "src/utils/managers/dto.manager"
-import { UserView } from "src/views/UserView"
+import { UserView } from "src/views/user.view"
 
 @Injectable()
 export class UsersService {

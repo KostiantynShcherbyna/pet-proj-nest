@@ -5,7 +5,7 @@ import { ValidationPipe, BadRequestException } from "@nestjs/common"
 import { ErrorExceptionFilter, HttpExceptionFilter } from "./filters/exeption.filter"
 import cookieParser from "cookie-parser"
 import { useContainer } from "class-validator"
-import { errorsFactory } from "./utils/factory/errors.factory"
+import { errorsFactory } from "./utils/factories/errors.factory"
 import { ConfigService } from "@nestjs/config"
 
 

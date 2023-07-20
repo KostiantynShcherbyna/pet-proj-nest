@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { QueryBlogModel } from "src/models/query/query-blog.model"
-import { BlogsView, BlogView } from "src/views/BlogView"
+import { BlogsView, BlogView } from "src/views/blog.view"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { dtoManager } from "src/utils/managers/dto.manager"
 import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_DIRECTION_DEFAULT, SortDirection } from "../../utils/constants/constants"

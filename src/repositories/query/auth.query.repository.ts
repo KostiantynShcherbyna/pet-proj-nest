@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
 import { dtoManager } from "src/utils/managers/dto.manager"
-import { DeviceView } from "src/views/DeviceView"
+import { DeviceView } from "src/views/device.view"
 
 @Injectable()
 export class AuthQueryRepository {

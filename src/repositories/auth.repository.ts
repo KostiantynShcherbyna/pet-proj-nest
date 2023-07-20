@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 
-import { RecoveryCodes, RecoveryCodesDocument, RecoveryCodesModel } from "src/schemas/recoveryCode.schema"
+import { RecoveryCodes, RecoveryCodesDocument, RecoveryCodesModel } from "src/schemas/recovery-code.schema"
 
 @Injectable()
 export class AuthRepository {

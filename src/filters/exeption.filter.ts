@@ -8,7 +8,9 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>()
 
     console.log({ INTERNAL_ERROR: { message: exception.message, stack: exception.stack } })
-    return response.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Sorry, something went wrong...")
+    return response
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send("Sorry, something went wrong...")
   }
 }
 
@@ -21,6 +23,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus()
     const exceptionResponse = exception.getResponse()
 
+    // ↓↓↓ BAD_REQUEST
     if (status === HttpStatus.BAD_REQUEST) {
       const errorsMessages = this.messagesModify(exceptionResponse)
 
@@ -28,6 +31,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? response.status(status).send({ errorsMessages })
         : response.sendStatus(status)
     }
+    // ↓↓↓ UNAUTHORIZED
+    if (status === HttpStatus.UNAUTHORIZED) {
+      const errorsMessages = this.messagesModify(exceptionResponse)
+
+      return errorsMessages
+        ? response.status(status).send({ errorsMessages })
+        : response.sendStatus(status)
+    }
+    // ↓↓↓ NOT_FOUND
     if (status === HttpStatus.NOT_FOUND) {
       const errorsMessages = this.messagesModify(exceptionResponse)
 
@@ -39,8 +51,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return response.sendStatus(status)
   }
 
-  private messagesModify(exceptionResponse: any) {
 
+  private messagesModify(exceptionResponse: any) {
     console.log("exceptionResponse - " + JSON.stringify(exceptionResponse))
 
     if (Array.isArray(exceptionResponse.message)) {
@@ -55,8 +67,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (
       exceptionResponse instanceof Object
       && exceptionResponse !== null
+      && exceptionResponse.field
     ) return [exceptionResponse]
 
+    return null
     // if (
     //   exceptionResponse instanceof Object
     //   && exceptionResponse !== null

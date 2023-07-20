@@ -11,8 +11,8 @@ import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { MyStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { dtoManager } from "src/utils/managers/dto.manager"
-import { BlogView } from "src/views/BlogView"
-import { PostView } from "src/views/PostView"
+import { BlogView } from "src/views/blog.view"
+import { PostView } from "src/views/post.view"
 import { ObjectIdIdModel } from "../models/uri/id.model"
 
 @Injectable()

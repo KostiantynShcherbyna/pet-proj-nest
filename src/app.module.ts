@@ -25,21 +25,24 @@ import { Devices, DevicesSchema } from "./schemas/devices.schema"
 import { AuthController } from "./controllers/auth.controller"
 import { AuthService } from "./services/auth.service"
 import { DevicesRepository } from "./repositories/devices.repository"
-import { RecoveryCodes, RecoveryCodesSchema, } from "./schemas/recoveryCode.schema"
+import { RecoveryCodes, RecoveryCodesSchema, } from "./schemas/recovery-code.schema"
 import { CommentsRepository } from "./repositories/comments.repository"
 import { CommentsService } from "./services/comments.service"
 import { DevicesService } from "./services/devices.service"
 import { TokensService } from "./services/tokens.service"
 import { AuthQueryRepository } from "./repositories/query/auth.query.repository"
 import { AuthRepository } from "./repositories/auth.repository"
-import { JwtService } from "@nestjs/jwt"
-import { RequestAttempts, RequestAttemptsSchema } from "./schemas/requestAttempts.schema"
+import { JwtModule, JwtService } from "@nestjs/jwt"
+import { RequestAttempts, RequestAttemptsSchema } from "./schemas/request-attempts.schema"
 import { AppService } from "./app.service"
 import { AppController } from "./app.controller"
 import { BlogIdIsExist } from "./validators/blogId.validator"
 import { DevicesController } from "./controllers/devices.controller"
 import { ThrottlerModule } from "@nestjs/throttler"
 import { throttler } from "./guards/throttler.guard"
+import { PassportModule } from "@nestjs/passport"
+import { Secrets } from "./utils/constants/constants"
+import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strategy"
 
 
 @Module({
@@ -65,6 +68,11 @@ import { throttler } from "./guards/throttler.guard"
       { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
       { name: RequestAttempts.name, schema: RequestAttemptsSchema },
     ]),
+    PassportModule,
+    // JwtModule.register({
+    //   secret: Secrets.ACCESS_JWT_SECRET,
+    //   signOptions: { expiresIn: '60s' },
+    // }),
   ],
   controllers: [
     BlogsController,
@@ -78,6 +86,8 @@ import { throttler } from "./guards/throttler.guard"
   ],
   providers: [
     throttler,
+    JwtService,
+    LoginLocalStrategy,
 
     BlogsService,
     PostsService,
@@ -86,7 +96,6 @@ import { throttler } from "./guards/throttler.guard"
     CommentsService,
     DevicesService,
     TokensService,
-    JwtService,
     AppService,
 
     BlogsRepository,

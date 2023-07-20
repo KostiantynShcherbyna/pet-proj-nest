@@ -29,8 +29,8 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const ACCESS_EXPIRES_TIME = "10s"
-export const REFRESH_EXPIRES_TIME = "20s"
+export const ACCESS_EXPIRES_TIME = "1000s"
+export const REFRESH_EXPIRES_TIME = "2000s"
 export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)
@@ -59,6 +59,10 @@ export const USER_AGENT = "user_agent"
 
 export enum BasicToken {
   token = "YWRtaW46cXdlcnR5"
+}
+
+export enum StrategyNames {
+  loginLocalStrategy = 'login-local-strategy'
 }
 
 export enum Secrets {

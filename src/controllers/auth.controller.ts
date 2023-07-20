@@ -26,9 +26,11 @@ import { AuthService } from "src/services/auth.service"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { Response } from "express"
 import { Throttle } from "@nestjs/throttler"
-import { USER_AGENT } from "src/utils/constants/constants"
+import { StrategyNames, USER_AGENT } from "src/utils/constants/constants"
 import { AccessGuard } from "src/guards/access.guard"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
+import { DeviceSessionParamDecorator } from "src/decorators/device-session.param.decorator"
+import { AuthGuard } from "@nestjs/passport"
 
 @Controller("auth")
 export class AuthController {
@@ -40,6 +42,7 @@ export class AuthController {
 
   @Post("login")
   @Throttle(5, 10)
+  @UseGuards(AuthGuard(StrategyNames.loginLocalStrategy))
   @HttpCode(HttpStatus.OK)
   async login(
     @Headers("user-agent") userAgent: string | "defaultName",
@@ -49,15 +52,9 @@ export class AuthController {
   ) {
     const loginContract = await this.authService.login(bodyAuth, ip, userAgent)
 
-    if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
-      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
-    )
-    if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException(
-      callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "loginOrEmail")
-    )
-    if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException(
-      callErrorMessage(ErrorEnums.PASSWORD_NOT_COMPARED, "password")
-    )
+    if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException()
+    if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException()
 
     res.cookie("refreshToken", loginContract.data?.refreshToken, { httpOnly: true, secure: true })
     return loginContract.data?.accessJwt
@@ -68,9 +65,9 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @Req() req: Request & { deviceSession: DeviceSessionModel }
+    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel
   ) {
-    const logoutContract = await this.authService.logout(req.deviceSession)
+    const logoutContract = await this.authService.logout(deviceSession)
 
     if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (logoutContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
@@ -84,19 +81,15 @@ export class AuthController {
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
   async refreshToken(
-    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
     @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshTokenContract = await this.authService.refreshToken(req.deviceSession, ip, userAgent)
+    const refreshTokenContract = await this.authService.refreshToken(deviceSession, ip, userAgent)
 
-    if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException(
-      // callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
-    )
-    if (refreshTokenContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException(
-      // callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
-    )
+    if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    if (refreshTokenContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
     if (refreshTokenContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new UnauthorizedException()
 
     res.cookie("refreshToken", refreshTokenContract.data?.refreshToken, { httpOnly: true, secure: true })
@@ -168,9 +161,9 @@ export class AuthController {
   @UseGuards(AccessGuard)
   @Get("me")
   async getMe(
-    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
   ) {
-    const userView = await this.usersQueryRepository.findUser(req.deviceSession.userId)
+    const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
 
     if (userView === null) throw new UnauthorizedException()
     return userView

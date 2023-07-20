@@ -12,7 +12,7 @@ import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { MyStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { dtoManager } from "src/utils/managers/dto.manager"
-import { PostView } from "src/views/PostView"
+import { PostView } from "src/views/post.view"
 
 @Injectable()
 export class DevicesService {

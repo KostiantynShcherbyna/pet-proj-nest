@@ -10,8 +10,8 @@ import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { Devices, DevicesModel } from "../schemas/devices.schema"
-import { RequestAttempts, RequestAttemptsModel } from "../schemas/requestAttempts.schema"
-import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recoveryCode.schema"
+import { RequestAttempts, RequestAttemptsModel } from "../schemas/request-attempts.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recovery-code.schema"
 
 @Controller("testing")
 export class TestingController {

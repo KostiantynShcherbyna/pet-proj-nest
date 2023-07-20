@@ -1,4 +1,4 @@
-import { RecoveryCodesDocument } from "src/schemas/recoveryCode.schema"
+import { RecoveryCodesDocument } from "src/schemas/recovery-code.schema"
 import { emailManager } from "./email.manager"
 import { UsersDocument } from "src/schemas/users.schema"
 
