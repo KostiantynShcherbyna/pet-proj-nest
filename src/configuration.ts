@@ -10,12 +10,3 @@ export const configuration = () => {
     }
 }
 export type ConfigType = ReturnType<typeof configuration>
-// type ConfigurationConfigType = ReturnType<typeof configuration>
-// export type ConfigType = ConfigurationConfigType & {
-//     PORT: string
-//     MONGOOSE_URI: string
-
-//     ACCESS_JWT_SECRET: string
-//     REFRESH_JWT_SECRET: string
-//     PASSWORD_RECOVERY_CODE_SECRET: string
-// }

@@ -6,6 +6,7 @@ import { ErrorExceptionFilter, HttpExceptionFilter } from "./filters/exeption.fi
 import cookieParser from "cookie-parser"
 import { useContainer } from "class-validator"
 import { errorsFactory } from "./utils/factory/errors.factory"
+import { ConfigService } from "@nestjs/config"
 
 
 
@@ -24,7 +25,9 @@ async function bootstrap() {
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter())
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
-  await app.listen(configuration().PORT)
+  const configService = app.get(ConfigService);
+  const port = configService.get('PORT', 5000);
+  await app.listen(port)
 }
 
 bootstrap()
