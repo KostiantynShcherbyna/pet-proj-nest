@@ -1,27 +1,23 @@
-import { Inject, Injectable } from "@nestjs/common"
-import { InjectModel } from "@nestjs/mongoose"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
-import { BodyBlogModel } from "src/models/body/body-blog.model"
-import { BodyPostModel } from "src/models/body/body-post.model"
-import { BlogsRepository } from "src/repositories/blogs.repository"
-import { PostsRepository } from "src/repositories/posts.repository"
-import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
-import { Posts, PostsModel } from "src/schemas/posts.schema"
+import { PostsModel } from "src/schemas/posts.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
-import { dtoManager } from "src/utils/managers/dto.manager"
-import { BlogView } from "src/views/blog.view"
 
-@Injectable()
-export class DeletePost {
+export class DeletePostCommand {
+    constructor(public id: string) { }
+}
+
+@CommandHandler(DeletePostCommand)
+export class DeletePost implements ICommandHandler<DeletePostCommand> {
     constructor(
         protected PostsModel: PostsModel,
     ) {
     }
 
-    async execute(id: string): Promise<Contract<null | boolean>> {
+    async execute(command: DeletePostCommand): Promise<Contract<null | boolean>> {
 
         const deletedPostContract = await this.PostsModel.deletePost(
-            id,
+            command.id,
             this.PostsModel
         )
         if (deletedPostContract.data === 0)

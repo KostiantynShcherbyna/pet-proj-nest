@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/contract"
@@ -14,12 +15,14 @@ import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
 import { CommentsModel } from "src/schemas/comments.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
-import { dtoManager } from "src/utils/managers/dto.manager"
-import { BlogView } from "src/views/blog.view"
 import { CommentView } from "src/views/comment.view"
 
-@Injectable()
-export class CreateComment {
+export class CreateCommentCommand {
+    constructor({ userId, postId, content }: CommentDto) { }
+}
+
+@CommandHandler(CreateCommentCommand)
+export class CreateComment implements ICommandHandler<CreateCommentCommand> {
     constructor(
         protected postsRepository: PostsRepository,
         protected usersRepository: UsersRepository,

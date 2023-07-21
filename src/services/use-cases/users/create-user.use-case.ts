@@ -1,25 +1,30 @@
 import { Injectable } from "@nestjs/common"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { BodyUserModel } from "src/models/body/body-user.model"
 import { UsersRepository } from "src/repositories/users.repository"
 import { UsersDocument, UsersModel } from "src/schemas/users.schema"
 import { UserView } from "src/views/user.view"
 
-@Injectable()
-export class CreateUser {
+export class CreateUserCommand {
+    constructor(public newUserData: BodyUserModel) { }
+}
+
+@CommandHandler(CreateUserCommand)
+export class CreateUser implements ICommandHandler<CreateUserCommand> {
     constructor(
         protected UsersModel: UsersModel,
         protected usersRepository: UsersRepository,
     ) {
     }
 
-    async execute(newUserData: BodyUserModel): Promise<UserView> {
+    async execute(command: CreateUserCommand): Promise<UserView> {
 
         const newUser = await this.UsersModel.createUser(
-            newUserData,
+            command.newUserData,
             this.UsersModel
         )
         await this.usersRepository.saveDocument(newUser)
-        
+
         const userView = this.createUserView(newUser)
         return userView
     }

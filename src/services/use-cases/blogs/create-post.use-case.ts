@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
 import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
@@ -8,8 +9,14 @@ import { MyStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { PostView } from "src/views/post.view"
 
-@Injectable()
-export class CreatePost {
+
+export class CreatePostCommand {
+    constructor(public bodyBlogPostModel: BodyBlogPostModel, public blogId: string) { }
+}
+
+
+@CommandHandler(CreatePostCommand)
+export class CreatePost implements ICommandHandler<CreatePostCommand> {
     constructor(
         protected blogsRepository: BlogsRepository,
         protected PostsModel: PostsModel,
@@ -17,13 +24,13 @@ export class CreatePost {
     ) {
     }
 
-    async execute(bodyBlogPostModel: BodyBlogPostModel, blogId: string): Promise<Contract<null | PostView>> {
-        const foundBlog = await this.blogsRepository.findBlog(blogId)
+    async execute(command: CreatePostCommand): Promise<Contract<null | PostView>> {
+        const foundBlog = await this.blogsRepository.findBlog(command.blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 
         const newPost = this.PostsModel.createPost(
-            bodyBlogPostModel,
-            blogId,
+            command.bodyBlogPostModel,
+            command.blogId,
             foundBlog.name,
             this.PostsModel,
         )

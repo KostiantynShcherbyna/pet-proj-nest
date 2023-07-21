@@ -1,23 +1,28 @@
 import { Injectable } from "@nestjs/common"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { Contract } from "src/contract"
 import { CommentsRepository } from "src/repositories/comments.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
+export class UpdateCommentCommand {
+    constructor(public userId: string, public commentId: string, public content: string) { }
+}
 
-@Injectable()
-export class UpdateComment {
+
+@CommandHandler(UpdateCommentCommand)
+export class UpdateComment implements ICommandHandler<UpdateCommentCommand>{
     constructor(
         protected commentsRepository: CommentsRepository,
     ) {
     }
 
-    async execute(userId: string, commentId: string, content: string): Promise<Contract<null | boolean>> {
+    async execute(command: UpdateCommentCommand): Promise<Contract<null | boolean>> {
         // Looking for a comment and check owner
-        const comment = await this.commentsRepository.findComment(commentId);
+        const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-        if (comment.checkCommentator(userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_UPDATED);
+        if (comment.checkCommentator(command.userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_UPDATED);
 
-        comment.updateComment(content);
+        comment.updateComment(command.content);
         await this.commentsRepository.saveDocument(comment);
 
         return new Contract(true, null);

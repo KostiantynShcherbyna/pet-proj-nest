@@ -1,11 +1,16 @@
 import { Injectable } from "@nestjs/common"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { PostsModel } from "src/schemas/posts.schema"
 
 
-@Injectable()
-export class DeleteBlog {
+export class DeleteBlogCommand {
+    constructor(public id: string) { }
+}
+
+@CommandHandler(DeleteBlogCommand)
+export class DeleteBlog implements ICommandHandler<DeleteBlogCommand>{
     constructor(
         protected BlogsModel: BlogsModel,
         protected PostsModel: PostsModel,
@@ -13,10 +18,10 @@ export class DeleteBlog {
     ) {
     }
 
-    async execute(id: string): Promise<Contract<null | boolean>> {
+    async execute(command: DeleteBlogCommand): Promise<Contract<null | boolean>> {
 
         const deleteBlogContract = await Blogs.deleteBlog(
-            id,
+            command.id,
             this.BlogsModel,
             this.PostsModel
         )

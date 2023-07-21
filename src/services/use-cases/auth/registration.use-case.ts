@@ -1,27 +1,19 @@
 import { Injectable } from "@nestjs/common"
-import { ConfigService } from "@nestjs/config"
-import { Types } from "mongoose"
-import { ConfigType } from "src/configuration"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
-import { BodyAuthModel } from "src/models/body/body-auth.model"
 import { BodyRegistrationModel } from "src/models/body/body-registration.model"
-import { BodyUserModel } from "src/models/body/body-user.model"
 import { DeviceSessionModel } from "src/models/request/device-session.model"
-import { AuthRepository } from "src/repositories/auth.repository"
-import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
-import { DevicesModel } from "src/schemas/devices.schema"
-import { RecoveryCodesModel } from "src/schemas/recovery-code.schema"
-import { UsersDocument, UsersModel } from "src/schemas/users.schema"
-import { TokensService } from "src/services/tokens.service"
-import { Secrets } from "src/utils/constants/constants"
+import { UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { emailAdapter } from "src/utils/managers/email.adapter"
-import { TokensView } from "src/views/tokens.view"
-import { UserView } from "src/views/user.view"
 
-@Injectable()
-export class Registration {
+export class RegistrationCommand {
+    constructor(public registrationBody: BodyRegistrationModel) { }
+}
+
+@CommandHandler(RegistrationCommand)
+export class Registration implements ICommandHandler<RegistrationCommand> {
     constructor(
         protected usersRepository: UsersRepository,
         protected UsersModel: UsersModel,
@@ -29,15 +21,15 @@ export class Registration {
     }
 
 
-    async execute(registrationBody: BodyRegistrationModel): Promise<Contract<null | boolean>> {
+    async execute(comamnd: RegistrationCommand): Promise<Contract<null | boolean>> {
 
-        const user = await this.usersRepository.findUserLoginOrEmail(registrationBody)
+        const user = await this.usersRepository.findUserLoginOrEmail(comamnd.registrationBody)
         const checkEmailAndLoginContract = user?.checkEmailAndLogin(
             {
                 email: user?.accountData.email,
                 login: user?.accountData.login,
-                inputEmail: registrationBody.email,
-                inputLogin: registrationBody.login
+                inputEmail: comamnd.registrationBody.email,
+                inputLogin: comamnd.registrationBody.login
             }
         )
         if (checkEmailAndLoginContract?.error === ErrorEnums.USER_EMAIL_EXIST)
@@ -46,7 +38,7 @@ export class Registration {
             return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
 
 
-        const newUser = await this.UsersModel.registrationUser(registrationBody, this.UsersModel)
+        const newUser = await this.UsersModel.registrationUser(comamnd.registrationBody, this.UsersModel)
         await this.usersRepository.saveDocument(newUser)
 
         // SENDING EMAIL ↓↓↓ TODO TO CLASS

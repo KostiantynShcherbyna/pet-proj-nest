@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ConfigType } from "src/configuration"
 import { Contract } from "src/contract"
 import { BodyAuthModel } from "src/models/body/body-auth.model"
@@ -16,8 +17,12 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 import { TokensView } from "src/views/tokens.view"
 import { UserView } from "src/views/user.view"
 
-@Injectable()
-export class Login {
+export class LoginCommand {
+    constructor(public loginBody: BodyAuthModel, public deviceIp: string, public userAgent: string) { }
+}
+
+@CommandHandler(LoginCommand)
+export class Login implements ICommandHandler<LoginCommand>{
     constructor(
         protected DevicesModel: DevicesModel,
         protected UsersModel: UsersModel,
@@ -30,11 +35,11 @@ export class Login {
     ) {
     }
 
-    async execute(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
+    async execute(command: LoginCommand): Promise<Contract<null | TokensView>> {
         // ↓↓↓ CHECK IN LOGIN-LOCAL-STRATEGY
         const user = await this.usersRepository.findUserLoginOrEmail({
-            login: loginBody.loginOrEmail,
-            email: loginBody.loginOrEmail
+            login: command.loginBody.loginOrEmail,
+            email: command.loginBody.loginOrEmail
         })
         if (user === null)
             return new Contract(null, ErrorEnums.USER_NOT_FOUND)
@@ -42,7 +47,7 @@ export class Login {
 
         const checkConfirmationAndHashContract = await user.checkConfirmationAndHash(
             user.accountData.passwordHash,
-            loginBody.password
+            command.loginBody.password
         )
         if (checkConfirmationAndHashContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
             return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
@@ -54,8 +59,8 @@ export class Login {
         const refreshJwtSecret = this.configService.get(Secrets.REFRESH_JWT_SECRET)
         const newTokens = await this.DevicesModel.createDevice(
             {
-                deviceIp,
-                userAgent,
+                deviceIp: command.deviceIp,
+                userAgent: command.userAgent,
                 userId: user._id.toString(),
                 accessJwtSecret,
                 refreshJwtSecret

@@ -47,6 +47,7 @@ import { CreateBlog } from "./services/use-cases/blogs/create-blog.use-case"
 import { UpdateBlog } from "./services/use-cases/blogs/update-blog.use-case"
 import { DeleteBlog } from "./services/use-cases/blogs/delete-blog.use-case"
 import { CreatePost } from "./services/use-cases/blogs/create-post.use-case"
+import { CqrsModule } from "@nestjs/cqrs"
 
 
 const useCases = [CreateBlog, UpdateBlog, DeleteBlog, CreatePost]
@@ -76,6 +77,7 @@ const useCases = [CreateBlog, UpdateBlog, DeleteBlog, CreatePost]
       { name: RequestAttempts.name, schema: RequestAttemptsSchema },
     ]),
     PassportModule,
+    CqrsModule,
     // JwtModule.register({
     //   secret: Secrets.ACCESS_JWT_SECRET,
     //   signOptions: { expiresIn: '60s' },
@@ -116,7 +118,7 @@ const useCases = [CreateBlog, UpdateBlog, DeleteBlog, CreatePost]
     AuthQueryRepository,
     AuthRepository,
     DevicesRepository,
-  
+
     BlogIdIsExist,
 
     ...useCases,

@@ -1,21 +1,28 @@
 import { Injectable } from "@nestjs/common"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { BodyBlogModel } from "src/models/body/body-blog.model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
 import { BlogView } from "src/views/blog.view"
 
-@Injectable()
-export class CreateBlog {
+
+export class CreateBlogCommand {
+    constructor(public bodyBlog: BodyBlogModel) { }
+}
+
+
+@CommandHandler(CreateBlogCommand)
+export class CreateBlog implements ICommandHandler<CreateBlogCommand>{
     constructor(
         protected BlogsModel: BlogsModel,
         protected blogsRepository: BlogsRepository,
     ) {
     }
 
-    async execute(bodyBlog: BodyBlogModel): Promise<BlogView> {
+    async execute(command: CreateBlogCommand): Promise<BlogView> {
         // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
         const newBlog = this.BlogsModel.createBlog(
-            bodyBlog,
+            command.bodyBlog,
             this.BlogsModel
         )
         await this.blogsRepository.saveDocument(newBlog)

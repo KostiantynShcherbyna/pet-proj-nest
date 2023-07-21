@@ -25,13 +25,16 @@ import { OptionalDeviceSessionModel } from "../models/request/optional-device-se
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { BasicGuard } from "src/guards/basic.guard"
+import { CommandBus } from "@nestjs/cqrs"
+import { CreateBlogCommand } from "src/services/use-cases/blogs/create-blog.use-case"
 
 @Controller("blogs")
 export class BlogsController {
   constructor(
-    @Inject(BlogsService) protected blogsService: BlogsService,
-    @Inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
-    @Inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+    protected blogsService: BlogsService,
+    protected blogsQueryRepository: BlogsQueryRepository,
+    protected postsQueryRepository: PostsQueryRepository,
+    private commandBus: CommandBus,
   ) {
   }
 
@@ -59,8 +62,15 @@ export class BlogsController {
   async createBlog(
     @Body() bodyBlog: BodyBlogModel
   ) {
-    return await this.blogsService.createBlog(bodyBlog)
+    return this.commandBus.execute(new CreateBlogCommand(bodyBlog))
   }
+  // @UseGuards(BasicGuard)
+  // @Post()
+  // async createBlog(
+  //   @Body() bodyBlog: BodyBlogModel
+  // ) {
+  //   return await this.blogsService.createBlog(bodyBlog)
+  // }
 
   @UseGuards(BasicGuard)
   @Put(":id")

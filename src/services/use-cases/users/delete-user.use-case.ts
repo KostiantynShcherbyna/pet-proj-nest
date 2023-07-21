@@ -1,11 +1,14 @@
-import { Injectable } from "@nestjs/common"
+import { CommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
 import { UsersRepository } from "src/repositories/users.repository"
 import { UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
+export class DeleteUserCommand {
+    constructor(public id: string) { }
+}
 
-@Injectable()
+@CommandHandler(DeleteUserCommand)
 export class DeleteUser {
     constructor(
         protected UsersModel: UsersModel,
@@ -13,10 +16,10 @@ export class DeleteUser {
     ) {
     }
 
-    async execute(id: string): Promise<Contract<null | boolean>> {
+    async execute(command: DeleteUserCommand): Promise<Contract<null | boolean>> {
 
         const deleteUserContract = await this.UsersModel.deleteUser(
-            id, this.UsersModel
+            command.id, this.UsersModel
         )
         if (deleteUserContract.data === 0)
             return new Contract(null, ErrorEnums.USER_NOT_DELETE)
