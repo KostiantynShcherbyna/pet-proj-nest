@@ -217,13 +217,14 @@ export class AuthService {
   async passwordRecovery(email: string): Promise<Contract<null | boolean>> {
 
     const oldRecoveryCode = await this.authRepository.findRecoveryCode(email)
+    if (oldRecoveryCode === null) return new Contract(null, ErrorEnums.CONFIRMATION_CODE_EXPIRED)
 
-    //  TODO ANY
     const passwordRecoveryCodeSecret = this.configService.get(Secrets.PASSWORD_RECOVERY_CODE_SECRET, { infer: true })
-    const newRecoveryCodeDocument = oldRecoveryCode === null
-      ? await this.RecoveryCodesModel.newPasswordRecovery(email, passwordRecoveryCodeSecret, this.tokensService, this.RecoveryCodesModel,)
-      : await oldRecoveryCode.updatePasswordRecovery(email, passwordRecoveryCodeSecret, this.tokensService)
+    const newRecoveryCodeDocument = await this.RecoveryCodesModel.createPasswordRecovery(email, passwordRecoveryCodeSecret, this.tokensService, this.RecoveryCodesModel,)
     await this.authRepository.saveDocument(newRecoveryCodeDocument)
+
+
+    oldRecoveryCode.deactivatePasswordRecovery()
 
     // SENDING PASSWORD RECOVERY ↓↓↓
     const isSend = await emailAdapter.sendPasswordRecovery(newRecoveryCodeDocument.email, newRecoveryCodeDocument.recoveryCode)

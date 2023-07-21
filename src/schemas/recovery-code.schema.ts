@@ -26,7 +26,13 @@ export class RecoveryCodes {
   })
   recoveryCode: string
 
-  static async newPasswordRecovery(
+  @Prop({
+    type: Boolean,
+    required: true,
+  })
+  active: boolean
+
+  static async createPasswordRecovery(
     email: string,
     passwordRecoveryCodeSecret: string,
     tokensService: TokensService,
@@ -42,7 +48,8 @@ export class RecoveryCodes {
       )
     const recoveryCodeDto = {
       email: email,
-      recoveryCode: newPasswordRecoveryCode
+      recoveryCode: newPasswordRecoveryCode,
+      active: true,
     }
 
     const newRecoveryCodeDocument = new RecoveryCodesModel(recoveryCodeDto)
@@ -50,21 +57,9 @@ export class RecoveryCodes {
   }
 
 
-  async updatePasswordRecovery(
-    email: string,
-    passwordRecoveryCodeSecret: string,
-    tokensService: TokensService
-  ) {
-
-    const newRecoveryCode = await tokensService
-      .createToken(
-        { email },
-        passwordRecoveryCodeSecret,
-        PASSWORD_HASH_EXPIRES_TIME
-      )
-    this.recoveryCode = newRecoveryCode
-
-    return this
+  async deactivatePasswordRecovery() {
+    this.active = false
+    return
   }
 
 
@@ -73,7 +68,7 @@ export class RecoveryCodes {
   }
 }
 interface RecoveryCodesStatics {
-  newPasswordRecovery(
+  createPasswordRecovery(
     email: string,
     passwordRecoveryCodeSecret: string,
     tokensService: TokensService,
@@ -82,8 +77,8 @@ interface RecoveryCodesStatics {
 }
 
 export const RecoveryCodesSchema = SchemaFactory.createForClass(RecoveryCodes)
-RecoveryCodesSchema.statics.newPasswordRecovery = RecoveryCodes.newPasswordRecovery
-RecoveryCodesSchema.methods.updatePasswordRecovery = RecoveryCodes.prototype.updatePasswordRecovery
+RecoveryCodesSchema.statics.createPasswordRecovery = RecoveryCodes.createPasswordRecovery
+RecoveryCodesSchema.methods.deactivatePasswordRecovery = RecoveryCodes.prototype.deactivatePasswordRecovery
 RecoveryCodesSchema.methods.checkRecoveryCode = RecoveryCodes.prototype.checkRecoveryCode
 
 export type RecoveryCodesDocument = HydratedDocument<RecoveryCodes>

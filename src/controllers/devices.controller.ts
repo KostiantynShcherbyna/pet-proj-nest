@@ -17,7 +17,7 @@ import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { ObjectIdDeviceIdModel } from "../models/uri/deviceId.model"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { DeviceSessionParamDecorator } from "src/decorators/device-session.param.decorator"
+import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
 
 @Controller("security")
 export class DevicesController {
@@ -30,7 +30,7 @@ export class DevicesController {
   @UseGuards(RefreshGuard)
   @Get("devices")
   async getDevices(
-    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
   ) {
     return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
   }
@@ -39,7 +39,7 @@ export class DevicesController {
   @Delete("devices")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
-    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
   ) {
     const result = await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId)
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
@@ -51,7 +51,7 @@ export class DevicesController {
   @Delete("devices/:deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
-    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
     @Param() params: ObjectIdDeviceIdModel,
   ) {
     const result = await this.devicesService.deleteSpecialDevice(params.deviceId, deviceSession.userId)

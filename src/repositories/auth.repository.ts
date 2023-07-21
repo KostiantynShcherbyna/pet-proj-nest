@@ -11,7 +11,7 @@ export class AuthRepository {
 
     async findRecoveryCode(email: string): Promise<null | RecoveryCodesDocument> {
 
-        const recoveryCode = await this.RecoveryCodesModel.findOne({ email: email })
+        const recoveryCode = await this.RecoveryCodesModel.findOne({ $and: [{ email: email }, { active: true }] })
         if (recoveryCode === null) return null
 
         return recoveryCode

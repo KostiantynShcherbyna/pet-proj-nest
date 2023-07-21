@@ -29,7 +29,7 @@ import { Throttle } from "@nestjs/throttler"
 import { StrategyNames, USER_AGENT } from "src/utils/constants/constants"
 import { AccessGuard } from "src/guards/access.guard"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { DeviceSessionParamDecorator } from "src/decorators/device-session.param.decorator"
+import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
 import { AuthGuard } from "@nestjs/passport"
 
 @Controller("auth")
@@ -65,7 +65,7 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel
   ) {
     const logoutContract = await this.authService.logout(deviceSession)
 
@@ -81,7 +81,7 @@ export class AuthController {
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
   async refreshToken(
-    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
     @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
     @Res({ passthrough: true }) res: Response,
@@ -161,7 +161,7 @@ export class AuthController {
   @UseGuards(AccessGuard)
   @Get("me")
   async getMe(
-    @DeviceSessionParamDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
   ) {
     const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
 
