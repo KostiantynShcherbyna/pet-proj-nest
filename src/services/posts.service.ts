@@ -36,13 +36,12 @@ export class PostsService {
     const foundBlog = await this.blogsRepository.findBlog(bodyPost.blogId);
     if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
 
-    const newPost = this.PostsModel
-      .createPost(
-        bodyPost,
-        bodyPost.blogId,
-        foundBlog.name,
-        this.PostsModel
-      );
+    const newPost = this.PostsModel.createPost(
+      bodyPost,
+      bodyPost.blogId,
+      foundBlog.name,
+      this.PostsModel
+    );
     await this.postsRepository.saveDocument(newPost);
 
     const newPostView = dtoManager.changePostView(newPost, MyStatus.None);

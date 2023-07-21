@@ -43,6 +43,13 @@ import { throttler } from "./guards/throttler.guard"
 import { PassportModule } from "@nestjs/passport"
 import { Secrets } from "./utils/constants/constants"
 import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strategy"
+import { CreateBlog } from "./services/use-cases/blogs/create-blog.use-case"
+import { UpdateBlog } from "./services/use-cases/blogs/update-blog.use-case"
+import { DeleteBlog } from "./services/use-cases/blogs/delete-blog.use-case"
+import { CreatePost } from "./services/use-cases/blogs/create-post.use-case"
+
+
+const useCases = [CreateBlog, UpdateBlog, DeleteBlog, CreatePost]
 
 
 @Module({
@@ -109,7 +116,10 @@ import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strate
     AuthQueryRepository,
     AuthRepository,
     DevicesRepository,
+  
     BlogIdIsExist,
+
+    ...useCases,
   ],
 })
 export class AppModule { }

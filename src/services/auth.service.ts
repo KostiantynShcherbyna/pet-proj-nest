@@ -155,13 +155,13 @@ export class AuthService {
     await this.usersRepository.saveDocument(newUser)
 
     // SENDING EMAIL ↓↓↓
-    // const isSend = await emailAdapter.sendConfirmationCode(newUser)
-    // if (isSend === false) {
-    //   const deletedUserContract = await this.UsersModel.deleteUser(newUser._id.toString(), this.UsersModel)
-    //   if (deletedUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+    const isSend = await emailAdapter.sendConfirmationCode(newUser)
+    if (isSend === false) {
+      const deletedUserContract = await this.UsersModel.deleteUser(newUser._id.toString(), this.UsersModel)
+      if (deletedUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
 
-    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    // }
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    }
 
 
     newUser.addSentDate()
