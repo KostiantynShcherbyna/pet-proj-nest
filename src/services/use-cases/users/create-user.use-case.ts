@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { BodyUserModel } from "src/models/body/body-user.model"
 import { UsersRepository } from "src/repositories/users.repository"
-import { UsersDocument, UsersModel } from "src/schemas/users.schema"
+import { Users, UsersDocument, UsersModel } from "src/schemas/users.schema"
 import { UserView } from "src/views/user.view"
 
 export class CreateUserCommand {
@@ -12,7 +13,7 @@ export class CreateUserCommand {
 @CommandHandler(CreateUserCommand)
 export class CreateUser implements ICommandHandler<CreateUserCommand> {
     constructor(
-        protected UsersModel: UsersModel,
+        @InjectModel(Users.name) protected UsersModel: UsersModel,
         protected usersRepository: UsersRepository,
     ) {
     }

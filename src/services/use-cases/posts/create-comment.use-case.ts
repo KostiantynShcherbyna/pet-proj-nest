@@ -12,7 +12,7 @@ import { PostsRepository } from "src/repositories/posts.repository"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
-import { CommentsModel } from "src/schemas/comments.schema"
+import { Comments, CommentsModel } from "src/schemas/comments.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { CommentView } from "src/views/comment.view"
@@ -24,9 +24,9 @@ export class CreateCommentCommand {
 @CommandHandler(CreateCommentCommand)
 export class CreateComment implements ICommandHandler<CreateCommentCommand> {
     constructor(
+        @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
         protected postsRepository: PostsRepository,
         protected usersRepository: UsersRepository,
-        protected CommentsModel: CommentsModel,
         protected commentsRepository: CommentsRepository,
         protected commentsQueryRepository: CommentsQueryRepository,
     ) {

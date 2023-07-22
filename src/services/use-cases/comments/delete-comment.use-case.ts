@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
 import { CommentsRepository } from "src/repositories/comments.repository"
-import { CommentsModel } from "src/schemas/comments.schema"
+import { Comments, CommentsModel } from "src/schemas/comments.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeleteCommentCommand {
@@ -13,7 +14,7 @@ export class DeleteCommentCommand {
 @CommandHandler(DeleteCommentCommand)
 export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
     constructor(
-        protected CommentsModel: CommentsModel,
+        @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
         protected commentsRepository: CommentsRepository,
     ) {
     }

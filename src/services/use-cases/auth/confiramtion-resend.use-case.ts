@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
 import { UsersRepository } from "src/repositories/users.repository"
-import { UsersModel } from "src/schemas/users.schema"
+import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { emailAdapter } from "src/utils/managers/email.adapter"
 
@@ -13,8 +14,8 @@ export class ConfirmationResendCommand {
 @CommandHandler(ConfirmationResendCommand)
 export class ConfirmationResend implements ICommandHandler<ConfirmationResendCommand> {
     constructor(
+        @InjectModel(Users.name) protected UsersModel: UsersModel,
         protected usersRepository: UsersRepository,
-        protected UsersModel: UsersModel,
     ) {
     }
 

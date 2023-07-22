@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { ConfigType } from "src/configuration"
 import { Contract } from "src/contract"
 import { BodyAuthModel } from "src/models/body/body-auth.model"
@@ -8,9 +9,9 @@ import { BodyUserModel } from "src/models/body/body-user.model"
 import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
-import { DevicesModel } from "src/schemas/devices.schema"
-import { RecoveryCodesModel } from "src/schemas/recovery-code.schema"
-import { UsersDocument, UsersModel } from "src/schemas/users.schema"
+import { Devices, DevicesModel } from "src/schemas/devices.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "src/schemas/recovery-code.schema"
+import { Users, UsersDocument, UsersModel } from "src/schemas/users.schema"
 import { TokensService } from "src/services/tokens.service"
 import { Secrets } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
@@ -24,13 +25,13 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class Login implements ICommandHandler<LoginCommand>{
     constructor(
-        protected DevicesModel: DevicesModel,
-        protected UsersModel: UsersModel,
-        protected RecoveryCodesModel: RecoveryCodesModel,
+        @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
+        @InjectModel(Users.name) protected UsersModel: UsersModel,
+        @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
+        protected tokensService: TokensService,
         protected usersRepository: UsersRepository,
         protected devicesRepository: DevicesRepository,
         protected authRepository: AuthRepository,
-        protected tokensService: TokensService,
         protected configService: ConfigService<ConfigType, true>,
     ) {
     }

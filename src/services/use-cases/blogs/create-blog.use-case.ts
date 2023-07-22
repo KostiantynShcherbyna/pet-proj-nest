@@ -1,20 +1,22 @@
 import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { BodyBlogModel } from "src/models/body/body-blog.model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
-import { BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
+import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
+import { Posts } from "src/schemas/posts.schema"
 import { BlogView } from "src/views/blog.view"
 
 
 export class CreateBlogCommand {
-    constructor(public bodyBlog: BodyBlogModel) { }
+    constructor(public name: string, public description: string, public websiteUrl: string) { }
 }
 
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlog implements ICommandHandler<CreateBlogCommand>{
     constructor(
-        protected BlogsModel: BlogsModel,
+        @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
         protected blogsRepository: BlogsRepository,
     ) {
     }
@@ -22,7 +24,11 @@ export class CreateBlog implements ICommandHandler<CreateBlogCommand>{
     async execute(command: CreateBlogCommand): Promise<BlogView> {
         // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
         const newBlog = this.BlogsModel.createBlog(
-            command.bodyBlog,
+            {
+                name: command.name,
+                description: command.description,
+                websiteUrl: command.websiteUrl,
+            },
             this.BlogsModel
         )
         await this.blogsRepository.saveDocument(newBlog)

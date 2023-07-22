@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
-import { PostsModel } from "src/schemas/posts.schema"
+import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeletePostCommand {
@@ -10,7 +11,7 @@ export class DeletePostCommand {
 @CommandHandler(DeletePostCommand)
 export class DeletePost implements ICommandHandler<DeletePostCommand> {
     constructor(
-        protected PostsModel: PostsModel,
+        @InjectModel(Posts.name) protected PostsModel: PostsModel,
     ) {
     }
 

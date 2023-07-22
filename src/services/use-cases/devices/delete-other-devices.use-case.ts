@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
 import { DevicesRepository } from "src/repositories/devices.repository"
-import { DevicesModel } from "src/schemas/devices.schema"
+import { Devices, DevicesModel } from "src/schemas/devices.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeleteOtherDevicesCommand {
@@ -13,7 +14,7 @@ export class DeleteOtherDevicesCommand {
 @CommandHandler(DeleteOtherDevicesCommand)
 export class DeleteOtherDevices implements ICommandHandler<DeleteOtherDevicesCommand>{
     constructor(
-        protected DevicesModel: DevicesModel,
+        @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
         protected devicesRepository: DevicesRepository,
     ) {
     }

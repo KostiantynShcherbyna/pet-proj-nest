@@ -7,7 +7,7 @@ import { QueryCommentModel } from "src/models/query/query-comment.model"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
 import { BodyLikeModel } from "../models/body/body-like.model"
 import { ErrorEnums } from "../utils/errors/error-enums"
-import { OptionalDeviceSessionModel } from "../models/request/optional-device-session.model"
+import { DeviceSessionOptionalModel } from "../models/request/device-session-optional.model"
 import { DeviceSessionModel } from "../models/request/device-session.model"
 import { AccessMiddleware } from "../guards/access.middleware"
 import { AccessGuard } from "../guards/access.guard"
@@ -24,6 +24,8 @@ import { CreateCommentCommand } from "src/services/use-cases/posts/create-commen
 import { UpdatePostLikeCommand } from "src/services/use-cases/posts/update-post-like.use-case"
 import { TransactionScriptService } from "src/services/transaction-script.service"
 import { CommandBus } from "@nestjs/cqrs"
+import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
+import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
 
 @Controller("posts")
 export class PostsController {
@@ -41,19 +43,19 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get()
   async findPosts(
-    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
     @Query() queryPost: QueryPostModel
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, "", req.deviceSession?.userId)
+    return await this.postsQueryRepository.findPosts(queryPost, "", deviceSession?.userId)
   }
 
   @UseGuards(AccessMiddleware)
   @Get(":id")
   async findPost(
-    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
     @Param() param: ObjectIdIdModel,
   ) {
-    const post = await this.postsQueryRepository.findPost(param.id, req.deviceSession?.userId)
+    const post = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
     if (post === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )
@@ -102,14 +104,14 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get(":postId/comments")
   async findComments(
-    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
     @Param() param: ObjectIdPostIdModel,
     @Query() queryComment: QueryCommentModel,
   ) {
     const commentsView = await this.commentsQueryRepository.findComments(
       param.postId,
       queryComment,
-      req.deviceSession?.userId
+      deviceSession?.userId
     )
     if (commentsView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
@@ -120,13 +122,13 @@ export class PostsController {
   @UseGuards(AccessGuard)
   @Post(":postId/comments")
   async createComment(
-    @Req() req: Request & { deviceSession: DeviceSessionModel },
+    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
     @Param() param: ObjectIdPostIdModel,
     @Body() bodyComment: BodyCommentModel,
   ) {
     const commentContract = await this.commandBus.execute(
       new CreateCommentCommand(
-        req.deviceSession?.userId,
+        deviceSession?.userId,
         param.postId,
         bodyComment.content
       )
@@ -145,13 +147,13 @@ export class PostsController {
   @Put(":postId/like-status")
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
-    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
     @Param() postId: ObjectIdPostIdModel,
     @Body() bodyLike: BodyLikeModel,
   ) {
     const commentContract = await this.commandBus.execute(
       new UpdatePostLikeCommand(
-        req.deviceSession.userId,
+        deviceSession.userId,
         postId.postId,
         bodyLike.likeStatus
       )

@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
-import { PostsModel } from "src/schemas/posts.schema"
+import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 
 export class DeleteBlogCommand {
@@ -12,8 +13,8 @@ export class DeleteBlogCommand {
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlog implements ICommandHandler<DeleteBlogCommand>{
     constructor(
-        protected BlogsModel: BlogsModel,
-        protected PostsModel: PostsModel,
+        @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
+        @InjectModel(Posts.name) protected PostsModel: PostsModel,
 
     ) {
     }

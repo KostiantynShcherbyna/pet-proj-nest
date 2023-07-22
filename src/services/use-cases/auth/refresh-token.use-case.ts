@@ -12,12 +12,12 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 import { TokensView } from "src/views/tokens.view"
 
 
-export class RefreshCommand {
+export class RefreshTokenCommand {
     constructor(public deviceSession: DeviceSessionModel, public deviceIp: string, public userAgent: string) { }
 }
 
-@CommandHandler(RefreshCommand)
-export class Refresh implements ICommandHandler<RefreshCommand>{
+@CommandHandler(RefreshTokenCommand)
+export class RefreshToken implements ICommandHandler<RefreshTokenCommand>{
     constructor(
         protected usersRepository: UsersRepository,
         protected devicesRepository: DevicesRepository,
@@ -25,7 +25,7 @@ export class Refresh implements ICommandHandler<RefreshCommand>{
     ) {
     }
 
-    async execute(comamnd: RefreshCommand): Promise<Contract<null | TokensView>> {
+    async execute(comamnd: RefreshTokenCommand): Promise<Contract<null | TokensView>> {
 
 
         const userDto = ["_id", new Types.ObjectId(comamnd.deviceSession.userId)]

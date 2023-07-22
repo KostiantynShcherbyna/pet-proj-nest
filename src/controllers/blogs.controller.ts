@@ -21,7 +21,7 @@ import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
 import { ObjectIdIdModel } from "../models/uri/id.model"
 import { ObjectIdBlogIdModel } from "../models/uri/blogId.model"
 import { AccessMiddleware } from "../guards/access.middleware"
-import { OptionalDeviceSessionModel } from "../models/request/optional-device-session.model"
+import { DeviceSessionOptionalModel } from "../models/request/device-session-optional.model"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { BasicGuard } from "src/guards/basic.guard"
@@ -30,6 +30,7 @@ import { CreateBlogCommand } from "src/services/use-cases/blogs/create-blog.use-
 import { UpdateBlogCommand } from "src/services/use-cases/blogs/update-blog.use-case"
 import { DeleteBlogCommand } from "src/services/use-cases/blogs/delete-blog.use-case"
 import { TransactionScriptService } from "src/services/transaction-script.service"
+import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
 
 @Controller("blogs")
 export class BlogsController {
@@ -66,7 +67,7 @@ export class BlogsController {
   async createBlog(
     @Body() bodyBlog: BodyBlogModel
   ) {
-    return this.commandBus.execute(new CreateBlogCommand(bodyBlog))
+    return this.commandBus.execute(new CreateBlogCommand(bodyBlog.name, bodyBlog.description, bodyBlog.websiteUrl))
   }
 
 
@@ -104,11 +105,11 @@ export class BlogsController {
   @UseGuards(AccessMiddleware)
   @Get(":blogId/posts")
   async findPosts(
-    @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
     @Param() param: ObjectIdBlogIdModel,
     @Query() queryPost: QueryPostModel,
   ) {
-    const postsView = await this.postsQueryRepository.findPosts(queryPost, param.blogId, req.deviceSession?.userId)
+    const postsView = await this.postsQueryRepository.findPosts(queryPost, param.blogId, deviceSession?.userId)
     if (postsView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )

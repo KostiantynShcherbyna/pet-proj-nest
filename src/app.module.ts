@@ -32,7 +32,7 @@ import { DevicesService } from "./services/devices.service"
 import { TokensService } from "./services/tokens.service"
 import { AuthQueryRepository } from "./repositories/query/auth.query.repository"
 import { AuthRepository } from "./repositories/auth.repository"
-import { JwtModule, JwtService } from "@nestjs/jwt"
+import { JwtService } from "@nestjs/jwt"
 import { RequestAttempts, RequestAttemptsSchema } from "./schemas/request-attempts.schema"
 import { AppService } from "./app.service"
 import { AppController } from "./app.controller"
@@ -41,61 +41,62 @@ import { DevicesController } from "./controllers/devices.controller"
 import { ThrottlerModule } from "@nestjs/throttler"
 import { throttler } from "./guards/throttler.guard"
 import { PassportModule } from "@nestjs/passport"
-import { Secrets } from "./utils/constants/constants"
 import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strategy"
 import { CreateBlog } from "./services/use-cases/blogs/create-blog.use-case"
 import { UpdateBlog } from "./services/use-cases/blogs/update-blog.use-case"
 import { DeleteBlog } from "./services/use-cases/blogs/delete-blog.use-case"
 import { CqrsModule } from "@nestjs/cqrs"
-import { ConfirmationResendCommand } from "./services/use-cases/auth/confiramtion-resend.use-case"
-import { ConfirmationCommand } from "./services/use-cases/auth/confiramtion.use-case"
-import { LoginCommand } from "./services/use-cases/auth/login.use-case"
-import { LogoutCommand } from "./services/use-cases/auth/logout.use-case"
-import { NewPasswordCommand } from "./services/use-cases/auth/new-password.use-case"
-import { PasswordRecoveryCommand } from "./services/use-cases/auth/password-recovery.use-case"
-import { RefreshCommand } from "./services/use-cases/auth/refresh.use-case"
-import { RegistrationCommand } from "./services/use-cases/auth/registration.use-case"
-import { DeleteCommentCommand } from "./services/use-cases/comments/delete-comment.use-case"
-import { UpdateCommentCommand } from "./services/use-cases/comments/update-comment.use-case"
-import { UpdateCommentLikeCommand } from "./services/use-cases/comments/update-comment-like.use-case"
-import { DeleteOtherDevicesCommand } from "./services/use-cases/devices/delete-other-devices.use-case"
-import { DeleteSpecialDeviceCommand } from "./services/use-cases/devices/delete-special-device.use-case"
-import { CreateCommentCommand } from "./services/use-cases/posts/create-comment.use-case"
-import { DeletePostCommand } from "./services/use-cases/posts/delete-post.use-case"
-import { UpdatePostLikeCommand } from "./services/use-cases/posts/update-post-like.use-case"
-import { UpdatePostCommand } from "./services/use-cases/posts/update-post.use-case"
-import { CreateTokenCommand } from "./services/use-cases/tokens/create-token.use-case"
-import { VerifyTokenCommand } from "./services/use-cases/tokens/verify-token.use-case"
-import { CreateUserCommand } from "./services/use-cases/users/create-user.use-case"
-import { DeleteUserCommand } from "./services/use-cases/users/delete-user.use-case"
+import { Registration } from "./services/use-cases/auth/registration.use-case"
 import { TransactionScriptService } from "./services/transaction-script.service"
+import { ConfirmationResend } from "./services/use-cases/auth/confiramtion-resend.use-case"
+import { Confirmation } from "./services/use-cases/auth/confiramtion.use-case"
+import { Login } from "./services/use-cases/auth/login.use-case"
+import { Logout } from "./services/use-cases/auth/logout.use-case"
+import { NewPassword } from "./services/use-cases/auth/new-password.use-case"
+import { PasswordRecovery } from "./services/use-cases/auth/password-recovery.use-case"
+import { RefreshToken } from "./services/use-cases/auth/refresh-token.use-case"
+import { DeleteComment } from "./services/use-cases/comments/delete-comment.use-case"
+import { UpdateCommentLike } from "./services/use-cases/comments/update-comment-like.use-case"
+import { UpdateComment } from "./services/use-cases/comments/update-comment.use-case"
+import { DeleteOtherDevices } from "./services/use-cases/devices/delete-other-devices.use-case"
+import { DeleteSpecialDevice } from "./services/use-cases/devices/delete-special-device.use-case"
+import { CreateComment } from "./services/use-cases/posts/create-comment.use-case"
+import { DeletePost } from "./services/use-cases/posts/delete-post.use-case"
+import { UpdatePostLike } from "./services/use-cases/posts/update-post-like.use-case"
+import { UpdatePost } from "./services/use-cases/posts/update-post.use-case"
+import { CreateToken } from "./services/use-cases/tokens/create-token.use-case"
+import { VerifyToken } from "./services/use-cases/tokens/verify-token.use-case"
+import { CreateUser } from "./services/use-cases/users/create-user.use-case"
+import { DeleteUser } from "./services/use-cases/users/delete-user.use-case"
+
 
 
 const useCases = [
-  ConfirmationResendCommand,
-  ConfirmationCommand,
-  LoginCommand,
-  LogoutCommand,
-  NewPasswordCommand,
-  PasswordRecoveryCommand,
-  RefreshCommand,
-  RegistrationCommand,
   CreateBlog,
   UpdateBlog,
   DeleteBlog,
-  DeleteCommentCommand,
-  UpdateCommentCommand,
-  UpdateCommentLikeCommand,
-  DeleteOtherDevicesCommand,
-  DeleteSpecialDeviceCommand,
-  CreateCommentCommand,
-  DeletePostCommand,
-  UpdatePostLikeCommand,
-  UpdatePostCommand,
-  CreateTokenCommand,
-  VerifyTokenCommand,
-  CreateUserCommand,
-  DeleteUserCommand,
+  ConfirmationResend,
+  Confirmation,
+  Login,
+  Logout,
+  NewPassword,
+  PasswordRecovery,
+  RefreshToken,
+  Registration,
+  DeleteComment,
+  UpdateCommentLike,
+  UpdateComment,
+  DeleteOtherDevices,
+  DeleteSpecialDevice,
+  CreateComment,
+  DeletePost,
+  UpdatePostLike,
+  UpdatePost,
+  CreateToken,
+  VerifyToken,
+  CreateUser,
+  DeleteUser,
+  Registration,
 ]
 const services = [
   BlogsService,

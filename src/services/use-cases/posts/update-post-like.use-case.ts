@@ -10,7 +10,7 @@ export class UpdatePostLikeCommand {
 }
 
 @CommandHandler(UpdatePostLikeCommand)
-export class UpdateLike implements ICommandHandler<UpdatePostLikeCommand>{
+export class UpdatePostLike implements ICommandHandler<UpdatePostLikeCommand>{
     constructor(
         protected postsRepository: PostsRepository,
         protected usersRepository: UsersRepository,

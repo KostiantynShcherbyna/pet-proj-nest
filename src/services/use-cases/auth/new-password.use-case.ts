@@ -15,10 +15,10 @@ export class NewPasswordCommand {
 }
 
 @CommandHandler(NewPasswordCommand)
-export class Confirmation implements ICommandHandler<NewPasswordCommand>{
+export class NewPassword implements ICommandHandler<NewPasswordCommand>{
     constructor(
-        protected authRepository: AuthRepository,
         protected tokensService: TokensService,
+        protected authRepository: AuthRepository,
         protected usersRepository: UsersRepository,
         protected configService: ConfigService<ConfigType, true>,
     ) {

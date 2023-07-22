@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { ConfigType } from "src/configuration"
 import { Contract } from "src/contract"
 import { AuthRepository } from "src/repositories/auth.repository"
-import { RecoveryCodesModel } from "src/schemas/recovery-code.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "src/schemas/recovery-code.schema"
 import { TokensService } from "src/services/tokens.service"
 import { Secrets } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
@@ -18,9 +19,9 @@ export class PasswordRecoveryCommand {
 @CommandHandler(PasswordRecoveryCommand)
 export class PasswordRecovery implements ICommandHandler<PasswordRecoveryCommand> {
     constructor(
-        protected authRepository: AuthRepository,
-        protected RecoveryCodesModel: RecoveryCodesModel,
+        @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
         protected tokensService: TokensService,
+        protected authRepository: AuthRepository,
         protected configService: ConfigService<ConfigType, true>,
     ) {
     }

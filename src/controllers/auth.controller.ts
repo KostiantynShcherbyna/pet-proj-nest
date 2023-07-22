@@ -34,8 +34,8 @@ import { AuthGuard } from "@nestjs/passport"
 import { CommandBus } from "@nestjs/cqrs"
 import { LoginCommand } from "src/services/use-cases/auth/login.use-case"
 import { LogoutCommand } from "src/services/use-cases/auth/logout.use-case"
-import { RefreshCommand } from "src/services/use-cases/auth/refresh.use-case"
-import { RegistrationCommand } from "src/services/use-cases/auth/registration.use-case"
+import { RefreshTokenCommand } from "src/services/use-cases/auth/refresh-token.use-case"
+// import { RegistrationCommand } from "src/services/use-cases/auth/registration.use-case"
 import { ConfirmationCommand } from "src/services/use-cases/auth/confiramtion.use-case"
 import { ConfirmationResendCommand } from "src/services/use-cases/auth/confiramtion-resend.use-case"
 import { PasswordRecoveryCommand } from "src/services/use-cases/auth/password-recovery.use-case"
@@ -105,7 +105,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshTokenContract = await this.commandBus.execute(
-      new RefreshCommand(
+      new RefreshTokenCommand(
         deviceSession,
         ip,
         userAgent
@@ -127,9 +127,7 @@ export class AuthController {
   async registration(
     @Body() bodyRegistration: BodyRegistrationModel
   ) {
-    const registrationContract = await this.commandBus.execute(
-      new RegistrationCommand(bodyRegistration)
-    )
+    const registrationContract = await this.commandBus.execute(bodyRegistration)
 
     if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_EMAIL_EXIST, "email")

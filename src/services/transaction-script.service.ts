@@ -20,7 +20,7 @@ import { CommentDto } from "src/dto/comment.dto";
 @Injectable()
 export class TransactionScriptService {
     constructor(
-        protected PostsModel: PostsModel,
+        @InjectModel(Posts.name) protected PostsModel: PostsModel,
         protected blogsRepository: BlogsRepository,
         protected postsRepository: PostsRepository,
     ) {
