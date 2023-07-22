@@ -1,28 +1,29 @@
-import { BodyAuthModel } from "../body/body-auth.model"
+import { BodyAuthInputModel } from "../body/body-auth.input-model"
 import { IsDate, IsNotEmpty, IsString } from "class-validator"
+import { Optional } from "@nestjs/common"
 
-export class DeviceSessionModel {
+export class DeviceSessionOptionalModel {
+  @Optional()
   @IsString()
-  @IsNotEmpty()
   ip: string
 
+  @Optional()
   @IsString()
-  @IsNotEmpty()
   title: string
 
+  @Optional()
   @IsString()
-  @IsNotEmpty()
   lastActiveDate: string
 
+  @Optional()
   @IsString()
-  @IsNotEmpty()
   deviceId: string
 
+  @Optional()
   @IsString()
-  @IsNotEmpty()
   userId: string
 
+  @Optional()
   @IsDate()
-  @IsNotEmpty()
   expireAt: Date
 }
