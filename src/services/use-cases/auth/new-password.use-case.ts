@@ -10,12 +10,12 @@ import { TokensService } from "src/services/tokens.service"
 import { Secrets } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
-export class ConfirmationCommand {
+export class NewPasswordCommand {
     constructor(public newPassword: string, public recoveryCode: string) { }
 }
 
-@CommandHandler(ConfirmationCommand)
-export class Confirmation implements ICommandHandler<ConfirmationCommand>{
+@CommandHandler(NewPasswordCommand)
+export class Confirmation implements ICommandHandler<NewPasswordCommand>{
     constructor(
         protected authRepository: AuthRepository,
         protected tokensService: TokensService,
@@ -24,7 +24,7 @@ export class Confirmation implements ICommandHandler<ConfirmationCommand>{
     ) {
     }
 
-    async execute(command: ConfirmationCommand): Promise<Contract<null | boolean>> {
+    async execute(command: NewPasswordCommand): Promise<Contract<null | boolean>> {
 
         const passwordRecoveryCodeSecret = this.configService.get(Secrets.PASSWORD_RECOVERY_CODE_SECRET, { infer: true })
         const verifiedEmailDto = await this.tokensService.verifyToken(command.recoveryCode, passwordRecoveryCodeSecret)

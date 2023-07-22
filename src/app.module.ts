@@ -46,11 +46,87 @@ import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strate
 import { CreateBlog } from "./services/use-cases/blogs/create-blog.use-case"
 import { UpdateBlog } from "./services/use-cases/blogs/update-blog.use-case"
 import { DeleteBlog } from "./services/use-cases/blogs/delete-blog.use-case"
-import { CreatePost } from "./services/use-cases/blogs/create-post.use-case"
 import { CqrsModule } from "@nestjs/cqrs"
+import { ConfirmationResendCommand } from "./services/use-cases/auth/confiramtion-resend.use-case"
+import { ConfirmationCommand } from "./services/use-cases/auth/confiramtion.use-case"
+import { LoginCommand } from "./services/use-cases/auth/login.use-case"
+import { LogoutCommand } from "./services/use-cases/auth/logout.use-case"
+import { NewPasswordCommand } from "./services/use-cases/auth/new-password.use-case"
+import { PasswordRecoveryCommand } from "./services/use-cases/auth/password-recovery.use-case"
+import { RefreshCommand } from "./services/use-cases/auth/refresh.use-case"
+import { RegistrationCommand } from "./services/use-cases/auth/registration.use-case"
+import { DeleteCommentCommand } from "./services/use-cases/comments/delete-comment.use-case"
+import { UpdateCommentCommand } from "./services/use-cases/comments/update-comment.use-case"
+import { UpdateCommentLikeCommand } from "./services/use-cases/comments/update-comment-like.use-case"
+import { DeleteOtherDevicesCommand } from "./services/use-cases/devices/delete-other-devices.use-case"
+import { DeleteSpecialDeviceCommand } from "./services/use-cases/devices/delete-special-device.use-case"
+import { CreateCommentCommand } from "./services/use-cases/posts/create-comment.use-case"
+import { DeletePostCommand } from "./services/use-cases/posts/delete-post.use-case"
+import { UpdatePostLikeCommand } from "./services/use-cases/posts/update-post-like.use-case"
+import { UpdatePostCommand } from "./services/use-cases/posts/update-post.use-case"
+import { CreateTokenCommand } from "./services/use-cases/tokens/create-token.use-case"
+import { VerifyTokenCommand } from "./services/use-cases/tokens/verify-token.use-case"
+import { CreateUserCommand } from "./services/use-cases/users/create-user.use-case"
+import { DeleteUserCommand } from "./services/use-cases/users/delete-user.use-case"
+import { TransactionScriptService } from "./services/transaction-script.service"
 
 
-const useCases = [CreateBlog, UpdateBlog, DeleteBlog, CreatePost]
+const useCases = [
+  ConfirmationResendCommand,
+  ConfirmationCommand,
+  LoginCommand,
+  LogoutCommand,
+  NewPasswordCommand,
+  PasswordRecoveryCommand,
+  RefreshCommand,
+  RegistrationCommand,
+  CreateBlog,
+  UpdateBlog,
+  DeleteBlog,
+  DeleteCommentCommand,
+  UpdateCommentCommand,
+  UpdateCommentLikeCommand,
+  DeleteOtherDevicesCommand,
+  DeleteSpecialDeviceCommand,
+  CreateCommentCommand,
+  DeletePostCommand,
+  UpdatePostLikeCommand,
+  UpdatePostCommand,
+  CreateTokenCommand,
+  VerifyTokenCommand,
+  CreateUserCommand,
+  DeleteUserCommand,
+]
+const services = [
+  BlogsService,
+  PostsService,
+  UsersService,
+  AuthService,
+  CommentsService,
+  DevicesService,
+  TokensService,
+  AppService,
+  TransactionScriptService,
+]
+const repository = [
+  BlogsRepository,
+  BlogsQueryRepository,
+  PostsRepository,
+  PostsQueryRepository,
+  UsersRepository,
+  UsersQueryRepository,
+  CommentsRepository,
+  CommentsQueryRepository,
+  AuthQueryRepository,
+  AuthRepository,
+  DevicesRepository,
+]
+const otherProviders = [
+  throttler,
+  JwtService,
+  LoginLocalStrategy,
+  BlogIdIsExist,
+]
 
 
 @Module({
@@ -94,33 +170,9 @@ const useCases = [CreateBlog, UpdateBlog, DeleteBlog, CreatePost]
     DevicesController,
   ],
   providers: [
-    throttler,
-    JwtService,
-    LoginLocalStrategy,
-
-    BlogsService,
-    PostsService,
-    UsersService,
-    AuthService,
-    CommentsService,
-    DevicesService,
-    TokensService,
-    AppService,
-
-    BlogsRepository,
-    BlogsQueryRepository,
-    PostsRepository,
-    PostsQueryRepository,
-    UsersRepository,
-    UsersQueryRepository,
-    CommentsRepository,
-    CommentsQueryRepository,
-    AuthQueryRepository,
-    AuthRepository,
-    DevicesRepository,
-
-    BlogIdIsExist,
-
+    ...otherProviders,
+    ...services,
+    ...repository,
     ...useCases,
   ],
 })

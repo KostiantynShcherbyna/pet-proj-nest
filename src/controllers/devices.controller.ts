@@ -18,12 +18,16 @@ import { ObjectIdDeviceIdModel } from "../models/uri/deviceId.model"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { DeleteOtherDevicesCommand } from "src/services/use-cases/devices/delete-other-devices.use-case"
+import { DeleteSpecialDeviceCommand } from "src/services/use-cases/devices/delete-special-device.use-case"
+import { CommandBus } from "@nestjs/cqrs"
 
 @Controller("security")
 export class DevicesController {
   constructor(
-    @Inject(DevicesService) protected devicesService: DevicesService,
-    @Inject(AuthQueryRepository) protected authQueryRepository: AuthQueryRepository
+    private commandBus: CommandBus,
+    protected devicesService: DevicesService,
+    protected authQueryRepository: AuthQueryRepository,
   ) {
   }
 
@@ -41,7 +45,7 @@ export class DevicesController {
   async deleteOtherDevices(
     @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
   ) {
-    const result = await this.devicesService.deleteOtherDevices(deviceSession.userId, deviceSession.deviceId)
+    const result = await this.commandBus.execute(new DeleteOtherDevicesCommand(deviceSession.userId, deviceSession.deviceId))
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
     if (result.error === ErrorEnums.DEVICES_NOT_DELETE) throw new UnauthorizedException()
     return
@@ -52,9 +56,9 @@ export class DevicesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
     @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
-    @Param() params: ObjectIdDeviceIdModel,
+    @Param() param: ObjectIdDeviceIdModel,
   ) {
-    const result = await this.devicesService.deleteSpecialDevice(params.deviceId, deviceSession.userId)
+    const result = await this.commandBus.execute(new DeleteSpecialDeviceCommand(param.deviceId, deviceSession.userId))
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )

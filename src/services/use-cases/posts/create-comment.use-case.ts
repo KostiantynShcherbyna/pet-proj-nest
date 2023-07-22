@@ -18,7 +18,7 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 import { CommentView } from "src/views/comment.view"
 
 export class CreateCommentCommand {
-    constructor({ userId, postId, content }: CommentDto) { }
+    constructor(public userId: string, public postId: string, public content: string) { }
 }
 
 @CommandHandler(CreateCommentCommand)
@@ -32,16 +32,16 @@ export class CreateComment implements ICommandHandler<CreateCommentCommand> {
     ) {
     }
 
-    async execute({ userId, postId, content }: CommentDto): Promise<Contract<CommentView | null>> {
+    async execute(command: CreateCommentCommand): Promise<Contract<CommentView | null>> {
 
-        const userDto = ["_id", new Types.ObjectId(userId)]
+        const userDto = ["_id", new Types.ObjectId(command.userId)]
         const user = await this.usersRepository.findUser(userDto)
         if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-        const foundPost = await this.postsRepository.findPost(postId)
+        const foundPost = await this.postsRepository.findPost(command.postId)
         if (foundPost === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
 
-        const newComment = this.CommentsModel.createComment(postId, content, user, this.CommentsModel)
+        const newComment = this.CommentsModel.createComment(command.postId, command.content, user, this.CommentsModel)
         await this.commentsRepository.saveDocument(newComment)
 
         const foundCommentView = await this.commentsQueryRepository.findComment(newComment.id)

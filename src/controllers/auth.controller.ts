@@ -31,12 +31,22 @@ import { AccessGuard } from "src/guards/access.guard"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
 import { AuthGuard } from "@nestjs/passport"
+import { CommandBus } from "@nestjs/cqrs"
+import { LoginCommand } from "src/services/use-cases/auth/login.use-case"
+import { LogoutCommand } from "src/services/use-cases/auth/logout.use-case"
+import { RefreshCommand } from "src/services/use-cases/auth/refresh.use-case"
+import { RegistrationCommand } from "src/services/use-cases/auth/registration.use-case"
+import { ConfirmationCommand } from "src/services/use-cases/auth/confiramtion.use-case"
+import { ConfirmationResendCommand } from "src/services/use-cases/auth/confiramtion-resend.use-case"
+import { PasswordRecoveryCommand } from "src/services/use-cases/auth/password-recovery.use-case"
+import { NewPasswordCommand } from "src/services/use-cases/auth/new-password.use-case"
 
 @Controller("auth")
 export class AuthController {
   constructor(
-    @Inject(AuthService) protected authService: AuthService,
-    @Inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository
+    protected authService: AuthService,
+    protected usersQueryRepository: UsersQueryRepository,
+    protected commandBus: CommandBus
   ) {
   }
 
@@ -45,12 +55,18 @@ export class AuthController {
   @UseGuards(AuthGuard(StrategyNames.loginLocalStrategy))
   @HttpCode(HttpStatus.OK)
   async login(
-    @Headers("user-agent") userAgent: string | "defaultName",
+    @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
     @Body() bodyAuth: BodyAuthModel,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const loginContract = await this.authService.login(bodyAuth, ip, userAgent)
+    const loginContract = await this.commandBus.execute(
+      new LoginCommand(
+        bodyAuth,
+        ip,
+        userAgent
+      )
+    )
 
     if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException()
@@ -67,7 +83,9 @@ export class AuthController {
   async logout(
     @DeviceSessionDecorator() deviceSession: DeviceSessionModel
   ) {
-    const logoutContract = await this.authService.logout(deviceSession)
+    const logoutContract = await this.commandBus.execute(
+      new LogoutCommand(deviceSession)
+    )
 
     if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (logoutContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
@@ -86,7 +104,13 @@ export class AuthController {
     @Ip() ip: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshTokenContract = await this.authService.refreshToken(deviceSession, ip, userAgent)
+    const refreshTokenContract = await this.commandBus.execute(
+      new RefreshCommand(
+        deviceSession,
+        ip,
+        userAgent
+      )
+    )
 
     if (refreshTokenContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (refreshTokenContract.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
@@ -103,7 +127,9 @@ export class AuthController {
   async registration(
     @Body() bodyRegistration: BodyRegistrationModel
   ) {
-    const registrationContract = await this.authService.registration(bodyRegistration)
+    const registrationContract = await this.commandBus.execute(
+      new RegistrationCommand(bodyRegistration)
+    )
 
     if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_EMAIL_EXIST, "email")
@@ -123,7 +149,9 @@ export class AuthController {
   async confirmation(
     @Body() bodyConfirmation: BodyConfirmationModel
   ) {
-    const confirmationContract = await this.authService.confirmation(bodyConfirmation.code)
+    const confirmationContract = await this.commandBus.execute(
+      new ConfirmationCommand(bodyConfirmation.code)
+    )
 
     if (confirmationContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "code")
@@ -144,7 +172,9 @@ export class AuthController {
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendModel
   ) {
-    const confirmationResendContract = await this.authService.confirmationResend(bodyConfirmationResend.email)
+    const confirmationResendContract = await this.commandBus.execute(
+      new ConfirmationResendCommand(bodyConfirmationResend.email)
+    )
 
     if (confirmationResendContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "email")
@@ -176,7 +206,9 @@ export class AuthController {
   async passwordRecovery(
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
   ) {
-    const isRecoveryContract = await this.authService.passwordRecovery(bodyPasswordRecovery.email)
+    const isRecoveryContract = await this.commandBus.execute(
+      new PasswordRecoveryCommand(bodyPasswordRecovery.email)
+    )
 
     if (isRecoveryContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
     if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
@@ -190,7 +222,12 @@ export class AuthController {
   async newPassword(
     @Body() bodyNewPassword: BodyNewPasswordModel
   ) {
-    const newPasswordContract = await this.authService.newPassword(bodyNewPassword.newPassword, bodyNewPassword.recoveryCode)
+    const newPasswordContract = await this.commandBus.execute(
+      new NewPasswordCommand(
+        bodyNewPassword.newPassword,
+        bodyNewPassword.recoveryCode
+      )
+    )
 
     if (newPasswordContract.error === ErrorEnums.TOKEN_NOT_VERIFY) throw new BadRequestException(
       callErrorMessage(ErrorEnums.TOKEN_NOT_VERIFY, "recoveryCode")

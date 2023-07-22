@@ -4,19 +4,19 @@ import { Contract } from "src/contract"
 import { CommentsRepository } from "src/repositories/comments.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
-export class UpdateLikeCommand {
+export class UpdateCommentLikeCommand {
     constructor(public userId: string, public commentId: string, public newLikeStatus: string) { }
 }
 
 
-@CommandHandler(UpdateLikeCommand)
-export class UpdateLike implements ICommandHandler<UpdateLikeCommand> {
+@CommandHandler(UpdateCommentLikeCommand)
+export class UpdateLike implements ICommandHandler<UpdateCommentLikeCommand> {
     constructor(
         protected commentsRepository: CommentsRepository,
     ) {
     }
 
-    async execute(command: UpdateLikeCommand): Promise<Contract<boolean | null>> {
+    async execute(command: UpdateCommentLikeCommand): Promise<Contract<boolean | null>> {
 
         const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);

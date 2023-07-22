@@ -5,19 +5,19 @@ import { PostsRepository } from "src/repositories/posts.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
-export class UpdateLikeCommand {
+export class UpdatePostLikeCommand {
     constructor(public userId: string, public postId: string, public newLikeStatus: string) { }
 }
 
-@CommandHandler(UpdateLikeCommand)
-export class UpdateLike implements ICommandHandler<UpdateLikeCommand>{
+@CommandHandler(UpdatePostLikeCommand)
+export class UpdateLike implements ICommandHandler<UpdatePostLikeCommand>{
     constructor(
         protected postsRepository: PostsRepository,
         protected usersRepository: UsersRepository,
     ) {
     }
 
-    async execute(comamnd: UpdateLikeCommand) {
+    async execute(comamnd: UpdatePostLikeCommand) {
         const post = await this.postsRepository.findPost(comamnd.postId);
         if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
 

@@ -16,13 +16,13 @@ import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recovery-code.sche
 @Controller("testing")
 export class TestingController {
   constructor(
-    @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
-    @InjectModel(Posts.name) protected PostsModel: PostsModel,
-    @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
-    @InjectModel(Users.name) protected UsersModel: UsersModel,
-    @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
-    @InjectModel(RequestAttempts.name) protected AttemptRequestsModel: RequestAttemptsModel,
-    @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel
+    protected BlogsModel: BlogsModel,
+    protected PostsModel: PostsModel,
+    protected CommentsModel: CommentsModel,
+    protected UsersModel: UsersModel,
+    protected DevicesModel: DevicesModel,
+    protected AttemptRequestsModel: RequestAttemptsModel,
+    protected RecoveryCodesModel: RecoveryCodesModel
   ) {
   }
 

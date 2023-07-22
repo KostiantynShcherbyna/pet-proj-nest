@@ -18,12 +18,17 @@ import { ObjectIdIdModel } from "../models/uri/id.model"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { BasicGuard } from "src/guards/basic.guard"
+import { CreateUserCommand } from "src/services/use-cases/users/create-user.use-case"
+import { DeletePostCommand } from "src/services/use-cases/posts/delete-post.use-case"
+import { DeleteUserCommand } from "src/services/use-cases/users/delete-user.use-case"
+import { CommandBus } from "@nestjs/cqrs"
 
 @Controller("users")
 export class UsersController {
   constructor(
-    @Inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository,
-    @Inject(UsersService) protected usersService: UsersService
+    private commandBus: CommandBus,
+    protected usersQueryRepository: UsersQueryRepository,
+    protected usersService: UsersService
   ) {
   }
 
@@ -39,16 +44,20 @@ export class UsersController {
   async createUser(
     @Body() bodyUser: BodyUserModel
   ) {
-    return await this.usersService.createUser(bodyUser)
+    return await this.commandBus.execute(
+      new CreateUserCommand(bodyUser)
+    )
   }
 
   @UseGuards(BasicGuard)
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(
-    @Param() params: ObjectIdIdModel
+  async deleteUser(
+    @Param() param: ObjectIdIdModel
   ) {
-    const resultContruct = await this.usersService.deleteUser(params.id)
+    const resultContruct = await this.commandBus.execute(
+      new DeleteUserCommand(param.id)
+    )
     if (resultContruct.error === ErrorEnums.USER_NOT_DELETE) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_DELETE, "id")
     )

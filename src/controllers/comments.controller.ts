@@ -17,12 +17,17 @@ import { OptionalDeviceSessionModel } from "../models/request/optional-device-se
 import { AccessMiddleware } from "../guards/access.middleware"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { AccessGuard } from "src/guards/access.guard"
+import { UpdateCommentCommand } from "src/services/use-cases/comments/update-comment.use-case"
+import { DeleteCommentCommand } from "src/services/use-cases/comments/delete-comment.use-case"
+import { UpdateCommentLikeCommand } from "src/services/use-cases/comments/update-comment-like.use-case"
+import { CommandBus } from "@nestjs/cqrs"
 
 @Controller("comments")
 export class CommentsController {
   constructor(
-    @Inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
-    @Inject(CommentsService) protected commentsService: CommentsService
+    private commandBus: CommandBus,
+    protected commentsQueryRepository: CommentsQueryRepository,
+    protected commentsService: CommentsService
   ) {
   }
 
@@ -30,9 +35,9 @@ export class CommentsController {
   @Get(":id")
   async getComment(
     @Req() req: Request & { deviceSession: OptionalDeviceSessionModel },
-    @Param() params: ObjectIdIdModel
+    @Param() param: ObjectIdIdModel
   ) {
-    const commentView = await this.commentsQueryRepository.findComment(params.id, req.deviceSession?.userId)
+    const commentView = await this.commentsQueryRepository.findComment(param.id, req.deviceSession?.userId)
     if (commentView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "id")
     )
@@ -44,10 +49,10 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateComment(
     @Req() req: Request & { deviceSession: DeviceSessionModel },
-    @Param() params: ObjectIdCommentIdModel,
+    @Param() param: ObjectIdCommentIdModel,
     @Body() bodyComment: BodyCommentModel
   ) {
-    const comment = await this.commentsService.updateComment(req.deviceSession.userId, params.commentId, bodyComment.content)
+    const comment = await this.commandBus.execute(new UpdateCommentCommand(req.deviceSession.userId, param.commentId, bodyComment.content))
     if (comment.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId")
     )
@@ -62,9 +67,9 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(
     @Req() req: Request & { deviceSession: DeviceSessionModel },
-    @Param() params: ObjectIdCommentIdModel
+    @Param() param: ObjectIdCommentIdModel
   ) {
-    const comment = await this.commentsService.deleteComment(req.deviceSession.userId, params.commentId)
+    const comment = await this.commandBus.execute(new DeleteCommentCommand(req.deviceSession.userId, param.commentId))
     if (comment.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId")
     )
@@ -82,10 +87,10 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @Req() req: Request & { deviceSession: DeviceSessionModel },
-    @Param() params: ObjectIdCommentIdModel,
+    @Param() param: ObjectIdCommentIdModel,
     @Body() bodyLike: BodyLikeModel
   ) {
-    const comment = await this.commentsService.updateLike(req.deviceSession.userId, params.commentId, bodyLike.likeStatus)
+    const comment = await this.commandBus.execute(new UpdateCommentLikeCommand(req.deviceSession.userId, param.commentId, bodyLike.likeStatus))
     if (comment.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId")
     )
