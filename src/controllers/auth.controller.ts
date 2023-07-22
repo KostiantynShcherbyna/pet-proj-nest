@@ -2,44 +2,43 @@ import {
   BadRequestException,
   Body,
   Controller,
-  HttpCode,
-  Inject,
-  Ip,
+  Get,
   Headers,
-  Post,
+  HttpCode,
   HttpStatus,
-  Req,
-  UseGuards,
-  NotFoundException,
-  Get, Res, UnauthorizedException, InternalServerErrorException
+  InternalServerErrorException,
+  Ip,
+  Post,
+  Res, UnauthorizedException,
+  UseGuards
 } from "@nestjs/common"
-import { BodyAuthModel } from "src/models/body/body-auth.model"
-import { BodyNewPasswordModel } from "src/models/body/body-new-password.model"
-import { BodyPasswordRecoveryModel } from "src/models/body/body-password-recovery.model"
-import { BodyConfirmationModel } from "src/models/body/body-confirmation.model"
-import { BodyRegistrationModel } from "src/models/body/body-registration.model"
-import { BodyConfirmationResendModel } from "src/models/body/body-registration-resend.model"
-import { DeviceSessionModel } from "src/models/request/device-session.model"
+import { CommandBus } from "@nestjs/cqrs"
+import { AuthGuard } from "@nestjs/passport"
+import { Throttle } from "@nestjs/throttler"
+import { Response } from "express"
+import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { AccessGuard } from "src/guards/access.guard"
 import { RefreshGuard } from "src/guards/refresh.guard"
+import { BodyAuthInputModel } from "src/input-models/body/body-auth.input-model"
+import { BodyConfirmationInputModel } from "src/input-models/body/body-confirmation.input-model"
+import { BodyNewPasswordInputModel } from "src/input-models/body/body-new-password.input-model"
+import { BodyPasswordRecoveryInputModel } from "src/input-models/body/body-password-recovery.input-model"
+import { BodyConfirmationResendInputModel } from "src/input-models/body/body-registration-resend.input-model"
+import { BodyRegistrationInputModel } from "src/input-models/body/body-registration.input-model"
+import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
 import { AuthService } from "src/services/auth.service"
-import { ErrorEnums } from "src/utils/errors/error-enums"
-import { Response } from "express"
-import { Throttle } from "@nestjs/throttler"
-import { StrategyNames, USER_AGENT } from "src/utils/constants/constants"
-import { AccessGuard } from "src/guards/access.guard"
-import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
-import { AuthGuard } from "@nestjs/passport"
-import { CommandBus } from "@nestjs/cqrs"
+import { ConfirmationResendCommand } from "src/services/use-cases/auth/confiramtion-resend.use-case"
+import { ConfirmationCommand } from "src/services/use-cases/auth/confiramtion.use-case"
 import { LoginCommand } from "src/services/use-cases/auth/login.use-case"
 import { LogoutCommand } from "src/services/use-cases/auth/logout.use-case"
-import { RefreshTokenCommand } from "src/services/use-cases/auth/refresh-token.use-case"
-// import { RegistrationCommand } from "src/services/use-cases/auth/registration.use-case"
-import { ConfirmationCommand } from "src/services/use-cases/auth/confiramtion.use-case"
-import { ConfirmationResendCommand } from "src/services/use-cases/auth/confiramtion-resend.use-case"
-import { PasswordRecoveryCommand } from "src/services/use-cases/auth/password-recovery.use-case"
 import { NewPasswordCommand } from "src/services/use-cases/auth/new-password.use-case"
+import { PasswordRecoveryCommand } from "src/services/use-cases/auth/password-recovery.use-case"
+import { RefreshTokenCommand } from "src/services/use-cases/auth/refresh-token.use-case"
+import { RegistrationCommand } from "src/services/use-cases/auth/registration.use-case"
+import { StrategyNames, USER_AGENT } from "src/utils/constants/constants"
+import { ErrorEnums } from "src/utils/errors/error-enums"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
 
 @Controller("auth")
 export class AuthController {
@@ -57,7 +56,7 @@ export class AuthController {
   async login(
     @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
-    @Body() bodyAuth: BodyAuthModel,
+    @Body() bodyAuth: BodyAuthInputModel,
     @Res({ passthrough: true }) res: Response,
   ) {
     const loginContract = await this.commandBus.execute(
@@ -81,10 +80,17 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel
   ) {
     const logoutContract = await this.commandBus.execute(
-      new LogoutCommand(deviceSession)
+      new LogoutCommand(
+        deviceSession.deviceId,
+        deviceSession.expireAt,
+        deviceSession.ip,
+        deviceSession.lastActiveDate,
+        deviceSession.title,
+        deviceSession.userId
+      )
     )
 
     if (logoutContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
@@ -99,7 +105,7 @@ export class AuthController {
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
   async refreshToken(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
     @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
     @Res({ passthrough: true }) res: Response,
@@ -125,9 +131,15 @@ export class AuthController {
   @Post("registration")
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
-    @Body() bodyRegistration: BodyRegistrationModel
+    @Body() bodyRegistration: BodyRegistrationInputModel
   ) {
-    const registrationContract = await this.commandBus.execute(bodyRegistration)
+    const registrationContract = await this.commandBus.execute(
+      new RegistrationCommand(
+        bodyRegistration.login,
+        bodyRegistration.email,
+        bodyRegistration.password
+      )
+    )
 
     if (registrationContract.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_EMAIL_EXIST, "email")
@@ -145,7 +157,7 @@ export class AuthController {
   @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
-    @Body() bodyConfirmation: BodyConfirmationModel
+    @Body() bodyConfirmation: BodyConfirmationInputModel
   ) {
     const confirmationContract = await this.commandBus.execute(
       new ConfirmationCommand(bodyConfirmation.code)
@@ -168,7 +180,7 @@ export class AuthController {
   @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
-    @Body() bodyConfirmationResend: BodyConfirmationResendModel
+    @Body() bodyConfirmationResend: BodyConfirmationResendInputModel
   ) {
     const confirmationResendContract = await this.commandBus.execute(
       new ConfirmationResendCommand(bodyConfirmationResend.email)
@@ -189,7 +201,7 @@ export class AuthController {
   @UseGuards(AccessGuard)
   @Get("me")
   async getMe(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
   ) {
     const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
 
@@ -202,7 +214,7 @@ export class AuthController {
   @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
-    @Body() bodyPasswordRecovery: BodyPasswordRecoveryModel
+    @Body() bodyPasswordRecovery: BodyPasswordRecoveryInputModel
   ) {
     const isRecoveryContract = await this.commandBus.execute(
       new PasswordRecoveryCommand(bodyPasswordRecovery.email)
@@ -218,7 +230,7 @@ export class AuthController {
   @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
-    @Body() bodyNewPassword: BodyNewPasswordModel
+    @Body() bodyNewPassword: BodyNewPasswordInputModel
   ) {
     const newPasswordContract = await this.commandBus.execute(
       new NewPasswordCommand(

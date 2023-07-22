@@ -1,6 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Types } from "mongoose";
 import { Contract } from "src/contract";
 import { CommentsRepository } from "src/repositories/comments.repository";
 import { Comments, CommentsModel } from "src/schemas/comments.schema";

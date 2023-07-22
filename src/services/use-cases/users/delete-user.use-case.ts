@@ -6,7 +6,9 @@ import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeleteUserCommand {
-    constructor(public id: string) { }
+    constructor(
+        public id: string
+        ) { }
 }
 
 @CommandHandler(DeleteUserCommand)
@@ -20,7 +22,8 @@ export class DeleteUser {
     async execute(command: DeleteUserCommand): Promise<Contract<null | boolean>> {
 
         const deleteUserContract = await this.UsersModel.deleteUser(
-            command.id, this.UsersModel
+            command.id,
+            this.UsersModel,
         )
         if (deleteUserContract.data === 0)
             return new Contract(null, ErrorEnums.USER_NOT_DELETE)

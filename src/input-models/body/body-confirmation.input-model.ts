@@ -1,7 +1,7 @@
 import { Transform, TransformFnParams } from "class-transformer"
 import { IsNotEmpty, IsString } from "class-validator"
 
-export class BodyConfirmationModel {
+export class BodyConfirmationInputModel {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())

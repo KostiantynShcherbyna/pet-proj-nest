@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"

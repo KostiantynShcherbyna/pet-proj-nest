@@ -1,25 +1,22 @@
-import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { ConfigType } from "src/configuration"
 import { Contract } from "src/contract"
-import { BodyAuthModel } from "src/models/body/body-auth.model"
-import { BodyUserModel } from "src/models/body/body-user.model"
+import { BodyAuthInputModel } from "src/input-models/body/body-auth.input-model"
 import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "src/schemas/recovery-code.schema"
-import { Users, UsersDocument, UsersModel } from "src/schemas/users.schema"
+import { Users, UsersModel } from "src/schemas/users.schema"
 import { TokensService } from "src/services/tokens.service"
 import { Secrets } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { TokensView } from "src/views/tokens.view"
-import { UserView } from "src/views/user.view"
 
 export class LoginCommand {
-    constructor(public loginBody: BodyAuthModel, public deviceIp: string, public userAgent: string) { }
+    constructor(public loginBody: BodyAuthInputModel, public deviceIp: string, public userAgent: string) { }
 }
 
 @CommandHandler(LoginCommand)

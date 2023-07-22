@@ -1,10 +1,9 @@
-import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Types } from "mongoose"
 import { ConfigType } from "src/configuration"
 import { Contract } from "src/contract"
-import { DeviceSessionModel } from "src/models/request/device-session.model"
+import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Secrets } from "src/utils/constants/constants"
@@ -13,7 +12,7 @@ import { TokensView } from "src/views/tokens.view"
 
 
 export class RefreshTokenCommand {
-    constructor(public deviceSession: DeviceSessionModel, public deviceIp: string, public userAgent: string) { }
+    constructor(public deviceSession: DeviceSessionInputModel, public deviceIp: string, public userAgent: string) { }
 }
 
 @CommandHandler(RefreshTokenCommand)

@@ -1,10 +1,7 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { BodyBlogModel } from "src/models/body/body-blog.model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
-import { Posts } from "src/schemas/posts.schema"
 import { BlogView } from "src/views/blog.view"
 
 

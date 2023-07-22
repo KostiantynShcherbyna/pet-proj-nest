@@ -7,7 +7,7 @@ import {
 } from "../../utils/constants/constants"
 import { Transform, TransformFnParams } from "class-transformer"
 
-export class BodyBlogModel {
+export class BodyBlogInputModel {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())

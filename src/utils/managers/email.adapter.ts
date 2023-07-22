@@ -1,6 +1,5 @@
-import { RecoveryCodesDocument } from "src/schemas/recovery-code.schema"
-import { emailManager } from "./email.manager"
 import { UsersDocument } from "src/schemas/users.schema"
+import { emailManager } from "./email.manager"
 
 export const emailAdapter = {
     async sendConfirmationCode(user: UsersDocument) {

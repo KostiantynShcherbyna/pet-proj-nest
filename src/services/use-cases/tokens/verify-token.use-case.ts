@@ -1,9 +1,11 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { JwtService } from "@nestjs/jwt"
 
 export class VerifyTokenCommand {
-    constructor(public token: string, public secret: string) { }
+    constructor(
+        public token: string,
+        public secret: string
+    ) { }
 }
 
 @CommandHandler(VerifyTokenCommand)
@@ -15,7 +17,10 @@ export class VerifyToken implements ICommandHandler<VerifyTokenCommand>{
 
     async execute(command: VerifyTokenCommand): Promise<null | any> {
         try {
-            const result = await this.jwtService.verifyAsync(command.token, { secret: command.secret })
+            const result = await this.jwtService.verifyAsync(
+                command.token,
+                { secret: command.secret }
+            )
             return result
 
         } catch (err) {

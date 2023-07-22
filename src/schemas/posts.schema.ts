@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory, raw } from "@nestjs/mongoose"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { BodyPostModel } from "src/models/body/body-post.model"
+import { BodyPostInputModel } from "src/input-models/body/body-post.input-model"
 import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
@@ -8,7 +8,7 @@ import {
   MyStatus
 } from "src/utils/constants/constants"
 import { UsersDocument } from "./users.schema"
-import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
+import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
 import { Contract } from "src/contract"
 
 
@@ -119,7 +119,7 @@ export class Posts {
     }))
   extendedLikesInfo: IExtendedLikesInfo
 
-  static createPost(bodyBlogPost: BodyBlogPostModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument {
+  static createPost(bodyBlogPost: BodyBlogPostInputModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument {
 
     const date = new Date().toISOString()
 
@@ -150,7 +150,7 @@ export class Posts {
 
 
 
-  updatePost(bodyPostDto: BodyPostModel) {
+  updatePost(bodyPostDto: BodyPostInputModel) {
     this.title = bodyPostDto.title
     this.shortDescription = bodyPostDto.shortDescription
     this.content = bodyPostDto.content
@@ -247,7 +247,7 @@ export class Posts {
 
 }
 interface PostsStatics {
-  createPost(bodyBlogPost: BodyBlogPostModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument;
+  createPost(bodyBlogPost: BodyBlogPostInputModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument;
   deletePost(id: string, PostsModel: PostsModel): Promise<Contract<number>>
 }
 

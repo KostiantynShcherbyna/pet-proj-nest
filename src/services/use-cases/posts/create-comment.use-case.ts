@@ -1,24 +1,21 @@
-import { Inject, Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/contract"
-import { CommentDto } from "src/dto/comment.dto"
-import { BodyBlogModel } from "src/models/body/body-blog.model"
-import { BodyPostModel } from "src/models/body/body-post.model"
-import { BlogsRepository } from "src/repositories/blogs.repository"
 import { CommentsRepository } from "src/repositories/comments.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
 import { UsersRepository } from "src/repositories/users.repository"
-import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
-import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { CommentView } from "src/views/comment.view"
 
 export class CreateCommentCommand {
-    constructor(public userId: string, public postId: string, public content: string) { }
+    constructor(
+        public userId: string,
+        public postId: string,
+        public content: string,
+    ) { }
 }
 
 @CommandHandler(CreateCommentCommand)

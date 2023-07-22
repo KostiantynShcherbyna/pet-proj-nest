@@ -1,11 +1,14 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
-import { BodyPostModel } from "src/models/body/body-post.model"
+import { BodyPostInputModel } from "src/input-models/body/body-post.input-model"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class UpdatePostCommand {
-    constructor(public body: BodyPostModel, public id: string) { }
+    constructor(
+        public body: BodyPostInputModel,
+        public id: string
+    ) { }
 }
 
 @CommandHandler(UpdatePostCommand)

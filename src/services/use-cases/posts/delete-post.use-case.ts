@@ -5,7 +5,9 @@ import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeletePostCommand {
-    constructor(public id: string) { }
+    constructor(
+        public id: string
+    ) { }
 }
 
 @CommandHandler(DeletePostCommand)

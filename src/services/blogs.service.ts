@@ -1,19 +1,17 @@
-import { HttpException, Inject, Injectable } from "@nestjs/common"
+import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Model, Types } from "mongoose"
 import { Contract } from "src/contract"
-import { BodyBlogModel } from "src/models/body/body-blog.model"
-import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
+import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
+import { BodyBlogInputModel } from "src/input-models/body/body-blog.input-model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
-import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
+import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { MyStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { dtoManager } from "src/utils/managers/dto.manager"
 import { BlogView } from "src/views/blog.view"
 import { PostView } from "src/views/post.view"
-import { ObjectIdIdModel } from "../models/uri/id.model"
 
 @Injectable()
 export class BlogsService {
@@ -25,7 +23,7 @@ export class BlogsService {
   ) {
   }
 
-  async createBlog(bodyBlog: BodyBlogModel): Promise<BlogView> {
+  async createBlog(bodyBlog: BodyBlogInputModel): Promise<BlogView> {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
     const newBlog = this.BlogsModel
       .createBlog(
@@ -41,7 +39,7 @@ export class BlogsService {
 
 
 
-  async updateBlog(id: string, bodyBlog: BodyBlogModel): Promise<Contract<null | boolean>> {
+  async updateBlog(id: string, bodyBlog: BodyBlogInputModel): Promise<Contract<null | boolean>> {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
 
     const blog = await this.blogsRepository.findBlog(id)
@@ -70,7 +68,7 @@ export class BlogsService {
 
 
 
-  async createPost(bodyBlogPostModel: BodyBlogPostModel, blogId: string): Promise<Contract<null | PostView>> {
+  async createPost(bodyBlogPostModel: BodyBlogPostInputModel, blogId: string): Promise<Contract<null | PostView>> {
     const foundBlog = await this.blogsRepository.findBlog(blogId)
     if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 

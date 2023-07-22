@@ -1,8 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Types } from "mongoose"
 import { Contract } from "src/contract"
-import { BodyUserModel } from "src/models/body/body-user.model"
+import { BodyUserInputModel } from "src/input-models/body/body-user.input-model"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
@@ -17,7 +16,7 @@ export class UsersService {
     ) { }
 
 
-    async createUser(newUserData: BodyUserModel): Promise<UserView> {
+    async createUser(newUserData: BodyUserInputModel): Promise<UserView> {
 
         const newUser = await this.UsersModel.createUser(newUserData, this.UsersModel)
         await this.usersRepository.saveDocument(newUser)

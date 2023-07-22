@@ -6,9 +6,7 @@ import { HydratedDocument, Model, Types } from "mongoose"
 import { CreateDeviceDto } from "src/dto/create-device.dto"
 import { CreateDeviceTokensDto } from "src/dto/create-device-tokens.dto"
 import { RefreshDeviceTokensDto } from "src/dto/refresh-device-tokens.dto"
-import { TokensService } from "src/services/tokens.service"
 import { ACCESS_EXPIRES_TIME, EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH, REFRESH_EXPIRES_TIME } from "src/utils/constants/constants"
-import { configuration } from "src/configuration"
 import { RefreshDeviceDto } from "src/dto/refresh-device.dto"
 
 
@@ -51,7 +49,10 @@ export class Devices {
   })
   expireAt: Date
 
-  static async createDevice({ deviceIp, userAgent, userId, accessJwtSecret, refreshJwtSecret }: CreateDeviceDto, DevicesModel: DevicesModel): Promise<CreateDeviceTokensDto> {
+  static async createDevice(
+    { deviceIp, userAgent, userId, accessJwtSecret, refreshJwtSecret }: CreateDeviceDto,
+    DevicesModel: DevicesModel
+  ): Promise<CreateDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 

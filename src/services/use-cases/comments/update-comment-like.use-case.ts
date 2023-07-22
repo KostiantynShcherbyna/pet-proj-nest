@@ -1,11 +1,14 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { Contract } from "src/contract"
-import { CommentsRepository } from "src/repositories/comments.repository"
-import { ErrorEnums } from "src/utils/errors/error-enums"
+import { Contract } from "src/contract";
+import { CommentsRepository } from "src/repositories/comments.repository";
+import { ErrorEnums } from "src/utils/errors/error-enums";
 
 export class UpdateCommentLikeCommand {
-    constructor(public userId: string, public commentId: string, public newLikeStatus: string) { }
+    constructor(
+        public userId: string,
+        public commentId: string,
+        public newLikeStatus: string
+    ) { }
 }
 
 

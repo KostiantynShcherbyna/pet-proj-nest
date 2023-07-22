@@ -1,26 +1,26 @@
 import {
   Controller,
   Delete,
+  ForbiddenException,
   Get,
-  Post,
-  Param,
-  NotFoundException,
   HttpCode,
-  Inject,
-  Req,
-  UseGuards, HttpStatus, ForbiddenException, UnauthorizedException
+  HttpStatus,
+  NotFoundException,
+  Param,
+  UnauthorizedException,
+  UseGuards
 } from "@nestjs/common"
-import { DevicesService } from "src/services/devices.service"
-import { AuthQueryRepository } from "src/repositories/query/auth.query.repository"
-import { RefreshGuard } from "src/guards/refresh.guard"
-import { DeviceSessionModel } from "src/models/request/device-session.model"
-import { ObjectIdDeviceIdModel } from "../models/uri/deviceId.model"
-import { ErrorEnums } from "src/utils/errors/error-enums"
-import { callErrorMessage } from "src/utils/managers/error-message.manager"
+import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { RefreshGuard } from "src/guards/refresh.guard"
+import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
+import { AuthQueryRepository } from "src/repositories/query/auth.query.repository"
+import { DevicesService } from "src/services/devices.service"
 import { DeleteOtherDevicesCommand } from "src/services/use-cases/devices/delete-other-devices.use-case"
 import { DeleteSpecialDeviceCommand } from "src/services/use-cases/devices/delete-special-device.use-case"
-import { CommandBus } from "@nestjs/cqrs"
+import { ErrorEnums } from "src/utils/errors/error-enums"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
+import { ObjectIdDeviceIdInputModel } from "../input-models/uri/deviceId.input-model"
 
 @Controller("security")
 export class DevicesController {
@@ -34,7 +34,7 @@ export class DevicesController {
   @UseGuards(RefreshGuard)
   @Get("devices")
   async getDevices(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
   ) {
     return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
   }
@@ -43,9 +43,14 @@ export class DevicesController {
   @Delete("devices")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
   ) {
-    const result = await this.commandBus.execute(new DeleteOtherDevicesCommand(deviceSession.userId, deviceSession.deviceId))
+    const result = await this.commandBus.execute(
+      new DeleteOtherDevicesCommand(
+        deviceSession.userId,
+        deviceSession.deviceId
+      )
+    )
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new UnauthorizedException()
     if (result.error === ErrorEnums.DEVICES_NOT_DELETE) throw new UnauthorizedException()
     return
@@ -55,10 +60,15 @@ export class DevicesController {
   @Delete("devices/:deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
-    @Param() param: ObjectIdDeviceIdModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @Param() param: ObjectIdDeviceIdInputModel,
   ) {
-    const result = await this.commandBus.execute(new DeleteSpecialDeviceCommand(param.deviceId, deviceSession.userId))
+    const result = await this.commandBus.execute(
+      new DeleteSpecialDeviceCommand(
+        param.deviceId,
+        deviceSession.userId
+      )
+    )
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )

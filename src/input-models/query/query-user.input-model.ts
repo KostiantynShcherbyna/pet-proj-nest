@@ -1,12 +1,17 @@
-import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Length, MaxLength, Min } from "class-validator"
 import { Type } from "class-transformer"
-import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
+import { IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator"
+import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/utils/constants/constants"
 
-export class QueryPostModel {
+export class QueryUserInputModel {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  searchNameTerm: string = ""
+  searchLoginTerm: string = ""
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  searchEmailTerm: string = ""
 
   @IsOptional()
   @IsString()

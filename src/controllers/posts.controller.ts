@@ -1,31 +1,31 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Param, NotFoundException, HttpCode, Inject, Req, UseGuards, HttpStatus, Patch, InternalServerErrorException, UsePipes } from "@nestjs/common"
-import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
-import { PostsService } from "src/services/posts.service"
-import { BodyPostModel } from "src/models/body/body-post.model"
-import { QueryPostModel } from "src/models/query/query-post.model"
-import { QueryCommentModel } from "src/models/query/query-comment.model"
-import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
-import { BodyLikeModel } from "../models/body/body-like.model"
-import { ErrorEnums } from "../utils/errors/error-enums"
-import { DeviceSessionOptionalModel } from "../models/request/device-session-optional.model"
-import { DeviceSessionModel } from "../models/request/device-session.model"
-import { AccessMiddleware } from "../guards/access.middleware"
-import { AccessGuard } from "../guards/access.guard"
-import { ObjectIdIdModel } from "../models/uri/id.model"
-import { BasicGuard } from "../guards/basic.guard"
-import { ObjectIdPostIdModel } from "../models/uri/postId.model"
-import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { CommentsService } from "src/services/comments.service"
-import { BodyCommentModel } from "src/models/body/body-comment.model"
-import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
-import { UpdatePostCommand } from "src/services/use-cases/posts/update-post.use-case"
-import { DeletePostCommand } from "src/services/use-cases/posts/delete-post.use-case"
-import { CreateCommentCommand } from "src/services/use-cases/posts/create-comment.use-case"
-import { UpdatePostLikeCommand } from "src/services/use-cases/posts/update-post-like.use-case"
-import { TransactionScriptService } from "src/services/transaction-script.service"
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, UseGuards } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
 import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { BodyCommentInputModel } from "src/input-models/body/body-comment.input-model"
+import { BodyPostInputModel } from "src/input-models/body/body-post.input-model"
+import { QueryCommentInputModel } from "src/input-models/query/query-comment.input-model"
+import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
+import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
+import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
+import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
+import { CommentsService } from "src/services/comments.service"
+import { PostsService } from "src/services/posts.service"
+import { TransactionScriptService } from "src/services/transaction-script.service"
+import { CreateCommentCommand } from "src/services/use-cases/posts/create-comment.use-case"
+import { DeletePostCommand } from "src/services/use-cases/posts/delete-post.use-case"
+import { UpdatePostLikeCommand } from "src/services/use-cases/posts/update-post-like.use-case"
+import { UpdatePostCommand } from "src/services/use-cases/posts/update-post.use-case"
+import { callErrorMessage } from "src/utils/managers/error-message.manager"
+import { AccessGuard } from "../guards/access.guard"
+import { AccessMiddleware } from "../guards/access.middleware"
+import { BasicGuard } from "../guards/basic.guard"
+import { BodyLikeInputModel } from "../input-models/body/body-like.input-model"
+import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
+import { DeviceSessionInputModel } from "../input-models/request/device-session.input-model"
+import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
+import { ObjectIdPostIdInputModel } from "../input-models/uri/postId.input-model"
+import { ErrorEnums } from "../utils/errors/error-enums"
 
 @Controller("posts")
 export class PostsController {
@@ -43,8 +43,8 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get()
   async findPosts(
-    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
-    @Query() queryPost: QueryPostModel
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    @Query() queryPost: QueryPostInputModel
   ) {
     return await this.postsQueryRepository.findPosts(queryPost, "", deviceSession?.userId)
   }
@@ -52,8 +52,8 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get(":id")
   async findPost(
-    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
-    @Param() param: ObjectIdIdModel,
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    @Param() param: ObjectIdIdInputModel,
   ) {
     const post = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
     if (post === null) throw new NotFoundException(
@@ -65,7 +65,7 @@ export class PostsController {
   @UseGuards(BasicGuard)
   @Post()
   async createPost(
-    @Body() bodyPost: BodyPostModel
+    @Body() bodyPost: BodyPostInputModel
   ) {
     const resultContruct = await this.transactionScriptService.createPost(bodyPost)
     if (resultContruct.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
@@ -78,10 +78,15 @@ export class PostsController {
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
-    @Param() param: ObjectIdIdModel,
-    @Body() bodyPost: BodyPostModel,
+    @Param() param: ObjectIdIdInputModel,
+    @Body() bodyPost: BodyPostInputModel,
   ) {
-    const resultContruct = await this.commandBus.execute(new UpdatePostCommand(bodyPost, param.id))
+    const resultContruct = await this.commandBus.execute(
+      new UpdatePostCommand(
+        bodyPost,
+        param.id
+      )
+    )
     if (resultContruct.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )
@@ -92,9 +97,11 @@ export class PostsController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
-    @Param() param: ObjectIdIdModel
+    @Param() param: ObjectIdIdInputModel
   ) {
-    const resultContruct = await this.commandBus.execute(new DeletePostCommand(param.id))
+    const resultContruct = await this.commandBus.execute(
+      new DeletePostCommand(param.id)
+    )
     if (resultContruct.error === ErrorEnums.POST_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_DELETED, "id")
     )
@@ -104,9 +111,9 @@ export class PostsController {
   @UseGuards(AccessMiddleware)
   @Get(":postId/comments")
   async findComments(
-    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
-    @Param() param: ObjectIdPostIdModel,
-    @Query() queryComment: QueryCommentModel,
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    @Param() param: ObjectIdPostIdInputModel,
+    @Query() queryComment: QueryCommentInputModel,
   ) {
     const commentsView = await this.commentsQueryRepository.findComments(
       param.postId,
@@ -122,9 +129,9 @@ export class PostsController {
   @UseGuards(AccessGuard)
   @Post(":postId/comments")
   async createComment(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionModel,
-    @Param() param: ObjectIdPostIdModel,
-    @Body() bodyComment: BodyCommentModel,
+    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @Param() param: ObjectIdPostIdInputModel,
+    @Body() bodyComment: BodyCommentInputModel,
   ) {
     const commentContract = await this.commandBus.execute(
       new CreateCommentCommand(
@@ -147,9 +154,9 @@ export class PostsController {
   @Put(":postId/like-status")
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
-    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
-    @Param() postId: ObjectIdPostIdModel,
-    @Body() bodyLike: BodyLikeModel,
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    @Param() postId: ObjectIdPostIdInputModel,
+    @Body() bodyLike: BodyLikeInputModel,
   ) {
     const commentContract = await this.commandBus.execute(
       new UpdatePostLikeCommand(

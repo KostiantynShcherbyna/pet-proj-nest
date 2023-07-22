@@ -1,6 +1,6 @@
 import { IsMongoId, IsNotEmpty, IsString } from "class-validator"
 
-export class ObjectIdPostIdModel {
+export class ObjectIdPostIdInputModel {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()

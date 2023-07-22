@@ -4,8 +4,8 @@ import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Contract } from 'src/contract';
 import { confirmationAndExpirationDto } from 'src/dto/confirmation-and-expiration.dto';
-import { BodyRegistrationModel } from 'src/models/body/body-registration.model';
-import { BodyUserModel } from 'src/models/body/body-user.model';
+import { BodyRegistrationInputModel } from 'src/input-models/body/body-registration.input-model';
+import { BodyUserInputModel } from 'src/input-models/body/body-user.input-model';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/utils/constants/constants';
 import { ErrorEnums } from 'src/utils/errors/error-enums';
 import { compareHashManager } from 'src/utils/managers/compare-hash.manager';
@@ -80,7 +80,7 @@ export class Users {
         }))
     emailConfirmation: IEmailConfirmation
 
-    static async createUser(newUserData: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument> {
+    static async createUser(newUserData: BodyUserInputModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHashManager(newUserData.password)
         const date = new Date()
@@ -103,7 +103,7 @@ export class Users {
         return newUser
     }
 
-    static async registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument> {
+    static async registrationUser(registrationBody: BodyRegistrationInputModel, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHashManager(registrationBody.password)
         const date = new Date()
@@ -178,8 +178,8 @@ export class Users {
 
 }
 interface UsersStatics {
-    createUser(bodyUserModel: BodyUserModel, UsersModel: UsersModel): Promise<UsersDocument>
-    registrationUser(registrationBody: BodyRegistrationModel, UsersModel: UsersModel): Promise<UsersDocument>
+    createUser(bodyUserModel: BodyUserInputModel, UsersModel: UsersModel): Promise<UsersDocument>
+    registrationUser(registrationBody: BodyRegistrationInputModel, UsersModel: UsersModel): Promise<UsersDocument>
     deleteUser(id: string, UsersModel: UsersModel): Promise<Contract<number>>
 }
 

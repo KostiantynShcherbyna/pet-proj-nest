@@ -1,8 +1,6 @@
 import { IsMongoId, IsNotEmpty, IsString, MaxLength } from "class-validator"
-import { Type } from "class-transformer"
-import { ObjectId } from "mongodb"
 
-export class ObjectIdIdModel {
+export class ObjectIdIdInputModel {
   @IsString()
   @MaxLength(100)
   @IsNotEmpty()

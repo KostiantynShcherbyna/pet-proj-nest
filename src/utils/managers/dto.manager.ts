@@ -1,12 +1,10 @@
-import { ObjectId, WithId } from "mongodb"
-import { MyStatus } from "../constants/constants"
-import { HydratedDocument } from "mongoose"
-import { Blogs, BlogsDocument } from "src/schemas/blogs.schema"
-import { Posts, PostsDocument } from "src/schemas/posts.schema"
-import { Comments, CommentsDocument } from "src/schemas/comments.schema"
-import { CommentView } from "src/views/comment.view"
-import { Users, UsersDocument } from "src/schemas/users.schema"
+import { BlogsDocument } from "src/schemas/blogs.schema"
+import { CommentsDocument } from "src/schemas/comments.schema"
 import { Devices } from "src/schemas/devices.schema"
+import { PostsDocument } from "src/schemas/posts.schema"
+import { UsersDocument } from "src/schemas/users.schema"
+import { CommentView } from "src/views/comment.view"
+import { MyStatus } from "../constants/constants"
 // import { Posts } from "src/schemas/posts.schema"
 
 

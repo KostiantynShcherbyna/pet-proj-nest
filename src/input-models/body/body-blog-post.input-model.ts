@@ -6,7 +6,7 @@ import {
   POSTS_TITLE_MAX_LENGTH
 } from "src/utils/constants/constants"
 
-export class BodyBlogPostModel {
+export class BodyBlogPostInputModel {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())

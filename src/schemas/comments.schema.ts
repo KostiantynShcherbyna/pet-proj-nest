@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose'
 import { HydratedDocument, Model, Types } from 'mongoose'
-import { BodyCommentModel } from 'src/models/body/body-comment.model'
+import { BodyCommentInputModel } from 'src/input-models/body/body-comment.input-model'
 import {
   COMMENT_CONTENT_MAX_LENGTH,
   COMMENT_CONTENT_MIN_LENGTH,

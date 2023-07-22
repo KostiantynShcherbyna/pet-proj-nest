@@ -9,7 +9,7 @@ import {
 } from "../../utils/constants/constants"
 import { Transform, TransformFnParams } from "class-transformer"
 
-export class BodyRegistrationModel {
+export class BodyRegistrationInputModel {
   @IsString()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   @Length(LOGIN_MIN_LENGTH, LOGIN_MAX_LENGTH)

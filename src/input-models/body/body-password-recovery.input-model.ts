@@ -2,7 +2,7 @@ import { IsEmail, IsString, Matches } from "class-validator"
 import { EMAIL_REGISTRATION_REGEX } from "../../utils/constants/constants"
 import { Transform, TransformFnParams } from "class-transformer";
 
-export class BodyConfirmationResendModel {
+export class BodyPasswordRecoveryInputModel {
   @IsString()
   @IsEmail()
   @Transform(({ value }: TransformFnParams) => value?.trim())

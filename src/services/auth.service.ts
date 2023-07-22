@@ -1,24 +1,23 @@
 import { Inject, Injectable } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
 import { InjectModel } from "@nestjs/mongoose"
-import { Model, Types } from "mongoose"
+import { Types } from "mongoose"
+import { ConfigType } from "src/configuration"
 import { Contract } from "src/contract"
-import { BodyAuthModel } from "src/models/body/body-auth.model"
-import { BodyRegistrationModel } from "src/models/body/body-registration.model"
-import { DeviceSessionModel } from "src/models/request/device-session.model"
+import { BodyAuthInputModel } from "src/input-models/body/body-auth.input-model"
+import { BodyRegistrationInputModel } from "src/input-models/body/body-registration.input-model"
+import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { AuthRepository } from "src/repositories/auth.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "src/schemas/recovery-code.schema"
 import { Users, UsersModel } from "src/schemas/users.schema"
+import { Secrets } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { emailAdapter } from "src/utils/managers/email.adapter"
 import { TokensView } from "src/views/tokens.view"
-import { JwtService } from "@nestjs/jwt"
 import { TokensService } from "./tokens.service"
-import { ConfigType, configuration } from "src/configuration"
-import { ConfigService } from "@nestjs/config"
-import { Secrets } from "src/utils/constants/constants"
 
 @Injectable()
 export class AuthService {
@@ -35,7 +34,7 @@ export class AuthService {
   }
 
 
-  async login(loginBody: BodyAuthModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
+  async login(loginBody: BodyAuthInputModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
     // ↓↓↓ CHECK IN LOGIN-LOCAL-STRATEGY
     const user = await this.usersRepository.findUserLoginOrEmail({
       login: loginBody.loginOrEmail,
@@ -81,7 +80,7 @@ export class AuthService {
 
 
 
-  async refreshToken(deviceSession: DeviceSessionModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
+  async refreshToken(deviceSession: DeviceSessionInputModel, deviceIp: string, userAgent: string): Promise<Contract<null | TokensView>> {
 
 
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
@@ -111,7 +110,7 @@ export class AuthService {
   }
 
 
-  async logout(deviceSession: DeviceSessionModel): Promise<Contract<null | boolean>> {
+  async logout(deviceSession: DeviceSessionInputModel): Promise<Contract<null | boolean>> {
 
     const userDto = ["_id", new Types.ObjectId(deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)
@@ -134,7 +133,7 @@ export class AuthService {
   }
 
 
-  async registration(registrationBody: BodyRegistrationModel): Promise<Contract<null | boolean>> {
+  async registration(registrationBody: BodyRegistrationInputModel): Promise<Contract<null | boolean>> {
 
     const user = await this.usersRepository.findUserLoginOrEmail(registrationBody)
     const checkEmailAndLoginContract = user?.checkEmailAndLogin(

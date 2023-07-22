@@ -2,7 +2,7 @@ import { BodyAuthInputModel } from "../body/body-auth.input-model"
 import { IsDate, IsNotEmpty, IsString } from "class-validator"
 import { Optional } from "@nestjs/common"
 
-export class DeviceSessionOptionalModel {
+export class DeviceSessionOptionalInputModel {
   @Optional()
   @IsString()
   ip: string

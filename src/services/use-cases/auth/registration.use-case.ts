@@ -1,20 +1,20 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
-import { BodyRegistrationModel } from "src/models/body/body-registration.model"
-import { DeviceSessionModel } from "src/models/request/device-session.model"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
-import { emailAdapter } from "src/utils/managers/email.adapter"
 
-// export class RegistrationCommand {
-//     constructor(public registrationBody: BodyRegistrationModel) { }
-// }
+export class RegistrationCommand {
+    constructor(
+        public login: string,
+        public email: string,
+        public password: string
+    ) { }
+}
 
-@CommandHandler(BodyRegistrationModel)
-export class Registration implements ICommandHandler<BodyRegistrationModel> {
+@CommandHandler(RegistrationCommand)
+export class Registration implements ICommandHandler<RegistrationCommand> {
     constructor(
         @InjectModel(Users.name) protected UsersModel: UsersModel,
         protected usersRepository: UsersRepository,
@@ -22,7 +22,7 @@ export class Registration implements ICommandHandler<BodyRegistrationModel> {
     }
 
 
-    async execute(command: BodyRegistrationModel): Promise<Contract<null | boolean>> {
+    async execute(command: RegistrationCommand): Promise<Contract<null | boolean>> {
 
         const user = await this.usersRepository.findUserLoginOrEmail({ login: command.login, email: command.email })
         const checkEmailAndLoginContract = user?.checkEmailAndLogin(

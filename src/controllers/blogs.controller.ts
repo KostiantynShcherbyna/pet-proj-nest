@@ -3,34 +3,35 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
   Post,
   Put,
   Query,
-  Param,
-  NotFoundException,
-  HttpCode,
-  Inject, Req, UseGuards, HttpStatus
+  UseGuards
 } from "@nestjs/common"
-import { BlogsService } from "../services/blogs.service"
-import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
-import { BodyBlogModel } from "../models/body/body-blog.model"
-import { QueryBlogModel } from "../models/query/query-blog.model"
+import { CommandBus } from "@nestjs/cqrs"
+import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
+import { BasicGuard } from "src/guards/basic.guard"
+import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
+import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
-import { QueryPostModel } from "src/models/query/query-post.model"
-import { BodyBlogPostModel } from "src/models/body/body-blog-post.model"
-import { ObjectIdIdModel } from "../models/uri/id.model"
-import { ObjectIdBlogIdModel } from "../models/uri/blogId.model"
-import { AccessMiddleware } from "../guards/access.middleware"
-import { DeviceSessionOptionalModel } from "../models/request/device-session-optional.model"
+import { TransactionScriptService } from "src/services/transaction-script.service"
+import { CreateBlogCommand } from "src/services/use-cases/blogs/create-blog.use-case"
+import { DeleteBlogCommand } from "src/services/use-cases/blogs/delete-blog.use-case"
+import { UpdateBlogCommand } from "src/services/use-cases/blogs/update-blog.use-case"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { BasicGuard } from "src/guards/basic.guard"
-import { CommandBus } from "@nestjs/cqrs"
-import { CreateBlogCommand } from "src/services/use-cases/blogs/create-blog.use-case"
-import { UpdateBlogCommand } from "src/services/use-cases/blogs/update-blog.use-case"
-import { DeleteBlogCommand } from "src/services/use-cases/blogs/delete-blog.use-case"
-import { TransactionScriptService } from "src/services/transaction-script.service"
-import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
+import { AccessMiddleware } from "../guards/access.middleware"
+import { BodyBlogInputModel } from "../input-models/body/body-blog.input-model"
+import { QueryBlogInputModel } from "../input-models/query/query-blog.input-model"
+import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
+import { ObjectIdBlogIdInputModel } from "../input-models/uri/blogId.input-model"
+import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
+import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
+import { BlogsService } from "../services/blogs.service"
 
 @Controller("blogs")
 export class BlogsController {
@@ -45,7 +46,7 @@ export class BlogsController {
 
   @Get(":id")
   async findBlog(
-    @Param() param: ObjectIdIdModel,
+    @Param() param: ObjectIdIdInputModel,
   ) {
     const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)
 
@@ -57,7 +58,7 @@ export class BlogsController {
 
   @Get()
   async findBlogs(
-    @Query() queryBlog: QueryBlogModel
+    @Query() queryBlog: QueryBlogInputModel
   ) {
     return await this.blogsQueryRepository.findBlogs(queryBlog)
   }
@@ -65,9 +66,15 @@ export class BlogsController {
   @UseGuards(BasicGuard)
   @Post()
   async createBlog(
-    @Body() bodyBlog: BodyBlogModel
+    @Body() bodyBlog: BodyBlogInputModel
   ) {
-    return this.commandBus.execute(new CreateBlogCommand(bodyBlog.name, bodyBlog.description, bodyBlog.websiteUrl))
+    return this.commandBus.execute(
+      new CreateBlogCommand(
+        bodyBlog.name,
+        bodyBlog.description,
+        bodyBlog.websiteUrl
+      )
+    )
   }
 
 
@@ -75,11 +82,16 @@ export class BlogsController {
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param() param: ObjectIdIdModel,
-    @Body() bodyBlog: BodyBlogModel
+    @Param() param: ObjectIdIdInputModel,
+    @Body() bodyBlog: BodyBlogInputModel
   ) {
     console.log(param)
-    const result = await this.commandBus.execute(new UpdateBlogCommand(param.id, bodyBlog))
+    const result = await this.commandBus.execute(
+      new UpdateBlogCommand(
+        param.id,
+        bodyBlog
+      )
+    )
     if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
@@ -90,9 +102,11 @@ export class BlogsController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(
-    @Param() param: ObjectIdIdModel
+    @Param() param: ObjectIdIdInputModel
   ) {
-    const deleteBlogResult = await this.commandBus.execute(new DeleteBlogCommand(param.id))
+    const deleteBlogResult = await this.commandBus.execute(
+      new DeleteBlogCommand(param.id)
+    )
     if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_DELETED, "id")
     )
@@ -105,11 +119,15 @@ export class BlogsController {
   @UseGuards(AccessMiddleware)
   @Get(":blogId/posts")
   async findPosts(
-    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalModel,
-    @Param() param: ObjectIdBlogIdModel,
-    @Query() queryPost: QueryPostModel,
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    @Param() param: ObjectIdBlogIdInputModel,
+    @Query() queryPost: QueryPostInputModel,
   ) {
-    const postsView = await this.postsQueryRepository.findPosts(queryPost, param.blogId, deviceSession?.userId)
+    const postsView = await this.postsQueryRepository.findPosts(
+      queryPost,
+      param.blogId,
+      deviceSession?.userId
+    )
     if (postsView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )
@@ -119,16 +137,17 @@ export class BlogsController {
   @UseGuards(BasicGuard)
   @Post(":blogId/posts")
   async createPost(
-    @Param() param: ObjectIdBlogIdModel,
-    @Body() bodyBlogPost: BodyBlogPostModel
+    @Param() param: ObjectIdBlogIdInputModel,
+    @Body() bodyBlogPost: BodyBlogPostInputModel
   ) {
-    const blogPostDto = {
-      blogId: param.blogId,
-      title: bodyBlogPost.title,
-      shortDescription: bodyBlogPost.shortDescription,
-      content: bodyBlogPost.content,
-    }
-    const result = await this.transactionScriptService.createPost(blogPostDto)
+    const result = await this.transactionScriptService.createPost(
+      {
+        blogId: param.blogId,
+        title: bodyBlogPost.title,
+        shortDescription: bodyBlogPost.shortDescription,
+        content: bodyBlogPost.content,
+      }
+    )
     if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )

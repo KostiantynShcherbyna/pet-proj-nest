@@ -1,12 +1,11 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
-import { BodyBlogModel } from "src/models/body/body-blog.model"
+import { BodyBlogInputModel } from "src/input-models/body/body-blog.input-model"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class UpdateBlogCommand {
-    constructor(public id: string, public bodyBlog: BodyBlogModel) { }
+    constructor(public id: string, public bodyBlog: BodyBlogInputModel) { }
 }
 
 

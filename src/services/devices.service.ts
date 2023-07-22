@@ -1,18 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Types } from "mongoose"
 import { Contract } from "src/contract"
-import { BodyPostModel } from "src/models/body/body-post.model"
-import { DeviceSessionModel } from "src/models/request/device-session.model"
-import { BlogsRepository } from "src/repositories/blogs.repository"
 import { DevicesRepository } from "src/repositories/devices.repository"
-import { PostsRepository } from "src/repositories/posts.repository"
 import { Devices, DevicesModel } from "src/schemas/devices.schema"
-import { Posts, PostsModel } from "src/schemas/posts.schema"
-import { MyStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
-import { dtoManager } from "src/utils/managers/dto.manager"
-import { PostView } from "src/views/post.view"
 
 @Injectable()
 export class DevicesService {

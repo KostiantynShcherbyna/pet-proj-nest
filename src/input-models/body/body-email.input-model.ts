@@ -1,7 +1,7 @@
 import { IsEmail, IsString, Matches } from 'class-validator';
 import { EMAIL_REGISTRATION_REGEX } from 'src/utils/constants/constants';
 
-export class BodyEmailModel {
+export class BodyEmailInputModel {
   @IsString()
   service: string;
 

@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/contract"
@@ -7,7 +6,10 @@ import { Devices, DevicesModel } from "src/schemas/devices.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeleteSpecialDeviceCommand {
-    constructor(public deviceId: string, public userId: string) { }
+    constructor(
+        public deviceId: string,
+        public userId: string
+    ) { }
 }
 
 

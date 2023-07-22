@@ -6,7 +6,11 @@ import { UsersRepository } from "src/repositories/users.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class UpdatePostLikeCommand {
-    constructor(public userId: string, public postId: string, public newLikeStatus: string) { }
+    constructor(
+        public userId: string,
+        public postId: string,
+        public newLikeStatus: string,
+    ) { }
 }
 
 @CommandHandler(UpdatePostLikeCommand)

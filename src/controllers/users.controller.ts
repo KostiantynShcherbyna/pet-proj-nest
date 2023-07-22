@@ -3,25 +3,25 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
   Post,
   Query,
-  Param,
-  NotFoundException,
-  HttpCode,
-  Inject, HttpStatus, UseGuards
+  UseGuards
 } from "@nestjs/common"
-import { QueryUserModel } from "src/models/query/query-user.model"
+import { CommandBus } from "@nestjs/cqrs"
+import { BasicGuard } from "src/guards/basic.guard"
+import { BodyUserInputModel } from "src/input-models/body/body-user.input-model"
+import { QueryUserInputModel } from "src/input-models/query/query-user.input-model"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
-import { BodyUserModel } from "src/models/body/body-user.model"
+import { CreateUserCommand } from "src/services/use-cases/users/create-user.use-case"
+import { DeleteUserCommand } from "src/services/use-cases/users/delete-user.use-case"
 import { UsersService } from "src/services/users.service"
-import { ObjectIdIdModel } from "../models/uri/id.model"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { BasicGuard } from "src/guards/basic.guard"
-import { CreateUserCommand } from "src/services/use-cases/users/create-user.use-case"
-import { DeletePostCommand } from "src/services/use-cases/posts/delete-post.use-case"
-import { DeleteUserCommand } from "src/services/use-cases/users/delete-user.use-case"
-import { CommandBus } from "@nestjs/cqrs"
+import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
 
 @Controller("users")
 export class UsersController {
@@ -34,7 +34,7 @@ export class UsersController {
 
   @Get()
   async findUsers(
-    @Query() queryUser: QueryUserModel
+    @Query() queryUser: QueryUserInputModel
   ) {
     return await this.usersQueryRepository.findUsers(queryUser)
   }
@@ -42,10 +42,14 @@ export class UsersController {
   @UseGuards(BasicGuard)
   @Post()
   async createUser(
-    @Body() bodyUser: BodyUserModel
+    @Body() bodyUser: BodyUserInputModel
   ) {
     return await this.commandBus.execute(
-      new CreateUserCommand(bodyUser)
+      new CreateUserCommand(
+        bodyUser.login,
+        bodyUser.email,
+        bodyUser.password
+      )
     )
   }
 
@@ -53,7 +57,7 @@ export class UsersController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
-    @Param() param: ObjectIdIdModel
+    @Param() param: ObjectIdIdInputModel
   ) {
     const resultContruct = await this.commandBus.execute(
       new DeleteUserCommand(param.id)

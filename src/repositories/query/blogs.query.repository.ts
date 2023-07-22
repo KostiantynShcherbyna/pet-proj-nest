@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { QueryBlogModel } from "src/models/query/query-blog.model"
+import { QueryBlogInputModel } from "src/input-models/query/query-blog.input-model"
 import { BlogsView, BlogView } from "src/views/blog.view"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { dtoManager } from "src/utils/managers/dto.manager"
@@ -23,7 +23,7 @@ export class BlogsQueryRepository {
     return foundBlogView
   }
 
-  async findBlogs(query: QueryBlogModel): Promise<BlogsView> {
+  async findBlogs(query: QueryBlogInputModel): Promise<BlogsView> {
 
 
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT

@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/contract"
 import { UsersRepository } from "src/repositories/users.repository"

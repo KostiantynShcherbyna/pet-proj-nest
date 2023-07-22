@@ -3,7 +3,7 @@ import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoManager } from "src/utils/managers/dto.manager"
 import { Users, UsersModel } from "src/schemas/users.schema"
-import { QueryUserModel } from "src/models/query/query-user.model"
+import { QueryUserInputModel } from "src/input-models/query/query-user.input-model"
 import { UsersView } from "src/views/user.view"
 import { Types } from "mongoose"
 import { MeView } from "src/views/me.view"
@@ -26,7 +26,7 @@ export class UsersQueryRepository {
     }
 
 
-    async findUsers(query: QueryUserModel): Promise<UsersView> {
+    async findUsers(query: QueryUserInputModel): Promise<UsersView> {
 
         const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
         const searchEmailTerm = query.searchEmailTerm || SEARCH_EMAIL_TERM_DEFAULT

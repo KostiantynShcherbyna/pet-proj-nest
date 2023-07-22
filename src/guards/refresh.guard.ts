@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
 } from "@nestjs/common"
 import { TokensService } from "../services/tokens.service"
-import { configuration } from "../configuration"
 import { Request } from "express"
 import { ConfigService } from "@nestjs/config"
 
@@ -27,7 +26,6 @@ export class RefreshGuard implements CanActivate {
     const payload = await this.tokensService.verifyToken(token, refreshJwtSecret)
     if (payload === null) throw new UnauthorizedException("Not verify token")
     request["deviceSession"] = payload
-    // request["user"] = payload
     return true
   }
 

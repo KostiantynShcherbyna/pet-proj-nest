@@ -5,13 +5,13 @@ import {
   ServiceUnavailableException
 } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
+import { Posts, PostsModel } from "src/schemas/posts.schema"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { Devices, DevicesModel } from "../schemas/devices.schema"
-import { RequestAttempts, RequestAttemptsModel } from "../schemas/request-attempts.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recovery-code.schema"
+import { RequestAttempts, RequestAttemptsModel } from "../schemas/request-attempts.schema"
 
 @Controller("testing")
 export class TestingController {

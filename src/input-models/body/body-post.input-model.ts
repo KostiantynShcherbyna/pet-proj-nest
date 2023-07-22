@@ -5,7 +5,7 @@ import { callErrorMessage } from "src/utils/managers/error-message.manager";
 import { ErrorEnums } from "src/utils/errors/error-enums";
 import {  BlogIdIsExist } from "src/validators/blogId.validator";
 
-export class BodyPostModel {
+export class BodyPostInputModel {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())

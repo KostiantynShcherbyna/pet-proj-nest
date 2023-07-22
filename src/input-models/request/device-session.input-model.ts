@@ -1,7 +1,7 @@
 import { BodyAuthInputModel } from "../body/body-auth.input-model"
 import { IsDate, IsNotEmpty, IsString } from "class-validator"
 
-export class DeviceSessionModel {
+export class DeviceSessionInputModel {
   @IsString()
   @IsNotEmpty()
   ip: string

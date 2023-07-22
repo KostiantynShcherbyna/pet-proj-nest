@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Model, Types } from 'mongoose'
 import { Contract } from 'src/contract'
-import { BodyBlogModel } from 'src/models/body/body-blog.model'
+import { BodyBlogInputModel } from 'src/input-models/body/body-blog.input-model'
 import {
   BLOGS_DESCRIPTION_MAX_LENGTH,
   BLOGS_NAME_MAX_LENGTH,
@@ -47,7 +47,7 @@ export class Blogs {
   })
   isMembership: boolean
 
-  static createBlog(bodyBlog: BodyBlogModel, BlogsModel: BlogsModel,): BlogsDocument {
+  static createBlog(bodyBlog: BodyBlogInputModel, BlogsModel: BlogsModel,): BlogsDocument {
     const date = new Date().toISOString()
 
     const newBlogDto = {
@@ -73,7 +73,7 @@ export class Blogs {
     return new Contract(deleteBlogResult.deletedCount, null)
   }
 
-  updateBlog(newBlogDto: BodyBlogModel) {
+  updateBlog(newBlogDto: BodyBlogInputModel) {
     this.name = newBlogDto.name
     this.description = newBlogDto.description
     this.websiteUrl = newBlogDto.websiteUrl
@@ -81,7 +81,7 @@ export class Blogs {
 }
 
 interface BlogsStatics {
-  createBlog(bodyBlogModel: BodyBlogModel, BlogsModel: BlogsModel,): BlogsDocument
+  createBlog(bodyBlogModel: BodyBlogInputModel, BlogsModel: BlogsModel,): BlogsDocument
   deleteBlog(id: string, BlogsModel: BlogsModel, PostsModel: PostsModel,): Promise<Contract<null | number>>
 }
 

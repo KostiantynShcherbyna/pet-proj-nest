@@ -1,8 +1,8 @@
-import nodemailer from "nodemailer"
-import { BodyEmailModel } from "../../models/body/body-email.model";
+import nodemailer from "nodemailer";
+import { BodyEmailInputModel } from "../../input-models/body/body-email.input-model";
 
 export const emailManager = {
-    async sendEmail(emailBody: BodyEmailModel) {
+    async sendEmail(emailBody: BodyEmailInputModel) {
 
 
         let transporter = nodemailer.createTransport({
