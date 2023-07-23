@@ -20,7 +20,7 @@ import { DeleteOtherDevicesCommand } from "src/services/use-cases/devices/delete
 import { DeleteSpecialDeviceCommand } from "src/services/use-cases/devices/delete-special-device.use-case"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { ObjectIdDeviceIdInputModel } from "../input-models/uri/deviceId.input-model"
+import { DeviceIdInputModel } from "../input-models/uri/deviceId.input-model"
 
 @Controller("security")
 export class DevicesController {
@@ -61,7 +61,7 @@ export class DevicesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
     @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
-    @Param() param: ObjectIdDeviceIdInputModel,
+    @Param() param: DeviceIdInputModel,
   ) {
     const result = await this.commandBus.execute(
       new DeleteSpecialDeviceCommand(

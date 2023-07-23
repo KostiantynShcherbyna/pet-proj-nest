@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
-import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
+import { IdInputModel } from "../input-models/uri/id.input-model"
 
 @Injectable()
 export class BlogsRepository {

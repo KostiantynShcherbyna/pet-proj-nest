@@ -24,8 +24,8 @@ import { BodyCommentInputModel } from "../input-models/body/body-comment.input-m
 import { BodyLikeInputModel } from "../input-models/body/body-like.input-model"
 import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
 import { DeviceSessionInputModel } from "../input-models/request/device-session.input-model"
-import { ObjectIdCommentIdInputModel } from "../input-models/uri/commentId.input-model"
-import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
+import { CommentIdInputModel } from "../input-models/uri/commentId.input-model"
+import { IdInputModel } from "../input-models/uri/id.input-model"
 import { CommentsService } from "../services/comments.service"
 import { ErrorEnums } from "../utils/errors/error-enums"
 
@@ -42,7 +42,7 @@ export class CommentsController {
   @Get(":id")
   async getComment(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: ObjectIdIdInputModel
+    @Param() param: IdInputModel
   ) {
     const commentView = await this.commentsQueryRepository.findComment(param.id, deviceSession?.userId)
     if (commentView === null) throw new NotFoundException(
@@ -56,7 +56,7 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateComment(
     @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
-    @Param() param: ObjectIdCommentIdInputModel,
+    @Param() param: CommentIdInputModel,
     @Body() bodyComment: BodyCommentInputModel
   ) {
     const comment = await this.commandBus.execute(
@@ -80,7 +80,7 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(
     @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
-    @Param() param: ObjectIdCommentIdInputModel
+    @Param() param: CommentIdInputModel
   ) {
     const comment = await this.commandBus.execute(
       new DeleteCommentCommand(
@@ -105,7 +105,7 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
-    @Param() param: ObjectIdCommentIdInputModel,
+    @Param() param: CommentIdInputModel,
     @Body() bodyLike: BodyLikeInputModel
   ) {
     const comment = await this.commandBus.execute(

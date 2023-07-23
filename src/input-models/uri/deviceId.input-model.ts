@@ -1,8 +1,7 @@
-import { IsString } from "class-validator"
+import { IsString, IsUUID } from "class-validator"
 
-export class ObjectIdDeviceIdInputModel {
+export class DeviceIdInputModel {
   @IsString()
-  // @IsMongoId()
-  // @IsUUID()
+  @IsUUID()
   deviceId: string
 }

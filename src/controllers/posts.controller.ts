@@ -23,8 +23,8 @@ import { BasicGuard } from "../guards/basic.guard"
 import { BodyLikeInputModel } from "../input-models/body/body-like.input-model"
 import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
 import { DeviceSessionInputModel } from "../input-models/request/device-session.input-model"
-import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
-import { ObjectIdPostIdInputModel } from "../input-models/uri/postId.input-model"
+import { IdInputModel } from "../input-models/uri/id.input-model"
+import { PostIdInputModel } from "../input-models/uri/postId.input-model"
 import { ErrorEnums } from "../utils/errors/error-enums"
 
 @Controller("posts")
@@ -53,7 +53,7 @@ export class PostsController {
   @Get(":id")
   async findPost(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: ObjectIdIdInputModel,
+    @Param() param: IdInputModel,
   ) {
     const post = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
     if (post === null) throw new NotFoundException(
@@ -78,7 +78,7 @@ export class PostsController {
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
-    @Param() param: ObjectIdIdInputModel,
+    @Param() param: IdInputModel,
     @Body() bodyPost: BodyPostInputModel,
   ) {
     const resultContruct = await this.commandBus.execute(
@@ -97,7 +97,7 @@ export class PostsController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
-    @Param() param: ObjectIdIdInputModel
+    @Param() param: IdInputModel
   ) {
     const resultContruct = await this.commandBus.execute(
       new DeletePostCommand(param.id)
@@ -112,7 +112,7 @@ export class PostsController {
   @Get(":postId/comments")
   async findComments(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: ObjectIdPostIdInputModel,
+    @Param() param: PostIdInputModel,
     @Query() queryComment: QueryCommentInputModel,
   ) {
     const commentsView = await this.commentsQueryRepository.findComments(
@@ -130,7 +130,7 @@ export class PostsController {
   @Post(":postId/comments")
   async createComment(
     @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
-    @Param() param: ObjectIdPostIdInputModel,
+    @Param() param: PostIdInputModel,
     @Body() bodyComment: BodyCommentInputModel,
   ) {
     const commentContract = await this.commandBus.execute(
@@ -155,7 +155,7 @@ export class PostsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() postId: ObjectIdPostIdInputModel,
+    @Param() postId: PostIdInputModel,
     @Body() bodyLike: BodyLikeInputModel,
   ) {
     const commentContract = await this.commandBus.execute(

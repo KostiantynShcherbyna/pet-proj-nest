@@ -28,8 +28,8 @@ import { AccessMiddleware } from "../guards/access.middleware"
 import { BodyBlogInputModel } from "../input-models/body/body-blog.input-model"
 import { QueryBlogInputModel } from "../input-models/query/query-blog.input-model"
 import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
-import { ObjectIdBlogIdInputModel } from "../input-models/uri/blogId.input-model"
-import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
+import { BlogIdInputModel } from "../input-models/uri/blogId.input-model"
+import { IdInputModel } from "../input-models/uri/id.input-model"
 import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
 import { BlogsService } from "../services/blogs.service"
 
@@ -46,7 +46,7 @@ export class BlogsController {
 
   @Get(":id")
   async findBlog(
-    @Param() param: ObjectIdIdInputModel,
+    @Param() param: IdInputModel,
   ) {
     const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)
 
@@ -82,7 +82,7 @@ export class BlogsController {
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param() param: ObjectIdIdInputModel,
+    @Param() param: IdInputModel,
     @Body() bodyBlog: BodyBlogInputModel
   ) {
     console.log(param)
@@ -102,7 +102,7 @@ export class BlogsController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(
-    @Param() param: ObjectIdIdInputModel
+    @Param() param: IdInputModel
   ) {
     const deleteBlogResult = await this.commandBus.execute(
       new DeleteBlogCommand(param.id)
@@ -120,7 +120,7 @@ export class BlogsController {
   @Get(":blogId/posts")
   async findPosts(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: ObjectIdBlogIdInputModel,
+    @Param() param: BlogIdInputModel,
     @Query() queryPost: QueryPostInputModel,
   ) {
     const postsView = await this.postsQueryRepository.findPosts(
@@ -137,7 +137,7 @@ export class BlogsController {
   @UseGuards(BasicGuard)
   @Post(":blogId/posts")
   async createPost(
-    @Param() param: ObjectIdBlogIdInputModel,
+    @Param() param: BlogIdInputModel,
     @Body() bodyBlogPost: BodyBlogPostInputModel
   ) {
     const result = await this.transactionScriptService.createPost(

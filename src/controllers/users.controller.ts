@@ -21,7 +21,7 @@ import { DeleteUserCommand } from "src/services/use-cases/users/delete-user.use-
 import { UsersService } from "src/services/users.service"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
-import { ObjectIdIdInputModel } from "../input-models/uri/id.input-model"
+import { IdInputModel } from "../input-models/uri/id.input-model"
 
 @Controller("users")
 export class UsersController {
@@ -57,7 +57,7 @@ export class UsersController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
-    @Param() param: ObjectIdIdInputModel
+    @Param() param: IdInputModel
   ) {
     const resultContruct = await this.commandBus.execute(
       new DeleteUserCommand(param.id)

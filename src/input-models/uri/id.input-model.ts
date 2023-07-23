@@ -1,6 +1,6 @@
 import { IsMongoId, IsNotEmpty, IsString, MaxLength } from "class-validator"
 
-export class ObjectIdIdInputModel {
+export class IdInputModel {
   @IsString()
   @MaxLength(100)
   @IsNotEmpty()
