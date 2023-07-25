@@ -5,7 +5,7 @@ import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH,
-  MyStatus
+  LikeStatus
 } from "src/utils/constants/constants"
 import { UsersDocument } from "./users.schema"
 import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
@@ -95,8 +95,8 @@ export class Posts {
           status: {
             type: String,
             required: true,
-            enum: MyStatus,
-            default: MyStatus.None
+            enum: LikeStatus,
+            default: LikeStatus.None
           }
         }
       ],
@@ -166,7 +166,7 @@ export class Posts {
         status: newLikeStatus
       }
 
-      if (newLikeStatus === MyStatus.Like) {
+      if (newLikeStatus === LikeStatus.Like) {
         this.extendedLikesInfo.likesCount++
 
         const newDate = new Date(Date.now()).toISOString()
@@ -189,7 +189,7 @@ export class Posts {
     if (like.status === newLikeStatus) return
 
     // Looking for matches in Old status and New status
-    if (like.status === MyStatus.None && newLikeStatus === MyStatus.Like) {
+    if (like.status === LikeStatus.None && newLikeStatus === LikeStatus.Like) {
       this.extendedLikesInfo.likesCount++
       like.status = newLikeStatus
 
@@ -203,19 +203,19 @@ export class Posts {
 
       return
     }
-    if (like.status === MyStatus.None && newLikeStatus === MyStatus.Dislike) {
+    if (like.status === LikeStatus.None && newLikeStatus === LikeStatus.Dislike) {
       this.extendedLikesInfo.dislikesCount++
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Like && newLikeStatus === MyStatus.None) {
+    if (like.status === LikeStatus.Like && newLikeStatus === LikeStatus.None) {
       const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString())
       this.extendedLikesInfo.newestLikes = newArray
       this.extendedLikesInfo.likesCount--
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Like && newLikeStatus === MyStatus.Dislike) {
+    if (like.status === LikeStatus.Like && newLikeStatus === LikeStatus.Dislike) {
       const newArray = this.extendedLikesInfo.newestLikes.filter(like => like.userId !== user._id.toString())
       this.extendedLikesInfo.newestLikes = newArray
       this.extendedLikesInfo.likesCount--
@@ -223,12 +223,12 @@ export class Posts {
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.None) {
+    if (like.status === LikeStatus.Dislike && newLikeStatus === LikeStatus.None) {
       this.extendedLikesInfo.dislikesCount--
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.Like) {
+    if (like.status === LikeStatus.Dislike && newLikeStatus === LikeStatus.Like) {
       this.extendedLikesInfo.dislikesCount--
       this.extendedLikesInfo.likesCount++
       like.status = newLikeStatus

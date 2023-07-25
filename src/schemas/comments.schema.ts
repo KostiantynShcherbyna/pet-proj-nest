@@ -4,7 +4,7 @@ import { BodyCommentInputModel } from 'src/input-models/body/body-comment.input-
 import {
   COMMENT_CONTENT_MAX_LENGTH,
   COMMENT_CONTENT_MIN_LENGTH,
-  MyStatus,
+  LikeStatus,
 } from 'src/utils/constants/constants'
 import { UsersDocument } from './users.schema'
 import { Contract } from 'src/contract'
@@ -82,8 +82,8 @@ export class Comments {
           status: {
             type: String,
             required: true,
-            enum: MyStatus,
-            default: MyStatus.None,
+            enum: LikeStatus,
+            default: LikeStatus.None,
           },
         },
       ],
@@ -116,10 +116,7 @@ export class Comments {
     return newCommentInsertResult
   }
 
-  static async deleteComment(
-    commentId: string,
-    CommentsModel: CommentsModel,
-  ): Promise<Contract<number>> {
+  static async deleteComment(commentId: string, CommentsModel: CommentsModel): Promise<Contract<number>> {
     let deleteCommentResult = await CommentsModel.deleteOne({
       _id: new Types.ObjectId(commentId),
     })
@@ -141,7 +138,7 @@ export class Comments {
         userId: userId,
         status: newLikeStatus,
       }
-      newLikeStatus === MyStatus.Like
+      newLikeStatus === LikeStatus.Like
         ? this.likesInfo.likesCount++
         : this.likesInfo.dislikesCount++
 
@@ -151,33 +148,33 @@ export class Comments {
 
     if (like.status === newLikeStatus) return
     // Looking for matches in Old status and New status
-    if (like.status === MyStatus.None && newLikeStatus === MyStatus.Like) {
+    if (like.status === LikeStatus.None && newLikeStatus === LikeStatus.Like) {
       this.likesInfo.likesCount++
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.None && newLikeStatus === MyStatus.Dislike) {
+    if (like.status === LikeStatus.None && newLikeStatus === LikeStatus.Dislike) {
       this.likesInfo.dislikesCount++
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Like && newLikeStatus === MyStatus.None) {
+    if (like.status === LikeStatus.Like && newLikeStatus === LikeStatus.None) {
       this.likesInfo.likesCount--
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Like && newLikeStatus === MyStatus.Dislike) {
+    if (like.status === LikeStatus.Like && newLikeStatus === LikeStatus.Dislike) {
       this.likesInfo.likesCount--
       this.likesInfo.dislikesCount++
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.None) {
+    if (like.status === LikeStatus.Dislike && newLikeStatus === LikeStatus.None) {
       this.likesInfo.dislikesCount--
       like.status = newLikeStatus
       return
     }
-    if (like.status === MyStatus.Dislike && newLikeStatus === MyStatus.Like) {
+    if (like.status === LikeStatus.Dislike && newLikeStatus === LikeStatus.Like) {
       this.likesInfo.dislikesCount--
       this.likesInfo.likesCount++
       like.status = newLikeStatus

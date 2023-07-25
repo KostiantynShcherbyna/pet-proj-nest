@@ -22,12 +22,12 @@ import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.inp
 import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
 import { BloggerInputModel } from "src/input-models/uri/blogger.input-model"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
-import { CreatePost, CreatePostCommand } from "src/services/use-cases/blogger/create-post.use-case"
-import { CreateBlogCommand } from "src/services/use-cases/blogger/create-blog.use-case"
-import { DeleteBlogCommand } from "src/services/use-cases/blogger/delete-blog.use-case"
-import { DeletePostCommand } from "src/services/use-cases/blogger/delete-post.use-case"
-import { UpdateBlogCommand } from "src/services/use-cases/blogger/update-blog.use-case"
-import { UpdatePostCommand } from "src/services/use-cases/blogger/update-post.use-case"
+import { CreatePost, CreatePostCommand } from "src/use-cases/blogger/create-post.use-case"
+import { CreateBlogCommand } from "src/use-cases/blogger/create-blog.use-case"
+import { DeleteBlogCommand } from "src/use-cases/blogger/delete-blog.use-case"
+import { DeletePostCommand } from "src/use-cases/blogger/delete-post.use-case"
+import { UpdateBlogCommand } from "src/use-cases/blogger/update-blog.use-case"
+import { UpdatePostCommand } from "src/use-cases/blogger/update-post.use-case"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { BodyBlogInputModel } from "../input-models/body/body-blog.input-model"
@@ -51,17 +51,7 @@ export class BloggerController {
   ) {
   }
 
-  // @Get(":id")
-  // async findBlog(
-  //   @Param() param: IdInputModel,
-  // ) {
-  //   const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)
 
-  //   if (foundBlogView === null) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-  //   )
-  //   return foundBlogView
-  // }
   @UseGuards(AccessGuard)
   @Get()
   async findBlogs(

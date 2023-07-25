@@ -28,14 +28,14 @@ import { BodyRegistrationInputModel } from "src/input-models/body/body-registrat
 import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
 import { AuthService } from "src/services/auth.service"
-import { ConfirmationResendCommand } from "src/services/use-cases/auth/confiramtion-resend.use-case"
-import { ConfirmationCommand } from "src/services/use-cases/auth/confiramtion.use-case"
-import { LoginCommand } from "src/services/use-cases/auth/login.use-case"
-import { LogoutCommand } from "src/services/use-cases/auth/logout.use-case"
-import { NewPasswordCommand } from "src/services/use-cases/auth/new-password.use-case"
-import { PasswordRecoveryCommand } from "src/services/use-cases/auth/password-recovery.use-case"
-import { RefreshTokenCommand } from "src/services/use-cases/auth/refresh-token.use-case"
-import { RegistrationCommand } from "src/services/use-cases/auth/registration.use-case"
+import { ConfirmationResendCommand } from "src/use-cases/auth/confiramtion-resend.use-case"
+import { ConfirmationCommand } from "src/use-cases/auth/confiramtion.use-case"
+import { LoginCommand } from "src/use-cases/auth/login.use-case"
+import { LogoutCommand } from "src/use-cases/auth/logout.use-case"
+import { NewPasswordCommand } from "src/use-cases/auth/new-password.use-case"
+import { PasswordRecoveryCommand } from "src/use-cases/auth/password-recovery.use-case"
+import { RefreshTokenCommand } from "src/use-cases/auth/refresh-token.use-case"
+import { RegistrationCommand } from "src/use-cases/auth/registration.use-case"
 import { StrategyNames, USER_AGENT } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
@@ -68,6 +68,7 @@ export class AuthController {
     )
 
     if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    if (loginContract.error === ErrorEnums.USER_IS_BANNED) throw new UnauthorizedException()
     if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException()
     if (loginContract.error === ErrorEnums.PASSWORD_NOT_COMPARED) throw new UnauthorizedException()
 

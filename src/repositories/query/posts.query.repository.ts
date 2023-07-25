@@ -10,7 +10,7 @@ import { QueryPostInputModel } from "src/input-models/query/query-post.input-mod
 import { PostView, PostsView } from "src/views/post.view"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import {
-  MyStatus,
+  LikeStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT,
@@ -90,7 +90,7 @@ export class PostsQueryRepository {
     let like: ILike | undefined
     if (userId) like = foundPost.extendedLikesInfo.like.find(like => like.userId === userId)
 
-    const postView = dtoManager.changePostView(foundPost, like?.status || MyStatus.None)
+    const postView = dtoManager.changePostView(foundPost, like?.status || LikeStatus.None)
 
     return postView
   }

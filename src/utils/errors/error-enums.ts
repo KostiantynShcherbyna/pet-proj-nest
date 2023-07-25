@@ -30,6 +30,7 @@ export enum ErrorEnums {
 
 
     // ↓↓↓ USERS
+    USER_IS_BANNED = `You are banned`,
     USER_NOT_FOUND = `User not found`,
     USER_NOT_DELETE = `User not deleted`,
     USER_EMAIL_EXIST = `User email exist`,

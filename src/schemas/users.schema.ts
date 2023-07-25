@@ -231,6 +231,7 @@ interface UsersStatics {
 export const UsersSchema = SchemaFactory.createForClass(Users)
 UsersSchema.statics.createUser = Users.createUser
 UsersSchema.statics.registrationUser = Users.registrationUser
+UsersSchema.methods.banUser = Users.prototype.banUser
 UsersSchema.methods.addSentDate = Users.prototype.addSentDate
 UsersSchema.methods.checkExpiration = Users.prototype.checkExpiration
 UsersSchema.methods.checkConfirmation = Users.prototype.checkConfirmation

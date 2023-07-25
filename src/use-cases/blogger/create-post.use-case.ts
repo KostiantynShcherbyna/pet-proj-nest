@@ -6,7 +6,7 @@ import { BodyPostInputModel } from "src/input-models/body/body-post.input-model"
 import { BlogsRepository } from "src/repositories/blogs.repository";
 import { PostsRepository } from "src/repositories/posts.repository";
 import { Posts, PostsDocument, PostsModel } from "src/schemas/posts.schema";
-import { MyStatus } from "src/utils/constants/constants";
+import { LikeStatus } from "src/utils/constants/constants";
 import { ErrorEnums } from "src/utils/errors/error-enums";
 import { PostView } from "src/views/post.view";
 
@@ -51,7 +51,7 @@ export class CreatePost implements ICommandHandler<CreatePostCommand>{
         );
         await this.postsRepository.saveDocument(newPost);
 
-        const newPostView = this.changePostView(newPost, MyStatus.None);
+        const newPostView = this.changePostView(newPost, LikeStatus.None);
         return new Contract(newPostView, null);
     }
 

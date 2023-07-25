@@ -8,6 +8,7 @@ import {
   NotFoundException,
   Param,
   Put,
+  UnauthorizedException,
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
@@ -15,9 +16,9 @@ import { DeviceSessionOptional } from "src/decorators/device-session-optional.de
 import { DeviceSession } from "src/decorators/device-session.decorator"
 import { AccessGuard } from "src/guards/access.guard"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
-import { DeleteCommentCommand } from "src/services/use-cases/comments/delete-comment.use-case"
-import { UpdateCommentLikeCommand } from "src/services/use-cases/comments/update-comment-like.use-case"
-import { UpdateCommentCommand } from "src/services/use-cases/comments/update-comment.use-case"
+import { DeleteCommentCommand } from "src/use-cases/comments/delete-comment.use-case"
+import { UpdateCommentLikeCommand } from "src/use-cases/comments/update-comment-like.use-case"
+import { UpdateCommentCommand } from "src/use-cases/comments/update-comment.use-case"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { AccessMiddleware } from "../guards/access.middleware"
 import { BodyCommentInputModel } from "../input-models/body/body-comment.input-model"
@@ -115,6 +116,8 @@ export class CommentsController {
         bodyLike.likeStatus,
       )
     )
+    if (comment.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    if (comment.error === ErrorEnums.USER_IS_BANNED) throw new UnauthorizedException()
     if (comment.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId")
     )

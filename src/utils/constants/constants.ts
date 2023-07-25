@@ -43,7 +43,7 @@ export const BAN_REASON_MIN_LENGTH = 20
 export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)
 export const EXPIRE_AT_REFRESH = +REFRESH_EXPIRES_TIME.slice(0, REFRESH_EXPIRES_TIME.length - 1)
 
-export enum MyStatus {
+export enum LikeStatus {
   None = "None",
   Like = "Like",
   Dislike = "Dislike",

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { HydratedDocument } from "mongoose"
+import { HydratedDocument, Types } from "mongoose"
 import { Users, UsersDocument, UsersModel } from "src/schemas/users.schema"
 
 @Injectable()
@@ -16,6 +16,12 @@ export class UsersRepository {
         if (user === null) return null
 
         return user
+    }
+
+    async findBannedUsers() {
+
+        const bannedUsers = await this.UsersModel.find({ "accountData.banInfo.isBanned": true })
+        return bannedUsers
     }
 
 

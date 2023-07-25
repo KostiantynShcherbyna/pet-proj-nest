@@ -17,19 +17,19 @@ import { BasicGuard } from "src/guards/basic.guard"
 import { BodyUserInputModel } from "src/input-models/body/body-user.input-model"
 import { QueryUserInputModel } from "src/input-models/query/query-user.input-model"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
-import { CreateUserCommand } from "src/services/use-cases/users/create-user.use-case"
-import { DeleteUserCommand } from "src/services/use-cases/users/delete-user.use-case"
+import { CreateUserCommand } from "src/use-cases/users/create-user.use-case"
+import { DeleteUserCommand } from "src/use-cases/users/delete-user.use-case"
 import { UsersService } from "src/services/users.service"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { IdInputModel } from "../input-models/uri/id.input-model"
-import { BanUserCommand } from "src/services/use-cases/users/ban-user.use-case"
+import { BanUserCommand } from "src/use-cases/users/ban-user.use-case"
 import { BodyUserBanInputModel } from "src/input-models/body/body-user-ban.input-model"
 import { QueryUserSAInputModel } from "src/input-models/query/query-user-sa.input-model"
 import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
 import { QueryBlogInputModel } from "src/input-models/query/query-blog.input-model"
 import { BindInputModel } from "src/input-models/uri/userId.input-model"
-import { BindBlogCommand } from "src/services/use-cases/blogger/bind-blog.use-case"
+import { BindBlogCommand } from "src/use-cases/blogger/bind-blog.use-case"
 
 @Controller("sa")
 export class SuperAdminController {
@@ -110,7 +110,6 @@ export class SuperAdminController {
         param.userId
       )
     )
-
     if (foundBlogView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
@@ -123,7 +122,7 @@ export class SuperAdminController {
   async findBlogs(
     @Query() queryBlog: QueryBlogInputModel
   ) {
-    return await this.blogsQueryRepository.findBlogs(queryBlog)
+    return await this.blogsQueryRepository.findSABlogs(queryBlog)
   }
 
 

@@ -71,4 +71,52 @@ export class BlogsQueryRepository {
 
     return blogsView
   }
+
+  async findSABlogs(query: QueryBlogInputModel): Promise<BlogsView> {
+
+    const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
+    const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortBy = query.sortBy || SORT_BY_DEFAULT
+    const sortDirection = query.sortDirection === SortDirection.Asc
+      ? 1
+      : -1
+
+    const skippedBlogsCount = (pageNumber - 1) * pageSize
+
+    const totalCount = await this.BlogsModel.countDocuments(
+      {
+        $or: [
+          { name: { $regex: searchNameTerm, $options: "ix" } },
+        ]
+      }
+    )
+
+    const pagesCount = Math.ceil(totalCount / pageSize)
+
+    const requestedBlogs = await this.BlogsModel.find(
+      {
+        $or: [
+          { name: { $regex: searchNameTerm, $options: "ix" } },
+        ]
+      }
+    )
+      .sort({ [sortBy]: sortDirection })
+      .limit(pageSize)
+      .skip(skippedBlogsCount)
+      .lean()
+
+    const mappedBlogs = dtoManager.changeSABlogsView(requestedBlogs)
+
+
+    const blogsView = {
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: totalCount,
+      items: mappedBlogs
+    }
+
+    return blogsView
+  }
 }

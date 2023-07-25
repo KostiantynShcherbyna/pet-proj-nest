@@ -7,7 +7,7 @@ import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { Posts, PostsModel } from "src/schemas/posts.schema"
-import { MyStatus } from "src/utils/constants/constants"
+import { LikeStatus } from "src/utils/constants/constants"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { dtoManager } from "src/utils/managers/dto.manager"
 import { BlogView } from "src/views/blog.view"
@@ -81,7 +81,7 @@ export class BlogsService {
       )
     await this.postsRepository.saveDocument(newPost)
 
-    const newPostView = dtoManager.changePostView(newPost, MyStatus.None)
+    const newPostView = dtoManager.changePostView(newPost, LikeStatus.None)
     return new Contract(newPostView, null)
   }
 }

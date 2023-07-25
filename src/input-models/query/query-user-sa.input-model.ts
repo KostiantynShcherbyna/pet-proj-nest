@@ -5,7 +5,6 @@ import { BanStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, Sor
 export class QueryUserSAInputModel {
   @IsOptional()
   @IsEnum(BanStatus)
-  @MaxLength(100)
   banStatus: BanStatus = BanStatus.All
 
   @IsOptional()
@@ -25,7 +24,6 @@ export class QueryUserSAInputModel {
 
   @IsOptional()
   @IsEnum(SortDirection)
-  @MaxLength(4)
   sortDirection: SortDirection = SortDirection.Desc
 
   @IsOptional()

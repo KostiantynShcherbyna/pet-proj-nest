@@ -35,6 +35,7 @@ export class BanUser implements ICommandHandler<BanUserCommand> {
         if (user === null)
             return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
+
         user.banUser(command.isBanned, command.banReason)
 
         const deleteCount = await this.DevicesModel.deleteAllDevices(

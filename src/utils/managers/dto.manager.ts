@@ -4,7 +4,7 @@ import { Devices } from "src/schemas/devices.schema"
 import { PostsDocument } from "src/schemas/posts.schema"
 import { UsersDocument } from "src/schemas/users.schema"
 import { CommentView } from "src/views/comment.view"
-import { MyStatus } from "../constants/constants"
+import { LikeStatus } from "../constants/constants"
 // import { Posts } from "src/schemas/posts.schema"
 
 
@@ -45,7 +45,26 @@ export const dtoManager = {
         isMembership: false,
       }
     })
+
   },
+  changeSABlogsView(data: BlogsDocument[]) {
+    return data.map(i => {
+      return {
+        id: i._id.toString(),
+        name: i.name,
+        description: i.description,
+        websiteUrl: i.websiteUrl,
+        createdAt: i.createdAt,
+        isMembership: false,
+        blogOwnerInfo: {
+          userId: i.blogOwnerInfo.userId,
+          userLogin: i.blogOwnerInfo.userLogin,
+        }
+      }
+    })
+  },
+
+
 
 
 
@@ -80,7 +99,7 @@ export const dtoManager = {
 
   changePostsView(posts: PostsDocument[], userId: string) {
     const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status
-      || MyStatus.None
+      || LikeStatus.None
     const newestLikes = (post: PostsDocument) => post.extendedLikesInfo.newestLikes
       .slice(-3)
       .map(like => {
@@ -132,8 +151,7 @@ export const dtoManager = {
 
   changeCommentsView(comments: CommentsDocument[], userId?: string): CommentView[] {
     // Looking for a myStatus of Like in each comment
-    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status
-      || MyStatus.None
+    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status || LikeStatus.None
 
     return comments.map(comment => {
       return {

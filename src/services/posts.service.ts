@@ -10,7 +10,7 @@ import { PostsRepository } from "src/repositories/posts.repository";
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository";
 import { Comments, CommentsModel } from "src/schemas/comments.schema";
 import { Posts, PostsModel } from "src/schemas/posts.schema";
-import { MyStatus } from "src/utils/constants/constants";
+import { LikeStatus } from "src/utils/constants/constants";
 import { ErrorEnums } from "src/utils/errors/error-enums";
 import { dtoManager } from "src/utils/managers/dto.manager";
 import { CommentView } from "src/views/comment.view";
@@ -44,7 +44,7 @@ export class PostsService {
     );
     await this.postsRepository.saveDocument(newPost);
 
-    const newPostView = dtoManager.changePostView(newPost, MyStatus.None);
+    const newPostView = dtoManager.changePostView(newPost, LikeStatus.None);
     return new Contract(newPostView, null);
   }
 

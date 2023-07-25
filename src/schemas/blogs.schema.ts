@@ -10,7 +10,7 @@ import {
 } from 'src/utils/constants/constants'
 import { ErrorEnums } from 'src/utils/errors/error-enums'
 import { PostsModel } from './posts.schema'
-import { CreateBlogCommand } from 'src/services/use-cases/blogger/create-blog.use-case'
+import { CreateBlogCommand } from 'src/use-cases/blogger/create-blog.use-case'
 
 
 @Schema()
