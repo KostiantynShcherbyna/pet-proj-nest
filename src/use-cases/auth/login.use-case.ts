@@ -16,7 +16,11 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 import { TokensView } from "src/views/tokens.view"
 
 export class LoginCommand {
-    constructor(public loginBody: BodyAuthInputModel, public deviceIp: string, public userAgent: string) { }
+    constructor(
+        public loginBody: BodyAuthInputModel,
+        public deviceIp: string,
+        public userAgent: string
+    ) { }
 }
 
 @CommandHandler(LoginCommand)
@@ -41,6 +45,8 @@ export class Login implements ICommandHandler<LoginCommand>{
         })
         if (user === null)
             return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+        if (user.accountData.banInfo.isBanned === true)
+            return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
         const checkConfirmationAndHashContract = await user.checkConfirmationAndHash(

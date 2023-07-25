@@ -15,6 +15,7 @@ export class DeleteCommentCommand {
 
 @CommandHandler(DeleteCommentCommand)
 export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
+    usersRepository: any
     constructor(
         @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
         protected commentsRepository: CommentsRepository,
@@ -23,9 +24,17 @@ export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
 
     async execute(command: DeleteCommentCommand): Promise<Contract<null | boolean>> {
         // Looking for a comment and check owner
+        const foundUser = await this.usersRepository.findUser(command.userId)
+        if (foundUser === null)
+          return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+        if (foundUser.accountData.banInfo.isBanned === true)
+          return new Contract(null, ErrorEnums.USER_IS_BANNED)
+
+
         const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
         if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_DELETED);
+
 
         const deleteCommentContract = await this.CommentsModel.deleteComment(command.commentId, this.CommentsModel)
         if (deleteCommentContract.data === 0) return new Contract(null, ErrorEnums.COMMENT_NOT_DELETE);

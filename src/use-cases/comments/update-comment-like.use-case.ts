@@ -14,6 +14,7 @@ export class UpdateCommentLikeCommand {
 
 @CommandHandler(UpdateCommentLikeCommand)
 export class UpdateCommentLike implements ICommandHandler<UpdateCommentLikeCommand> {
+    usersRepository: any;
     constructor(
         protected commentsRepository: CommentsRepository,
     ) {
@@ -21,8 +22,16 @@ export class UpdateCommentLike implements ICommandHandler<UpdateCommentLikeComma
 
     async execute(command: UpdateCommentLikeCommand): Promise<Contract<boolean | null>> {
 
+        const foundUser = await this.usersRepository.findUser(command.userId)
+        if (foundUser === null)
+          return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+        if (foundUser.accountData.banInfo.isBanned === true)
+          return new Contract(null, ErrorEnums.USER_IS_BANNED)
+
         const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
+
+      
         // Create a new Like if there is no Like before or update Like if there is one
         comment.createOrUpdateLike(command.userId, command.newLikeStatus);
         await this.commentsRepository.saveDocument(comment);
