@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
-import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { DeviceSession } from "src/decorators/device-session.decorator"
 import { AccessGuard } from "src/guards/access.guard"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
 import { DeleteCommentCommand } from "src/services/use-cases/comments/delete-comment.use-case"
@@ -55,7 +55,7 @@ export class CommentsController {
   @Put(":commentId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateComment(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: CommentIdInputModel,
     @Body() bodyComment: BodyCommentInputModel
   ) {
@@ -79,7 +79,7 @@ export class CommentsController {
   @Delete(":commentId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: CommentIdInputModel
   ) {
     const comment = await this.commandBus.execute(
@@ -104,7 +104,7 @@ export class CommentsController {
   @Put(":commentId/like-status")
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: CommentIdInputModel,
     @Body() bodyLike: BodyLikeInputModel
   ) {

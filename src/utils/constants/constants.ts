@@ -33,6 +33,13 @@ export const ACCESS_EXPIRES_TIME = "1000s"
 export const REFRESH_EXPIRES_TIME = "2000s"
 export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
+
+export const BAN_REASON_MIN_LENGTH = 20
+// export enum BanReason {
+
+// }
+
+
 export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)
 export const EXPIRE_AT_REFRESH = +REFRESH_EXPIRES_TIME.slice(0, REFRESH_EXPIRES_TIME.length - 1)
 
@@ -42,6 +49,11 @@ export enum MyStatus {
   Dislike = "Dislike",
 }
 
+export enum BanStatus {
+  All = "all",
+  Banned = "banned",
+  NotBanned = "notBanned",
+}
 export enum SortDirection {
   Asc = "asc",
   Desc = "desc",

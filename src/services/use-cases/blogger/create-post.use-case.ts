@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { InjectModel } from "@nestjs/mongoose";
 import { Contract } from "src/contract";
 import { BodyPostInputModel } from "src/input-models/body/body-post.input-model";
@@ -9,8 +10,20 @@ import { MyStatus } from "src/utils/constants/constants";
 import { ErrorEnums } from "src/utils/errors/error-enums";
 import { PostView } from "src/views/post.view";
 
-@Injectable()
-export class TransactionScriptService {
+
+export class CreatePostCommand {
+    constructor(
+        public title: string,
+        public shortDescription: string,
+        public content: string,
+        public blogId: string,
+        public userId: string
+    ) { }
+}
+
+
+@CommandHandler(CreatePostCommand)
+export class CreatePost implements ICommandHandler<CreatePostCommand>{
     constructor(
         @InjectModel(Posts.name) protected PostsModel: PostsModel,
         protected blogsRepository: BlogsRepository,
@@ -18,14 +31,21 @@ export class TransactionScriptService {
     ) {
     }
 
-    async createPost(bodyPost: BodyPostInputModel): Promise<Contract<null | PostView>> {
+    async execute(command: CreatePostCommand): Promise<Contract<null | PostView>> {
 
-        const foundBlog = await this.blogsRepository.findBlog(bodyPost.blogId);
+        const foundBlog = await this.blogsRepository.findBlog(command.blogId);
         if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
+        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_CREATE_POST);
+
+        const createDto = {
+            title: command.title,
+            shortDescription: command.shortDescription,
+            content: command.content,
+        }
 
         const newPost = this.PostsModel.createPost(
-            bodyPost,
-            bodyPost.blogId,
+            createDto,
+            command.blogId,
             foundBlog.name,
             this.PostsModel
         );

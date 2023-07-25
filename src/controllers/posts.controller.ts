@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, UseGuards } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
-import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { DeviceSession } from "src/decorators/device-session.decorator"
 import { BodyCommentInputModel } from "src/input-models/body/body-comment.input-model"
 import { BodyPostInputModel } from "src/input-models/body/body-post.input-model"
 import { QueryCommentInputModel } from "src/input-models/query/query-comment.input-model"
@@ -11,7 +11,7 @@ import { CommentsQueryRepository } from "src/repositories/query/comments.query.r
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { CommentsService } from "src/services/comments.service"
 import { PostsService } from "src/services/posts.service"
-import { TransactionScriptService } from "src/services/transaction-script.service"
+import { CreatePost } from "src/services/use-cases/blogger/create-post.use-case"
 import { CreateCommentCommand } from "src/services/use-cases/posts/create-comment.use-case"
 import { DeletePostCommand } from "src/services/use-cases/posts/delete-post.use-case"
 import { UpdatePostLikeCommand } from "src/services/use-cases/posts/update-post-like.use-case"
@@ -36,7 +36,7 @@ export class PostsController {
     protected postsService: PostsService,
     protected commentsService: CommentsService,
     protected blogsQueryRepository: BlogsQueryRepository,
-    protected transactionScriptService: TransactionScriptService,
+    protected transactionScriptService: CreatePost,
   ) {
   }
 
@@ -46,7 +46,12 @@ export class PostsController {
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Query() queryPost: QueryPostInputModel
   ) {
-    return await this.postsQueryRepository.findPosts(queryPost, "", deviceSession?.userId)
+    const postsContract = await this.postsQueryRepository.findPosts(queryPost, deviceSession.userId)
+    // if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+    //   callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    // )
+    // if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
+    return postsContract.data
   }
 
   @UseGuards(AccessMiddleware)
@@ -62,17 +67,17 @@ export class PostsController {
     return post
   }
 
-  @UseGuards(BasicGuard)
-  @Post()
-  async createPost(
-    @Body() bodyPost: BodyPostInputModel
-  ) {
-    const resultContruct = await this.transactionScriptService.createPost(bodyPost)
-    if (resultContruct.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    )
-    return resultContruct.data
-  }
+  // @UseGuards(BasicGuard)
+  // @Post()
+  // async createPost(
+  //   @Body() bodyPost: BodyPostInputModel
+  // ) {
+  //   const resultContruct = await this.transactionScriptService.createPost(bodyPost)
+  //   if (resultContruct.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+  //   )
+  //   return resultContruct.data
+  // }
 
   @UseGuards(BasicGuard)
   @Put(":id")
@@ -129,7 +134,7 @@ export class PostsController {
   @UseGuards(AccessGuard)
   @Post(":postId/comments")
   async createComment(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: PostIdInputModel,
     @Body() bodyComment: BodyCommentInputModel,
   ) {

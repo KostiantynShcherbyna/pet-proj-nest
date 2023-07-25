@@ -42,12 +42,12 @@ import { ThrottlerModule } from "@nestjs/throttler"
 import { throttler } from "./guards/throttler.guard"
 import { PassportModule } from "@nestjs/passport"
 import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strategy"
-import { CreateBlog } from "./services/use-cases/blogs/create-blog.use-case"
-import { UpdateBlog } from "./services/use-cases/blogs/update-blog.use-case"
-import { DeleteBlog } from "./services/use-cases/blogs/delete-blog.use-case"
+import { CreateBlog } from "./services/use-cases/blogger/create-blog.use-case"
+import { UpdateBlog } from "./services/use-cases/blogger/update-blog.use-case"
+import { DeleteBlog } from "./services/use-cases/blogger/delete-blog.use-case"
 import { CqrsModule } from "@nestjs/cqrs"
 import { Registration } from "./services/use-cases/auth/registration.use-case"
-import { TransactionScriptService } from "./services/transaction-script.service"
+import { CreatePost } from "./services/use-cases/blogger/create-post.use-case"
 import { ConfirmationResend } from "./services/use-cases/auth/confiramtion-resend.use-case"
 import { Confirmation } from "./services/use-cases/auth/confiramtion.use-case"
 import { Login } from "./services/use-cases/auth/login.use-case"
@@ -68,6 +68,7 @@ import { CreateToken } from "./services/use-cases/tokens/create-token.use-case"
 import { VerifyToken } from "./services/use-cases/tokens/verify-token.use-case"
 import { CreateUser } from "./services/use-cases/users/create-user.use-case"
 import { DeleteUser } from "./services/use-cases/users/delete-user.use-case"
+import { BanUser } from "./services/use-cases/users/ban-user.use-case"
 
 
 
@@ -89,6 +90,7 @@ const useCases = [
   DeleteOtherDevices,
   DeleteSpecialDevice,
   CreateComment,
+  CreatePost,
   DeletePost,
   UpdatePostLike,
   UpdatePost,
@@ -97,6 +99,7 @@ const useCases = [
   CreateUser,
   DeleteUser,
   Registration,
+  BanUser,
 ]
 const services = [
   BlogsService,
@@ -107,7 +110,7 @@ const services = [
   DevicesService,
   TokensService,
   AppService,
-  TransactionScriptService,
+  CreatePost,
 ]
 const repository = [
   BlogsRepository,

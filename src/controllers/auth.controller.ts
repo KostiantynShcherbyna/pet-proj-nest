@@ -16,7 +16,7 @@ import { CommandBus } from "@nestjs/cqrs"
 import { AuthGuard } from "@nestjs/passport"
 import { Throttle } from "@nestjs/throttler"
 import { Response } from "express"
-import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { DeviceSession } from "src/decorators/device-session.decorator"
 import { AccessGuard } from "src/guards/access.guard"
 import { RefreshGuard } from "src/guards/refresh.guard"
 import { BodyAuthInputModel } from "src/input-models/body/body-auth.input-model"
@@ -80,7 +80,7 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel
+    @DeviceSession() deviceSession: DeviceSessionInputModel
   ) {
     const logoutContract = await this.commandBus.execute(
       new LogoutCommand(
@@ -105,7 +105,7 @@ export class AuthController {
   @Post("refresh-token")
   @HttpCode(HttpStatus.OK)
   async refreshToken(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Headers("user-agent") userAgent: string = USER_AGENT,
     @Ip() ip: string,
     @Res({ passthrough: true }) res: Response,
@@ -201,7 +201,7 @@ export class AuthController {
   @UseGuards(AccessGuard)
   @Get("me")
   async getMe(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
   ) {
     const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
 

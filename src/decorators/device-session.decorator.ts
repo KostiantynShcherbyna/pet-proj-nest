@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const DeviceSessionDecorator = createParamDecorator(
+export const DeviceSession = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     if (!request.deviceSession) throw new Error('JWT guard must be used')

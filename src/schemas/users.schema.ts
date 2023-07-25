@@ -18,6 +18,7 @@ export interface IAccountData {
     email: string
     passwordHash: string
     createdAt: string;
+    banInfo: IBanInfo
 }
 
 export interface IEmailConfirmation {
@@ -29,6 +30,33 @@ export interface IEmailConfirmation {
 export interface ISentEmail {
     sentDate: Date
 }
+export interface IBanInfo {
+    isBanned: boolean
+    banDate: string | null
+    banReason: string | null
+}
+
+@Schema()
+export class BanInfo {
+    @Prop({
+        type: Boolean,
+        default: false
+    })
+    isBanned: boolean
+
+    @Prop({
+        type: String,
+        default: null
+    })
+    banDate: string | null
+
+    @Prop({
+        type: String,
+        default: null
+    })
+    banReason: string | null
+}
+
 
 @Schema()
 export class Users {
@@ -54,6 +82,7 @@ export class Users {
                 type: String,
                 required: true,
             },
+            banInfo: BanInfo
         }))
     accountData: IAccountData
 
@@ -90,6 +119,11 @@ export class Users {
                 email: newUserData.email,
                 passwordHash: passwordHash,
                 createdAt: date.toISOString(),
+                banInfo: {
+                    isBanned: false,
+                    banDate: null,
+                    banReason: null,
+                }
             },
             emailConfirmation: {
                 confirmationCode: null,
@@ -113,6 +147,11 @@ export class Users {
                 login: registrationBody.login,
                 passwordHash: passwordHash,
                 createdAt: date.toISOString(),
+                banInfo: {
+                    isBanned: false,
+                    banDate: null,
+                    banReason: null,
+                }
             },
             emailConfirmation: {
                 confirmationCode: randomUUID(),
@@ -174,6 +213,12 @@ export class Users {
 
     addSentDate() {
         this.emailConfirmation.sentEmails.push({ sentDate: new Date() })
+    }
+
+    banUser(isBanned: boolean, banReason: string) {
+        this.accountData.banInfo.isBanned = isBanned
+        this.accountData.banInfo.banDate = new Date().toISOString()
+        this.accountData.banInfo.banReason = banReason
     }
 
 }

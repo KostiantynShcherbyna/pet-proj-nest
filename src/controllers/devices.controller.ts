@@ -11,7 +11,7 @@ import {
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
-import { DeviceSessionDecorator } from "src/decorators/device-session.decorator"
+import { DeviceSession } from "src/decorators/device-session.decorator"
 import { RefreshGuard } from "src/guards/refresh.guard"
 import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { AuthQueryRepository } from "src/repositories/query/auth.query.repository"
@@ -34,7 +34,7 @@ export class DevicesController {
   @UseGuards(RefreshGuard)
   @Get("devices")
   async getDevices(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
   ) {
     return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
   }
@@ -43,7 +43,7 @@ export class DevicesController {
   @Delete("devices")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherDevices(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
   ) {
     const result = await this.commandBus.execute(
       new DeleteOtherDevicesCommand(
@@ -60,7 +60,7 @@ export class DevicesController {
   @Delete("devices/:deviceId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSpecialDevice(
-    @DeviceSessionDecorator() deviceSession: DeviceSessionInputModel,
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: DeviceIdInputModel,
   ) {
     const result = await this.commandBus.execute(

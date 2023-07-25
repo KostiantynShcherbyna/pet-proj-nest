@@ -23,8 +23,7 @@ export class BlogsQueryRepository {
     return foundBlogView
   }
 
-  async findBlogs(query: QueryBlogInputModel): Promise<BlogsView> {
-
+  async findBlogs(query: QueryBlogInputModel, userId?: string): Promise<BlogsView> {
 
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
@@ -36,15 +35,25 @@ export class BlogsQueryRepository {
 
     const skippedBlogsCount = (pageNumber - 1) * pageSize
 
-    const totalCount = await this.BlogsModel.countDocuments({
-      name: { $regex: searchNameTerm, $options: "ix" }
-    })
+    const totalCount = await this.BlogsModel.countDocuments(
+      {
+        $or: [
+          { "blogOwnerInfo.userId": userId },
+          { name: { $regex: searchNameTerm, $options: "ix" } },
+        ]
+      }
+    )
 
     const pagesCount = Math.ceil(totalCount / pageSize)
 
-    const requestedBlogs = await this.BlogsModel.find({
-      name: { $regex: searchNameTerm, $options: "ix" }
-    })
+    const requestedBlogs = await this.BlogsModel.find(
+      {
+        $or: [
+          { "blogOwnerInfo.userId": userId },
+          { name: { $regex: searchNameTerm, $options: "ix" } },
+        ]
+      }
+    )
       .sort({ [sortBy]: sortDirection })
       .limit(pageSize)
       .skip(skippedBlogsCount)

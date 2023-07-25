@@ -17,6 +17,8 @@ import {
   SORT_DIRECTION_DEFAULT,
   SortDirection
 } from "src/utils/constants/constants"
+import { Contract } from "src/contract"
+import { ErrorEnums } from "src/utils/errors/error-enums"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -28,11 +30,12 @@ export class PostsQueryRepository {
   ) {
   }
 
-  async findPosts(queryPost: QueryPostInputModel, blogId?: string, userId?: string): Promise<null | PostsView> {
+  async findPosts(queryPost: QueryPostInputModel, userId: string, blogId?: string,): Promise<Contract<null | PostsView>> {
 
     if (blogId) {
       const blog = await this.blogsRepositoryMngs.findBlog(blogId)
-      if (blog === null) return null
+      if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+      if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
     }
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
@@ -75,7 +78,7 @@ export class PostsQueryRepository {
       items: mappedPosts
     }
 
-    return postsView
+    return new Contract(postsView, null)
   }
 
   async findPost(postId: string, userId?: string): Promise<null | PostView> {

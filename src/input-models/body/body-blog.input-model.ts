@@ -9,8 +9,8 @@ import { Transform, TransformFnParams } from "class-transformer"
 
 export class BodyBlogInputModel {
   @IsString()
-  @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
+  @IsNotEmpty()
   @MaxLength(BLOGS_NAME_MAX_LENGTH)
   name: string
 

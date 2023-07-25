@@ -78,7 +78,7 @@ export const dtoManager = {
     }
   },
 
-  changePostsView(posts: PostsDocument[], userId?: string) {
+  changePostsView(posts: PostsDocument[], userId: string) {
     const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status
       || MyStatus.None
     const newestLikes = (post: PostsDocument) => post.extendedLikesInfo.newestLikes

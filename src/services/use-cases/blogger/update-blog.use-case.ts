@@ -5,7 +5,11 @@ import { BlogsRepository } from "src/repositories/blogs.repository"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class UpdateBlogCommand {
-    constructor(public id: string, public bodyBlog: BodyBlogInputModel) { }
+    constructor(
+        public blogId: string,
+        public bodyBlog: BodyBlogInputModel,
+        public userId: string,
+    ) { }
 }
 
 
@@ -19,12 +23,12 @@ export class UpdateBlog implements ICommandHandler<UpdateBlogCommand>{
     async execute(command: UpdateBlogCommand): Promise<Contract<null | boolean>> {
         // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
 
-        const blog = await this.blogsRepository.findBlog(command.id)
-        if (blog === null)
-            return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+        const foundBlog = await this.blogsRepository.findBlog(command.blogId)
+        if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
+        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST);
 
-        blog.updateBlog(command.bodyBlog)
-        await this.blogsRepository.saveDocument(blog)
+        foundBlog.updateBlog(command.bodyBlog)
+        await this.blogsRepository.saveDocument(foundBlog)
 
         return new Contract(true, null)
     }

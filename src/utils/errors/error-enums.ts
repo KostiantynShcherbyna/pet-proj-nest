@@ -13,16 +13,22 @@ export enum ErrorEnums {
     RECOVERY_CODE_NOT_DELETE = `RECOVERY_CODE_NOT_DELETE`,
     FOREIGN_DEVICE_NOT_DELETE = `Foreign device not deleted`,
     CONFIRMATION_CODE_EXPIRED = `Confirmation code is expired`,
-    
+
     // ↓↓↓ BLOGS
     BLOG_NOT_FOUND = `Blog not found`,
     BLOG_NOT_DELETED = `Blog not deleted`,
-    
+
     // ↓↓↓ POSTS
     POST_NOT_FOUND = `Post not found`,
     POST_NOT_DELETED = `Post not deleted`,
     POSTS_NOT_DELETED = `Posts not deleted`,
-    
+    FOREIGN_BLOG = `Foreign blog`,
+    FOREIGN_BLOG_NOT_DELETE = `Foreign blog, can't delete delete`,
+    FOREIGN_BLOG_NOT_CREATE_POST = `Foreign blog, can't create new post`,
+    FOREIGN_BLOG_NOT_UPDATE_POST = `Foreign blog, can't update new post`,
+    FOREIGN_BLOG_NOT_DELETE_POST = `Foreign blog, can't delete new post`,
+
+
     // ↓↓↓ USERS
     USER_NOT_FOUND = `User not found`,
     USER_NOT_DELETE = `User not deleted`,

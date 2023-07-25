@@ -120,6 +120,14 @@ export class Devices {
     return deletedResult.deletedCount
   }
 
+  static async deleteAllDevices(userId: string, DevicesModel: DevicesModel): Promise<number> {
+
+    const deletedResult = await DevicesModel.deleteMany(
+      { userId: userId }
+    )
+    return deletedResult.deletedCount
+  }
+
 
   async refreshDevice({ deviceIp, userAgent, device, accessJwtSecret, refreshJwtSecret }: RefreshDeviceDto): Promise<RefreshDeviceTokensDto> {
 
@@ -197,12 +205,18 @@ interface DevicesStatics {
     deviceId: string,
     DevicesModel: DevicesModel
   ): Promise<number>
+
+  deleteAllDevices(
+    userId: string,
+    DevicesModel: DevicesModel
+  ): Promise<number>
 }
 
 export const DevicesSchema = SchemaFactory.createForClass(Devices)
 DevicesSchema.statics.createDevice = Devices.createDevice
 DevicesSchema.statics.deleteDevice = Devices.deleteDevice
 DevicesSchema.statics.deleteOtherDevices = Devices.deleteOtherDevices
+DevicesSchema.statics.deleteAllDevices = Devices.deleteAllDevices
 DevicesSchema.methods.refreshDevice = Devices.prototype.refreshDevice
 DevicesSchema.methods.checkOwner = Devices.prototype.checkOwner
 
