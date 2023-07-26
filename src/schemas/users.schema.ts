@@ -36,26 +36,26 @@ export interface IBanInfo {
     banReason: string | null
 }
 
-@Schema()
-export class BanInfo {
-    @Prop({
-        type: Boolean,
-        default: false
-    })
-    isBanned: boolean
+// @Schema()
+// export class BanInfo {
+//     @Prop({
+//         type: Boolean,
+//         default: false
+//     })
+//     isBanned: boolean
 
-    @Prop({
-        type: String,
-        default: null
-    })
-    banDate: string | null
+//     @Prop({
+//         type: String,
+//         default: null
+//     })
+//     banDate: string | null
 
-    @Prop({
-        type: String,
-        default: null
-    })
-    banReason: string | null
-}
+//     @Prop({
+//         type: String,
+//         default: null
+//     })
+//     banReason: string | null
+// }
 
 
 @Schema()
@@ -82,7 +82,17 @@ export class Users {
                 type: String,
                 required: true,
             },
-            banInfo: BanInfo
+            banInfo: {
+                isBanned: {
+                    type: Boolean
+                },
+                banDate: {
+                    type: String
+                },
+                banReason: {
+                    type: String,
+                }
+            }
         }))
     accountData: IAccountData
 

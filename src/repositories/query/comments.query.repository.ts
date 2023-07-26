@@ -77,17 +77,33 @@ export class CommentsQueryRepository {
     const bannedUserIds = bannedUsers.map(user => user._id.toString())
 
     // const commentsTotalCount = await this.CommentsModel.countDocuments({ $and: [{ postId: postId }, { "commentatorInfo.userId": { $nin: bannedUserIds } }] })
-    const commentsTotalCount = await this.CommentsModel.countDocuments({ $and: [{ postId: postId }, { userId: { $nin: bannedUserIds } }] })
+    const commentsTotalCount = await this.CommentsModel.countDocuments(
+      {
+        $and: [
+          { postId: postId },
+          { "commentatorInfo.userId": { $nin: bannedUserIds } }
+        ]
+      }
+    )
+
 
     const pagesCount = Math.ceil(commentsTotalCount / pageSize)
 
 
-    const comments = await this.CommentsModel
-      .find({ $and: [{ postId: postId }, { userId: { $nin: bannedUserIds } }] })
+    const comments = await this.CommentsModel.find(
+      {
+        $and: [
+          { postId: postId },
+          { "commentatorInfo.userId": { $nin: bannedUserIds } }
+        ]
+      }
+    )
       .sort({ [sortBy]: sortDirection })
       .limit(pageSize)
       .skip(skippedCommentsCount)
       .lean()
+
+
 
     const trueComments = comments.map(comment => {
       let likesCount: number = 0
@@ -99,34 +115,12 @@ export class CommentsQueryRepository {
         return !bannedUserIds.includes(like.userId)
       })
 
-      comment.likesInfo.likesCount - likesCount
-      comment.likesInfo.dislikesCount - dislikesCount
+      const commentCopy = { ...comment }
+      commentCopy.likesInfo.likesCount -= likesCount
+      commentCopy.likesInfo.dislikesCount -= dislikesCount
+      commentCopy.likesInfo.like = trueLikes
 
-      return {
-        ...comment,
-        likesInfo: {
-          likesCount: likesCount,
-          dislikesCount: dislikesCount,
-          like: trueLikes,
-        }
-      }
-      // return {
-      //   _id: comment._id,
-      //   postId: comment.postId,
-      //   content: comment.content,
-      //   commentatorInfo: {
-      //     userId: comment.commentatorInfo.userId,
-      //     userLogin: comment.commentatorInfo.userLogin,
-      //   },
-      //   createdAt: comment.createdAt,
-      //   likesInfo: {
-      //     likesCount: likesCount,
-      //     dislikesCount: dislikesCount,
-      //     like: trueLikes,
-      //   }
-      // }
-
-
+      return commentCopy
     })
 
 

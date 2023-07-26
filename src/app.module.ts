@@ -14,7 +14,7 @@ import { Posts, PostsSchema } from "./schemas/posts.schema"
 import { CommentsQueryRepository } from "./repositories/query/comments.query.repository"
 import { Comments, CommentsSchema } from "./schemas/comments.schema"
 import { PostsController } from "./controllers/posts.controller"
-import { UsersController } from "./controllers/users.controller"
+// import { UsersController } from "./controllers/users.controller"
 import { Users, UsersSchema } from "./schemas/users.schema"
 import { UsersQueryRepository } from "./repositories/query/users.query.repository"
 import { UsersService } from "./services/users.service"
@@ -69,6 +69,8 @@ import { VerifyToken } from "./use-cases/tokens/verify-token.use-case"
 import { CreateUser } from "./use-cases/users/create-user.use-case"
 import { DeleteUser } from "./use-cases/users/delete-user.use-case"
 import { BanUser } from "./use-cases/users/ban-user.use-case"
+import { SuperAdminController } from "./controllers/super-admin.controller"
+import { BloggerController } from "./controllers/blogger.controller"
 
 
 
@@ -166,7 +168,9 @@ const otherProviders = [
   controllers: [
     BlogsController,
     PostsController,
-    UsersController,
+    SuperAdminController,
+    // UsersController,
+    BloggerController,
     CommentsController,
     TestingController,
     AuthController,

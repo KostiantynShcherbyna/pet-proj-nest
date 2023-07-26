@@ -8,21 +8,21 @@ import {
 import { Transform, TransformFnParams } from "class-transformer"
 
 export class BodyBlogInputModel {
-  @IsString()
   @Transform(({ value }: TransformFnParams) => value?.trim())
+  @IsString()
   @IsNotEmpty()
   @MaxLength(BLOGS_NAME_MAX_LENGTH)
   name: string
 
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
   @MaxLength(BLOGS_DESCRIPTION_MAX_LENGTH)
   description: string
 
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
   @MaxLength(BLOGS_WEBSITEURL_MAX_LENGTH)
   @Matches(BLOGS_WEBSITEURL_REGEX)
   websiteUrl: string

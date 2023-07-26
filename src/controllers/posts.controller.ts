@@ -42,21 +42,17 @@ export class PostsController {
 
   @UseGuards(AccessMiddleware)
   @Get()
-  async findPosts(
+  async getPosts(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Query() queryPost: QueryPostInputModel
   ) {
-    const postsContract = await this.postsQueryRepository.findPosts(queryPost, deviceSession.userId)
-    // if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-    //   callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    // )
-    // if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
+    const postsContract = await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
     return postsContract.data
   }
 
   @UseGuards(AccessMiddleware)
   @Get(":id")
-  async findPost(
+  async getPost(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: IdInputModel,
   ) {
@@ -115,20 +111,20 @@ export class PostsController {
 
   @UseGuards(AccessMiddleware)
   @Get(":postId/comments")
-  async findComments(
+  async getComments(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: PostIdInputModel,
     @Query() queryComment: QueryCommentInputModel,
   ) {
-    const commentsView = await this.commentsQueryRepository.findComments(
+    const commentsContract = await this.commentsQueryRepository.findComments(
       param.postId,
       queryComment,
       deviceSession?.userId
     )
-    if (commentsView === null) throw new NotFoundException(
+    if (commentsContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )
-    return commentsView
+    return commentsContract.data
   }
 
   @UseGuards(AccessGuard)

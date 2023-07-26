@@ -79,7 +79,7 @@ export class Blogs {
       createdAt: date,
       isMembership: false,
       blogOwnerInfo: {
-        userid: bodyBlog.userId,
+        userId: bodyBlog.userId,
         userLogin: login,
       }
     }

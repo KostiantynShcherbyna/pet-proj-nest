@@ -43,23 +43,24 @@ export class SuperAdminController {
 
 
   @UseGuards(BasicGuard)
-  @Put("/users/:id/ban")
+  @Put("users/:id/ban")
   async banUser(
     @Param() param: IdInputModel,
     @Body() bodyUserBan: BodyUserBanInputModel
   ) {
-    return await this.commandBus.execute(
+    await this.commandBus.execute(
       new BanUserCommand(
         param.id,
         bodyUserBan.isBanned,
         bodyUserBan.banReason,
       )
     )
+    return
   }
 
   @UseGuards(BasicGuard)
-  @Get("/users")
-  async findUsers(
+  @Get("users")
+  async getUsers(
     @Query() queryUser: QueryUserSAInputModel
   ) {
     return await this.usersQueryRepository.findUsers(queryUser)
@@ -67,7 +68,7 @@ export class SuperAdminController {
 
 
   @UseGuards(BasicGuard)
-  @Post("/users")
+  @Post("users")
   async createUser(
     @Body() bodyUser: BodyUserInputModel
   ) {
@@ -82,7 +83,7 @@ export class SuperAdminController {
 
 
   @UseGuards(BasicGuard)
-  @Delete("/users/:id")
+  @Delete("users/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
     @Param() param: IdInputModel
@@ -98,9 +99,9 @@ export class SuperAdminController {
 
 
 
-  
+
   @UseGuards(BasicGuard)
-  @Put("/blogs/:id/bind-with-user/:userId")
+  @Put("blogs/:id/bind-with-user/:userId")
   async bindBlog(
     @Param() param: BindInputModel,
   ) {
@@ -118,8 +119,8 @@ export class SuperAdminController {
 
 
   @UseGuards(BasicGuard)
-  @Get()
-  async findBlogs(
+  @Get("blogs")
+  async getBlogs(
     @Query() queryBlog: QueryBlogInputModel
   ) {
     return await this.blogsQueryRepository.findSABlogs(queryBlog)

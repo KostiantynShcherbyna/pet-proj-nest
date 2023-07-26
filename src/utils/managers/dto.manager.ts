@@ -97,7 +97,7 @@ export const dtoManager = {
     }
   },
 
-  changePostsView(posts: PostsDocument[], userId: string) {
+  changePostsView(posts: PostsDocument[], userId?: string) {
     const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status
       || LikeStatus.None
     const newestLikes = (post: PostsDocument) => post.extendedLikesInfo.newestLikes
@@ -198,6 +198,11 @@ export const dtoManager = {
         login: i.accountData.login,
         email: i.accountData.email,
         createdAt: i.accountData.createdAt,
+        banInfo: {
+          isBanned: i.accountData.banInfo.isBanned,
+          banDate: i.accountData.banInfo.banDate,
+          banReason: i.accountData.banInfo.banReason,
+        }
       }
     })
   },

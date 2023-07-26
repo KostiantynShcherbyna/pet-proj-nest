@@ -31,7 +31,7 @@ export class CreateBlog implements ICommandHandler<CreateBlogCommand>{
     async execute(command: CreateBlogCommand): Promise<Contract<null | BlogView>> {
         // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
 
-        const foundUser = await this.usersRepository.findUser(["id", command.userId])
+        const foundUser = await this.usersRepository.findUser(["_id", new Types.ObjectId(command.userId)])
         if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
         const newBlog = this.BlogsModel.createBlog(

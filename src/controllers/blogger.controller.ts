@@ -53,37 +53,6 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Get()
-  async findBlogs(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Query() queryBlog: QueryBlogInputModel
-  ) {
-    return await this.blogsQueryRepository.findBlogs(
-      queryBlog,
-      deviceSession.userId,
-    )
-  }
-
-  @UseGuards(AccessGuard)
-  @Post()
-  async createBlog(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Body() bodyBlog: BodyBlogInputModel
-  ) {
-    const createdBlogContract = await this.commandBus.execute(
-      new CreateBlogCommand(
-        bodyBlog.name,
-        bodyBlog.description,
-        bodyBlog.websiteUrl,
-        deviceSession.userId,
-      )
-    )
-    if (createdBlogContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
-    return createdBlogContract.data
-  }
-
-
-  @UseGuards(AccessGuard)
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
@@ -104,6 +73,7 @@ export class BloggerController {
     )
     return
   }
+
 
 
   @UseGuards(AccessGuard)
@@ -135,24 +105,39 @@ export class BloggerController {
   }
 
 
+
   @UseGuards(AccessGuard)
-  @Get(":blogId/posts")
-  async findPosts(
+  @Post()
+  async createBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() param: BlogIdInputModel,
-    @Query() queryPost: QueryPostInputModel,
+    @Body() bodyBlog: BodyBlogInputModel
   ) {
-    const postsContract = await this.postsQueryRepository.findBloggerBlogPosts(
-      queryPost,
-      deviceSession.userId,
-      param.blogId,
+    const createdBlogContract = await this.commandBus.execute(
+      new CreateBlogCommand(
+        bodyBlog.name,
+        bodyBlog.description,
+        bodyBlog.websiteUrl,
+        deviceSession.userId,
+      )
     )
-    if (postsContract === null) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    )
-    if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
-    return postsContract.data
+    if (createdBlogContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
+    return createdBlogContract.data
   }
+
+
+
+  @UseGuards(AccessGuard)
+  @Get()
+  async findBlogs(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Query() queryBlog: QueryBlogInputModel
+  ) {
+    return await this.blogsQueryRepository.findBlogs(
+      queryBlog,
+      deviceSession.userId,
+    )
+  }
+
 
 
   @UseGuards(AccessGuard)
@@ -170,7 +155,6 @@ export class BloggerController {
         param.blogId,
         deviceSession.userId
       )
-
     )
     if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
@@ -178,6 +162,26 @@ export class BloggerController {
     return result.data
   }
 
+
+
+  @UseGuards(AccessGuard)
+  @Get(":blogId/posts")
+  async findPosts(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Param() param: BlogIdInputModel,
+    @Query() queryPost: QueryPostInputModel,
+  ) {
+    const postsContract = await this.postsQueryRepository.findBloggerPosts(
+      queryPost,
+      deviceSession.userId,
+      param.blogId,
+    )
+    if (postsContract === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
+    if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
+    return postsContract.data
+  }
 
 
 
@@ -203,6 +207,8 @@ export class BloggerController {
     return
   }
 
+
+
   @UseGuards(AccessGuard)
   @Delete(":blogId/posts/:postId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -222,7 +228,6 @@ export class BloggerController {
     )
     return
   }
-
 
 
 }

@@ -34,13 +34,8 @@ export class PostsQueryRepository {
   ) {
   }
 
-  async findPosts(queryPost: QueryPostInputModel, userId: string, blogId?: string,): Promise<Contract<null | PostsView>> {
 
-    // if (blogId) {
-    //   const blog = await this.blogsRepositoryMngs.findBlog(blogId)
-    //   if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    //   if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
-    // }
+  async findPosts(queryPost: QueryPostInputModel, userId?: string, blogId?: string,): Promise<Contract<null | PostsView>> {
 
     if (blogId) {
       const blog = await this.blogsRepositoryMngs.findBlog(blogId)
@@ -55,11 +50,31 @@ export class PostsQueryRepository {
       : -1
     const skippedPostsCount = (pageNumber - 1) * pageSize
 
+
+    const bannedUsers = await this.usersRepository.findBannedUsers()
+    const bannedUserIds = bannedUsers.map(user => user._id.toString())
+
+    // const totalCount = blogId
+    //   ? await this.PostsModel.countDocuments({ $and: [{ blogId: blogId }, { "extendedLikesInfo.like.userId": { $nin: bannedUserIds } }] })
+    //   : await this.PostsModel.countDocuments({ "extendedLikesInfo.like.userId": { $nin: bannedUserIds } })
+
     const totalCount = blogId
       ? await this.PostsModel.countDocuments({ blogId: blogId })
-      : await this.PostsModel.countDocuments({})
+      : await this.PostsModel.countDocuments()
 
-    const pagesCount = Math.ceil(totalCount / pageSize)
+
+
+    // const totalCount = this.PostsModel.aggregate([
+    //   // Разворачиваем массив "likes" для дальнейшей обработки
+    //   { $unwind: '$extendedLikesInfo.like' },
+
+    //   // Фильтруем документы, у которых "userId" из "likes" отсутствует в массиве "notLikes"
+    //   { $match: { 'extendedLikesInfo.like.userId': { $nin: bannedUserIds } } },
+
+    //   // Группируем обратно по _id для подсчета количества документов
+    //   { $group: { _id: '$_id', count: { $sum: 1 } } }
+    // ]).count.length
+
 
 
     const foundPosts = blogId
@@ -77,7 +92,34 @@ export class PostsQueryRepository {
         .lean()
 
 
-    const mappedPosts = dtoManager.changePostsView(foundPosts, userId)
+    const truePosts = foundPosts.map(post => {
+      let likesCount: number = 0
+      let dislikesCount: number = 0
+
+      const trueLikes = post.extendedLikesInfo.like.filter(like => {
+        if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCount++
+        if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCount++
+        return !bannedUserIds.includes(like.userId)
+      })
+
+      const trueNewestLikes = post.extendedLikesInfo.newestLikes.filter(newestLike => {
+        return !bannedUserIds.includes(newestLike.userId)
+      })
+
+      const postCopy = { ...post }
+      postCopy.extendedLikesInfo.likesCount -= likesCount
+      postCopy.extendedLikesInfo.dislikesCount -= dislikesCount
+      postCopy.extendedLikesInfo.like = trueLikes
+      postCopy.extendedLikesInfo.newestLikes = trueNewestLikes
+
+      return postCopy
+    })
+
+
+    const pagesCount = Math.ceil(totalCount / pageSize)
+
+
+    const mappedPosts = dtoManager.changePostsView(truePosts, userId)
 
     const postsView = {
       pagesCount: pagesCount,
@@ -91,71 +133,8 @@ export class PostsQueryRepository {
   }
 
 
-  // async findBlogPosts(queryPost: QueryPostInputModel, userId: string, blogId: string,): Promise<Contract<null | PostsView>> {
 
-  //   const blog = await this.blogsRepositoryMngs.findBlog(blogId)
-  //   if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-  //   // if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
-
-
-  //   if (blog.blogOwnerInfo.userId !== null) {
-  //     const user = await this.usersRepository.findUser(["_id", new Types.ObjectId(blog.blogOwnerInfo.userId)])
-  //     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-  //     if (user.accountData.banInfo.isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
-  //   }
-
-
-  //   const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
-  //   const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
-  //   const sortBy = queryPost.sortBy || SORT_BY_DEFAULT
-  //   const sortDirection = queryPost.sortDirection === SortDirection.Asc
-  //     ? 1
-  //     : -1
-  //   const skippedPostsCount = (pageNumber - 1) * pageSize
-
-  //   const totalCount = blogId
-  //     ? await this.PostsModel.countDocuments({ blogId: blogId })
-  //     : await this.PostsModel.countDocuments({})
-
-  //   const pagesCount = Math.ceil(totalCount / pageSize)
-
-
-  //   const foundPosts = blogId
-  //     ? await this.PostsModel
-  //       .find({ blogId: blogId })
-  //       .sort({ [sortBy]: sortDirection })
-  //       .limit(pageSize)
-  //       .skip(skippedPostsCount)
-  //       .lean()
-  //     : await this.PostsModel
-  //       .find({})
-  //       .sort({ [sortBy]: sortDirection })
-  //       .limit(pageSize)
-  //       .skip(skippedPostsCount)
-  //       .lean()
-
-
-
-  //   const mappedPosts = dtoManager.changePostsView(foundPosts, userId)
-
-  //   const postsView = {
-  //     pagesCount: pagesCount,
-  //     page: pageNumber,
-  //     pageSize: pageSize,
-  //     totalCount: totalCount,
-  //     items: mappedPosts
-  //   }
-
-  //   return new Contract(postsView, null)
-  // }
-
-
-  async findBloggerBlogPosts(queryPost: QueryPostInputModel, userId: string, blogId: string,): Promise<Contract<null | PostsView>> {
-
-    // const user = await this.usersRepository.findUser(["_id", new Types.ObjectId(userId)])
-    // if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-    // if (user.accountData.banInfo.isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
-
+  async findBloggerPosts(queryPost: QueryPostInputModel, userId: string, blogId: string,): Promise<Contract<null | PostsView>> {
 
     const blog = await this.blogsRepositoryMngs.findBlog(blogId)
     if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
@@ -192,8 +171,40 @@ export class PostsQueryRepository {
         .lean()
 
 
+    const bannedUsers = await this.usersRepository.findBannedUsers()
+    const bannedUserIds = bannedUsers.map(user => user._id.toString())
 
-    const mappedPosts = dtoManager.changePostsView(foundPosts, userId)
+    const truePosts = foundPosts.map(post => {
+      let likesCount: number = 0
+      let dislikesCount: number = 0
+
+      const trueLikes = post.extendedLikesInfo.like.filter(like => {
+        if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCount++
+        if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCount++
+        return !bannedUserIds.includes(like.userId)
+      })
+
+      post.extendedLikesInfo.likesCount - likesCount
+      post.extendedLikesInfo.dislikesCount - dislikesCount
+
+      const trueNewestLikes = post.extendedLikesInfo.newestLikes.filter(newestLike => {
+        return !bannedUserIds.includes(newestLike.userId)
+      })
+
+      return {
+        ...post,
+        extendedLikesInfo: {
+          likesCount: likesCount,
+          dislikesCount: dislikesCount,
+          like: trueLikes,
+          newestLikes: trueNewestLikes
+        }
+      }
+
+    })
+
+
+    const mappedPosts = dtoManager.changePostsView(truePosts, userId)
 
     const postsView = {
       pagesCount: pagesCount,
@@ -205,6 +216,8 @@ export class PostsQueryRepository {
 
     return new Contract(postsView, null)
   }
+
+
 
   async findPost(postId: string, userId?: string): Promise<null | PostView> {
 

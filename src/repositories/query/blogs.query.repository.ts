@@ -39,6 +39,7 @@ export class BlogsQueryRepository {
       ? 1
       : -1
 
+
     const skippedBlogsCount = (pageNumber - 1) * pageSize
 
 
@@ -54,8 +55,8 @@ export class BlogsQueryRepository {
         name: { $regex: searchNameTerm, $options: "ix" }
       })
 
-    const pagesCount = Math.ceil(totalCount / pageSize)
 
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
 
     const requestedBlogs = userId
@@ -78,8 +79,10 @@ export class BlogsQueryRepository {
         .skip(skippedBlogsCount)
         .lean()
 
+
     const mappedBlogs = dtoManager.changeBlogsView(requestedBlogs)
 
+    
     const blogsView = {
       pagesCount: pagesCount,
       page: pageNumber,

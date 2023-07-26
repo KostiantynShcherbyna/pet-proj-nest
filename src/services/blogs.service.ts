@@ -23,19 +23,19 @@ export class BlogsService {
   ) {
   }
 
-  async createBlog(bodyBlog: BodyBlogInputModel): Promise<BlogView> {
-    // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
-    const newBlog = this.BlogsModel
-      .createBlog(
-        bodyBlog,
-        this.BlogsModel
-      )
-    await this.blogsRepository.saveDocument(newBlog)
+  // async createBlog(bodyBlog: BodyBlogInputModel): Promise<BlogView> {
+  //   // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
+  //   const newBlog = this.BlogsModel
+  //     .createBlog(
+  //       bodyBlog,
+  //       this.BlogsModel
+  //     )
+  //   await this.blogsRepository.saveDocument(newBlog)
 
-    const newBlogView = dtoManager.createBlogView(newBlog)
+  //   const newBlogView = dtoManager.createBlogView(newBlog)
 
-    return newBlogView
-  }
+  //   return newBlogView
+  // }
 
 
 
