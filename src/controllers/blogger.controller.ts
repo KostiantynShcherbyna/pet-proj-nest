@@ -60,7 +60,6 @@ export class BloggerController {
     @Param() param: IdInputModel,
     @Body() bodyBlog: BodyBlogInputModel
   ) {
-    console.log(param)
     const result = await this.commandBus.execute(
       new UpdateBlogCommand(
         param.id,
@@ -132,10 +131,11 @@ export class BloggerController {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryBlog: QueryBlogInputModel
   ) {
-    return await this.blogsQueryRepository.findBlogs(
+    const blogs = await this.blogsQueryRepository.findBlogs(
       queryBlog,
       deviceSession.userId,
     )
+    return blogs
   }
 
 
@@ -171,12 +171,12 @@ export class BloggerController {
     @Param() param: BlogIdInputModel,
     @Query() queryPost: QueryPostInputModel,
   ) {
-    const postsContract = await this.postsQueryRepository.findBloggerPosts(
+    const postsContract = await this.postsQueryRepository.findPosts(
       queryPost,
       deviceSession.userId,
       param.blogId,
     )
-    if (postsContract === null) throw new NotFoundException(
+    if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )
     if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()

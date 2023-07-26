@@ -66,7 +66,6 @@ export class AuthController {
         userAgent
       )
     )
-
     if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (loginContract.error === ErrorEnums.USER_IS_BANNED) throw new UnauthorizedException()
     if (loginContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED) throw new UnauthorizedException()
@@ -205,7 +204,6 @@ export class AuthController {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
   ) {
     const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
-
     if (userView === null) throw new UnauthorizedException()
     return userView
   }
@@ -220,7 +218,6 @@ export class AuthController {
     const isRecoveryContract = await this.commandBus.execute(
       new PasswordRecoveryCommand(bodyPasswordRecovery.email)
     )
-
     if (isRecoveryContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
     if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
     return

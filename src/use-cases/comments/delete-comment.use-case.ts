@@ -1,7 +1,9 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
+import { Types } from "mongoose"
 import { Contract } from "src/contract"
 import { CommentsRepository } from "src/repositories/comments.repository"
+import { UsersRepository } from "src/repositories/users.repository"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
@@ -15,20 +17,20 @@ export class DeleteCommentCommand {
 
 @CommandHandler(DeleteCommentCommand)
 export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
-    usersRepository: any
     constructor(
         @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
         protected commentsRepository: CommentsRepository,
+        protected usersRepository: UsersRepository,
     ) {
     }
 
     async execute(command: DeleteCommentCommand): Promise<Contract<null | boolean>> {
         // Looking for a comment and check owner
-        const foundUser = await this.usersRepository.findUser(command.userId)
-        if (foundUser === null)
-          return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-        if (foundUser.accountData.banInfo.isBanned === true)
-          return new Contract(null, ErrorEnums.USER_IS_BANNED)
+        // const foundUser = await this.usersRepository.findUser(["_id", new Types.ObjectId(command.userId)])
+        // if (foundUser === null)
+        //   return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+        // if (foundUser.accountData.banInfo.isBanned === true)
+        //   return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
         const comment = await this.commentsRepository.findComment(command.commentId);

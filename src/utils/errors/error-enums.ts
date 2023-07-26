@@ -6,7 +6,7 @@ export enum ErrorEnums {
     TOKEN_NOT_VERIFY = `Token not verified`,
     DEVICE_NOT_FOUND = `Device not found`,
     DEVICE_NOT_DELETE = `Device_not deleted`,
-    DEVICES_NOT_DELETE = `Devices_not deleted`,
+    DEVICES_NOT_DELETE = `Devices not deleted`,
     PASSWORD_NOT_COMPARED = `Password not compared`,
     RECOVERY_CODE_INVALID = `RECOVERY_CODE_INVALID`,
     RECOVERY_CODE_NOT_FOUND = `RECOVERY_CODE_NOT_FOUND`,

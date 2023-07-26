@@ -10,6 +10,7 @@ import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'sr
 import { ErrorEnums } from 'src/utils/errors/error-enums';
 import { compareHashManager } from 'src/utils/managers/compare-hash.manager';
 import { generateHashManager } from 'src/utils/managers/generate-hash.manager';
+import { DevicesModel } from './devices.schema';
 
 
 
@@ -225,10 +226,19 @@ export class Users {
         this.emailConfirmation.sentEmails.push({ sentDate: new Date() })
     }
 
-    banUser(isBanned: boolean, banReason: string) {
+    async banUser(isBanned: boolean, banReason: string, userId: string, DevicesModel: DevicesModel): Promise<number> {
         this.accountData.banInfo.isBanned = isBanned
         this.accountData.banInfo.banDate = new Date().toISOString()
         this.accountData.banInfo.banReason = banReason
+
+        const deleteResult = await DevicesModel.deleteMany({ userId: userId })
+        return deleteResult.deletedCount
+    }
+    unBanUser(isUnBanned: boolean, unBanReason: string) {
+        this.accountData.banInfo.isBanned = isUnBanned
+        this.accountData.banInfo.banDate = new Date().toISOString()
+        this.accountData.banInfo.banReason = unBanReason
+        return null
     }
 
 }
@@ -242,6 +252,7 @@ export const UsersSchema = SchemaFactory.createForClass(Users)
 UsersSchema.statics.createUser = Users.createUser
 UsersSchema.statics.registrationUser = Users.registrationUser
 UsersSchema.methods.banUser = Users.prototype.banUser
+UsersSchema.methods.unBanUser = Users.prototype.unBanUser
 UsersSchema.methods.addSentDate = Users.prototype.addSentDate
 UsersSchema.methods.checkExpiration = Users.prototype.checkExpiration
 UsersSchema.methods.checkConfirmation = Users.prototype.checkConfirmation

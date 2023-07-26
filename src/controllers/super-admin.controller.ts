@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -48,13 +49,17 @@ export class SuperAdminController {
     @Param() param: IdInputModel,
     @Body() bodyUserBan: BodyUserBanInputModel
   ) {
-    await this.commandBus.execute(
+    const banContract = await this.commandBus.execute(
       new BanUserCommand(
         param.id,
         bodyUserBan.isBanned,
         bodyUserBan.banReason,
       )
     )
+    if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
+    )
+    if (banContract.error === ErrorEnums.DEVICES_NOT_DELETE) throw new InternalServerErrorException()
     return
   }
 

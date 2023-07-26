@@ -7,7 +7,7 @@ export class BodyUserBanInputModel {
   @Transform(({ value }) => trimValue(value, "isBanned"))
   @IsString()
   @IsNotEmpty()
-  isBanned: boolean
+  isBanned: string
 
   @Transform(({ value }) => trimValue(value, "banReason"))
   @IsString()

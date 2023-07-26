@@ -28,6 +28,30 @@ export class CommentsQueryRepository {
       return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
 
 
+
+    const bannedUsers = await this.usersRepository.findBannedUsers()
+    const bannedUserIds = bannedUsers.map(user => user._id.toString())
+
+    let likesCountMy: number = 0
+    let dislikesCountMy: number = 0
+
+    const trueLikes = foundComment.likesInfo.like.filter(like => {
+      if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCountMy++
+      if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCountMy++
+      return !bannedUserIds.includes(like.userId)
+    })
+
+    const commentCopy = new this.CommentsModel(foundComment)
+
+    commentCopy.likesInfo.likesCount -= likesCountMy
+    commentCopy.likesInfo.dislikesCount -= dislikesCountMy
+    commentCopy.likesInfo.like = trueLikes
+
+
+
+
+
+
     // if (userId) {
     //   const foundUser = await this.usersRepository.findUser(userId)
     //   if (foundUser === null)
@@ -43,7 +67,7 @@ export class CommentsQueryRepository {
     }
 
     // Mapping dto
-    const commentView = dtoManager.changeCommentView(foundComment, like?.status || LikeStatus.None)
+    const commentView = dtoManager.changeCommentView(commentCopy, like?.status || LikeStatus.None)
     return new Contract(commentView, null)
   }
 
@@ -115,7 +139,7 @@ export class CommentsQueryRepository {
         return !bannedUserIds.includes(like.userId)
       })
 
-      const commentCopy = { ...comment }
+      const commentCopy = new this.CommentsModel(comment)
       commentCopy.likesInfo.likesCount -= likesCount
       commentCopy.likesInfo.dislikesCount -= dislikesCount
       commentCopy.likesInfo.like = trueLikes

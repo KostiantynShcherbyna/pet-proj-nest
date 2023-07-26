@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { Contract } from "src/contract";
 import { CommentsRepository } from "src/repositories/comments.repository";
+import { UsersRepository } from "src/repositories/users.repository";
 import { ErrorEnums } from "src/utils/errors/error-enums";
 
 export class UpdateCommentCommand {
@@ -16,6 +17,7 @@ export class UpdateCommentCommand {
 export class UpdateComment implements ICommandHandler<UpdateCommentCommand>{
     constructor(
         protected commentsRepository: CommentsRepository,
+        protected usersRepository: UsersRepository,
     ) {
     }
 

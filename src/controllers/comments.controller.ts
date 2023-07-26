@@ -45,11 +45,11 @@ export class CommentsController {
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: IdInputModel
   ) {
-    const commentView = await this.commentsQueryRepository.findComment(param.id, deviceSession?.userId)
-    if (commentView === null) throw new NotFoundException(
+    const commentContract = await this.commentsQueryRepository.findComment(param.id, deviceSession?.userId)
+    if (commentContract.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "id")
     )
-    return commentView
+    return commentContract.data
   }
 
   @UseGuards(AccessGuard)

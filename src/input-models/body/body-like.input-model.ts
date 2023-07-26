@@ -3,9 +3,9 @@ import { LikeStatus } from "../../utils/constants/constants"
 import { Transform, TransformFnParams } from "class-transformer"
 
 export class BodyLikeInputModel {
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsEnum(LikeStatus)
   likeStatus: LikeStatus
 }

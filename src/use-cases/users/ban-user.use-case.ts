@@ -12,7 +12,7 @@ import { UserView } from "src/views/user.view"
 export class BanUserCommand {
     constructor(
         public userId: string,
-        public isBanned: boolean,
+        public isBanned: string,
         public banReason: string,
     ) { }
 }
@@ -35,14 +35,11 @@ export class BanUser implements ICommandHandler<BanUserCommand> {
         if (user === null)
             return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
+        let result: number | null = null
+        if (command.isBanned === "true") result = await user.banUser(true, command.banReason, command.userId, this.DevicesModel)
+        if (command.isBanned === "false") result = user.unBanUser(false, command.banReason)
 
-        user.banUser(command.isBanned, command.banReason)
-
-        const deleteCount = await this.DevicesModel.deleteAllDevices(
-            command.userId,
-            this.DevicesModel
-        )
-        if (deleteCount === 0) return new Contract(null, ErrorEnums.DEVICES_NOT_DELETE)
+        // if (result !== null && result === 0) return new Contract(null, ErrorEnums.DEVICES_NOT_DELETE)
 
         await this.usersRepository.saveDocument(user)
 
