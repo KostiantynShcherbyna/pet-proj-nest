@@ -19,6 +19,8 @@ import {
 } from "src/utils/constants/constants"
 import { Contract } from "src/contract"
 import { ErrorEnums } from "src/utils/errors/error-enums"
+import { Comments, CommentsModel } from "src/schemas/comments.schema"
+import { UsersRepository } from "../users.repository"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -26,16 +28,23 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Posts.name) protected PostsModel: PostsModel,
-    @Inject(BlogsRepository) protected blogsRepositoryMngs: BlogsRepository
+    @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
+    protected blogsRepositoryMngs: BlogsRepository,
+    protected usersRepository: UsersRepository,
   ) {
   }
 
   async findPosts(queryPost: QueryPostInputModel, userId: string, blogId?: string,): Promise<Contract<null | PostsView>> {
 
+    // if (blogId) {
+    //   const blog = await this.blogsRepositoryMngs.findBlog(blogId)
+    //   if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    //   if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
+    // }
+
     if (blogId) {
       const blog = await this.blogsRepositoryMngs.findBlog(blogId)
       if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-      if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
     }
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
@@ -66,6 +75,122 @@ export class PostsQueryRepository {
         .limit(pageSize)
         .skip(skippedPostsCount)
         .lean()
+
+
+    const mappedPosts = dtoManager.changePostsView(foundPosts, userId)
+
+    const postsView = {
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: totalCount,
+      items: mappedPosts
+    }
+
+    return new Contract(postsView, null)
+  }
+
+
+  // async findBlogPosts(queryPost: QueryPostInputModel, userId: string, blogId: string,): Promise<Contract<null | PostsView>> {
+
+  //   const blog = await this.blogsRepositoryMngs.findBlog(blogId)
+  //   if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+  //   // if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
+
+
+  //   if (blog.blogOwnerInfo.userId !== null) {
+  //     const user = await this.usersRepository.findUser(["_id", new Types.ObjectId(blog.blogOwnerInfo.userId)])
+  //     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+  //     if (user.accountData.banInfo.isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
+  //   }
+
+
+  //   const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
+  //   const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
+  //   const sortBy = queryPost.sortBy || SORT_BY_DEFAULT
+  //   const sortDirection = queryPost.sortDirection === SortDirection.Asc
+  //     ? 1
+  //     : -1
+  //   const skippedPostsCount = (pageNumber - 1) * pageSize
+
+  //   const totalCount = blogId
+  //     ? await this.PostsModel.countDocuments({ blogId: blogId })
+  //     : await this.PostsModel.countDocuments({})
+
+  //   const pagesCount = Math.ceil(totalCount / pageSize)
+
+
+  //   const foundPosts = blogId
+  //     ? await this.PostsModel
+  //       .find({ blogId: blogId })
+  //       .sort({ [sortBy]: sortDirection })
+  //       .limit(pageSize)
+  //       .skip(skippedPostsCount)
+  //       .lean()
+  //     : await this.PostsModel
+  //       .find({})
+  //       .sort({ [sortBy]: sortDirection })
+  //       .limit(pageSize)
+  //       .skip(skippedPostsCount)
+  //       .lean()
+
+
+
+  //   const mappedPosts = dtoManager.changePostsView(foundPosts, userId)
+
+  //   const postsView = {
+  //     pagesCount: pagesCount,
+  //     page: pageNumber,
+  //     pageSize: pageSize,
+  //     totalCount: totalCount,
+  //     items: mappedPosts
+  //   }
+
+  //   return new Contract(postsView, null)
+  // }
+
+
+  async findBloggerBlogPosts(queryPost: QueryPostInputModel, userId: string, blogId: string,): Promise<Contract<null | PostsView>> {
+
+    // const user = await this.usersRepository.findUser(["_id", new Types.ObjectId(userId)])
+    // if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+    // if (user.accountData.banInfo.isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
+
+
+    const blog = await this.blogsRepositoryMngs.findBlog(blogId)
+    if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    if (blog.blogOwnerInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
+
+
+    const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortBy = queryPost.sortBy || SORT_BY_DEFAULT
+    const sortDirection = queryPost.sortDirection === SortDirection.Asc
+      ? 1
+      : -1
+    const skippedPostsCount = (pageNumber - 1) * pageSize
+
+    const totalCount = blogId
+      ? await this.PostsModel.countDocuments({ blogId: blogId })
+      : await this.PostsModel.countDocuments({})
+
+    const pagesCount = Math.ceil(totalCount / pageSize)
+
+
+    const foundPosts = blogId
+      ? await this.PostsModel
+        .find({ blogId: blogId })
+        .sort({ [sortBy]: sortDirection })
+        .limit(pageSize)
+        .skip(skippedPostsCount)
+        .lean()
+      : await this.PostsModel
+        .find({})
+        .sort({ [sortBy]: sortDirection })
+        .limit(pageSize)
+        .skip(skippedPostsCount)
+        .lean()
+
 
 
     const mappedPosts = dtoManager.changePostsView(foundPosts, userId)

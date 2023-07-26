@@ -45,19 +45,6 @@ export class BlogsController {
   ) {
   }
 
-  @Get(":id")
-  async findBlog(
-    @Param() param: IdInputModel,
-  ) {
-    const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)
-
-    if (foundBlogView === null) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-    )
-    return foundBlogView
-  }
-
-
   @Get()
   async findBlogs(
     @Query() queryBlog: QueryBlogInputModel
@@ -66,6 +53,24 @@ export class BlogsController {
   }
 
 
+  // @UseGuards(AccessMiddleware)
+  // @Get(":blogId/posts")
+  // async findPosts(
+  //   @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+  //   @Param() param: BlogIdInputModel,
+  //   @Query() queryPost: QueryPostInputModel,
+  // ) {
+  //   const postsContract = await this.postsQueryRepository.findPosts(
+  //     queryPost,
+  //     deviceSession.userId,
+  //     param.blogId,
+  //   )
+  //   if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+  //   )
+  //   if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
+  //   return postsContract.data
+  // }
   @UseGuards(AccessMiddleware)
   @Get(":blogId/posts")
   async findPosts(
@@ -85,6 +90,18 @@ export class BlogsController {
     return postsContract.data
   }
 
+
+  @Get(":id")
+  async findBlog(
+    @Param() param: IdInputModel,
+  ) {
+    const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)
+
+    if (foundBlogView === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    return foundBlogView
+  }
   // @UseGuards(BasicGuard)
   // @Post()
   // async createBlog(

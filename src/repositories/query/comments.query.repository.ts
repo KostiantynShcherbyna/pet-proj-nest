@@ -28,13 +28,13 @@ export class CommentsQueryRepository {
       return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
 
 
-    if (userId) {
-      const foundUser = await this.usersRepository.findUser(userId)
-      if (foundUser === null)
-        return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-      if (foundUser.accountData.banInfo.isBanned === true)
-        return new Contract(null, ErrorEnums.USER_IS_BANNED)
-    }
+    // if (userId) {
+    //   const foundUser = await this.usersRepository.findUser(userId)
+    //   if (foundUser === null)
+    //     return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+    //   if (foundUser.accountData.banInfo.isBanned === true)
+    //     return new Contract(null, ErrorEnums.USER_IS_BANNED)
+    // }
 
     // Looking for a Like if userId is defined
     let like: ILike | undefined
@@ -76,13 +76,14 @@ export class CommentsQueryRepository {
     const bannedUsers = await this.usersRepository.findBannedUsers()
     const bannedUserIds = bannedUsers.map(user => user._id.toString())
 
-    const commentsTotalCount = await this.CommentsModel.countDocuments({ $and: [{ postId: postId }, { "commentatorInfo.userId": { $nin: bannedUserIds } }] })
+    // const commentsTotalCount = await this.CommentsModel.countDocuments({ $and: [{ postId: postId }, { "commentatorInfo.userId": { $nin: bannedUserIds } }] })
+    const commentsTotalCount = await this.CommentsModel.countDocuments({ $and: [{ postId: postId }, { userId: { $nin: bannedUserIds } }] })
 
     const pagesCount = Math.ceil(commentsTotalCount / pageSize)
 
 
     const comments = await this.CommentsModel
-      .find({ $and: [{ postId: postId }, { "commentatorInfo.userId": { $nin: bannedUserIds } }] })
+      .find({ $and: [{ postId: postId }, { userId: { $nin: bannedUserIds } }] })
       .sort({ [sortBy]: sortDirection })
       .limit(pageSize)
       .skip(skippedCommentsCount)

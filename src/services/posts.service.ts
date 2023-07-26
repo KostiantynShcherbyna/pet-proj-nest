@@ -82,10 +82,10 @@ export class PostsService {
     const newComment = this.CommentsModel.createComment(postId, content, user, this.CommentsModel)
     await this.commentsRepository.saveDocument(newComment)
 
-    const foundCommentView = await this.commentsQueryRepository.findComment(newComment.id)
-    if (foundCommentView === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
+    const foundCommentContract = await this.commentsQueryRepository.findComment(newComment.id)
+    if (foundCommentContract.error === ErrorEnums.COMMENT_NOT_FOUND) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
 
-    return new Contract(foundCommentView, null)
+    return new Contract(foundCommentContract.data, null)
   }
 
 
