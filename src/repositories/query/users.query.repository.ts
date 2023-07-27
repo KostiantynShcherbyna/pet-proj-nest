@@ -48,8 +48,12 @@ export class UsersQueryRepository {
             {
                 $and: [
                     { "accountData.banInfo.isBanned": banStatus },
-                    { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
-                    { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
+                    {
+                        $or: [
+                            { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
+                            { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } },
+                        ]
+                    }
                 ]
             }
         )
@@ -60,8 +64,12 @@ export class UsersQueryRepository {
             {
                 $and: [
                     { "accountData.banInfo.isBanned": banStatus },
-                    { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
-                    { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
+                    {
+                        $or: [
+                            { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
+                            { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } },
+                        ]
+                    }
                 ]
             }
         )

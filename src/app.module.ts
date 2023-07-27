@@ -68,12 +68,12 @@ import { VerifyToken } from "./use-cases/tokens/verify-token.use-case"
 import { CreateUser } from "./use-cases/users/create-user.use-case"
 import { DeleteUser } from "./use-cases/users/delete-user.use-case"
 import { BanUser } from "./use-cases/users/ban-user.use-case"
-import { SuperAdminController } from "./controllers/super-admin.controller"
 import { BloggerController } from "./controllers/blogger.controller"
 import { UpdatePostBlogger } from "./use-cases/blogger/update-post.use-case"
 import { DeletePostBlogger } from "./use-cases/blogger/delete-post.use-case"
 import { BindBlogBlogger } from "./use-cases/blogger/bind-blog.use-case"
 import { DeletePost } from "./use-cases/posts/delete-post.use-case"
+import { SAController } from "./controllers/sa.controller"
 
 
 
@@ -171,7 +171,7 @@ const otherProviders = [
   controllers: [
     BlogsController,
     PostsController,
-    SuperAdminController,
+    SAController,
     // UsersController,
     BloggerController,
     CommentsController,

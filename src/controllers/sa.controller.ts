@@ -33,7 +33,7 @@ import { BindInputModel } from "src/input-models/uri/userId.input-model"
 import { BindBlogCommand } from "src/use-cases/blogger/bind-blog.use-case"
 
 @Controller("sa")
-export class SuperAdminController {
+export class SAController {
   constructor(
     private commandBus: CommandBus,
     protected usersService: UsersService,

@@ -29,8 +29,8 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const ACCESS_EXPIRES_TIME = "1000000s"
-export const REFRESH_EXPIRES_TIME = "2000000s"
+export const ACCESS_EXPIRES_TIME = "1000000000000s"
+export const REFRESH_EXPIRES_TIME = "200000000000s"
 export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 
