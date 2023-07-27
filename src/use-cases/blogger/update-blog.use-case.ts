@@ -14,7 +14,7 @@ export class UpdateBlogCommand {
 
 
 @CommandHandler(UpdateBlogCommand)
-export class UpdateBlog implements ICommandHandler<UpdateBlogCommand>{
+export class UpdateBlogBlogger implements ICommandHandler<UpdateBlogCommand>{
     constructor(
         protected blogsRepository: BlogsRepository,
     ) {
@@ -25,7 +25,7 @@ export class UpdateBlog implements ICommandHandler<UpdateBlogCommand>{
 
         const foundBlog = await this.blogsRepository.findBlog(command.blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
-        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST);
+        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_UPDATE);
 
         foundBlog.updateBlog(command.bodyBlog)
         await this.blogsRepository.saveDocument(foundBlog)

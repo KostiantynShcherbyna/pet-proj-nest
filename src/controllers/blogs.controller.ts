@@ -19,7 +19,7 @@ import { BasicGuard } from "src/guards/basic.guard"
 import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
 import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
-import { CreatePost } from "src/use-cases/blogger/create-post.use-case"
+import { CreatePostBlogger } from "src/use-cases/blogger/create-post.use-case"
 import { CreateBlogCommand } from "src/use-cases/blogger/create-blog.use-case"
 import { DeleteBlogCommand } from "src/use-cases/blogger/delete-blog.use-case"
 import { UpdateBlogCommand } from "src/use-cases/blogger/update-blog.use-case"
@@ -40,7 +40,7 @@ export class BlogsController {
     protected blogsService: BlogsService,
     protected blogsQueryRepository: BlogsQueryRepository,
     protected postsQueryRepository: PostsQueryRepository,
-    protected transactionScriptService: CreatePost,
+    protected transactionScriptService: CreatePostBlogger,
     private commandBus: CommandBus,
   ) {
   }

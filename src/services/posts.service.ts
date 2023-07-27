@@ -64,7 +64,7 @@ export class PostsService {
   async deletePost(id: string): Promise<Contract<null | boolean>> {
 
     const deletedPostContract = await this.PostsModel.deletePost(id, this.PostsModel)
-    if (deletedPostContract.data === 0) return new Contract(null, ErrorEnums.POST_NOT_DELETED);
+    if (deletedPostContract === 0) return new Contract(null, ErrorEnums.POST_NOT_DELETED);
 
     return new Contract(true, null);
   }

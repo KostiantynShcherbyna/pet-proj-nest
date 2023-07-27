@@ -42,12 +42,12 @@ import { ThrottlerModule } from "@nestjs/throttler"
 import { throttler } from "./guards/throttler.guard"
 import { PassportModule } from "@nestjs/passport"
 import { LoginLocalStrategy } from "./strategy/local.strategy/login.local.strategy"
-import { CreateBlog } from "./use-cases/blogger/create-blog.use-case"
-import { UpdateBlog } from "./use-cases/blogger/update-blog.use-case"
-import { DeleteBlog } from "./use-cases/blogger/delete-blog.use-case"
+import { CreateBlogBlogger } from "./use-cases/blogger/create-blog.use-case"
+import { UpdateBlogBlogger } from "./use-cases/blogger/update-blog.use-case"
+import { DeleteBlogBlogger } from "./use-cases/blogger/delete-blog.use-case"
 import { CqrsModule } from "@nestjs/cqrs"
 import { Registration } from "./use-cases/auth/registration.use-case"
-import { CreatePost } from "./use-cases/blogger/create-post.use-case"
+import { CreatePostBlogger } from "./use-cases/blogger/create-post.use-case"
 import { ConfirmationResend } from "./use-cases/auth/confiramtion-resend.use-case"
 import { Confirmation } from "./use-cases/auth/confiramtion.use-case"
 import { Login } from "./use-cases/auth/login.use-case"
@@ -61,7 +61,6 @@ import { UpdateComment } from "./use-cases/comments/update-comment.use-case"
 import { DeleteOtherDevices } from "./use-cases/devices/delete-other-devices.use-case"
 import { DeleteSpecialDevice } from "./use-cases/devices/delete-special-device.use-case"
 import { CreateComment } from "./use-cases/posts/create-comment.use-case"
-import { DeletePost } from "./use-cases/posts/delete-post.use-case"
 import { UpdatePostLike } from "./use-cases/posts/update-post-like.use-case"
 import { UpdatePost } from "./use-cases/posts/update-post.use-case"
 import { CreateToken } from "./use-cases/tokens/create-token.use-case"
@@ -71,13 +70,18 @@ import { DeleteUser } from "./use-cases/users/delete-user.use-case"
 import { BanUser } from "./use-cases/users/ban-user.use-case"
 import { SuperAdminController } from "./controllers/super-admin.controller"
 import { BloggerController } from "./controllers/blogger.controller"
+import { UpdatePostBlogger } from "./use-cases/blogger/update-post.use-case"
+import { DeletePostBlogger } from "./use-cases/blogger/delete-post.use-case"
+import { BindBlogBlogger } from "./use-cases/blogger/bind-blog.use-case"
+import { DeletePost } from "./use-cases/posts/delete-post.use-case"
 
 
 
 const useCases = [
-  CreateBlog,
-  UpdateBlog,
-  DeleteBlog,
+  BindBlogBlogger,
+  CreateBlogBlogger,
+  UpdateBlogBlogger,
+  DeleteBlogBlogger,
   ConfirmationResend,
   Confirmation,
   Login,
@@ -92,16 +96,18 @@ const useCases = [
   DeleteOtherDevices,
   DeleteSpecialDevice,
   CreateComment,
-  CreatePost,
-  DeletePost,
+  CreatePostBlogger,
+  DeletePostBlogger,
   UpdatePostLike,
+  UpdatePostBlogger,
   UpdatePost,
   CreateToken,
   VerifyToken,
   CreateUser,
   DeleteUser,
-  Registration,
   BanUser,
+
+  DeletePost,
 ]
 const services = [
   BlogsService,
@@ -112,7 +118,7 @@ const services = [
   DevicesService,
   TokensService,
   AppService,
-  CreatePost,
+  // CreatePostBlogger,
 ]
 const repository = [
   BlogsRepository,
@@ -145,10 +151,7 @@ const otherProviders = [
     MongooseModule.forRoot(
       configuration().MONGOOSE_URI
     ),
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 10,
-    }),
+    ThrottlerModule.forRoot(),
     MongooseModule.forFeature([
       { name: Blogs.name, schema: BlogsSchema },
       { name: Posts.name, schema: PostsSchema },

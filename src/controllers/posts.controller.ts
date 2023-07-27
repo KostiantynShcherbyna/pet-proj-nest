@@ -11,7 +11,7 @@ import { CommentsQueryRepository } from "src/repositories/query/comments.query.r
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { CommentsService } from "src/services/comments.service"
 import { PostsService } from "src/services/posts.service"
-import { CreatePost } from "src/use-cases/blogger/create-post.use-case"
+import { CreatePostBlogger } from "src/use-cases/blogger/create-post.use-case"
 import { CreateCommentCommand } from "src/use-cases/posts/create-comment.use-case"
 import { DeletePostCommand } from "src/use-cases/posts/delete-post.use-case"
 import { UpdatePostLikeCommand } from "src/use-cases/posts/update-post-like.use-case"
@@ -36,7 +36,7 @@ export class PostsController {
     protected postsService: PostsService,
     protected commentsService: CommentsService,
     protected blogsQueryRepository: BlogsQueryRepository,
-    protected transactionScriptService: CreatePost,
+    protected transactionScriptService: CreatePostBlogger,
   ) {
   }
 

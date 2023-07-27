@@ -23,14 +23,17 @@ export enum ErrorEnums {
     POST_NOT_DELETED = `Post not deleted`,
     POSTS_NOT_DELETED = `Posts not deleted`,
     FOREIGN_BLOG = `Foreign blog`,
+    FOREIGN_BLOG_NOT_UPDATE = `Foreign blog, can't update`,
     FOREIGN_BLOG_NOT_DELETE = `Foreign blog, can't delete delete`,
     FOREIGN_BLOG_NOT_CREATE_POST = `Foreign blog, can't create new post`,
-    FOREIGN_BLOG_NOT_UPDATE_POST = `Foreign blog, can't update new post`,
-    FOREIGN_BLOG_NOT_DELETE_POST = `Foreign blog, can't delete new post`,
+    FOREIGN_BLOG_NOT_UPDATE_POST = `Foreign blog, can't update post`,
+    FOREIGN_BLOG_NOT_DELETE_POST = `Foreign blog, can't delete post`,
+    FOREIGN_POST_NOT_DELETE_POST = `Foreign post, can't delete post`,
+    FOREIGN_POST_NOT_UPDATE_POST = `Foreign post, can't update post`,
 
 
     // ↓↓↓ USERS
-    USER_IS_BANNED = `You are banned`,
+    USER_IS_BANNED = `User is banned`,
     USER_NOT_FOUND = `User not found`,
     USER_NOT_DELETE = `User not deleted`,
     USER_EMAIL_EXIST = `User email exist`,

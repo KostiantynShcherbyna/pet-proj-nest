@@ -16,7 +16,7 @@ export class DeleteBlogCommand {
 }
 
 @CommandHandler(DeleteBlogCommand)
-export class DeleteBlog implements ICommandHandler<DeleteBlogCommand>{
+export class DeleteBlogBlogger implements ICommandHandler<DeleteBlogCommand>{
     constructor(
         @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
         @InjectModel(Posts.name) protected PostsModel: PostsModel,

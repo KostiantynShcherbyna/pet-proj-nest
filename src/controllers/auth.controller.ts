@@ -50,7 +50,7 @@ export class AuthController {
   }
 
   @Post("login")
-  @Throttle(5, 10)
+  // @Throttle(5, 10)
   @UseGuards(AuthGuard(StrategyNames.loginLocalStrategy))
   @HttpCode(HttpStatus.OK)
   async login(
@@ -127,8 +127,8 @@ export class AuthController {
   }
 
 
-  @Throttle(5, 10)
   @Post("registration")
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
     @Body() bodyRegistration: BodyRegistrationInputModel
@@ -154,7 +154,7 @@ export class AuthController {
 
 
   @Post("registration-confirmation")
-  @Throttle(5, 10)
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
     @Body() bodyConfirmation: BodyConfirmationInputModel
@@ -177,7 +177,7 @@ export class AuthController {
 
 
   @Post("registration-email-resending")
-  @Throttle(5, 10)
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendInputModel
@@ -210,7 +210,7 @@ export class AuthController {
 
 
   @Post("password-recovery")
-  @Throttle(5, 10)
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
     @Body() bodyPasswordRecovery: BodyPasswordRecoveryInputModel
@@ -225,7 +225,7 @@ export class AuthController {
 
 
   @Post("new-password")
-  @Throttle(5, 10)
+  // @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
     @Body() bodyNewPassword: BodyNewPasswordInputModel

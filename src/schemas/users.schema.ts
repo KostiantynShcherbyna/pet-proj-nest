@@ -234,10 +234,10 @@ export class Users {
         const deleteResult = await DevicesModel.deleteMany({ userId: userId })
         return deleteResult.deletedCount
     }
-    unBanUser(isUnBanned: boolean, unBanReason: string) {
+    unBanUser(isUnBanned: boolean) {
         this.accountData.banInfo.isBanned = isUnBanned
-        this.accountData.banInfo.banDate = new Date().toISOString()
-        this.accountData.banInfo.banReason = unBanReason
+        this.accountData.banInfo.banDate = null
+        this.accountData.banInfo.banReason = null
         return null
     }
 

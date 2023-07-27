@@ -46,6 +46,9 @@ export class CommentsController {
     @Param() param: IdInputModel
   ) {
     const commentContract = await this.commentsQueryRepository.findComment(param.id, deviceSession?.userId)
+    if (commentContract.error === ErrorEnums.USER_IS_BANNED) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_IS_BANNED, "id")
+    )
     if (commentContract.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "id")
     )

@@ -199,9 +199,9 @@ export const dtoManager = {
         email: i.accountData.email,
         createdAt: i.accountData.createdAt,
         banInfo: {
-          isBanned: i.accountData.banInfo.isBanned,
           banDate: i.accountData.banInfo.banDate,
           banReason: i.accountData.banInfo.banReason,
+          isBanned: i.accountData.banInfo.isBanned,
         }
       }
     })

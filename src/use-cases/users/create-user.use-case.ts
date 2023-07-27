@@ -31,10 +31,10 @@ export class CreateUser implements ICommandHandler<CreateUserCommand> {
             this.UsersModel
         )
         await this.usersRepository.saveDocument(newUser)
-
         const userView = this.createUserView(newUser)
         return userView
     }
+
 
     private createUserView(data: UsersDocument) {
         return {
@@ -42,6 +42,11 @@ export class CreateUser implements ICommandHandler<CreateUserCommand> {
             login: data.accountData.login,
             email: data.accountData.email,
             createdAt: data.accountData.createdAt,
+            banInfo: {
+                banDate: data.accountData.banInfo.banDate,
+                banReason: data.accountData.banInfo.banReason,
+                isBanned: data.accountData.banInfo.isBanned,
+            }
         }
     }
 

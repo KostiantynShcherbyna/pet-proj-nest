@@ -22,7 +22,7 @@ import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.inp
 import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
 import { BloggerInputModel } from "src/input-models/uri/blogger.input-model"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
-import { CreatePost, CreatePostCommand } from "src/use-cases/blogger/create-post.use-case"
+import { CreatePostBlogger, CreatePostCommand } from "src/use-cases/blogger/create-post.use-case"
 import { CreateBlogCommand } from "src/use-cases/blogger/create-blog.use-case"
 import { DeleteBlogCommand } from "src/use-cases/blogger/delete-blog.use-case"
 import { DeletePostCommand } from "src/use-cases/blogger/delete-post.use-case"
@@ -46,7 +46,7 @@ export class BloggerController {
     protected blogsService: BlogsService,
     protected blogsQueryRepository: BlogsQueryRepository,
     protected postsQueryRepository: PostsQueryRepository,
-    protected transactionScriptService: CreatePost,
+    protected transactionScriptService: CreatePostBlogger,
     private commandBus: CommandBus,
   ) {
   }
@@ -60,15 +60,18 @@ export class BloggerController {
     @Param() param: IdInputModel,
     @Body() bodyBlog: BodyBlogInputModel
   ) {
-    const result = await this.commandBus.execute(
+    const updateBlogResult = await this.commandBus.execute(
       new UpdateBlogCommand(
         param.id,
         bodyBlog,
         deviceSession.userId,
       )
     )
-    if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+    if (updateBlogResult.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    if (updateBlogResult.error === ErrorEnums.FOREIGN_BLOG_NOT_UPDATE) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_UPDATE, "id")
     )
     return
   }
@@ -159,6 +162,7 @@ export class BloggerController {
     if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )
+    if (result.error === ErrorEnums.FOREIGN_BLOG_NOT_CREATE_POST) throw new ForbiddenException()
     return result.data
   }
 
@@ -193,7 +197,7 @@ export class BloggerController {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Body() bodyPost: BodyBlogPostBloggerInputModel,
   ) {
-    const resultContruct = await this.commandBus.execute(
+    const updateContract = await this.commandBus.execute(
       new UpdatePostCommand(
         bodyPost,
         param.blogId,
@@ -201,8 +205,17 @@ export class BloggerController {
         deviceSession.userId,
       )
     )
-    if (resultContruct.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
+    if (updateContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
+    if (updateContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
+    )
+    if (updateContract.error === ErrorEnums.FOREIGN_BLOG_NOT_UPDATE_POST) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_UPDATE_POST, "postId")
+    )
+    if (updateContract.error === ErrorEnums.FOREIGN_POST_NOT_UPDATE_POST) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_POST_NOT_UPDATE_POST, "postId")
     )
     return
   }
@@ -216,15 +229,24 @@ export class BloggerController {
     @Param() param: BloggerInputModel,
     @DeviceSession() deviceSession: DeviceSessionInputModel,
   ) {
-    const resultContruct = await this.commandBus.execute(
+    const deleteContract = await this.commandBus.execute(
       new DeletePostCommand(
         param.blogId,
         param.postId,
         deviceSession.userId,
       )
     )
-    if (resultContruct.error === ErrorEnums.POST_NOT_DELETED) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_DELETED, "id")
+    if (deleteContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
+    if (deleteContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
+    )
+    if (deleteContract.error === ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST, "postId")
+    )
+    if (deleteContract.error === ErrorEnums.FOREIGN_POST_NOT_DELETE_POST) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_POST_NOT_DELETE_POST, "postId")
     )
     return
   }

@@ -10,6 +10,7 @@ import { QueryCommentInputModel } from "src/input-models/query/query-comment.inp
 import { UsersRepository } from "../users.repository"
 import { Contract } from "src/contract"
 import { ErrorEnums } from "src/utils/errors/error-enums"
+import { Types } from "mongoose"
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
@@ -23,14 +24,18 @@ export class CommentsQueryRepository {
 
   async findComment(commentId: string, userId?: string): Promise<Contract<null | CommentView>> {
 
+    // const user = await this.usersRepository.findUser(["_id", new Types.ObjectId(userId)])
+    // if (user?.accountData.banInfo.isBanned === true)
+    //   return new Contract(null, ErrorEnums.USER_IS_BANNED)
+    const bannedUsers = await this.usersRepository.findBannedUsers()
+    const bannedUserIds = bannedUsers.map(user => user._id.toString())
+
     const foundComment = await this.CommentsModel.findById(commentId)
     if (foundComment === null)
       return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
+    if (bannedUserIds.includes(foundComment.commentatorInfo.userId))
+      return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
-
-
-    const bannedUsers = await this.usersRepository.findBannedUsers()
-    const bannedUserIds = bannedUsers.map(user => user._id.toString())
 
     let likesCountMy: number = 0
     let dislikesCountMy: number = 0
@@ -42,15 +47,9 @@ export class CommentsQueryRepository {
     })
 
     const commentCopy = new this.CommentsModel(foundComment)
-
     commentCopy.likesInfo.likesCount -= likesCountMy
     commentCopy.likesInfo.dislikesCount -= dislikesCountMy
     commentCopy.likesInfo.like = trueLikes
-
-
-
-
-
 
     // if (userId) {
     //   const foundUser = await this.usersRepository.findUser(userId)

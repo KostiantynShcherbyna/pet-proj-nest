@@ -23,7 +23,7 @@ export class CreatePostCommand {
 
 
 @CommandHandler(CreatePostCommand)
-export class CreatePost implements ICommandHandler<CreatePostCommand>{
+export class CreatePostBlogger implements ICommandHandler<CreatePostCommand>{
     constructor(
         @InjectModel(Posts.name) protected PostsModel: PostsModel,
         protected blogsRepository: BlogsRepository,

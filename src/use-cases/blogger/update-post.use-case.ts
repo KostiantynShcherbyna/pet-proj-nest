@@ -26,11 +26,11 @@ export class UpdatePostBlogger implements ICommandHandler<UpdatePostCommand> {
 
         const foundBlog = await this.blogsRepository.findBlog(command.blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
-        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST);
+        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_UPDATE_POST);
 
         const post = await this.postsRepository.findPost(command.postId);
         if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
-        if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_UPDATE_POST);
+        if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_POST_NOT_UPDATE_POST);
 
         const updateDto = {
             title: command.body.title,

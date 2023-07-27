@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
+import { Types } from "mongoose"
 import { Contract } from "src/contract"
 import { BlogsRepository } from "src/repositories/blogs.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
@@ -15,7 +16,7 @@ export class DeletePostCommand {
 }
 
 @CommandHandler(DeletePostCommand)
-export class DeletePost implements ICommandHandler<DeletePostCommand> {
+export class DeletePostBlogger implements ICommandHandler<DeletePostCommand> {
     constructor(
         @InjectModel(Posts.name) protected PostsModel: PostsModel,
         protected postsRepository: PostsRepository,
@@ -30,17 +31,16 @@ export class DeletePost implements ICommandHandler<DeletePostCommand> {
         if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST);
 
 
-        // const foundPost = await this.postsRepository.findPost(command.postId)
-        // if (foundPost === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
+        const post = await this.postsRepository.findPost(command.postId);
+        if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
+        if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_POST_NOT_DELETE_POST);
 
-
-        // if (foundPost.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST);
-
-        const deletedPostContract = await this.PostsModel.deletePost(
+        // const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(command.postId) })
+        const deletedPostResult = await Posts.deletePost(
             command.postId,
             this.PostsModel
         )
-        if (deletedPostContract.data === 0)
+        if (deletedPostResult === 0)
             return new Contract(null, ErrorEnums.POST_NOT_DELETED);
 
         return new Contract(true, null);

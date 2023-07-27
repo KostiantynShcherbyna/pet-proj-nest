@@ -14,7 +14,7 @@ export class BindBlogCommand {
 
 
 @CommandHandler(BindBlogCommand)
-export class BindBlog implements ICommandHandler<BindBlogCommand>{
+export class BindBlogBlogger implements ICommandHandler<BindBlogCommand>{
     constructor(
         protected blogsRepository: BlogsRepository,
     ) {

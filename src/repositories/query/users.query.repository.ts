@@ -29,7 +29,10 @@ export class UsersQueryRepository {
 
     async findUsers(query: QueryUserSAInputModel): Promise<UsersView> {
 
-        const banStatus = query.banStatus || BanStatus.All
+        let banStatus: any
+        if (query.banStatus === BanStatus.All) banStatus = { $in: [true, false] }
+        if (query.banStatus === BanStatus.Banned) banStatus = true
+        if (query.banStatus === BanStatus.NotBanned) banStatus = false
         const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
         const searchEmailTerm = query.searchEmailTerm || SEARCH_EMAIL_TERM_DEFAULT
         const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
@@ -41,29 +44,27 @@ export class UsersQueryRepository {
 
         const skippedUsersCount = (pageNumber - 1) * pageSize
 
-        const totalCount = await this.UsersModel
-            .countDocuments(
-                {
-                    $or: [
-                        { "accountData.banStatus": banStatus },
-                        { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
-                        { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
-                    ]
-                }
-            )
+        const totalCount = await this.UsersModel.countDocuments(
+            {
+                $and: [
+                    { "accountData.banInfo.isBanned": banStatus },
+                    { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
+                    { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
+                ]
+            }
+        )
 
         const pagesCount = Math.ceil(totalCount / pageSize)
 
-        const requestedUsers = await this.UsersModel
-            .find(
-                {
-                    $or: [
-                        { "accountData.banStatus": banStatus },
-                        { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
-                        { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
-                    ]
-                }
-            )
+        const requestedUsers = await this.UsersModel.find(
+            {
+                $and: [
+                    { "accountData.banInfo.isBanned": banStatus },
+                    { "accountData.login": { $regex: searchLoginTerm, $options: 'ix' } },
+                    { "accountData.email": { $regex: searchEmailTerm, $options: 'ix' } }
+                ]
+            }
+        )
             .sort({ ["accountData." + sortBy]: sortDirection })
             .limit(pageSize)
             .skip(skippedUsersCount)

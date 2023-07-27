@@ -142,9 +142,9 @@ export class Posts {
     return newPost
   }
 
-  static async deletePost(id: string, PostsModel: PostsModel): Promise<Contract<number>> {
+  static async deletePost(id: string, PostsModel: PostsModel): Promise<number> {
     const deletedPostResult = await PostsModel.deleteOne({ _id: new Types.ObjectId(id) })
-    return new Contract(deletedPostResult.deletedCount, null)
+    return deletedPostResult.deletedCount
   }
 
 
@@ -248,7 +248,7 @@ export class Posts {
 }
 interface PostsStatics {
   createPost(bodyBlogPost: BodyBlogPostInputModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument;
-  deletePost(id: string, PostsModel: PostsModel): Promise<Contract<number>>
+  deletePost(id: string, PostsModel: PostsModel): Promise<number>
 }
 
 export const PostsSchema = SchemaFactory.createForClass(Posts)

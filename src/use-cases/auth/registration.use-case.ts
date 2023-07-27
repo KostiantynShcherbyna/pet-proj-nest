@@ -4,6 +4,7 @@ import { Contract } from "src/contract"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
+import { emailAdapter } from "src/utils/managers/email.adapter"
 
 export class RegistrationCommand {
     constructor(

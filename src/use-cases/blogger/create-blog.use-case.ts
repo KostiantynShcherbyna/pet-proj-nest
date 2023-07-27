@@ -20,7 +20,7 @@ export class CreateBlogCommand {
 
 
 @CommandHandler(CreateBlogCommand)
-export class CreateBlog implements ICommandHandler<CreateBlogCommand>{
+export class CreateBlogBlogger implements ICommandHandler<CreateBlogCommand>{
     constructor(
         @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
         protected blogsRepository: BlogsRepository,
