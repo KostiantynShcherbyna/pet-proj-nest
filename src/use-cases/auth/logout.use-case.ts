@@ -28,7 +28,7 @@ export class Logout implements ICommandHandler<LogoutCommand> {
     }
 
     async execute(command: LogoutCommand): Promise<Contract<null | boolean>> {
-
+        const { deviceId } = command
         const userDto = ["_id", new Types.ObjectId(command.userId)]
         const user = await this.usersRepository.findUser(userDto)
         if (user === null)

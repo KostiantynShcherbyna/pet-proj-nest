@@ -22,7 +22,10 @@ async function bootstrap() {
       exceptionFactory: errorsFactory
     }),
   )
-  app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter())
+  app.useGlobalFilters(
+    new ErrorExceptionFilter(),
+    new HttpExceptionFilter()
+  )
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
   const configService = app.get(ConfigService);

@@ -46,7 +46,7 @@ export class CommentsQueryRepository {
       return !bannedUserIds.includes(like.userId)
     })
 
-    const commentCopy = new this.CommentsModel(foundComment)
+    const commentCopy = { ...foundComment }
     commentCopy.likesInfo.likesCount -= likesCountMy
     commentCopy.likesInfo.dislikesCount -= dislikesCountMy
     commentCopy.likesInfo.like = trueLikes
