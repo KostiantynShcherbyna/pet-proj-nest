@@ -75,7 +75,6 @@ import { BanUser } from "./use-cases/sa/ban-user.use-case"
 import { CreateUser } from "./use-cases/users/create-user.use-case"
 import { DeleteUser } from "./use-cases/sa/delete-user.use-case"
 import { BlogIdIsExist } from "./validators/blogId.validator"
-import { BannedBlogUsersQueryRepository } from "./repositories/query/banned-blog-users.query.repository"
 import { BannedBlogUsersRepository } from "./repositories/banned-blog-users.repository"
 import { BanUserBlogger } from "./use-cases/blogger/ban-user-blogger.use-case"
 import { BannedBlogUsers, BannedBlogUsersSchema } from "./schemas/banned-blog-users.schema"
@@ -139,7 +138,6 @@ const repository = [
   AuthRepository,
   DevicesRepository,
   BannedBlogUsersRepository,
-  BannedBlogUsersQueryRepository,
 ]
 const otherProviders = [
   throttler,

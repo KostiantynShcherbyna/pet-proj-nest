@@ -18,7 +18,7 @@ export class CommentsService {
     // Looking for a comment and check owner
     const comment = await this.commentsRepository.findComment(commentId);
     if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-    if (comment.checkCommentator(userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_UPDATED);
+    if (comment.checkCommentator(userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
     comment.updateComment(content);
     await this.commentsRepository.saveDocument(comment);
@@ -31,7 +31,7 @@ export class CommentsService {
     // Looking for a comment and check owner
     const comment = await this.commentsRepository.findComment(commentId);
     if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-    if (comment.commentatorInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_DELETED);
+    if (comment.commentatorInfo.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
     const deleteCommentContract = await this.CommentsModel.deleteComment(commentId, this.CommentsModel)
     if (deleteCommentContract.data === 0) return new Contract(null, ErrorEnums.COMMENT_NOT_DELETE);

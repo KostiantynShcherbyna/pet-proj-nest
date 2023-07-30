@@ -1,22 +1,26 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
+import { QueryBannedBlogUsersInputModel } from "src/input-models/query/query-banned-blog-users.input-model"
 import { QueryBlogsInputModel } from "src/input-models/query/query-blogs.input-model"
-import { BlogsView, BlogView } from "src/views/blog.view"
+import { BannedBlogUsers, BannedBlogUsersModel } from "src/schemas/banned-blog-users.schema"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { dtoManager } from "src/utils/managers/dto.manager"
-import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_DIRECTION_DEFAULT, SortDirection } from "../../utils/constants/constants"
+import { BlogsView, BlogView } from "src/views/blog.view"
+import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
 import { UsersRepository } from "../users.repository"
-import { Types } from "mongoose"
+import { BlogsRepository } from "../blogs.repository"
 import { Contract } from "src/contract"
 import { ErrorEnums } from "src/utils/errors/error-enums"
+import { BannedBlogUsersView } from "src/views/bannde-blog-user.view"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
 export class BlogsQueryRepository {
-  BannedBlogUsers: any
   constructor(
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
+    @InjectModel(BannedBlogUsers.name) protected BannedBlogUsersModel: BannedBlogUsersModel,
+    protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
   ) {
   }
@@ -150,6 +154,62 @@ export class BlogsQueryRepository {
     }
 
     return blogsView
+  }
+
+  async findBannedBlogUsers(queryBlog: QueryBannedBlogUsersInputModel, blogId: string, ownerId: string): Promise<Contract<null | BannedBlogUsersView>> {
+
+    const ownerBlog = await this.blogsRepository.findBlog(blogId)
+    if (ownerBlog === null)
+      return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    if (ownerBlog.blogOwnerInfo.userId !== ownerId)
+      return new Contract(null, ErrorEnums.FOREIGN_BLOG)
+
+
+    const searchLoginTerm = queryBlog.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
+    const pageSize = +queryBlog.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +queryBlog.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortBy = queryBlog.sortBy || SORT_BY_DEFAULT
+    const sortDirection = queryBlog.sortDirection === SortDirection.Asc
+      ? 1
+      : -1
+
+    const skippedUsersCount = (pageNumber - 1) * pageSize
+
+    const totalCount = await this.BannedBlogUsersModel.countDocuments(
+      {
+        $and: [
+          { blogId: blogId },
+          { isBanned: true },
+          { login: { $regex: searchLoginTerm, $options: 'ix' } },
+        ]
+      }
+    )
+
+    const pagesCount = Math.ceil(totalCount / pageSize)
+
+    const requestedUsers = await this.BannedBlogUsersModel.find(
+      {
+        $and: [
+          { blogId: blogId },
+          { isBanned: true },
+          { login: { $regex: searchLoginTerm, $options: 'ix' } },
+        ]
+      }
+    )
+      .sort({ [sortBy]: sortDirection })
+      .limit(pageSize)
+      .skip(skippedUsersCount)
+      .lean()
+
+    const bannedBlogUsersView = dtoManager.createBannedBlogUsersView(requestedUsers)
+
+    return new Contract({
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: totalCount,
+      items: bannedBlogUsersView
+    }, null)
   }
 
   // async findBannedUsersOfBlog(props: any) {

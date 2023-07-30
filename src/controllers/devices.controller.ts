@@ -72,7 +72,7 @@ export class DevicesController {
     if (result.error === ErrorEnums.DEVICE_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.DEVICE_NOT_FOUND, "deviceId")
     )
-    if (result.error === ErrorEnums.FOREIGN_DEVICE_NOT_DELETE) throw new ForbiddenException()
+    if (result.error === ErrorEnums.FOREIGN_DEVICE) throw new ForbiddenException()
     if (result.error === ErrorEnums.DEVICE_NOT_DELETE) throw new NotFoundException(
       callErrorMessage(ErrorEnums.DEVICE_NOT_DELETE, "deviceId")
     )

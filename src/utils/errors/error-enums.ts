@@ -11,7 +11,7 @@ export enum ErrorEnums {
     RECOVERY_CODE_INVALID = `RECOVERY_CODE_INVALID`,
     RECOVERY_CODE_NOT_FOUND = `RECOVERY_CODE_NOT_FOUND`,
     RECOVERY_CODE_NOT_DELETE = `RECOVERY_CODE_NOT_DELETE`,
-    FOREIGN_DEVICE_NOT_DELETE = `Foreign device not deleted`,
+    FOREIGN_DEVICE = `Foreign device`,
     CONFIRMATION_CODE_EXPIRED = `Confirmation code is expired`,
 
     // ↓↓↓ BLOGS
@@ -24,13 +24,7 @@ export enum ErrorEnums {
     POST_NOT_FOUND = `Post not found`,
     POST_NOT_DELETED = `Post not deleted`,
     POSTS_NOT_DELETED = `Posts not deleted`,
-    FOREIGN_BLOG_NOT_UPDATE = `Foreign blog, can't update`,
-    FOREIGN_BLOG_NOT_DELETE = `Foreign blog, can't delete delete`,
-    FOREIGN_BLOG_NOT_CREATE_POST = `Foreign blog, can't create new post`,
-    FOREIGN_BLOG_NOT_UPDATE_POST = `Foreign blog, can't update post`,
-    FOREIGN_BLOG_NOT_DELETE_POST = `Foreign blog, can't delete post`,
-    FOREIGN_POST_NOT_DELETE_POST = `Foreign post, can't delete post`,
-    FOREIGN_POST_NOT_UPDATE_POST = `Foreign post, can't update post`,
+    FOREIGN_POST = `Foreign post`,
 
 
     // ↓↓↓ USERS
@@ -46,8 +40,7 @@ export enum ErrorEnums {
     // ↓↓↓ COMMENTS
     COMMENT_NOT_FOUND = `Comment not found`,
     COMMENT_NOT_DELETE = `Comment not deleted`,
-    FOREIGN_COMMENT_NOT_UPDATED = `Foreign comment not updated`,
-    FOREIGN_COMMENT_NOT_DELETED = `Foreign comment not deleted`,
+    FOREIGN_COMMENT = `Foreign comment not updated`,
 
 }
 

@@ -22,6 +22,7 @@ import { AccessGuard } from "src/guards/access.guard"
 import { BodyBlogPostBloggerInputModel } from "src/input-models/body/body-blog-post-blogger.input-model"
 import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
 import { BodyUserBanBloggerInputModel } from "src/input-models/body/body-user-ban-blogger.input-model"
+import { QueryBannedBlogUsersInputModel } from "src/input-models/query/query-banned-blog-users.input-model"
 import { QueryPostsInputModel } from "src/input-models/query/query-posts.input-model"
 import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { BloggerInputModel } from "src/input-models/uri/blogger.input-model"
@@ -42,7 +43,6 @@ import { BlogIdInputModel } from "../input-models/uri/blogId.input-model"
 import { IdInputModel } from "../input-models/uri/id.input-model"
 import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
 import { BlogsService } from "../services/blogs.service"
-import { QueryBannedBlogUsersInputModel } from "src/input-models/query/query-banned-blog-users.input-model"
 
 @Controller("blogger/blogs")
 export class BloggerController {
@@ -74,8 +74,8 @@ export class BloggerController {
     if (updateBlogResult.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
-    if (updateBlogResult.error === ErrorEnums.FOREIGN_BLOG_NOT_UPDATE) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_UPDATE, "id")
+    if (updateBlogResult.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
     )
     return
   }
@@ -98,8 +98,8 @@ export class BloggerController {
     if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
-    if (deleteBlogResult.error === ErrorEnums.FOREIGN_BLOG_NOT_DELETE) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_DELETE, "id")
+    if (deleteBlogResult.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
     )
     if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_DELETED, "id")
@@ -166,7 +166,7 @@ export class BloggerController {
     if (result.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
     )
-    if (result.error === ErrorEnums.FOREIGN_BLOG_NOT_CREATE_POST) throw new ForbiddenException()
+    if (result.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
     return result.data
   }
 
@@ -215,11 +215,11 @@ export class BloggerController {
     if (updateContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )
-    if (updateContract.error === ErrorEnums.FOREIGN_BLOG_NOT_UPDATE_POST) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_UPDATE_POST, "postId")
+    if (updateContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "postId")
     )
-    if (updateContract.error === ErrorEnums.FOREIGN_POST_NOT_UPDATE_POST) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_POST_NOT_UPDATE_POST, "postId")
+    if (updateContract.error === ErrorEnums.FOREIGN_POST) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_POST, "postId")
     )
     return
   }
@@ -246,11 +246,11 @@ export class BloggerController {
     if (deleteContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )
-    if (deleteContract.error === ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST, "postId")
+    if (deleteContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "postId")
     )
-    if (deleteContract.error === ErrorEnums.FOREIGN_POST_NOT_DELETE_POST) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_POST_NOT_DELETE_POST, "postId")
+    if (deleteContract.error === ErrorEnums.FOREIGN_POST) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_POST, "postId")
     )
     return
   }
@@ -282,13 +282,21 @@ export class BloggerController {
   @Get("users/blog/:id")
   async getBannedBlogUsers(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Param() param: IdInputModel,
     @Query() queryBlog: QueryBannedBlogUsersInputModel
   ) {
-    const blogs = await this.blogsQueryRepository.findBlogs(
+    const bannedBlogusersContract = await this.blogsQueryRepository.findBannedBlogUsers(
       queryBlog,
+      param.id,
       deviceSession.userId,
     )
-    return blogs
+    if (bannedBlogusersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    if (bannedBlogusersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
+    )
+    return bannedBlogusersContract.data
   }
 
 

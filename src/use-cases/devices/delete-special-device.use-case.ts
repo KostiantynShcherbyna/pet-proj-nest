@@ -25,7 +25,7 @@ export class DeleteSpecialDevice implements ICommandHandler<DeleteSpecialDeviceC
 
         const device = await this.devicesRepository.findDeviceByDeviceId(command.deviceId)
         if (device === null) return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
-        if (device.checkOwner(command.userId) === false) return new Contract(null, ErrorEnums.FOREIGN_DEVICE_NOT_DELETE)
+        if (device.checkOwner(command.userId) === false) return new Contract(null, ErrorEnums.FOREIGN_DEVICE)
 
         const deleteCount = await Devices.deleteDevice(command.deviceId, this.DevicesModel)
         if (deleteCount === 0) return new Contract(null, ErrorEnums.DEVICE_NOT_DELETE)

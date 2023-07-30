@@ -25,7 +25,7 @@ export class UpdateComment implements ICommandHandler<UpdateCommentCommand>{
         // Looking for a comment and check owner
         const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-        if (comment.checkCommentator(command.userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_UPDATED);
+        if (comment.checkCommentator(command.userId) === false) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
         comment.updateComment(command.content);
         await this.commentsRepository.saveDocument(comment);

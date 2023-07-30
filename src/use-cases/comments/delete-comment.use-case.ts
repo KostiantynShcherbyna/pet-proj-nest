@@ -35,7 +35,7 @@ export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
 
         const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-        if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT_NOT_DELETED);
+        if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
 
         const deleteCommentContract = await Comments.deleteComment(command.commentId, this.CommentsModel)

@@ -28,7 +28,7 @@ export class DeleteBlogBlogger implements ICommandHandler<DeleteBlogCommand>{
 
         const foundBlog = await this.blogsRepository.findBlog(command.blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
-        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE);
+        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
 
         const deleteBlogContract = await Blogs.deleteBlog(
             command.blogId,

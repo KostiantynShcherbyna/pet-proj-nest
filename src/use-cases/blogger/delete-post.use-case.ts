@@ -28,12 +28,12 @@ export class DeletePostBlogger implements ICommandHandler<DeletePostCommand> {
 
         const foundBlog = await this.blogsRepository.findBlog(command.blogId)
         if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
-        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG_NOT_DELETE_POST);
+        if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG);
 
 
         const post = await this.postsRepository.findPost(command.postId);
         if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND);
-        if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_POST_NOT_DELETE_POST);
+        if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_POST);
 
         // const deletedPostResult = await this.PostsModel.deleteOne({ _id: new Types.ObjectId(command.postId) })
         const deletedPostResult = await Posts.deletePost(
