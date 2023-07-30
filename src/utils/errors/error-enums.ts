@@ -16,6 +16,7 @@ export enum ErrorEnums {
 
     // ↓↓↓ BLOGS
     BLOG_NOT_FOUND = `Blog not found`,
+    BLOG_IS_BANNED = `Blog is banned`,
     BLOG_NOT_DELETED = `Blog not deleted`,
 
     // ↓↓↓ POSTS

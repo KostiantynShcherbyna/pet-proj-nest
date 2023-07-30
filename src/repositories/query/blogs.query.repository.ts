@@ -23,6 +23,7 @@ export class BlogsQueryRepository {
   async findBlog(id: string): Promise<null | BlogView> {
     const foundBlog = await this.BlogsModel.findById(id)
     if (foundBlog === null) return null
+    if (foundBlog.banInfo.isBanned === true) return null
 
     const foundBlogView = dtoManager.changeBlogView(foundBlog)
     return foundBlogView
@@ -47,12 +48,16 @@ export class BlogsQueryRepository {
       ? await this.BlogsModel.countDocuments({
         $and: [
           { "blogOwnerInfo.userId": userId },
+          { "banInfo.isBanned": { $ne: true } },
           { name: { $regex: searchNameTerm, $options: "ix" } },
         ]
       })
 
       : await this.BlogsModel.countDocuments({
-        name: { $regex: searchNameTerm, $options: "ix" }
+        $and: [
+          { "banInfo.isBanned": { $ne: true } },
+          { name: { $regex: searchNameTerm, $options: "ix" } }
+        ]
       })
 
 
@@ -63,6 +68,7 @@ export class BlogsQueryRepository {
       ? await this.BlogsModel.find({
         $and: [
           { "blogOwnerInfo.userId": userId },
+          { "banInfo.isBanned": { $ne: true } },
           { name: { $regex: searchNameTerm, $options: "ix" } },
         ]
       })
@@ -72,7 +78,10 @@ export class BlogsQueryRepository {
         .lean()
 
       : await this.BlogsModel.find({
-        name: { $regex: searchNameTerm, $options: "ix" }
+        $and: [
+          { "banInfo.isBanned": { $ne: true } },
+          { name: { $regex: searchNameTerm, $options: "ix" } }
+        ]
       })
         .sort({ [sortBy]: sortDirection })
         .limit(pageSize)
@@ -82,7 +91,7 @@ export class BlogsQueryRepository {
 
     const mappedBlogs = dtoManager.changeBlogsView(requestedBlogs)
 
-    
+
     const blogsView = {
       pagesCount: pagesCount,
       page: pageNumber,

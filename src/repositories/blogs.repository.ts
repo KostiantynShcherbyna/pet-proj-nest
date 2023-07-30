@@ -1,8 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Types } from "mongoose"
-import { BlogsModel, Blogs, BlogsDocument } from "src/schemas/blogs.schema"
-import { IdInputModel } from "../input-models/uri/id.input-model"
+import { Blogs, BlogsDocument, BlogsModel } from "src/schemas/blogs.schema"
 
 @Injectable()
 export class BlogsRepository {
@@ -10,11 +8,12 @@ export class BlogsRepository {
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
   ) {
   }
-  
+
   async findBlog(id: string) {
 
     const foundBlog = await this.BlogsModel.findById(id)
     if (foundBlog === null) return null
+
 
     return foundBlog
   }

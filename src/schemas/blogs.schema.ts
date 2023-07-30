@@ -13,6 +13,12 @@ import { PostsModel } from './posts.schema'
 import { CreateBlogCommand } from 'src/use-cases/blogger/create-blog.use-case'
 
 
+export interface IBanInfo {
+  isBanned: boolean
+  banDate: Date | null
+}
+
+
 @Schema()
 export class BlogOwnerInfo {
   @Prop({
@@ -27,6 +33,22 @@ export class BlogOwnerInfo {
   })
   userLogin: string | null
 }
+
+// @Schema()
+// export class BanInfo {
+//   @Prop({
+//     type: String,
+//     required: true,
+//     default: false,
+//   })
+//   isBanned: string
+
+//   @Prop({
+//     type: Date,
+//     required: true,
+//   })
+//   banDate: Date | null
+// }
 
 @Schema()
 export class Blogs {
@@ -69,6 +91,19 @@ export class Blogs {
   })
   blogOwnerInfo: BlogOwnerInfo
 
+  @Prop({
+    isBanned: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    banDate: {
+      type: Date,
+      required: true,
+    },
+  })
+  banInfo: IBanInfo
+
   static createBlog(bodyBlog: CreateBlogCommand, login: string, BlogsModel: BlogsModel,): BlogsDocument {
     const date = new Date().toISOString()
 
@@ -99,14 +134,18 @@ export class Blogs {
     return new Contract(deleteBlogResult.deletedCount, null)
   }
 
-  updateBlog(newBlogDto: BodyBlogInputModel) {
+  updateBlog(newBlogDto: BodyBlogInputModel): void {
     this.name = newBlogDto.name
     this.description = newBlogDto.description
     this.websiteUrl = newBlogDto.websiteUrl
   }
 
-  bindBlog(userId: string) {
+  bindBlog(userId: string): void {
     this.blogOwnerInfo.userId = userId
+  }
+
+  banBlog(isBanned: boolean): void {
+    this.banInfo.isBanned = isBanned
   }
 }
 
@@ -119,6 +158,7 @@ export const BlogsSchema = SchemaFactory.createForClass(Blogs)
 BlogsSchema.statics.createBlog = Blogs.createBlog
 BlogsSchema.methods.updateBlog = Blogs.prototype.updateBlog
 BlogsSchema.methods.bindBlog = Blogs.prototype.bindBlog
+BlogsSchema.methods.banBlog = Blogs.prototype.banBlog
 
 export type BlogsDocument = HydratedDocument<Blogs>
 export type BlogsModel = Model<BlogsDocument> & BlogsStatics

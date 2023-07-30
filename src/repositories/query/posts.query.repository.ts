@@ -29,7 +29,7 @@ export class PostsQueryRepository {
   constructor(
     @InjectModel(Posts.name) protected PostsModel: PostsModel,
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
-    protected blogsRepositoryMngs: BlogsRepository,
+    protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
   ) {
   }
@@ -38,8 +38,9 @@ export class PostsQueryRepository {
   async findPosts(queryPost: QueryPostInputModel, userId?: string, blogId?: string,): Promise<Contract<null | PostsView>> {
 
     if (blogId) {
-      const blog = await this.blogsRepositoryMngs.findBlog(blogId)
+      const blog = await this.blogsRepository.findBlog(blogId)
       if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+      if (blog.banInfo.isBanned === true) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
     }
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
@@ -131,10 +132,15 @@ export class PostsQueryRepository {
   }
 
 
-  async findPost(postId: string, userId?: string): Promise<null | PostView> {
+  async findPost(postId: string, userId?: string): Promise<Contract<null | PostView>> {
 
     const post = await this.PostsModel.findById(postId)
-    if (post === null) return null
+    if (post === null)
+      return new Contract(null, ErrorEnums.POST_NOT_FOUND)
+
+    const foundBlog = await this.blogsRepository.findBlog(post.blogId)
+    if (foundBlog === null || foundBlog.banInfo.isBanned === true)
+      return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 
     const bannedUsers = await this.usersRepository.findBannedUsers()
     const bannedUserIds = bannedUsers.map(user => user._id.toString())
@@ -162,7 +168,7 @@ export class PostsQueryRepository {
 
     const postView = dtoManager.changePostView(postCopy, like?.status || LikeStatus.None)
 
-    return postView
+    return new Contract(postView, null)
   }
 
 

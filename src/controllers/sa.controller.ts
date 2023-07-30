@@ -15,22 +15,24 @@ import {
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { BasicGuard } from "src/guards/basic.guard"
+import { BodyBlogBanInputModel } from "src/input-models/body/body-blog-ban.input-model"
+import { BodyUserBanInputModel } from "src/input-models/body/body-user-ban.input-model"
 import { BodyUserInputModel } from "src/input-models/body/body-user.input-model"
-import { QueryUserInputModel } from "src/input-models/query/query-user.input-model"
+import { QueryBlogInputModel } from "src/input-models/query/query-blog.input-model"
+import { QueryUserSAInputModel } from "src/input-models/query/query-user-sa.input-model"
+import { IdBlogBanInputModel } from "src/input-models/uri/id-blog-ban.input-model"
+import { BindInputModel } from "src/input-models/uri/userId.input-model"
+import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
 import { UsersQueryRepository } from "src/repositories/query/users.query.repository"
+import { UsersService } from "src/services/users.service"
+import { BanBlogCommand } from "src/use-cases/sa/ban-blog.use-case"
+import { BindBlogCommand } from "src/use-cases/sa/bind-blog.use-case"
+import { BanUserCommand } from "src/use-cases/users/ban-user.use-case"
 import { CreateUserCommand } from "src/use-cases/users/create-user.use-case"
 import { DeleteUserCommand } from "src/use-cases/users/delete-user.use-case"
-import { UsersService } from "src/services/users.service"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { IdInputModel } from "../input-models/uri/id.input-model"
-import { BanUserCommand } from "src/use-cases/users/ban-user.use-case"
-import { BodyUserBanInputModel } from "src/input-models/body/body-user-ban.input-model"
-import { QueryUserSAInputModel } from "src/input-models/query/query-user-sa.input-model"
-import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
-import { QueryBlogInputModel } from "src/input-models/query/query-blog.input-model"
-import { BindInputModel } from "src/input-models/uri/userId.input-model"
-import { BindBlogCommand } from "src/use-cases/blogger/bind-blog.use-case"
 
 @Controller("sa")
 export class SAController {
@@ -41,6 +43,55 @@ export class SAController {
     protected blogsQueryRepository: BlogsQueryRepository,
   ) {
   }
+
+
+  @UseGuards(BasicGuard)
+  @Put("blogs/:id/ban")
+  async banBlog(
+    @Param() param: IdBlogBanInputModel,
+    @Body() bodyBlogBan: BodyBlogBanInputModel,
+  ) {
+    const banContract = await this.commandBus.execute(
+      new BanBlogCommand(
+        param.id,
+        bodyBlogBan.isBanned,
+      )
+    )
+    if (banContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    return
+  }
+
+
+  @UseGuards(BasicGuard)
+  @Put("blogs/:id/bind-with-user/:userId")
+  async bindBlog(
+    @Param() param: BindInputModel,
+  ) {
+    const foundBlogView = await this.commandBus.execute(
+      new BindBlogCommand(
+        param.id,
+        param.userId
+      )
+    )
+    if (foundBlogView === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    return
+  }
+
+
+  @UseGuards(BasicGuard)
+  @Get("blogs")
+  async getBlogs(
+    @Query() queryBlog: QueryBlogInputModel
+  ) {
+    return await this.blogsQueryRepository.findSABlogs(queryBlog)
+  }
+
+
+
 
 
   @UseGuards(BasicGuard)
@@ -104,32 +155,6 @@ export class SAController {
 
 
 
-
-  @UseGuards(BasicGuard)
-  @Put("blogs/:id/bind-with-user/:userId")
-  async bindBlog(
-    @Param() param: BindInputModel,
-  ) {
-    const foundBlogView = await this.commandBus.execute(
-      new BindBlogCommand(
-        param.id,
-        param.userId
-      )
-    )
-    if (foundBlogView === null) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-    )
-    return foundBlogView
-  }
-
-
-  @UseGuards(BasicGuard)
-  @Get("blogs")
-  async getBlogs(
-    @Query() queryBlog: QueryBlogInputModel
-  ) {
-    return await this.blogsQueryRepository.findSABlogs(queryBlog)
-  }
 
 
 }

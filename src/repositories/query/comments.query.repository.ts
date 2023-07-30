@@ -83,7 +83,7 @@ export class CommentsQueryRepository {
 
 
     const foundPost = await this.postsQueryRepository.findPost(postId, userId)
-    if (foundPost === null)
+    if (foundPost.error === ErrorEnums.POST_NOT_FOUND)
       return new Contract(null, ErrorEnums.POST_NOT_FOUND)
 
 

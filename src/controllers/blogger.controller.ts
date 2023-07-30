@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -39,6 +40,10 @@ import { BlogsQueryRepository } from "../repositories/query/blogs.query.reposito
 import { BlogsService } from "../services/blogs.service"
 import { DeviceSession } from "src/decorators/device-session.decorator"
 import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
+import { BodyUserBanInputModel } from "src/input-models/body/body-user-ban.input-model"
+import { BanUserCommand } from "src/use-cases/users/ban-user.use-case"
+import { BodyUserBanBloggerInputModel } from "src/input-models/body/body-user-ban-blogger.input-model"
+import { BanUserBloggerCommand } from "src/use-cases/blogger/ban-user-blogger.use-case"
 
 @Controller("blogger/blogs")
 export class BloggerController {
@@ -250,6 +255,29 @@ export class BloggerController {
     )
     return
   }
+
+
+
+  @UseGuards(AccessGuard)
+  @Put("users/:id/ban")
+  async banUser(
+    @Param() param: IdInputModel,
+    @Body() bodyUserBan: BodyUserBanBloggerInputModel
+  ) {
+    const banContract = await this.commandBus.execute(
+      new BanUserBloggerCommand(
+        param.id,
+        bodyUserBan,
+      )
+    )
+    if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
+    )
+    if (banContract.error === ErrorEnums.DEVICES_NOT_DELETE) throw new InternalServerErrorException()
+    return
+  }
+
+
 
 
 }

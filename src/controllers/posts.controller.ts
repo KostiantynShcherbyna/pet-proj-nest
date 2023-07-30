@@ -56,11 +56,15 @@ export class PostsController {
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: IdInputModel,
   ) {
-    const post = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
-    if (post === null) throw new NotFoundException(
+    const postContract = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
+    if (postContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )
-    return post
+    if (postContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+
+    return postContract.data
   }
 
   // @UseGuards(BasicGuard)
