@@ -13,42 +13,22 @@ import { PostsModel } from './posts.schema'
 import { CreateBlogCommand } from 'src/use-cases/blogger/create-blog.use-case'
 
 
-export interface IBanInfo {
-  isBanned: boolean
-  banDate: Date | null
-}
-
-
-@Schema()
-export class BlogOwnerInfo {
-  @Prop({
-    type: String,
-    required: true,
-  })
+export interface IBlogOwnerInfo {
   userId: string | null
-
-  @Prop({
-    type: String,
-    required: true,
-  })
   userLogin: string | null
 }
-
-// @Schema()
-// export class BanInfo {
-//   @Prop({
-//     type: String,
-//     required: true,
-//     default: false,
-//   })
-//   isBanned: string
-
-//   @Prop({
-//     type: Date,
-//     required: true,
-//   })
-//   banDate: Date | null
+export interface IBanInfo {
+  isBanned: boolean
+  banDate: string | null
+}
+// export interface IBannedUsers {
+//   userId: string
+//   userLogin: string
+//   isBanned: boolean
+//   banReason: string | null
+//   banDate: string | null
 // }
+
 
 @Schema()
 export class Blogs {
@@ -87,22 +67,50 @@ export class Blogs {
   isMembership: boolean
 
   @Prop({
-    required: true,
+    userLogin: {
+      type: String,
+      required: true,
+    },
+    userId: {
+      type: String,
+      required: true,
+    }
   })
-  blogOwnerInfo: BlogOwnerInfo
+  blogOwnerInfo: IBlogOwnerInfo
 
   @Prop({
     isBanned: {
       type: Boolean,
       required: true,
-      default: false,
     },
     banDate: {
-      type: Date,
-      required: true,
-    },
+      type: String
+    }
   })
   banInfo: IBanInfo
+
+  // @Prop([
+  //   {
+  //     userId: {
+  //       type: String,
+  //     },
+  //     userLogin: {
+  //       type: String,
+  //       required: true,
+  //     },
+  //     isBanned: {
+  //       type: Boolean,
+  //       required: true,
+  //     },
+  //     banReason: {
+  //       type: String,
+  //     },
+  //     banDate: {
+  //       type: Date,
+  //     },
+  //   }
+  // ])
+  // bannedUsers: IBannedUsers[]
 
   static createBlog(bodyBlog: CreateBlogCommand, login: string, BlogsModel: BlogsModel,): BlogsDocument {
     const date = new Date().toISOString()
@@ -116,7 +124,11 @@ export class Blogs {
       blogOwnerInfo: {
         userId: bodyBlog.userId,
         userLogin: login,
-      }
+      },
+      banInfo: {
+        isBanned: false,
+        banDate: null,
+      },
     }
     const newBlog = new BlogsModel(newBlogDto)
     return newBlog
@@ -144,11 +156,41 @@ export class Blogs {
     this.blogOwnerInfo.userId = userId
   }
 
-  banBlog(isBanned: boolean): void {
-    this.banInfo.isBanned = isBanned
+  banBlog(): void {
+    this.banInfo.isBanned = true
+    this.banInfo.banDate = new Date().toISOString()
   }
-}
 
+  unbanBlog(): void {
+    this.banInfo.isBanned = false
+    this.banInfo.banDate = null
+  }
+
+  // banUser(userId: string, login: string, banReason: string): void {
+  //   this.bannedUsers.push(
+  //     {
+  //       userId: userId,
+  //       userLogin: login,
+  //       isBanned: true,
+  //       banReason: banReason,
+  //       banDate: new Date().toISOString(),
+  //     }
+  //   )
+  // }
+
+  // unbanUser(userId: string) {
+  //   const foundBannedUser = this.bannedUsers.find(user => user.userId === userId)
+  //   if (foundBannedUser === undefined) return null
+  //   foundBannedUser.isBanned = false
+  //   foundBannedUser.banReason = null
+  //   foundBannedUser.banDate = null
+  // }
+  // unbanUser(userId: string): void {
+  //   const documentIdx = this.bannedUsers.findIndex(user => user.userId === userId)
+  //   this.bannedUsers.splice(documentIdx, 1)
+  // }
+
+}
 interface BlogsStatics {
   createBlog(bodyBlogModel: CreateBlogCommand, login: string, BlogsModel: BlogsModel,): BlogsDocument
   deleteBlog(id: string, BlogsModel: BlogsModel, PostsModel: PostsModel,): Promise<Contract<null | number>>
@@ -159,6 +201,9 @@ BlogsSchema.statics.createBlog = Blogs.createBlog
 BlogsSchema.methods.updateBlog = Blogs.prototype.updateBlog
 BlogsSchema.methods.bindBlog = Blogs.prototype.bindBlog
 BlogsSchema.methods.banBlog = Blogs.prototype.banBlog
+BlogsSchema.methods.unbanBlog = Blogs.prototype.unbanBlog
+// BlogsSchema.methods.banUser = Blogs.prototype.banUser
+// BlogsSchema.methods.unbanUser = Blogs.prototype.unbanUser
 
 export type BlogsDocument = HydratedDocument<Blogs>
 export type BlogsModel = Model<BlogsDocument> & BlogsStatics

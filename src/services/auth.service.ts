@@ -157,7 +157,7 @@ export class AuthService {
     const isSend = await emailAdapter.sendConfirmationCode(newUser)
     if (isSend === false) {
       const deletedUserContract = await this.UsersModel.deleteUser(newUser._id.toString(), this.UsersModel)
-      if (deletedUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+      if (deletedUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETED)
 
       return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     }
@@ -204,7 +204,7 @@ export class AuthService {
     const isSend = await emailAdapter.sendConfirmationCode(user)
     if (isSend === false) {
       const deletedResult = await this.UsersModel.deleteOne({ _id: user._id })
-      if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+      if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETED)
 
       return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     }

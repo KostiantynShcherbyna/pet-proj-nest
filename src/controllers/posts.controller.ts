@@ -4,8 +4,8 @@ import { DeviceSessionOptional } from "src/decorators/device-session-optional.de
 import { DeviceSession } from "src/decorators/device-session.decorator"
 import { BodyCommentInputModel } from "src/input-models/body/body-comment.input-model"
 import { BodyPostInputModel } from "src/input-models/body/body-post.input-model"
-import { QueryCommentInputModel } from "src/input-models/query/query-comment.input-model"
-import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
+import { QueryCommentsInputModel } from "src/input-models/query/query-comments.input-model"
+import { QueryPostsInputModel } from "src/input-models/query/query-posts.input-model"
 import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
 import { CommentsQueryRepository } from "src/repositories/query/comments.query.repository"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
@@ -44,7 +44,7 @@ export class PostsController {
   @Get()
   async getPosts(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Query() queryPost: QueryPostInputModel
+    @Query() queryPost: QueryPostsInputModel
   ) {
     const postsContract = await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
     return postsContract.data
@@ -118,7 +118,7 @@ export class PostsController {
   async getComments(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: PostIdInputModel,
-    @Query() queryComment: QueryCommentInputModel,
+    @Query() queryComment: QueryCommentsInputModel,
   ) {
     const commentsContract = await this.commentsQueryRepository.findComments(
       param.postId,

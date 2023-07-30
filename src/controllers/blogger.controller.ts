@@ -17,14 +17,18 @@ import {
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
+import { DeviceSession } from "src/decorators/device-session.decorator"
 import { AccessGuard } from "src/guards/access.guard"
 import { BodyBlogPostBloggerInputModel } from "src/input-models/body/body-blog-post-blogger.input-model"
 import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
-import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
+import { BodyUserBanBloggerInputModel } from "src/input-models/body/body-user-ban-blogger.input-model"
+import { QueryPostsInputModel } from "src/input-models/query/query-posts.input-model"
+import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
 import { BloggerInputModel } from "src/input-models/uri/blogger.input-model"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
-import { CreatePostBlogger, CreatePostCommand } from "src/use-cases/blogger/create-post.use-case"
+import { BanUserBloggerCommand } from "src/use-cases/blogger/ban-user-blogger.use-case"
 import { CreateBlogCommand } from "src/use-cases/blogger/create-blog.use-case"
+import { CreatePostBlogger, CreatePostCommand } from "src/use-cases/blogger/create-post.use-case"
 import { DeleteBlogCommand } from "src/use-cases/blogger/delete-blog.use-case"
 import { DeletePostCommand } from "src/use-cases/blogger/delete-post.use-case"
 import { UpdateBlogCommand } from "src/use-cases/blogger/update-blog.use-case"
@@ -32,18 +36,13 @@ import { UpdatePostCommand } from "src/use-cases/blogger/update-post.use-case"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { BodyBlogInputModel } from "../input-models/body/body-blog.input-model"
-import { QueryBlogInputModel } from "../input-models/query/query-blog.input-model"
+import { QueryBlogsInputModel } from "../input-models/query/query-blogs.input-model"
 import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
 import { BlogIdInputModel } from "../input-models/uri/blogId.input-model"
 import { IdInputModel } from "../input-models/uri/id.input-model"
 import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
 import { BlogsService } from "../services/blogs.service"
-import { DeviceSession } from "src/decorators/device-session.decorator"
-import { DeviceSessionInputModel } from "src/input-models/request/device-session.input-model"
-import { BodyUserBanInputModel } from "src/input-models/body/body-user-ban.input-model"
-import { BanUserCommand } from "src/use-cases/users/ban-user.use-case"
-import { BodyUserBanBloggerInputModel } from "src/input-models/body/body-user-ban-blogger.input-model"
-import { BanUserBloggerCommand } from "src/use-cases/blogger/ban-user-blogger.use-case"
+import { QueryBannedBlogUsersInputModel } from "src/input-models/query/query-banned-blog-users.input-model"
 
 @Controller("blogger/blogs")
 export class BloggerController {
@@ -137,7 +136,7 @@ export class BloggerController {
   @Get()
   async findBlogs(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Query() queryBlog: QueryBlogInputModel
+    @Query() queryBlog: QueryBlogsInputModel
   ) {
     const blogs = await this.blogsQueryRepository.findBlogs(
       queryBlog,
@@ -178,7 +177,7 @@ export class BloggerController {
   async findPosts(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: BlogIdInputModel,
-    @Query() queryPost: QueryPostInputModel,
+    @Query() queryPost: QueryPostsInputModel,
   ) {
     const postsContract = await this.postsQueryRepository.findPosts(
       queryPost,
@@ -261,11 +260,13 @@ export class BloggerController {
   @UseGuards(AccessGuard)
   @Put("users/:id/ban")
   async banUser(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdInputModel,
     @Body() bodyUserBan: BodyUserBanBloggerInputModel
   ) {
     const banContract = await this.commandBus.execute(
       new BanUserBloggerCommand(
+        deviceSession.userId,
         param.id,
         bodyUserBan,
       )
@@ -277,6 +278,18 @@ export class BloggerController {
     return
   }
 
+  @UseGuards(AccessGuard)
+  @Get("users/blog/:id")
+  async getBannedBlogUsers(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Query() queryBlog: QueryBannedBlogUsersInputModel
+  ) {
+    const blogs = await this.blogsQueryRepository.findBlogs(
+      queryBlog,
+      deviceSession.userId,
+    )
+    return blogs
+  }
 
 
 

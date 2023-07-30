@@ -226,16 +226,20 @@ export class Users {
         this.emailConfirmation.sentEmails.push({ sentDate: new Date() })
     }
 
-    async banUser(isBanned: boolean, banReason: string, userId: string, DevicesModel: DevicesModel): Promise<number> {
-        this.accountData.banInfo.isBanned = isBanned
+    async banUser(banReason: string, userId: string, DevicesModel: DevicesModel): Promise<null | number> {
+        this.accountData.banInfo.isBanned = true
         this.accountData.banInfo.banDate = new Date().toISOString()
         this.accountData.banInfo.banReason = banReason
 
         const deleteResult = await DevicesModel.deleteMany({ userId: userId })
+        if (deleteResult.deletedCount === 0) {
+            this.unBanUser()
+            return null
+        }
         return deleteResult.deletedCount
     }
-    unBanUser(isUnBanned: boolean) {
-        this.accountData.banInfo.isBanned = isUnBanned
+    unBanUser() {
+        this.accountData.banInfo.isBanned = false
         this.accountData.banInfo.banDate = null
         this.accountData.banInfo.banReason = null
         return null

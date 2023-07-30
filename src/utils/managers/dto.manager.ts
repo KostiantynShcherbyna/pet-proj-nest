@@ -1,16 +1,17 @@
-import { BlogsDocument } from "src/schemas/blogs.schema"
+import { BlogsDocument as any } from "src/schemas/blogs.schema"
 import { CommentsDocument } from "src/schemas/comments.schema"
 import { Devices } from "src/schemas/devices.schema"
 import { PostsDocument } from "src/schemas/posts.schema"
 import { UsersDocument } from "src/schemas/users.schema"
 import { CommentView } from "src/views/comment.view"
 import { LikeStatus } from "../constants/constants"
+import { BannedBlogUsersDocument } from "src/schemas/banned-blog-users.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 
 export const dtoManager = {
   // ↓↓↓ BLOGS
-  changeBlogView(data: BlogsDocument) {
+  changeBlogView(data: any) {
     return {
       id: data._id.toString(),
       name: data.name,
@@ -21,7 +22,7 @@ export const dtoManager = {
     }
   },
 
-  createBlogView(blog: BlogsDocument) {
+  createBlogView(blog: any) {
     const createdBlog = {
       id: blog._id.toString(),
       name: blog.name,
@@ -47,7 +48,7 @@ export const dtoManager = {
     })
 
   },
-  changeSABlogsView(data: BlogsDocument[]) {
+  changeSABlogsView(data: any[]) {
     return data.map(i => {
       return {
         id: i._id.toString(),
@@ -63,7 +64,20 @@ export const dtoManager = {
       }
     })
   },
+  createBannedBlogUsersView(bannedUsers: BannedBlogUsersDocument[]) {
+    return bannedUsers.map(bannedUsers => {
+      return {
+        id: bannedUsers._id.toString(),
+        login: bannedUsers.login,
+        banInfo: {
+          isBanned: true,
+          banDate: bannedUsers.banDate,
+          banReason: bannedUsers.banReason,
+        }
+      }
+    })
 
+  },
 
 
 

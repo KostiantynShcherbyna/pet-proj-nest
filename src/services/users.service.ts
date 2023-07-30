@@ -28,7 +28,7 @@ export class UsersService {
     async deleteUser(id: string): Promise<Contract<null | boolean>> {
 
         const deleteUserContract = await this.UsersModel.deleteUser(id, this.UsersModel)
-        if (deleteUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+        if (deleteUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETED)
 
         return new Contract(true, null)
     }

@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from 'src/utils/constants/constants';
 
-export class QueryCommentInputModel {
+export class QueryCommentsInputModel {
   @IsOptional()
   @Type(() => Number)
   @IsInt()

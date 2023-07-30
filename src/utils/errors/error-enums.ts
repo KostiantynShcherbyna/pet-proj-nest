@@ -18,12 +18,12 @@ export enum ErrorEnums {
     BLOG_NOT_FOUND = `Blog not found`,
     BLOG_IS_BANNED = `Blog is banned`,
     BLOG_NOT_DELETED = `Blog not deleted`,
+    FOREIGN_BLOG = `Foreign blog`,
 
     // ↓↓↓ POSTS
     POST_NOT_FOUND = `Post not found`,
     POST_NOT_DELETED = `Post not deleted`,
     POSTS_NOT_DELETED = `Posts not deleted`,
-    FOREIGN_BLOG = `Foreign blog`,
     FOREIGN_BLOG_NOT_UPDATE = `Foreign blog, can't update`,
     FOREIGN_BLOG_NOT_DELETE = `Foreign blog, can't delete delete`,
     FOREIGN_BLOG_NOT_CREATE_POST = `Foreign blog, can't create new post`,
@@ -36,7 +36,8 @@ export enum ErrorEnums {
     // ↓↓↓ USERS
     USER_IS_BANNED = `User is banned`,
     USER_NOT_FOUND = `User not found`,
-    USER_NOT_DELETE = `User not deleted`,
+    USER_NOT_BANNED = `User not banned`,
+    USER_NOT_DELETED = `User not deleted`,
     USER_EMAIL_EXIST = `User email exist`,
     USER_LOGIN_EXIST = `User login exist`,
     USER_EMAIL_CONFIRMED = `User email is confirmed`,

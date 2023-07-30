@@ -18,8 +18,8 @@ import { BasicGuard } from "src/guards/basic.guard"
 import { BodyBlogBanInputModel } from "src/input-models/body/body-blog-ban.input-model"
 import { BodyUserBanInputModel } from "src/input-models/body/body-user-ban.input-model"
 import { BodyUserInputModel } from "src/input-models/body/body-user.input-model"
-import { QueryBlogInputModel } from "src/input-models/query/query-blog.input-model"
-import { QueryUserSAInputModel } from "src/input-models/query/query-user-sa.input-model"
+import { QueryBlogsInputModel } from "src/input-models/query/query-blogs.input-model"
+import { QueryUserSAInputModel } from "src/input-models/query/query-users-sa.input-model"
 import { IdBlogBanInputModel } from "src/input-models/uri/id-blog-ban.input-model"
 import { BindInputModel } from "src/input-models/uri/userId.input-model"
 import { BlogsQueryRepository } from "src/repositories/query/blogs.query.repository"
@@ -27,9 +27,9 @@ import { UsersQueryRepository } from "src/repositories/query/users.query.reposit
 import { UsersService } from "src/services/users.service"
 import { BanBlogCommand } from "src/use-cases/sa/ban-blog.use-case"
 import { BindBlogCommand } from "src/use-cases/sa/bind-blog.use-case"
-import { BanUserCommand } from "src/use-cases/users/ban-user.use-case"
+import { BanUserCommand } from "src/use-cases/sa/ban-user.use-case"
 import { CreateUserCommand } from "src/use-cases/users/create-user.use-case"
-import { DeleteUserCommand } from "src/use-cases/users/delete-user.use-case"
+import { DeleteUserCommand } from "src/use-cases/sa/delete-user.use-case"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { IdInputModel } from "../input-models/uri/id.input-model"
@@ -85,7 +85,7 @@ export class SAController {
   @UseGuards(BasicGuard)
   @Get("blogs")
   async getBlogs(
-    @Query() queryBlog: QueryBlogInputModel
+    @Query() queryBlog: QueryBlogsInputModel
   ) {
     return await this.blogsQueryRepository.findSABlogs(queryBlog)
   }
@@ -110,7 +110,7 @@ export class SAController {
     if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
     )
-    if (banContract.error === ErrorEnums.DEVICES_NOT_DELETE) throw new InternalServerErrorException()
+    if (banContract.error === ErrorEnums.USER_NOT_BANNED) throw new InternalServerErrorException()
     return
   }
 
@@ -147,8 +147,8 @@ export class SAController {
     const resultContruct = await this.commandBus.execute(
       new DeleteUserCommand(param.id)
     )
-    if (resultContruct.error === ErrorEnums.USER_NOT_DELETE) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.USER_NOT_DELETE, "id")
+    if (resultContruct.error === ErrorEnums.USER_NOT_DELETED) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_DELETED, "id")
     )
     return
   }

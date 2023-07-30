@@ -29,7 +29,7 @@ export class DeleteUser {
             this.UsersModel,
         )
         if (deleteUserContract.data === 0)
-            return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+            return new Contract(null, ErrorEnums.USER_NOT_DELETED)
 
         return new Contract(true, null)
     }

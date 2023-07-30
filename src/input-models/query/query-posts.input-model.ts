@@ -2,7 +2,7 @@ import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Length, MaxL
 import { Type } from "class-transformer"
 import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
 
-export class QueryPostInputModel {
+export class QueryPostsInputModel {
   @IsOptional()
   @IsString()
   @MaxLength(100)

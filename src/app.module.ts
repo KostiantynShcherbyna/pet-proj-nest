@@ -71,10 +71,14 @@ import { BanBlog } from "./use-cases/sa/ban-blog.use-case"
 import { BindBlogBlogger } from "./use-cases/sa/bind-blog.use-case"
 import { CreateToken } from "./use-cases/tokens/create-token.use-case"
 import { VerifyToken } from "./use-cases/tokens/verify-token.use-case"
-import { BanUser } from "./use-cases/users/ban-user.use-case"
+import { BanUser } from "./use-cases/sa/ban-user.use-case"
 import { CreateUser } from "./use-cases/users/create-user.use-case"
-import { DeleteUser } from "./use-cases/users/delete-user.use-case"
+import { DeleteUser } from "./use-cases/sa/delete-user.use-case"
 import { BlogIdIsExist } from "./validators/blogId.validator"
+import { BannedBlogUsersQueryRepository } from "./repositories/query/banned-blog-users.query.repository"
+import { BannedBlogUsersRepository } from "./repositories/banned-blog-users.repository"
+import { BanUserBlogger } from "./use-cases/blogger/ban-user-blogger.use-case"
+import { BannedBlogUsers, BannedBlogUsersSchema } from "./schemas/banned-blog-users.schema"
 
 
 
@@ -109,6 +113,7 @@ const useCases = [
   BanUser,
   BanBlog,
   DeletePost,
+  BanUserBlogger,
 ]
 const services = [
   BlogsService,
@@ -133,6 +138,8 @@ const repository = [
   AuthQueryRepository,
   AuthRepository,
   DevicesRepository,
+  BannedBlogUsersRepository,
+  BannedBlogUsersQueryRepository,
 ]
 const otherProviders = [
   throttler,
@@ -161,6 +168,7 @@ const otherProviders = [
       { name: Devices.name, schema: DevicesSchema },
       { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
       { name: RequestAttempts.name, schema: RequestAttemptsSchema },
+      { name: BannedBlogUsers.name, schema: BannedBlogUsersSchema },
     ]),
     PassportModule,
     CqrsModule,

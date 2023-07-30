@@ -37,7 +37,7 @@ export class ConfirmationResend implements ICommandHandler<ConfirmationResendCom
         const isSend = await emailAdapter.sendConfirmationCode(user)
         if (isSend === false) {
             const deletedResult = await this.UsersModel.deleteOne({ _id: user._id })
-            if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+            if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETED)
 
             return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
         }

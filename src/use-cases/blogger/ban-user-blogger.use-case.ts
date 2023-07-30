@@ -1,18 +1,18 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Types } from "mongoose"
 import { Contract } from "src/contract"
 import { BodyUserBanBloggerInputModel } from "src/input-models/body/body-user-ban-blogger.input-model"
-import { DevicesRepository } from "src/repositories/devices.repository"
+import { BannedBlogUsersRepository } from "src/repositories/banned-blog-users.repository"
+import { BlogsRepository } from "src/repositories/blogs.repository"
 import { UsersRepository } from "src/repositories/users.repository"
-import { Devices, DevicesModel } from "src/schemas/devices.schema"
-import { Users, UsersDocument, UsersModel } from "src/schemas/users.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "src/schemas/banned-blog-users.schema"
+import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
-import { UserView } from "src/views/user.view"
 
 export class BanUserBloggerCommand {
     constructor(
-        public userId: string,
+        public ownerId: string,
+        public bannedUserId: string,
         public bodyUserBan: BodyUserBanBloggerInputModel,
     ) { }
 }
@@ -20,29 +20,63 @@ export class BanUserBloggerCommand {
 @CommandHandler(BanUserBloggerCommand)
 export class BanUserBlogger implements ICommandHandler<BanUserBloggerCommand> {
     constructor(
-        @InjectModel(Users.name) protected UsersModel: UsersModel,
-        @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
+        @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
+        @InjectModel(BannedBlogUsers.name) protected BannedBlogUsersModel: BannedBlogUsersModel,
+        protected bannedBlogUsersRepository: BannedBlogUsersRepository,
+        protected blogsRepository: BlogsRepository,
         protected usersRepository: UsersRepository,
-        protected devicesRepository: DevicesRepository,
     ) {
     }
 
     async execute(command: BanUserBloggerCommand) {
 
-        const user = await this.usersRepository.findUser(
-            ["_id", new Types.ObjectId(command.userId)]
-        )
-        if (user === null)
-            return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+        const foundBLog = await this.blogsRepository.findBlog(command.bodyUserBan.blogId)
+        if (foundBLog === null)
+            return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+        if (foundBLog.blogOwnerInfo.userId !== command.ownerId)
+            return new Contract(null, ErrorEnums.FOREIGN_BLOG)
 
-        let result: number | null = null
-        if (command.bodyUserBan.isBanned === true) result = await user.banUser(true, command.bodyUserBan.banReason, command.userId, this.DevicesModel)
-        if (command.bodyUserBan.isBanned === false) result = user.unBanUser(false)
 
-        // if (result !== null && result === 0) return new Contract(null, ErrorEnums.DEVICES_NOT_DELETE)
+        const bannedBlogUserDocument = command.bodyUserBan.isBanned === true
+            ? await this.BannedBlogUsersModel.banUser({
+                userId: command.bannedUserId,
+                banReason: command.bodyUserBan.banReason,
+                blogId: command.bodyUserBan.blogId,
+                usersRepository: this.usersRepository,
+                bannedBlogUsersRepository: this.bannedBlogUsersRepository,
+                BannedBlogUsersModel: this.BannedBlogUsersModel,
+            })
+            : await this.BannedBlogUsersModel.unbanUser(
+                command.bannedUserId,
+                command.bodyUserBan.blogId,
+                this.bannedBlogUsersRepository
+            )
 
-        await this.usersRepository.saveDocument(user)
+        if (bannedBlogUserDocument === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+
+        await this.bannedBlogUsersRepository.saveDocument(bannedBlogUserDocument)
 
         return new Contract(true, null)
     }
+    // async execute(command: BanUserBloggerCommand) {
+
+    //     const foundBLog = await this.blogsRepository.findBlog(command.bodyUserBan.blogId)
+    //     if (foundBLog === null)
+    //         return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    //     if (foundBLog.blogOwnerInfo.userId !== command.ownerId)
+    //         return new Contract(null, ErrorEnums.FOREIGN_BLOG)
+
+
+    //     const foundUser = await this.usersRepository.findUser(["_id", new Types.ObjectId(command.bannedUserId)])
+    //     if (foundUser === null)
+    //         return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+
+    //     command.bodyUserBan.isBanned === true
+    //         ? foundBLog.banUser(command.bannedUserId, foundUser.accountData.login, command.bodyUserBan.banReason)
+    //         : foundBLog.unbanUser(command.bannedUserId)
+
+    //     await this.blogsRepository.saveDocument(foundBLog)
+
+    //     return new Contract(true, null)
+    // }
 }

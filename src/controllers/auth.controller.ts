@@ -147,7 +147,7 @@ export class AuthController {
     if (registrationContract.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_LOGIN_EXIST, "login")
     )
-    if (registrationContract.error === ErrorEnums.USER_NOT_DELETE) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
+    if (registrationContract.error === ErrorEnums.USER_NOT_DELETED) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
     if (registrationContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException() // TODO как обрабатывать логику неотправки емейла ?
     return
   }
@@ -192,7 +192,7 @@ export class AuthController {
     if (confirmationResendContract.error === ErrorEnums.USER_EMAIL_CONFIRMED) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_EMAIL_CONFIRMED, "email")
     )
-    if (confirmationResendContract.error === ErrorEnums.USER_NOT_DELETE) throw new InternalServerErrorException()
+    if (confirmationResendContract.error === ErrorEnums.USER_NOT_DELETED) throw new InternalServerErrorException()
     if (confirmationResendContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
     return
   }

@@ -1,17 +1,12 @@
 import { Type } from "class-transformer"
-import { IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator"
+import { IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator"
 import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/utils/constants/constants"
 
-export class QueryUserInputModel {
+export class QueryBannedBlogUsersInputModel {
   @IsOptional()
   @IsString()
   @MaxLength(100)
   searchLoginTerm: string = ""
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  searchEmailTerm: string = ""
 
   @IsOptional()
   @IsString()

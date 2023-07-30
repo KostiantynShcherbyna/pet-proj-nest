@@ -12,7 +12,7 @@ import {
 import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
 import { Type } from "class-transformer"
 
-export class QueryBlogInputModel {
+export class QueryBlogsInputModel {
   @IsOptional()
   @IsString()
   @MaxLength(100)

@@ -1,12 +1,12 @@
 import { Injectable, Inject, NotFoundException } from "@nestjs/common"
 import { BlogsRepository } from "../blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
-import { QueryBlogInputModel } from "src/input-models/query/query-blog.input-model"
+import { QueryBlogsInputModel } from "src/input-models/query/query-blogs.input-model"
 import { BlogView, BlogsView } from "src/views/blog.view"
 import { BlogsModel, Blogs } from "src/schemas/blogs.schema"
 import { dtoManager } from "src/utils/managers/dto.manager"
 import { Types } from "mongoose"
-import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
+import { QueryPostsInputModel } from "src/input-models/query/query-posts.input-model"
 import { PostView, PostsView } from "src/views/post.view"
 import { ILike, Posts, PostsModel } from "src/schemas/posts.schema"
 import {
@@ -35,7 +35,7 @@ export class PostsQueryRepository {
   }
 
 
-  async findPosts(queryPost: QueryPostInputModel, userId?: string, blogId?: string,): Promise<Contract<null | PostsView>> {
+  async findPosts(queryPost: QueryPostsInputModel, userId?: string, blogId?: string,): Promise<Contract<null | PostsView>> {
 
     if (blogId) {
       const blog = await this.blogsRepository.findBlog(blogId)

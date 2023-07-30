@@ -17,7 +17,7 @@ import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
 import { BasicGuard } from "src/guards/basic.guard"
 import { BodyBlogPostInputModel } from "src/input-models/body/body-blog-post.input-model"
-import { QueryPostInputModel } from "src/input-models/query/query-post.input-model"
+import { QueryPostsInputModel } from "src/input-models/query/query-posts.input-model"
 import { PostsQueryRepository } from "src/repositories/query/posts.query.repository"
 import { CreatePostBlogger } from "src/use-cases/blogger/create-post.use-case"
 import { CreateBlogCommand } from "src/use-cases/blogger/create-blog.use-case"
@@ -27,7 +27,7 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 import { callErrorMessage } from "src/utils/managers/error-message.manager"
 import { AccessMiddleware } from "../guards/access.middleware"
 import { BodyBlogInputModel } from "../input-models/body/body-blog.input-model"
-import { QueryBlogInputModel } from "../input-models/query/query-blog.input-model"
+import { QueryBlogsInputModel } from "../input-models/query/query-blogs.input-model"
 import { DeviceSessionOptionalInputModel } from "../input-models/request/device-session-optional.input-model"
 import { BlogIdInputModel } from "../input-models/uri/blogId.input-model"
 import { IdInputModel } from "../input-models/uri/id.input-model"
@@ -47,7 +47,7 @@ export class BlogsController {
 
   @Get()
   async findBlogs(
-    @Query() queryBlog: QueryBlogInputModel
+    @Query() queryBlog: QueryBlogsInputModel
   ) {
     return await this.blogsQueryRepository.findBlogs(queryBlog)
   }
@@ -76,7 +76,7 @@ export class BlogsController {
   async findPosts(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: BlogIdInputModel,
-    @Query() queryPost: QueryPostInputModel,
+    @Query() queryPost: QueryPostsInputModel,
   ) {
     const postsContract = await this.postsQueryRepository.findPosts(
       queryPost,

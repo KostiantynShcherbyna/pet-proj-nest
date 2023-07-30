@@ -6,7 +6,7 @@ import { LikeStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, So
 import { CommentView, CommentsView } from "src/views/comment.view"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
 import { PostsQueryRepository } from "./posts.query.repository"
-import { QueryCommentInputModel } from "src/input-models/query/query-comment.input-model"
+import { QueryCommentsInputModel } from "src/input-models/query/query-comments.input-model"
 import { UsersRepository } from "../users.repository"
 import { Contract } from "src/contract"
 import { ErrorEnums } from "src/utils/errors/error-enums"
@@ -71,7 +71,7 @@ export class CommentsQueryRepository {
   }
 
 
-  async findComments(postId: string, query: QueryCommentInputModel, userId?: string): Promise<Contract<null | CommentsView>> {
+  async findComments(postId: string, query: QueryCommentsInputModel, userId?: string): Promise<Contract<null | CommentsView>> {
 
     // if (userId) {
     //   const foundUser = await this.usersRepository.findUser(userId)
