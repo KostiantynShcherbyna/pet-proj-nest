@@ -41,6 +41,7 @@ export enum ErrorEnums {
     COMMENT_NOT_FOUND = `Comment not found`,
     COMMENT_NOT_DELETE = `Comment not deleted`,
     FOREIGN_COMMENT = `Foreign comment not updated`,
+    POST_COMMENT_NOT_DELETE = `Post's comment not deleted`,
 
 }
 

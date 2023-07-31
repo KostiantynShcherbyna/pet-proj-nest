@@ -6,6 +6,8 @@ import { UsersDocument } from "src/schemas/users.schema"
 import { CommentView } from "src/views/comment.view"
 import { LikeStatus } from "../constants/constants"
 import { BannedBlogUsersDocument } from "src/schemas/banned-blog-users.schema"
+import { Types } from "mongoose"
+import { PostsComments, PostsCommentsDocument } from "src/schemas/posts-comments.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 
@@ -92,7 +94,8 @@ export const dtoManager = {
           userId: like.userId,
           login: like.login
         }
-      }).reverse()
+      })
+      .reverse()
 
     return {
       id: post._id.toString(),
@@ -139,6 +142,26 @@ export const dtoManager = {
           myStatus: myStatus(post),
           newestLikes: newestLikes(post),
         },
+      }
+    })
+  },
+
+  changePostsCommentsView(postsCommentsDocuments: PostsCommentsDocument[], userId: string) {
+
+    const myStatusFunc = (comment: PostsCommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status || LikeStatus.None
+
+    return postsCommentsDocuments.map(postsCommentsDocument => {
+      return {
+        id: postsCommentsDocument._id.toString(),
+        content: postsCommentsDocument.content,
+        commentatorInfo: postsCommentsDocument.commentatorInfo,
+        createdAt: postsCommentsDocument.createdAt,
+        likesInfo: {
+          likesCount: postsCommentsDocument.likesInfo.likesCount,
+          dislikesCount: postsCommentsDocument.likesInfo.dislikesCount,
+          myStatus: myStatusFunc(postsCommentsDocument),
+        },
+        postInfo: postsCommentsDocument.postInfo
       }
     })
   },

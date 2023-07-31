@@ -46,7 +46,7 @@ export class BlogsController {
   }
 
   @Get()
-  async findBlogs(
+  async getBlogs(
     @Query() queryBlog: QueryBlogsInputModel
   ) {
     return await this.blogsQueryRepository.findBlogs(queryBlog)
@@ -73,7 +73,7 @@ export class BlogsController {
   // }
   @UseGuards(AccessMiddleware)
   @Get(":blogId/posts")
-  async findPosts(
+  async getPosts(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: BlogIdInputModel,
     @Query() queryPost: QueryPostsInputModel,
@@ -92,7 +92,7 @@ export class BlogsController {
 
 
   @Get(":id")
-  async findBlog(
+  async getBlog(
     @Param() param: IdInputModel,
   ) {
     const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)

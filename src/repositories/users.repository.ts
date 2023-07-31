@@ -19,10 +19,14 @@ export class UsersRepository {
     }
 
     async findBannedUsers() {
-
         const bannedUsers = await this.UsersModel.find({ "accountData.banInfo.isBanned": true })
         return bannedUsers
     }
+
+    // async findBannedUser(userId: string) {
+    //     const bannedUsers = await this.UsersModel.find({ "accountData.banInfo.isBanned": true }, { _id: 1 }).lean()
+    //     return bannedUsers
+    // }
 
 
     async findUserLoginOrEmail(userAuthData: { login: string, email: string }) {

@@ -3,8 +3,10 @@ import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Types } from "mongoose"
 import { Contract } from "src/contract"
 import { CommentsRepository } from "src/repositories/comments.repository"
+import { PostsCommentsRepository } from "src/repositories/posts-comments.repository"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
+import { PostsComments, PostsCommentsModel } from "src/schemas/posts-comments.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
 
 export class DeleteCommentCommand {
@@ -19,6 +21,8 @@ export class DeleteCommentCommand {
 export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
     constructor(
         @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
+        @InjectModel(PostsComments.name) protected PostsCommentsModel: PostsCommentsModel,
+        protected postsCommentsRepository: PostsCommentsRepository,
         protected commentsRepository: CommentsRepository,
         protected usersRepository: UsersRepository,
     ) {
@@ -37,9 +41,16 @@ export class DeleteComment implements ICommandHandler<DeleteCommentCommand>{
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
         if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
+        const postComment = await this.postsCommentsRepository.findPostComment(command.commentId);
+        if (postComment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
+        if (postComment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
+
 
         const deleteCommentContract = await Comments.deleteComment(command.commentId, this.CommentsModel)
         if (deleteCommentContract.data === 0) return new Contract(null, ErrorEnums.COMMENT_NOT_DELETE);
+
+        const deletePostCommentResult = await PostsComments.deletePostComments(command.commentId, this.PostsCommentsModel)
+        if (deletePostCommentResult === 0) return new Contract(null, ErrorEnums.POST_COMMENT_NOT_DELETE);
 
         return new Contract(true, null);
     }

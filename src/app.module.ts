@@ -78,6 +78,8 @@ import { BlogIdIsExist } from "./validators/blogId.validator"
 import { BannedBlogUsersRepository } from "./repositories/banned-blog-users.repository"
 import { BanUserBlogger } from "./use-cases/blogger/ban-user-blogger.use-case"
 import { BannedBlogUsers, BannedBlogUsersSchema } from "./schemas/banned-blog-users.schema"
+import { PostsComments, PostsCommentsSchema } from "./schemas/posts-comments.schema"
+import { PostsCommentsRepository } from "./repositories/posts-comments.repository"
 
 
 
@@ -138,6 +140,7 @@ const repository = [
   AuthRepository,
   DevicesRepository,
   BannedBlogUsersRepository,
+  PostsCommentsRepository,
 ]
 const otherProviders = [
   throttler,
@@ -167,6 +170,7 @@ const otherProviders = [
       { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
       { name: RequestAttempts.name, schema: RequestAttemptsSchema },
       { name: BannedBlogUsers.name, schema: BannedBlogUsersSchema },
+      { name: PostsComments.name, schema: PostsCommentsSchema },
     ]),
     PassportModule,
     CqrsModule,

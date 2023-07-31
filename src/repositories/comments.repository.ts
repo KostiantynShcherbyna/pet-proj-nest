@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
+import { Contract } from "src/contract"
 import { Comments, CommentsDocument, CommentsModel } from "src/schemas/comments.schema"
 
 @Injectable()
@@ -17,8 +18,20 @@ export class CommentsRepository {
         return foundComment
     }
 
+    async findComments() {
+        
+        const commentsTotalCount = await this.CommentsModel.countDocuments()
+
+        const comments = await this.CommentsModel.find()
+
+        return new Contract({
+            totalCount: commentsTotalCount,
+            items: comments
+        }, null)
+
+    }
+
     async saveDocument(document: CommentsDocument) {
         await document.save()
     }
-
 }

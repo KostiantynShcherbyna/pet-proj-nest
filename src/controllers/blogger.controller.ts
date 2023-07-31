@@ -57,6 +57,21 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
+  @Get("comments")
+  async getPostsComments(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Query() queryBlog: QueryBlogsInputModel
+  ) {
+    const blogs = await this.blogsQueryRepository.findPostsComments(
+      queryBlog,
+      deviceSession.userId,
+    )
+    return blogs
+  }
+
+
+
+  @UseGuards(AccessGuard)
   @Put(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
@@ -134,7 +149,7 @@ export class BloggerController {
 
   @UseGuards(AccessGuard)
   @Get()
-  async findBlogs(
+  async getBlogs(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryBlog: QueryBlogsInputModel
   ) {
@@ -174,7 +189,7 @@ export class BloggerController {
 
   @UseGuards(AccessGuard)
   @Get(":blogId/posts")
-  async findPosts(
+  async getPosts(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: BlogIdInputModel,
     @Query() queryPost: QueryPostsInputModel,
@@ -256,7 +271,7 @@ export class BloggerController {
   }
 
 
-
+  // ↓↓↓ USERS
   @UseGuards(AccessGuard)
   @Put("users/:id/ban")
   async banUser(
