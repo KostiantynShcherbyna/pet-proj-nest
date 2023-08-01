@@ -10,17 +10,26 @@ export class BannedBlogUsersRepository {
   ) {
   }
 
-  async findBannedBlogUsers(userId: string, blogId: string) {
+  async findBannedBlogUser(userId: string, blogId: string) {
 
-    const bannedBlogUserDocument = await this.BannedBlogUsersModel.findOne({
+    const bannedBlogUser = await this.BannedBlogUsersModel.findOne({
       $and: [
         { userId: userId },
         { blogId: blogId },
       ]
     })
-    if (bannedBlogUserDocument === null) return null
+    if (bannedBlogUser === null) return null
 
-    return bannedBlogUserDocument
+    return bannedBlogUser
+  }
+
+  async findBannedBlogUsers() {
+
+    const bannedBlogUsers = await this.BannedBlogUsersModel.find({
+      isBanned: true
+    })
+
+    return bannedBlogUsers
   }
 
   async saveDocument(document: BannedBlogUsersDocument) {

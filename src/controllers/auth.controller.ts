@@ -18,6 +18,7 @@ import { Throttle } from "@nestjs/throttler"
 import { Response } from "express"
 import { DeviceSession } from "src/decorators/device-session.decorator"
 import { AccessGuard } from "src/guards/access.guard"
+import { AccessMiddleware } from "src/guards/access.middleware"
 import { RefreshGuard } from "src/guards/refresh.guard"
 import { BodyAuthInputModel } from "src/input-models/body/body-auth.input-model"
 import { BodyConfirmationInputModel } from "src/input-models/body/body-confirmation.input-model"
@@ -48,7 +49,6 @@ export class AuthController {
     protected commandBus: CommandBus
   ) {
   }
-
   @Post("login")
   // @Throttle(5, 10)
   @UseGuards(AuthGuard(StrategyNames.loginLocalStrategy))

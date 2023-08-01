@@ -12,6 +12,8 @@ import { Users, UsersModel } from "src/schemas/users.schema"
 import { Devices, DevicesModel } from "../schemas/devices.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "../schemas/recovery-code.schema"
 import { RequestAttempts, RequestAttemptsModel } from "../schemas/request-attempts.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "src/schemas/banned-blog-users.schema"
+import { PostsComments, PostsCommentsModel } from "src/schemas/posts-comments.schema"
 
 @Controller("testing")
 export class TestingController {
@@ -22,7 +24,9 @@ export class TestingController {
     @InjectModel(Users.name) protected UsersModel: UsersModel,
     @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
     @InjectModel(RequestAttempts.name) protected AttemptRequestsModel: RequestAttemptsModel,
-    @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel
+    @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
+    @InjectModel(BannedBlogUsers.name) protected BannedBlogUsersModel: BannedBlogUsersModel,
+    @InjectModel(PostsComments.name) protected PostsCommentsModel: PostsCommentsModel,
   ) {
   }
 
@@ -32,13 +36,15 @@ export class TestingController {
     try {
       await Promise.all(
         [
-          await this.BlogsModel.deleteMany({}),
-          await this.PostsModel.deleteMany({}),
+          // await this.BlogsModel.deleteMany({}),
+          // await this.PostsModel.deleteMany({}),
           await this.CommentsModel.deleteMany({}),
-          await this.UsersModel.deleteMany({}),
-          await this.DevicesModel.deleteMany({}),
-          await this.AttemptRequestsModel.deleteMany({}),
-          await this.RecoveryCodesModel.deleteMany({})
+          // await this.UsersModel.deleteMany({}),
+          // await this.DevicesModel.deleteMany({}),
+          // await this.AttemptRequestsModel.deleteMany({}),
+          // await this.RecoveryCodesModel.deleteMany({}),
+          // await this.BannedBlogUsersModel.deleteMany({}),
+          await this.PostsCommentsModel.deleteMany({}),
         ]
       )
       return

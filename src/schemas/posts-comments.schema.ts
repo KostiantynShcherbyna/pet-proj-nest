@@ -14,7 +14,7 @@ export interface ICommentatorInfo {
 export interface ILikesInfo {
   likesCount: number
   dislikesCount: number
-  like: ILike[]
+  likes: ILike[]
 }
 export interface ILike {
   userId: string
@@ -30,6 +30,12 @@ export interface IPostInfo {
 
 @Schema()
 export class PostsComments {
+
+  @Prop({
+    type: String,
+    required: true,
+  })
+  commentId: string
 
   @Prop({
     type: String,
@@ -135,7 +141,7 @@ export class PostsComments {
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
-        like: [],
+        likes: [],
       },
       postInfo: {
         id: postId,
@@ -153,21 +159,21 @@ export class PostsComments {
     return deletePostCommentsResult.deletedCount
   }
 
-  static async updatePostComments(postId: string, title: string, PostsCommentsModel: PostsCommentsModel) {
-    const updatePostCommentsResult = await PostsCommentsModel.updateMany({ "postInfo.id": postId }, { "postInfo.title": title })
-    return updatePostCommentsResult.modifiedCount
-  }
+  // static async updatePostComments(postId: string, title: string, PostsCommentsModel: PostsCommentsModel) {
+  //   const updatePostCommentsResult = await PostsCommentsModel.updateMany({ "postInfo.id": postId }, { "postInfo.title": title })
+  //   return updatePostCommentsResult.modifiedCount
+  // }
   // updatePostComment(title: string) {
   //   this.postInfo.title = title
   // }
 
-  checkCommentator(userId: string) {
-    return this.commentatorInfo.userId === userId
-  }
+  // checkCommentator(userId: string) {
+  //   return this.commentatorInfo.userId === userId
+  // }
 
 
   createOrUpdateLike(userId: string, newLikeStatus: string) {
-    const like = this.likesInfo.like.find((like) => like.userId === userId)
+    const like = this.likesInfo.likes.find((like) => like.userId === userId)
     if (!like) {
       const newLike = {
         userId: userId,
@@ -177,7 +183,7 @@ export class PostsComments {
         ? this.likesInfo.likesCount++
         : this.likesInfo.dislikesCount++
 
-      this.likesInfo.like.push(newLike)
+      this.likesInfo.likes.push(newLike)
       return
     }
 
@@ -242,7 +248,7 @@ interface PostsCommentsStatics {
 
 export const PostsCommentsSchema = SchemaFactory.createForClass(PostsComments)
 PostsCommentsSchema.statics.createPostComment = PostsComments.createPostComment
-PostsCommentsSchema.methods.checkCommentator = PostsComments.prototype.checkCommentator
+// PostsCommentsSchema.methods.checkCommentator = PostsComments.prototype.checkCommentator
 // PostsCommentsSchema.methods.updatePostComment = PostsComments.prototype.updatePostComment
 PostsCommentsSchema.methods.createOrUpdateLike = PostsComments.prototype.createOrUpdateLike
 

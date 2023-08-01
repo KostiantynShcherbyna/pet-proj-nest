@@ -35,6 +35,8 @@ export class BanUserBlogger implements ICommandHandler<BanUserBloggerCommand> {
             return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
         if (foundBLog.blogOwnerInfo.userId !== command.ownerId)
             return new Contract(null, ErrorEnums.FOREIGN_BLOG)
+        if (foundBLog.banInfo.isBanned === command.bodyUserBan.isBanned)
+            return new Contract(true, null)
 
 
         const bannedBlogUserDocument = command.bodyUserBan.isBanned === true
@@ -43,7 +45,6 @@ export class BanUserBlogger implements ICommandHandler<BanUserBloggerCommand> {
                 banReason: command.bodyUserBan.banReason,
                 blogId: command.bodyUserBan.blogId,
                 usersRepository: this.usersRepository,
-                bannedBlogUsersRepository: this.bannedBlogUsersRepository,
                 BannedBlogUsersModel: this.BannedBlogUsersModel,
             })
             : await this.BannedBlogUsersModel.unbanUser(

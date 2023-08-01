@@ -4,7 +4,7 @@ import { Types } from "mongoose"
 import { Contract } from "src/contract"
 import { QueryBannedBlogUsersInputModel } from "src/input-models/query/query-banned-blog-users.input-model"
 import { QueryBlogsInputModel } from "src/input-models/query/query-blogs.input-model"
-import { QueryPostsInputModel } from "src/input-models/query/query-posts.input-model"
+import { QueryPostsCommentsInputModel } from "src/input-models/query/query-posts-comments.input-model"
 import { BannedBlogUsers, BannedBlogUsersModel } from "src/schemas/banned-blog-users.schema"
 import { Blogs, BlogsModel } from "src/schemas/blogs.schema"
 import { Comments, CommentsModel } from "src/schemas/comments.schema"
@@ -14,10 +14,11 @@ import { ErrorEnums } from "src/utils/errors/error-enums"
 import { dtoManager } from "src/utils/managers/dto.manager"
 import { BannedBlogUsersView } from "src/views/bannde-blog-user.view"
 import { BlogView, BlogsView } from "src/views/blog.view"
-import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
+import { LikeStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../utils/constants/constants"
 import { BlogsRepository } from "../blogs.repository"
 import { PostsCommentsRepository } from "../posts-comments.repository"
 import { UsersRepository } from "../users.repository"
+import { BannedBlogUsersRepository } from "../banned-blog-users.repository"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
@@ -32,6 +33,7 @@ export class BlogsQueryRepository {
     protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
     protected postsCommentsRepository: PostsCommentsRepository,
+    protected bannedBlogUsersRepository: BannedBlogUsersRepository,
   ) {
   }
 
@@ -224,7 +226,7 @@ export class BlogsQueryRepository {
 
 
 
-  async findPostsComments(queryPost: QueryPostsInputModel, ownerId: string) {
+  async findPostsComments(queryPost: QueryPostsCommentsInputModel, ownerId: string) {
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
@@ -247,27 +249,51 @@ export class BlogsQueryRepository {
       )
       .lean()
 
-    const blogIds = blogObjectIds.map(blogObjectId => blogObjectId.toString())
+    const blogIds = blogObjectIds.map(blogObjectId => blogObjectId._id.toString())
 
 
     const postCommentsTotalCount = await this.PostsCommentsModel
       .countDocuments(
-        { "postInfo.blogId": { $in: { blogIds } } }
+        { "postInfo.blogId": { $in: blogIds } }
       )
 
 
     const postComments = await this.PostsCommentsModel
       .find(
-        { "postInfo.blogId": { $in: { blogIds } } }
+        { "postInfo.blogId": { $in: blogIds } }
       )
       .sort({ [sortBy]: sortDirection })
       .limit(pageSize)
       .skip(skippedCount)
       .lean()
 
+      const bannedUsers = await this.usersRepository.findBannedUsers()
+      const bannedUserIds = bannedUsers.map(user => user._id.toString())
+
+      // const bannedMeUsers = await this.bannedBlogUsersRepository.findBannedBlogUsers()
+      // const bannedMeUserIds = bannedUsers.map(user => user._id.toString())
+
+      const truePostsComments = postComments.map(postComment => {
+        let likesCount: number = 0
+        let dislikesCount: number = 0
+  
+        const trueLikes = postComment.likesInfo.likes.filter(like => {
+          if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCount++
+          if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCount++
+          return !bannedUserIds.includes(like.userId)
+        })
+  
+        const postCommentsCopy = { ...postComment }
+        postCommentsCopy.likesInfo.likesCount -= likesCount
+        postCommentsCopy.likesInfo.dislikesCount -= dislikesCount
+        postCommentsCopy.likesInfo.likes = trueLikes
+  
+        return postCommentsCopy
+      })
+
     const postsCommentsPagesCount = Math.ceil(postCommentsTotalCount / pageSize)
 
-    const postsCommentsViews = dtoManager.changePostsCommentsView(postComments, ownerId)
+    const postsCommentsViews = dtoManager.changePostsCommentsView(truePostsComments, ownerId)
 
     return {
       pagesCount: postsCommentsPagesCount,

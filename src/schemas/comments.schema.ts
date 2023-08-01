@@ -16,7 +16,7 @@ export interface ICommentatorInfo {
 export interface ILikesInfo {
   likesCount: number
   dislikesCount: number
-  like: ILike[]
+  likes: ILike[]
 }
 export interface ILike {
   userId: string
@@ -73,7 +73,7 @@ export class Comments {
         default: 0,
         min: 0,
       },
-      like: [
+      likes: [
         {
           userId: {
             type: String,
@@ -109,7 +109,7 @@ export class Comments {
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
-        like: [],
+        likes: [],
       },
     }
     const newCommentInsertResult = new CommentsModel(newComment)
@@ -132,7 +132,7 @@ export class Comments {
   }
 
   createOrUpdateLike(userId: string, newLikeStatus: string) {
-    const like = this.likesInfo.like.find((like) => like.userId === userId)
+    const like = this.likesInfo.likes.find((like) => like.userId === userId)
     if (!like) {
       const newLike = {
         userId: userId,
@@ -142,7 +142,7 @@ export class Comments {
         ? this.likesInfo.likesCount++
         : this.likesInfo.dislikesCount++
 
-      this.likesInfo.like.push(newLike)
+      this.likesInfo.likes.push(newLike)
       return
     }
 

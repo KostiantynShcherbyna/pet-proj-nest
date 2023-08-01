@@ -39,7 +39,7 @@ export class UpdateComment implements ICommandHandler<UpdateCommentCommand>{
 
 
         comment.updateComment(command.content);
-        postComment.updatePostComments(command.content);
+        // postComment.updatePostComments(command.content);
 
 
         await this.commentsRepository.saveDocument(comment);

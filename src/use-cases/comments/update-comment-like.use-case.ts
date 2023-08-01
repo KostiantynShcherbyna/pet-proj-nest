@@ -36,12 +36,12 @@ export class UpdateCommentLike implements ICommandHandler<UpdateCommentLikeComma
 
         const comment = await this.commentsRepository.findComment(command.commentId);
         if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-        if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
+        // if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
 
         const postComment = await this.postsCommentsRepository.findPostComment(command.commentId);
         if (postComment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND);
-        if (postComment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
+        // if (postComment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT);
 
 
         // Create a new Like if there is no Like before or update Like if there is one

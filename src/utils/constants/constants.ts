@@ -35,9 +35,6 @@ export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 
 export const BAN_REASON_MIN_LENGTH = 20
-// export enum BanReason {
-
-// }
 
 
 export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)

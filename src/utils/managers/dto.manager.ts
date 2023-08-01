@@ -69,7 +69,7 @@ export const dtoManager = {
   createBannedBlogUsersView(bannedUsers: BannedBlogUsersDocument[]) {
     return bannedUsers.map(bannedUsers => {
       return {
-        id: bannedUsers._id.toString(),
+        id: bannedUsers.userId,
         login: bannedUsers.login,
         banInfo: {
           isBanned: true,
@@ -148,7 +148,7 @@ export const dtoManager = {
 
   changePostsCommentsView(postsCommentsDocuments: PostsCommentsDocument[], userId: string) {
 
-    const myStatusFunc = (comment: PostsCommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status || LikeStatus.None
+    const myStatusFunc = (comment: PostsCommentsDocument) => comment.likesInfo.likes.find(like => like.userId === userId)?.status || LikeStatus.None
 
     return postsCommentsDocuments.map(postsCommentsDocument => {
       return {
@@ -188,7 +188,7 @@ export const dtoManager = {
 
   changeCommentsView(comments: CommentsDocument[], userId?: string): CommentView[] {
     // Looking for a myStatus of Like in each comment
-    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.like.find(like => like.userId === userId)?.status || LikeStatus.None
+    const myStatusFunc = (comment: CommentsDocument) => comment.likesInfo.likes.find(like => like.userId === userId)?.status || LikeStatus.None
 
     return comments.map(comment => {
       return {

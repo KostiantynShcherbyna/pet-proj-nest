@@ -40,16 +40,28 @@ export class CommentsQueryRepository {
     let likesCountMy: number = 0
     let dislikesCountMy: number = 0
 
-    const trueLikes = foundComment.likesInfo.like.filter(like => {
+    const trueLikes = foundComment.likesInfo.likes.filter(like => {
       if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCountMy++
       if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCountMy++
       return !bannedUserIds.includes(like.userId)
     })
 
-    const commentCopy = { ...foundComment }
-    commentCopy.likesInfo.likesCount -= likesCountMy
-    commentCopy.likesInfo.dislikesCount -= dislikesCountMy
-    commentCopy.likesInfo.like = trueLikes
+    // const commentCopy = {
+    //   _id: foundComment._id,
+    //   postId: foundComment.postId,
+    //   content: foundComment.content,
+    //   commentatorInfo: foundComment.commentatorInfo,
+    //   createdAt: foundComment.createdAt,
+    //   likesInfo: {
+    //     likesCount:,
+    //     dislikesCount:,
+    //     like:,
+    //   }
+    // }
+
+    // commentCopy.likesInfo.likesCount -= likesCountMy
+    // commentCopy.likesInfo.dislikesCount -= dislikesCountMy
+    // commentCopy.likesInfo.like = trueLikes
 
     // if (userId) {
     //   const foundUser = await this.usersRepository.findUser(userId)
@@ -62,11 +74,15 @@ export class CommentsQueryRepository {
     // Looking for a Like if userId is defined
     let like: ILike | undefined
     if (userId) {
-      like = foundComment.likesInfo.like.find(like => like.userId === userId)
+      like = trueLikes.find(like => like.userId === userId)
     }
 
     // Mapping dto
-    const commentView = dtoManager.changeCommentView(commentCopy, like?.status || LikeStatus.None)
+    const commentView = dtoManager.changeCommentView(foundComment, like?.status || LikeStatus.None)
+
+    commentView.likesInfo.likesCount -= likesCountMy
+    commentView.likesInfo.dislikesCount -= dislikesCountMy
+
     return new Contract(commentView, null)
   }
 
@@ -132,16 +148,16 @@ export class CommentsQueryRepository {
       let likesCount: number = 0
       let dislikesCount: number = 0
 
-      const trueLikes = comment.likesInfo.like.filter(like => {
+      const trueLikes = comment.likesInfo.likes.filter(like => {
         if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCount++
         if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCount++
         return !bannedUserIds.includes(like.userId)
       })
 
-      const commentCopy = new this.CommentsModel(comment)
+      const commentCopy = { ...comment }
       commentCopy.likesInfo.likesCount -= likesCount
       commentCopy.likesInfo.dislikesCount -= dislikesCount
-      commentCopy.likesInfo.like = trueLikes
+      commentCopy.likesInfo.likes = trueLikes
 
       return commentCopy
     })

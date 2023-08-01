@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose'
 import { HydratedDocument, Model, Types } from 'mongoose'
 import { Contract } from 'src/contract'
 import { BodyBlogInputModel } from 'src/input-models/body/body-blog.input-model'
@@ -14,8 +14,8 @@ import { CreateBlogCommand } from 'src/use-cases/blogger/create-blog.use-case'
 
 
 export interface IBlogOwnerInfo {
-  userId: string | null
   userLogin: string | null
+  userId: string | null
 }
 export interface IBanInfo {
   isBanned: boolean
@@ -66,27 +66,30 @@ export class Blogs {
   })
   isMembership: boolean
 
-  @Prop({
-    userLogin: {
-      type: String,
-      required: true,
-    },
-    userId: {
-      type: String,
-      required: true,
-    }
-  })
+  @Prop(
+    raw({
+      userLogin: {
+        type: String,
+        required: true,
+      },
+      userId: {
+        type: String,
+        required: true,
+      }
+    })
+  )
   blogOwnerInfo: IBlogOwnerInfo
 
-  @Prop({
-    isBanned: {
-      type: Boolean,
-      required: true,
-    },
-    banDate: {
-      type: String
-    }
-  })
+  @Prop(
+    raw({
+      isBanned: {
+        type: Boolean,
+        required: true,
+      },
+      banDate: {
+        type: String
+      }
+    }))
   banInfo: IBanInfo
 
   // @Prop([
@@ -110,7 +113,7 @@ export class Blogs {
   //     },
   //   }
   // ])
-  // bannedUsers: IBannedUsers[]
+  // bannedUsers: any
 
   static createBlog(bodyBlog: CreateBlogCommand, login: string, BlogsModel: BlogsModel,): BlogsDocument {
     const date = new Date().toISOString()

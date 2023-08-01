@@ -45,10 +45,10 @@ export class BannedBlogUsers {
 
 
   static async banUser(
-    { userId, banReason, blogId, usersRepository, bannedBlogUsersRepository, BannedBlogUsersModel }:
+    { userId, banReason, blogId, usersRepository, BannedBlogUsersModel }:
       {
         userId: string, banReason: string, blogId: string, usersRepository: UsersRepository,
-        bannedBlogUsersRepository: BannedBlogUsersRepository, BannedBlogUsersModel: BannedBlogUsersModel
+        BannedBlogUsersModel: BannedBlogUsersModel
       }
   ): Promise<null | BannedBlogUsersDocument> {
 
@@ -56,20 +56,18 @@ export class BannedBlogUsers {
     if (foundUserToBan === null)
       return null
 
-    const bannedBlogUserDocument = await bannedBlogUsersRepository.findBannedBlogUsers(userId, blogId)
-    if (bannedBlogUserDocument === null)
-      return new BannedBlogUsersModel({
-        userId: userId,
+    const newBannedBlogUser = new BannedBlogUsersModel(
+      {
+        userId: foundUserToBan._id.toString(),
         login: foundUserToBan.accountData.login,
+        isBanned: true,
         banReason: banReason,
         banDate: new Date().toISOString(),
-        blogId: blogId
-      })
+        blogId: blogId,
+      }
+    )
 
-    bannedBlogUserDocument.isBanned = true
-    bannedBlogUserDocument.banReason = banReason
-    bannedBlogUserDocument.banDate = new Date().toISOString()
-    return bannedBlogUserDocument
+    return newBannedBlogUser
   }
 
 
@@ -77,23 +75,23 @@ export class BannedBlogUsers {
     userId: string, blogId: string, BannedBlogUsersRepository: BannedBlogUsersRepository
   ): Promise<null | BannedBlogUsersDocument> {
 
-    const bannedBlogUserDocument = await BannedBlogUsersRepository.findBannedBlogUsers(userId, blogId)
-    if (bannedBlogUserDocument === null)
+    const bannedBlogUser = await BannedBlogUsersRepository.findBannedBlogUser(userId, blogId)
+    if (bannedBlogUser === null)
       return null
 
-    bannedBlogUserDocument.isBanned = false
-    bannedBlogUserDocument.banReason = null
-    bannedBlogUserDocument.banDate = null
-    return bannedBlogUserDocument
+    bannedBlogUser.isBanned = false
+    bannedBlogUser.banReason = null
+    bannedBlogUser.banDate = null
+    return bannedBlogUser
   }
 
 }
 interface BannedBlogUsersStatics {
   banUser(
-    { userId, banReason, blogId, usersRepository, bannedBlogUsersRepository, BannedBlogUsersModel }:
+    { userId, banReason, blogId, usersRepository, BannedBlogUsersModel }:
       {
         userId: string, banReason: string, blogId: string, usersRepository: UsersRepository,
-        bannedBlogUsersRepository: BannedBlogUsersRepository, BannedBlogUsersModel: BannedBlogUsersModel
+        BannedBlogUsersModel: BannedBlogUsersModel
       }
   ): Promise<BannedBlogUsersDocument>
 
@@ -103,6 +101,8 @@ interface BannedBlogUsersStatics {
 }
 
 export const BannedBlogUsersSchema = SchemaFactory.createForClass(BannedBlogUsers)
+BannedBlogUsersSchema.statics.banUser = BannedBlogUsers.banUser
+BannedBlogUsersSchema.statics.unbanUser = BannedBlogUsers.unbanUser
 
 export type BannedBlogUsersDocument = HydratedDocument<BannedBlogUsers>
 export type BannedBlogUsersModel = Model<BannedBlogUsersDocument> & BannedBlogUsersStatics

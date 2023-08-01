@@ -43,8 +43,9 @@ import { BlogIdInputModel } from "../input-models/uri/blogId.input-model"
 import { IdInputModel } from "../input-models/uri/id.input-model"
 import { BlogsQueryRepository } from "../repositories/query/blogs.query.repository"
 import { BlogsService } from "../services/blogs.service"
+import { QueryPostsCommentsInputModel } from "src/input-models/query/query-posts-comments.input-model"
 
-@Controller("blogger/blogs")
+@Controller("blogger")
 export class BloggerController {
   constructor(
     protected blogsService: BlogsService,
@@ -57,22 +58,22 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Get("comments")
+  @Get("blogs/comments")
   async getPostsComments(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Query() queryBlog: QueryBlogsInputModel
+    @Query() queryPostsComments: QueryPostsCommentsInputModel,
   ) {
-    const blogs = await this.blogsQueryRepository.findPostsComments(
-      queryBlog,
+    const postsComments = await this.blogsQueryRepository.findPostsComments(
+      queryPostsComments,
       deviceSession.userId,
     )
-    return blogs
+    return postsComments
   }
 
 
 
   @UseGuards(AccessGuard)
-  @Put(":id")
+  @Put("blogs/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
@@ -98,7 +99,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Delete(":id")
+  @Delete("blogs/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
@@ -128,7 +129,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Post()
+  @Post("blogs")
   async createBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Body() bodyBlog: BodyBlogInputModel
@@ -148,7 +149,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Get()
+  @Get("blogs")
   async getBlogs(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryBlog: QueryBlogsInputModel
@@ -163,7 +164,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Post(":blogId/posts")
+  @Post("blogs/:blogId/posts")
   async createPost(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() param: BlogIdInputModel,
@@ -188,7 +189,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Get(":blogId/posts")
+  @Get("blogs/:blogId/posts")
   async getPosts(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: BlogIdInputModel,
@@ -209,7 +210,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Put(":blogId/posts/:postId")
+  @Put("blogs/:blogId/posts/:postId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
     @Param() param: BloggerInputModel,
@@ -242,7 +243,7 @@ export class BloggerController {
 
 
   @UseGuards(AccessGuard)
-  @Delete(":blogId/posts/:postId")
+  @Delete("blogs/:blogId/posts/:postId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
     @Param() param: BloggerInputModel,

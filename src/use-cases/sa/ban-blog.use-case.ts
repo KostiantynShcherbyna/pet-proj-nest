@@ -31,7 +31,11 @@ export class BanBlog implements ICommandHandler<BanBlogCommand> {
     async execute(command: BanBlogCommand) {
 
         const foundBlog = await this.blogsRepository.findBlog(command.blogId)
-        if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
+        if (foundBlog === null)
+            return new Contract(null, ErrorEnums.BLOG_NOT_FOUND);
+        if (foundBlog.banInfo.isBanned === command.isBanned)
+            return new Contract(true, null);
+
 
         command.isBanned === true
             ? foundBlog.banBlog()

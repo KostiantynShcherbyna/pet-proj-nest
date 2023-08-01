@@ -232,17 +232,13 @@ export class Users {
         this.accountData.banInfo.banReason = banReason
 
         const deleteResult = await DevicesModel.deleteMany({ userId: userId })
-        if (deleteResult.deletedCount === 0) {
-            this.unBanUser()
-            return null
-        }
         return deleteResult.deletedCount
     }
+
     unBanUser() {
         this.accountData.banInfo.isBanned = false
         this.accountData.banInfo.banDate = null
         this.accountData.banInfo.banReason = null
-        return null
     }
 
 }

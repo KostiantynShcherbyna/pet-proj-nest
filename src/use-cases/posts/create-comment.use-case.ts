@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/contract"
+import { BannedBlogUsersRepository } from "src/repositories/banned-blog-users.repository"
 import { CommentsRepository } from "src/repositories/comments.repository"
 import { PostsCommentsRepository } from "src/repositories/posts-comments.repository"
 import { PostsRepository } from "src/repositories/posts.repository"
@@ -30,6 +31,7 @@ export class CreateComment implements ICommandHandler<CreateCommentCommand> {
         protected commentsRepository: CommentsRepository,
         protected postsCommentsRepository: PostsCommentsRepository,
         protected commentsQueryRepository: CommentsQueryRepository,
+        protected bannedBlogUsersRepository: BannedBlogUsersRepository,
     ) {
     }
 
@@ -41,6 +43,11 @@ export class CreateComment implements ICommandHandler<CreateCommentCommand> {
 
         const foundPost = await this.postsRepository.findPost(command.postId)
         if (foundPost === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
+
+        // BANNED USER CANT'T PAST COMMENT
+        const bloggerBannedUser = await this.bannedBlogUsersRepository.findBannedBlogUser(command.userId, foundPost.blogId)
+        if (bloggerBannedUser !== null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
+
 
         const newComment = this.CommentsModel.createComment(command.postId, command.content, user, this.CommentsModel)
         await this.commentsRepository.saveDocument(newComment)
