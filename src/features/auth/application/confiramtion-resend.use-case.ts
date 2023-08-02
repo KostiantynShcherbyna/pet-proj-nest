@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/infrastructure/utils/contract"
-import { UsersRepository } from "src/features/users/infrastructure/users.repository"
+import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
 import { Users, UsersModel } from "src/infrastructure/schemas/users.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 import { emailAdapter } from "src/infrastructure/adapters/email.adapter"

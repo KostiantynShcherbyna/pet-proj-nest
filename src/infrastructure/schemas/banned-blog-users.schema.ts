@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Model, Types } from 'mongoose'
 import { BannedBlogUsersRepository } from 'src/features/blogger/infrastructure/banned-blog-users.repository'
-import { UsersRepository } from 'src/features/users/infrastructure/users.repository'
+import { UsersRepository } from 'src/features/super-admin/infrastructure/users.repository'
 
 
 @Schema()

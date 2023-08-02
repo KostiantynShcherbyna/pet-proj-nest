@@ -1,12 +1,7 @@
 import { Injectable, Inject, NotFoundException } from "@nestjs/common"
 import { BlogsRepository } from "../../blogs/infrastructure/blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
-import { GetBlogsQueryInputModel } from "src/features/blogger/api/models/input/get-blogs.query.input-model"
-import { CreateBloggerBlogOutputModel, BlogsOutputModel } from "src/features/blogger/api/models/output/create-blogger-blog.output-model"
-import { BlogsModel, Blogs } from "src/infrastructure/schemas/blogs.schema"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { Types } from "mongoose"
-import { GetPostsQueryInputModel } from "src/features/blogger/api/models/input/get-posts.query.input-model"
 import { CreateBloggerPostOutputModel, PostsView } from "src/features/blogger/api/models/output/create-blogger-post.output-model"
 import { ILike, Posts, PostsModel } from "src/infrastructure/schemas/posts.schema"
 import {
@@ -20,7 +15,8 @@ import {
 import { Contract } from "src/infrastructure/utils/contract"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 import { Comments, CommentsModel } from "src/infrastructure/schemas/comments.schema"
-import { UsersRepository } from "../../users/infrastructure/users.repository"
+import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
+import { GetPostsQueryInputModel } from "../api/models/input/get-posts.query.input-model"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 

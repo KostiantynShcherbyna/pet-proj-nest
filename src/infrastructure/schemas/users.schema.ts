@@ -4,13 +4,14 @@ import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Contract } from 'src/infrastructure/utils/contract';
 import { confirmationAndExpirationDto } from 'src/infrastructure/dto/confirmation-and-expiration.dto';
-import { RegistrationBodyInputModel } from 'src/features/auth/api/models/input/registration.body.input-model';
-import { CreateUserBodyInputModel } from 'src/features/users/api/models/input/create-user.body.input-model';
+import { CreateUserBodyInputModel } from 'src/features/super-admin/api/models/input/create-user.body.input-model';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/infrastructure/utils/constants';
 import { ErrorEnums } from 'src/infrastructure/utils/error-enums';
 import { compareHashManager } from 'src/infrastructure/services/compare-hash.service';
 import { generateHashManager } from 'src/infrastructure/services/generate-hash.service';
 import { DevicesModel } from './devices.schema';
+import { RegistrationBodyDto } from "../dto/registration-body.dto"
+import { RegistrationBodyInputModel } from "../../features/auth/api/models/input/registration.body.input-model"
 
 
 
@@ -148,7 +149,7 @@ export class Users {
         return newUser
     }
 
-    static async registrationUser(registrationBody: RegistrationBodyInputModel, UsersModel: UsersModel): Promise<UsersDocument> {
+    static async registrationUser(registrationBody: RegistrationBodyDto, UsersModel: UsersModel): Promise<UsersDocument> {
 
         const passwordHash = await generateHashManager(registrationBody.password)
         const date = new Date()

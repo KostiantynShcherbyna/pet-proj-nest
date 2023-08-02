@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Types } from "mongoose"
 import { Contract } from "src/infrastructure/utils/contract"
 import { PostsRepository } from "src/features/posts/infrastructure/posts.repository"
-import { UsersRepository } from "src/features/users/infrastructure/users.repository"
+import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class UpdatePostLikeCommand {

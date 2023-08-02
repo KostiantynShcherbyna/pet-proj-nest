@@ -19,8 +19,6 @@ import { DeviceSessionOptional } from "src/infrastructure/decorators/device-sess
 import { DeviceSession } from "src/infrastructure/decorators/device-session.decorator"
 import { UpdateCommentBodyInputModel } from "src/features/comments/api/models/input/update-comment.body.input-model"
 import { UpdatePostBodyInputModel } from "src/features/posts/api/models/input/update-post.body.input-model"
-import { GetCommentsQueryInputModel } from "src/features/comments/api/models/input/get-comments.query.input-model"
-import { GetPostsQueryInputModel } from "src/features/blogger/api/models/input/get-posts.query.input-model"
 import { CommentsQueryRepository } from "src/features/comments/infrastructure/comments.query.repository"
 import { PostsQueryRepository } from "src/features/posts/infrastructure/posts.query.repository"
 import { CreateCommentCommand } from "src/features/posts/application/create-comment.use-case"
@@ -31,14 +29,14 @@ import { callErrorMessage } from "src/infrastructure/adapters/exception-message.
 import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { AccessMiddleware } from "../../../infrastructure/guards/access-middleware.guard"
 import { BasicGuard } from "../../../infrastructure/guards/basic.guard"
-import { LikeStatusBodyInputModel } from "../../comments/api/models/input/like-status.body.input-model"
-import {
-  DeviceSessionOptionalReqInputModel
-} from "../../blogger/api/models/input/device-session-optional.req.input-model"
-import { DeviceSessionReqInputModel } from "../../auth/api/models/input/device-session.req.input-model"
-import { IdParamInputModel } from "../../blogger/api/models/input/id.param.input-model"
 import { GetCommentsParamInputModel } from "./models/input/get-comments.param.input-model"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
+import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
+import { DeviceSessionOptionalReqInputModel } from "./models/input/device-session-optional.req.input-model"
+import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-model"
+import { IdParamInputModel } from "./models/input/id.param.input-model"
+import { GetCommentsQueryInputModel } from "./models/input/get-comments.query.input-model"
+import { LikeStatusBodyInputModel } from "./models/input/like-status.body.input-model"
 
 @Controller("posts")
 export class PostsController {

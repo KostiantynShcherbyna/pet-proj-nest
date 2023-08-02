@@ -8,8 +8,7 @@ import {
   LikeStatus
 } from "src/infrastructure/utils/constants"
 import { UsersDocument } from "./users.schema"
-import { CreatePostBodyInputModel } from "src/features/blogger/api/models/input/create-post.body.input-model"
-import { Contract } from "src/infrastructure/utils/contract"
+import { CreatePostBodyDto } from "../dto/create-post-body.dto"
 
 
 export interface IExtendedLikesInfo {
@@ -119,7 +118,7 @@ export class Posts {
     }))
   extendedLikesInfo: IExtendedLikesInfo
 
-  static createPost(bodyBlogPost: CreatePostBodyInputModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument {
+  static createPost(bodyBlogPost: CreatePostBodyDto, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument {
 
     const date = new Date().toISOString()
 
@@ -146,8 +145,6 @@ export class Posts {
     const deletedPostResult = await PostsModel.deleteOne({ _id: new Types.ObjectId(id) })
     return deletedPostResult.deletedCount
   }
-
-
 
 
   updatePost(bodyPostDto: UpdatePostBodyInputModel) {
@@ -246,8 +243,10 @@ export class Posts {
   }
 
 }
+
 interface PostsStatics {
-  createPost(bodyBlogPost: CreatePostBodyInputModel, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument;
+  createPost(bodyBlogPost: CreatePostBodyDto, blogId: string, blogName: string, PostsModel: PostsModel): PostsDocument;
+
   deletePost(id: string, PostsModel: PostsModel): Promise<number>
 }
 

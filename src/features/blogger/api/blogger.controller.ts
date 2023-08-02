@@ -24,7 +24,6 @@ import { CreatePostBodyInputModel } from "src/features/blogger/api/models/input/
 import { BanUserBodyInputModel } from "src/features/blogger/api/models/input/ban-user.body.input-model"
 
 import { GetPostsQueryInputModel } from "src/features/blogger/api/models/input/get-posts.query.input-model"
-import { DeviceSessionReqInputModel } from "src/features/auth/api/models/input/device-session.req.input-model"
 import { UpdatePostParamInputModel } from "src/features/blogger/api/models/input/update-post.param.input-model"
 import { PostsQueryRepository } from "src/features/posts/infrastructure/posts.query.repository"
 import { BanUserBloggerCommand } from "src/features/blogger/application/ban-user-blogger.use-case"
@@ -43,6 +42,7 @@ import { CreatePostParamInputModel } from "./models/input/create-post.param.inpu
 import { IdParamInputModel } from "./models/input/id.param.input-model"
 import { BlogsQueryRepository } from "../../blogs/infrastructure/blogs.query.repository"
 import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-comments.query.input-model"
+import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
 
 @Controller("blogger")
 export class BloggerController {

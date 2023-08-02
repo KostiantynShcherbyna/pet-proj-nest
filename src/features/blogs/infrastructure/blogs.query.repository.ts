@@ -2,10 +2,6 @@ import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
 import { Contract } from "src/infrastructure/utils/contract"
-import {
-  GetPostsCommentsQueryInputModel
-} from "src/features/blogger/api/models/input/get-posts-comments.query.input-model"
-import { GetBlogsQueryInputModel } from "src/features/blogger/api/models/input/get-blogs.query.input-model"
 import { BannedBlogUsers, BannedBlogUsersModel } from "src/infrastructure/schemas/banned-blog-users.schema"
 import { Blogs, BlogsModel } from "src/infrastructure/schemas/blogs.schema"
 import { Comments, CommentsModel } from "src/infrastructure/schemas/comments.schema"
@@ -28,7 +24,9 @@ import {
   SortDirection
 } from "../../../infrastructure/utils/constants"
 import { BlogsRepository } from "./blogs.repository"
-import { UsersRepository } from "../../users/infrastructure/users.repository"
+import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
+import { GetBlogsQueryInputModel } from "../api/models/input/get-blogs.query.input-model"
+import { GetPostsCommentsQueryInputModel } from "../api/models/input/get-posts-comments.query.input-model"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 

@@ -13,13 +13,13 @@ import {
 import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSession } from "src/infrastructure/decorators/device-session.decorator"
 import { RefreshGuard } from "src/infrastructure/guards/refresh.guard"
-import { DeviceSessionReqInputModel } from "src/features/auth/api/models/input/device-session.req.input-model"
 import { AuthQueryRepository } from "src/features/auth/infrastructure/auth.query.repository"
 import { DeleteOtherDevicesCommand } from "src/features/devices/application/delete-other-devices.use-case"
 import { DeleteSpecialDeviceCommand } from "src/features/devices/application/delete-special-device.use-case"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 import { callErrorMessage } from "src/infrastructure/adapters/exception-message.adapter"
 import { DeleteSpecialDeviceParamInputModel } from "./models/input/delete-special-device.param.input-model"
+import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
 
 @Controller("security")
 export class DevicesController {

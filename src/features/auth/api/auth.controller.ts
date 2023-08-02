@@ -28,7 +28,7 @@ import {
 } from "src/features/auth/api/models/input/registration-resend.body.input-model"
 import { RegistrationBodyInputModel } from "src/features/auth/api/models/input/registration.body.input-model"
 import { DeviceSessionReqInputModel } from "src/features/auth/api/models/input/device-session.req.input-model"
-import { UsersQueryRepository } from "src/features/users/infrastructure/users.query.repository"
+import { UsersQueryRepository } from "src/features/super-admin/infrastructure/users.query.repository"
 import { ConfirmationResendCommand } from "src/features/auth/application/confiramtion-resend.use-case"
 import { ConfirmationCommand } from "src/features/auth/application/confiramtion.use-case"
 import { LoginCommand } from "src/features/auth/application/login.use-case"

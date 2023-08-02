@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
 import { Users, UsersModel } from "src/infrastructure/schemas/users.schema"
-import { UsersView } from "src/features/users/api/models/output/create-user.output-model"
+import { UsersView } from "src/features/super-admin/api/models/output/create-user.output-model"
 import { GetUserOutputModel } from "src/features/auth/api/models/output/get-user.output-model"
 import {
   BanStatus,

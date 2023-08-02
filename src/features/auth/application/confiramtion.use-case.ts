@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "src/infrastructure/utils/contract"
-import { UsersRepository } from "src/features/users/infrastructure/users.repository"
+import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class ConfirmationCommand {

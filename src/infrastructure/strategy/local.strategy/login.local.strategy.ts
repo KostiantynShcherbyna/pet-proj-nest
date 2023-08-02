@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { UsersRepository } from 'src/features/users/infrastructure/users.repository';
+import { UsersRepository } from 'src/features/super-admin/infrastructure/users.repository';
 import { StrategyNames } from 'src/infrastructure/utils/constants';
 import { ErrorEnums } from 'src/infrastructure/utils/error-enums';
 

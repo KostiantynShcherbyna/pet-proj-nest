@@ -13,7 +13,7 @@ import { CommentsView, GetCommentsOutputModel } from "src/features/comments/api/
 import { Comments, CommentsModel } from "src/infrastructure/schemas/comments.schema"
 import { PostsQueryRepository } from "../../posts/infrastructure/posts.query.repository"
 import { GetCommentsQueryInputModel } from "src/features/comments/api/models/input/get-comments.query.input-model"
-import { UsersRepository } from "../../users/infrastructure/users.repository"
+import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
 import { Contract } from "src/infrastructure/utils/contract"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 

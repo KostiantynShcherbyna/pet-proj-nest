@@ -24,13 +24,11 @@ import { callErrorMessage } from "src/infrastructure/adapters/exception-message.
 import { AccessMiddleware } from "../../../infrastructure/guards/access-middleware.guard"
 import { UpdateCommentBodyInputModel } from "./models/input/update-comment.body.input-model"
 import { LikeStatusBodyInputModel } from "./models/input/like-status.body.input-model"
-import {
-  DeviceSessionOptionalReqInputModel
-} from "../../blogger/api/models/input/device-session-optional.req.input-model"
-import { DeviceSessionReqInputModel } from "../../auth/api/models/input/device-session.req.input-model"
 import { UpdateCommentParamInputModel } from "./models/input/update-comment.param.input-model"
-import { IdParamInputModel } from "../../blogger/api/models/input/id.param.input-model"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
+import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
+import { DeviceSessionOptionalReqInputModel } from "./models/input/device-session-optional.req.input-model"
+import { IdParamInputModel } from "./models/input/id.param.input-model"
 
 @Controller("comments")
 export class CommentsController {

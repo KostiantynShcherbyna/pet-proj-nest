@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Types } from "mongoose"
 import { Contract } from "src/infrastructure/utils/contract"
 import { DevicesRepository } from "src/features/devices/infrastructure/devices.repository"
-import { UsersRepository } from "src/features/users/infrastructure/users.repository"
+import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
 import { Devices, DevicesModel } from "src/infrastructure/schemas/devices.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
