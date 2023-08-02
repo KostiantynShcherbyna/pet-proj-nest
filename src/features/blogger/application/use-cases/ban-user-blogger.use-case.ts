@@ -5,8 +5,8 @@ import { BanUserBodyInputModel } from "src/features/blogger/api/models/input/ban
 import { BannedBlogUsersRepository } from "src/features/blogger/infrastructure/banned-blog-users.repository"
 import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { BannedBlogUsers, BannedBlogUsersModel } from "src/infrastructure/schemas/banned-blog-users.schema"
-import { Blogs, BlogsModel } from "src/infrastructure/schemas/blogs.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/application/entity/banned-blog-users.schema"
+import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class BanUserBloggerCommand {

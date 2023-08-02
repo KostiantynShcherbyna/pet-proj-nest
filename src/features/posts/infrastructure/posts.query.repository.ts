@@ -3,7 +3,7 @@ import { BlogsRepository } from "../../blogs/infrastructure/blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
 import { CreateBloggerPostOutputModel, PostsView } from "src/features/blogger/api/models/output/create-blogger-post.output-model"
-import { ILike, Posts, PostsModel } from "src/infrastructure/schemas/posts.schema"
+import { ILike, Posts, PostsModel } from "src/features/posts/application/entity/posts.schema"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
@@ -14,7 +14,7 @@ import {
 } from "src/infrastructure/utils/constants"
 import { Contract } from "src/infrastructure/utils/contract"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { Comments, CommentsModel } from "src/infrastructure/schemas/comments.schema"
+import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
 import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
 import { GetPostsQueryInputModel } from "../api/models/input/get-posts.query.input-model"
 

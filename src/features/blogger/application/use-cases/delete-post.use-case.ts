@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/infrastructure/utils/contract"
 import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
 import { PostsRepository } from "src/features/posts/infrastructure/posts.repository"
-import { Posts, PostsModel } from "src/infrastructure/schemas/posts.schema"
+import { Posts, PostsModel } from "src/features/posts/application/entity/posts.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class DeletePostCommand {

@@ -6,7 +6,12 @@ import { HydratedDocument, Model, Types } from "mongoose"
 import { CreateDeviceDto } from "src/infrastructure/dto/create-device.dto"
 import { CreateDeviceTokensDto } from "src/infrastructure/dto/create-device-tokens.dto"
 import { RefreshDeviceTokensDto } from "src/infrastructure/dto/refresh-device-tokens.dto"
-import { ACCESS_EXPIRES_TIME, EXPIRE_AT_ACCESS, EXPIRE_AT_REFRESH, REFRESH_EXPIRES_TIME } from "src/infrastructure/utils/constants"
+import {
+  ACCESS_EXPIRES_TIME,
+  EXPIRE_AT_ACCESS,
+  EXPIRE_AT_REFRESH,
+  REFRESH_EXPIRES_TIME
+} from "src/infrastructure/utils/constants"
 import { RefreshDeviceDto } from "src/infrastructure/dto/refresh-device.dto"
 
 
@@ -50,8 +55,14 @@ export class Devices {
   expireAt: Date
 
   static async createDevice(
-    { deviceIp, userAgent, userId, accessJwtSecret, refreshJwtSecret }: CreateDeviceDto,
-    DevicesModel: DevicesModel
+    {
+      deviceIp,
+      userAgent,
+      userId,
+      accessJwtSecret,
+      refreshJwtSecret,
+      DevicesModel: DevicesModel
+    }: CreateDeviceDto,
   ): Promise<CreateDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
@@ -129,7 +140,15 @@ export class Devices {
   // }
 
 
-  async refreshDevice({ deviceIp, userAgent, device, accessJwtSecret, refreshJwtSecret }: RefreshDeviceDto): Promise<RefreshDeviceTokensDto> {
+  async refreshDevice(
+    {
+      deviceIp,
+      userAgent,
+      device,
+      accessJwtSecret,
+      refreshJwtSecret
+    }: RefreshDeviceDto
+  ): Promise<RefreshDeviceTokensDto> {
 
     const newIssueAt = new Date(Date.now())
 
@@ -191,8 +210,14 @@ export class Devices {
 
 interface DevicesStatics {
   createDevice(
-    { deviceIp, userAgent, userId }: CreateDeviceDto,
-    DevicesModel: DevicesModel
+    {
+      deviceIp,
+      userAgent,
+      userId,
+      accessJwtSecret,
+      refreshJwtSecret,
+      DevicesModel
+    }: CreateDeviceDto,
   ): Promise<CreateDeviceTokensDto>
 
   deleteDevice(

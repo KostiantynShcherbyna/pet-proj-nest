@@ -5,7 +5,7 @@ import {
   COMMENT_CONTENT_MIN_LENGTH,
   LikeStatus,
 } from 'src/infrastructure/utils/constants'
-import { UsersDocument } from './users.schema'
+import { UsersDocument } from '../../../super-admin/application/entity/users.schema'
 
 export interface ICommentatorInfo {
   userId: string

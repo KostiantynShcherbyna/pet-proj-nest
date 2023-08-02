@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose"
 import { Contract } from "src/infrastructure/utils/contract"
 import { UpdatePostBodyInputModel } from "src/features/posts/api/models/input/update-post.body.input-model"
 import { PostsRepository } from "src/features/posts/infrastructure/posts.repository"
-import { PostsComments, PostsCommentsModel } from "src/infrastructure/schemas/posts-comments.schema"
+import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class UpdatePostCommand {

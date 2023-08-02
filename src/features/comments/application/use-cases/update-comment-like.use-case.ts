@@ -4,7 +4,7 @@ import { Contract } from "src/infrastructure/utils/contract"
 import { CommentsRepository } from "src/features/comments/infrastructure/comments.repository"
 import { PostsCommentsRepository } from "src/features/blogger/infrastructure/posts-comments.repository"
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { PostsComments, PostsCommentsModel } from "src/infrastructure/schemas/posts-comments.schema"
+import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class UpdateCommentLikeCommand {

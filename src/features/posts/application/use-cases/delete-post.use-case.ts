@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/infrastructure/utils/contract"
-import { PostsComments, PostsCommentsModel } from "src/infrastructure/schemas/posts-comments.schema"
-import { Posts, PostsModel } from "src/infrastructure/schemas/posts.schema"
+import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
+import { Posts, PostsModel } from "src/features/posts/application/entity/posts.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class DeletePostCommand {

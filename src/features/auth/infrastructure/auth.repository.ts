@@ -5,7 +5,7 @@ import {
     RecoveryCodes,
     RecoveryCodesDocument,
     RecoveryCodesModel
-} from "src/infrastructure/schemas/recovery-code.schema"
+} from "src/features/auth/application/entity/recovery-code.schema"
 
 @Injectable()
 export class AuthRepository {

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { ILike } from "src/infrastructure/schemas/posts.schema"
+import { ILike } from "src/features/posts/application/entity/posts.schema"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
@@ -10,7 +10,7 @@ import {
   SortDirection
 } from "src/infrastructure/utils/constants"
 import { CommentsView, GetCommentsOutputModel } from "src/features/comments/api/models/output/get-comments.output-model"
-import { Comments, CommentsModel } from "src/infrastructure/schemas/comments.schema"
+import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
 import { PostsQueryRepository } from "../../posts/infrastructure/posts.query.repository"
 import { GetCommentsQueryInputModel } from "src/features/comments/api/models/input/get-comments.query.input-model"
 import { UsersRepository } from "../../super-admin/infrastructure/users.repository"

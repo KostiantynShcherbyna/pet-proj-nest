@@ -2,7 +2,7 @@ import { CommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Contract } from "src/infrastructure/utils/contract"
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Users, UsersModel } from "src/infrastructure/schemas/users.schema"
+import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class DeleteUserCommand {

@@ -9,9 +9,9 @@ import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'sr
 import { ErrorEnums } from 'src/infrastructure/utils/error-enums';
 import { compareHashManager } from 'src/infrastructure/services/compare-hash.service';
 import { generateHashManager } from 'src/infrastructure/services/generate-hash.service';
-import { DevicesModel } from './devices.schema';
-import { RegistrationBodyDto } from "../dto/registration-body.dto"
-import { RegistrationBodyInputModel } from "../../features/auth/api/models/input/registration.body.input-model"
+import { DevicesModel } from '../../../auth/application/entity/devices.schema';
+import { RegistrationBodyDto } from "../../../../infrastructure/dto/registration-body.dto"
+import { RegistrationBodyInputModel } from "../../../auth/api/models/input/registration.body.input-model"
 
 
 

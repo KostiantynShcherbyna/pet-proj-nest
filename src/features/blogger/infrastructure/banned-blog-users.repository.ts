@@ -4,7 +4,7 @@ import {
   BannedBlogUsers,
   BannedBlogUsersDocument,
   BannedBlogUsersModel
-} from "src/infrastructure/schemas/banned-blog-users.schema"
+} from "src/features/blogger/application/entity/banned-blog-users.schema"
 
 @Injectable()
 export class BannedBlogUsersRepository {

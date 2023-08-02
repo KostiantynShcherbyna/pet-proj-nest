@@ -5,15 +5,15 @@ import {
   ServiceUnavailableException
 } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Blogs, BlogsModel } from "src/infrastructure/schemas/blogs.schema"
-import { Comments, CommentsModel } from "src/infrastructure/schemas/comments.schema"
-import { Posts, PostsModel } from "src/infrastructure/schemas/posts.schema"
-import { Users, UsersModel } from "src/infrastructure/schemas/users.schema"
-import { Devices, DevicesModel } from "../../schemas/devices.schema"
-import { RecoveryCodes, RecoveryCodesModel } from "../../schemas/recovery-code.schema"
-import { RequestAttempts, RequestAttemptsModel } from "../../schemas/request-attempts.schema"
-import { BannedBlogUsers, BannedBlogUsersModel } from "src/infrastructure/schemas/banned-blog-users.schema"
-import { PostsComments, PostsCommentsModel } from "src/infrastructure/schemas/posts-comments.schema"
+import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
+import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
+import { Posts, PostsModel } from "src/features/posts/application/entity/posts.schema"
+import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
+import { Devices, DevicesModel } from "../../../features/auth/application/entity/devices.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "../../../features/auth/application/entity/recovery-code.schema"
+import { RequestAttempts, RequestAttemptsModel } from "../../../features/auth/application/entity/request-attempts.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/application/entity/banned-blog-users.schema"
+import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
 
 @Controller("testing")
 export class TestingController {

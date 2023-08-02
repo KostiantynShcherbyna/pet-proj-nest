@@ -7,8 +7,8 @@ import {
   POSTS_TITLE_MAX_LENGTH,
   LikeStatus
 } from "src/infrastructure/utils/constants"
-import { UsersDocument } from "./users.schema"
-import { CreatePostBodyDto } from "../dto/create-post-body.dto"
+import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
+import { CreatePostBodyDto } from "../../../../infrastructure/dto/create-post-body.dto"
 
 
 export interface IExtendedLikesInfo {

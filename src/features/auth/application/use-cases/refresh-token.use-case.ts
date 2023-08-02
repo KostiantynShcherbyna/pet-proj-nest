@@ -7,8 +7,8 @@ import { DevicesRepository } from "src/features/devices/infrastructure/devices.r
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
 import { Secrets } from "src/infrastructure/utils/constants"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { DeviceSessionReqInputModel } from "../api/models/input/device-session.req.input-model"
-import { RefreshTokenOutputModel } from "../api/models/output/refresh-token.output-model"
+import { DeviceSessionReqInputModel } from "../../api/models/input/device-session.req.input-model"
+import { RefreshTokenOutputModel } from "../../api/models/output/refresh-token.output-model"
 
 
 export class RefreshTokenCommand {

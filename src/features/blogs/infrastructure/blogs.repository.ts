@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { BannedBlogUsers, BannedBlogUsersModel } from "src/infrastructure/schemas/banned-blog-users.schema"
-import { Blogs, BlogsDocument, BlogsModel } from "src/infrastructure/schemas/blogs.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/application/entity/banned-blog-users.schema"
+import { Blogs, BlogsDocument, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
 
 @Injectable()
 export class BlogsRepository {

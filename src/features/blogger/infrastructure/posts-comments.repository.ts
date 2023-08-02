@@ -4,7 +4,7 @@ import {
   PostsComments,
   PostsCommentsDocument,
   PostsCommentsModel
-} from "src/infrastructure/schemas/posts-comments.schema"
+} from "src/features/comments/application/entity/posts-comments.schema"
 
 @Injectable()
 export class PostsCommentsRepository {

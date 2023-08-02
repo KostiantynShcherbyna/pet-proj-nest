@@ -9,8 +9,8 @@ import {
   BLOGS_WEBSITEURL_REGEX,
 } from 'src/infrastructure/utils/constants'
 import { ErrorEnums } from 'src/infrastructure/utils/error-enums'
-import { PostsModel } from './posts.schema'
-import { CreateBlogCommand } from 'src/features/blogger/application/create-blog.use-case'
+import { PostsModel } from '../../../posts/application/entity/posts.schema'
+import { CreateBlogCommand } from 'src/features/blogger/application/use-cases/create-blog.use-case'
 
 
 export interface IBlogOwnerInfo {

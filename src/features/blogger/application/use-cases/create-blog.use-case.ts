@@ -4,7 +4,7 @@ import { Types } from "mongoose"
 import { Contract } from "src/infrastructure/utils/contract"
 import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Blogs, BlogsDocument, BlogsModel } from "src/infrastructure/schemas/blogs.schema"
+import { Blogs, BlogsDocument, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 import { CreateBloggerBlogOutputModel } from "src/features/blogger/api/models/output/create-blogger-blog.output-model"
 

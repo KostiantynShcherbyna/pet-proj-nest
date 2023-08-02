@@ -1,4 +1,4 @@
-import { UsersDocument } from "src/infrastructure/schemas/users.schema"
+import { UsersDocument } from "src/features/super-admin/application/entity/users.schema"
 import { emailService } from "../services/email.service"
 
 export const emailAdapter = {

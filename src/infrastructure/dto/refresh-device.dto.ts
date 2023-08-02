@@ -1,4 +1,4 @@
-import { DevicesDocument } from "src/infrastructure/schemas/devices.schema"
+import { DevicesDocument } from "src/features/auth/application/entity/devices.schema"
 
 export type RefreshDeviceDto = {
     deviceIp: string
