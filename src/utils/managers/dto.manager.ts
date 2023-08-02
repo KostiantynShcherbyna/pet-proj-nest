@@ -59,10 +59,8 @@ export const dtoManager = {
         websiteUrl: i.websiteUrl,
         createdAt: i.createdAt,
         isMembership: false,
-        blogOwnerInfo: {
-          userId: i.blogOwnerInfo.userId,
-          userLogin: i.blogOwnerInfo.userLogin,
-        }
+        blogOwnerInfo: i.blogOwnerInfo,
+        banInfo: i.banInfo
       }
     })
   },

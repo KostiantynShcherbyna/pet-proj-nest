@@ -47,6 +47,7 @@ export class SAController {
 
   @UseGuards(BasicGuard)
   @Put("blogs/:id/ban")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async banBlog(
     @Param() param: IdBlogBanInputModel,
     @Body() bodyBlogBan: BodyBlogBanInputModel,
@@ -66,6 +67,7 @@ export class SAController {
 
   @UseGuards(BasicGuard)
   @Put("blogs/:id/bind-with-user/:userId")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async bindBlog(
     @Param() param: BindInputModel,
   ) {
@@ -96,6 +98,7 @@ export class SAController {
 
   @UseGuards(BasicGuard)
   @Put("users/:id/ban")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async banUser(
     @Param() param: IdInputModel,
     @Body() bodyUserBan: BodyUserBanInputModel

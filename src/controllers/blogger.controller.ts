@@ -275,6 +275,7 @@ export class BloggerController {
   // ↓↓↓ USERS
   @UseGuards(AccessGuard)
   @Put("users/:id/ban")
+  @HttpCode(HttpStatus.NO_CONTENT)
   async banUser(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdInputModel,
@@ -289,6 +290,9 @@ export class BloggerController {
     )
     if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
+    )
+    if (banContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
     )
     if (banContract.error === ErrorEnums.DEVICES_NOT_DELETE) throw new InternalServerErrorException()
     return

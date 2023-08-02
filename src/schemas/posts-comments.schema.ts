@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose'
-import { HydratedDocument, Model } from 'mongoose'
+import { HydratedDocument, Model, Types } from 'mongoose'
 import {
   COMMENT_CONTENT_MAX_LENGTH,
   COMMENT_CONTENT_MIN_LENGTH,
@@ -31,11 +31,11 @@ export interface IPostInfo {
 @Schema()
 export class PostsComments {
 
-  @Prop({
-    type: String,
-    required: true,
-  })
-  commentId: string
+  // @Prop({
+  //   type: String,
+  //   required: true,
+  // })
+  // commentId: string
 
   @Prop({
     type: String,
@@ -124,20 +124,22 @@ export class PostsComments {
     content: string,
     user: UsersDocument,
     PostsCommentsModel: PostsCommentsModel,
-    commentId: string,
+    commentId: Types.ObjectId,
     title: string,
     blogId: string,
     blogName: string,
+    createdAt: string,
   ): PostsCommentsDocument {
-    const date = new Date().toISOString()
+
     const newComment = {
-      commentId: commentId,
+      _id: commentId,
+      // commentId: commentId,
       content: content,
       commentatorInfo: {
         userId: user.id,
         userLogin: user.accountData.login,
       },
-      createdAt: date,
+      createdAt: createdAt,
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
@@ -229,10 +231,11 @@ interface PostsCommentsStatics {
     content: string,
     user: UsersDocument,
     PostsCommentsModel: PostsCommentsModel,
-    commentId: string,
+    commentId: Types.ObjectId,
     title: string,
     blogId: string,
     blogName: string,
+    createdAt: string,
   ): PostsCommentsDocument
 
   deletePostComments(

@@ -4,6 +4,7 @@ import { Contract } from "src/contract"
 import { UsersRepository } from "src/repositories/users.repository"
 import { Users, UsersModel } from "src/schemas/users.schema"
 import { ErrorEnums } from "src/utils/errors/error-enums"
+import { emailAdapter } from "src/utils/managers/email.adapter"
 
 export class RegistrationCommand {
     constructor(
@@ -43,13 +44,13 @@ export class Registration implements ICommandHandler<RegistrationCommand> {
         await this.usersRepository.saveDocument(newUser)
 
         // SENDING EMAIL ↓↓↓ TODO TO CLASS
-        // const isSend = await emailAdapter.sendConfirmationCode(newUser)
-        // if (isSend === false) {
-        //     const deletedUserContract = await this.UsersModel.deleteUser(newUser._id.toString(), this.UsersModel)
-        //     if (deletedUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETE)
+        const isSend = await emailAdapter.sendConfirmationCode(newUser)
+        if (isSend === false) {
+            const deletedUserContract = await this.UsersModel.deleteUser(newUser._id.toString(), this.UsersModel)
+            if (deletedUserContract.data === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETED)
 
-        //     return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-        // }
+            return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+        }
 
 
         newUser.addSentDate()

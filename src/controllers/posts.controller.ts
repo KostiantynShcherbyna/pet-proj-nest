@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, UseGuards } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { DeviceSessionOptional } from "src/decorators/device-session-optional.decorator"
 import { DeviceSession } from "src/decorators/device-session.decorator"
@@ -148,6 +148,8 @@ export class PostsController {
     if (commentContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
     )
+    if (commentContract.error === ErrorEnums.USER_IS_BANNED) throw new ForbiddenException()
+
     if (commentContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
     )

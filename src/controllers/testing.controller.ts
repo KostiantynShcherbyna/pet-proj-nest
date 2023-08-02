@@ -36,14 +36,14 @@ export class TestingController {
     try {
       await Promise.all(
         [
-          // await this.BlogsModel.deleteMany({}),
-          // await this.PostsModel.deleteMany({}),
+          await this.BlogsModel.deleteMany({}),
+          await this.PostsModel.deleteMany({}),
           await this.CommentsModel.deleteMany({}),
-          // await this.UsersModel.deleteMany({}),
-          // await this.DevicesModel.deleteMany({}),
-          // await this.AttemptRequestsModel.deleteMany({}),
-          // await this.RecoveryCodesModel.deleteMany({}),
-          // await this.BannedBlogUsersModel.deleteMany({}),
+          await this.UsersModel.deleteMany({}),
+          await this.DevicesModel.deleteMany({}),
+          await this.AttemptRequestsModel.deleteMany({}),
+          await this.RecoveryCodesModel.deleteMany({}),
+          await this.BannedBlogUsersModel.deleteMany({}),
           await this.PostsCommentsModel.deleteMany({}),
         ]
       )

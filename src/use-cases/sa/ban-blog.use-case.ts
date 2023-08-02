@@ -41,6 +41,8 @@ export class BanBlog implements ICommandHandler<BanBlogCommand> {
             ? foundBlog.banBlog()
             : foundBlog.unbanBlog()
 
+        await this.blogsRepository.saveDocument(foundBlog)
+
         return new Contract(true, null);
     }
 }

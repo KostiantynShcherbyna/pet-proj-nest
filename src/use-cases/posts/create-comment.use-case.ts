@@ -46,7 +46,7 @@ export class CreateComment implements ICommandHandler<CreateCommentCommand> {
 
         // BANNED USER CANT'T PAST COMMENT
         const bloggerBannedUser = await this.bannedBlogUsersRepository.findBannedBlogUser(command.userId, foundPost.blogId)
-        if (bloggerBannedUser !== null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
+        if (bloggerBannedUser !== null) return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
         const newComment = this.CommentsModel.createComment(command.postId, command.content, user, this.CommentsModel)
@@ -57,10 +57,11 @@ export class CreateComment implements ICommandHandler<CreateCommentCommand> {
             command.content,
             user,
             this.PostsCommentsModel,
-            newComment._id.toString(),
+            newComment._id,
             foundPost.title,
             foundPost.blogId,
-            foundPost.blogName
+            foundPost.blogName,
+            newComment.createdAt,
         )
 
         await this.commentsRepository.saveDocument(newComment)
