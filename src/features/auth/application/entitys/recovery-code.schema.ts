@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { HydratedDocument, Model } from "mongoose"
-import { JwtService } from "@nestjs/jwt"
 import { TokensService } from "src/infrastructure/services/tokens.service"
-import { configuration } from "src/infrastructure/settings/configuration"
 import { PASSWORD_HASH_EXPIRES_TIME } from "src/infrastructure/utils/constants"
 
 

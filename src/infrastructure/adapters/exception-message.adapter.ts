@@ -1,4 +1,4 @@
-import { ErrorsType } from "../types/exception-message.type"
+import { ErrorsType } from "./types/exception-message.type"
 
 export const callErrorMessage = (message: string, field: string): ErrorsType => {
     return {

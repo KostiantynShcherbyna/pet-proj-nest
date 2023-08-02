@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Devices, DevicesDocument, DevicesModel } from "src/features/auth/application/entity/devices.schema"
+import { Devices, DevicesDocument, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
 
 @Injectable()
 export class DevicesRepository {

@@ -6,8 +6,8 @@ import { Contract } from "src/infrastructure/utils/contract"
 import { LoginBodyInputModel } from "src/features/auth/api/models/input/login.body.input-model"
 import { DevicesRepository } from "src/features/devices/infrastructure/devices.repository"
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Devices, DevicesModel } from "src/features/auth/application/entity/devices.schema"
-import { RecoveryCodes, RecoveryCodesModel } from "src/features/auth/application/entity/recovery-code.schema"
+import { Devices, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "src/features/auth/application/entitys/recovery-code.schema"
 import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
 import { Secrets } from "src/infrastructure/utils/constants"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
@@ -36,20 +36,24 @@ export class Login implements ICommandHandler<LoginCommand> {
 
   async execute(command: LoginCommand): Promise<Contract<null | LoginOutputModel>> {
     // ↓↓↓ CHECK IN LOGIN-LOCAL-STRATEGY
-    const user = await this.usersRepository.findUserLoginOrEmail({
-      login: command.loginBody.loginOrEmail,
-      email: command.loginBody.loginOrEmail
-    })
+    const user = await this.usersRepository
+      .findUserLoginOrEmail({
+        login: command.loginBody.loginOrEmail,
+        email: command.loginBody.loginOrEmail
+      })
+
     if (user === null)
       return new Contract(null, ErrorEnums.USER_NOT_FOUND)
     if (user.accountData.banInfo.isBanned === true)
       return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
-    const checkConfirmationAndHashContract = await user.checkConfirmationAndHash(
-      user.accountData.passwordHash,
-      command.loginBody.password
-    )
+    const checkConfirmationAndHashContract = await user
+      .checkConfirmationAndHash(
+        user.accountData.passwordHash,
+        command.loginBody.password
+      )
+
     if (checkConfirmationAndHashContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
       return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
     if (checkConfirmationAndHashContract.error === ErrorEnums.PASSWORD_NOT_COMPARED)
@@ -58,16 +62,19 @@ export class Login implements ICommandHandler<LoginCommand> {
 
     const accessJwtSecret = this.configService.get(Secrets.ACCESS_JWT_SECRET)
     const refreshJwtSecret = this.configService.get(Secrets.REFRESH_JWT_SECRET)
-    const newTokens = await this.DevicesModel.createDevice(
-      {
-        deviceIp: command.deviceIp,
-        userAgent: command.userAgent,
-        userId: user._id.toString(),
-        accessJwtSecret,
-        refreshJwtSecret,
-        DevicesModel: this.DevicesModel,
-      },
-    )
+
+    const newTokens = await this.DevicesModel
+      .createDevice(
+        {
+          deviceIp: command.deviceIp,
+          userAgent: command.userAgent,
+          userId: user._id.toString(),
+          accessJwtSecret,
+          refreshJwtSecret,
+          DevicesModel: this.DevicesModel,
+        },
+      )
+      
     await this.devicesRepository.saveDocument(newTokens.refreshEntry)
 
 

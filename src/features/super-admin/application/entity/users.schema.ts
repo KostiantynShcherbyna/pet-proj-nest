@@ -3,15 +3,15 @@ import { randomUUID } from 'crypto';
 import { add } from 'date-fns';
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { Contract } from 'src/infrastructure/utils/contract';
-import { confirmationAndExpirationDto } from 'src/infrastructure/dto/confirmation-and-expiration.dto';
+import { CheckEmailAndLoginDto } from 'src/features/super-admin/utils/check-email-and-login.dto';
 import { CreateUserBodyInputModel } from 'src/features/super-admin/api/models/input/create-user.body.input-model';
 import { EMAIL_REGISTRATION_REGEX, LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from 'src/infrastructure/utils/constants';
 import { ErrorEnums } from 'src/infrastructure/utils/error-enums';
 import { compareHashManager } from 'src/infrastructure/services/compare-hash.service';
 import { generateHashManager } from 'src/infrastructure/services/generate-hash.service';
-import { DevicesModel } from '../../../auth/application/entity/devices.schema';
-import { RegistrationBodyDto } from "../../../../infrastructure/dto/registration-body.dto"
+import { DevicesModel } from '../../../auth/application/entitys/devices.schema';
 import { RegistrationBodyInputModel } from "../../../auth/api/models/input/registration.body.input-model"
+import { RegistrationBodyDto } from 'src/features/auth/utils/registration-body.dto';
 
 
 
@@ -200,7 +200,7 @@ export class Users {
         return new Contract(true, null)
     }
 
-    checkEmailAndLogin({ email, login, inputEmail, inputLogin }: confirmationAndExpirationDto): Contract<null | boolean> {
+    checkEmailAndLogin({ email, login, inputEmail, inputLogin }: CheckEmailAndLoginDto): Contract<null | boolean> {
         if (email === inputEmail) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
         if (login === inputLogin) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
         return new Contract(true, null)

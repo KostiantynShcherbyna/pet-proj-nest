@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Devices, DevicesModel } from "src/features/auth/application/entity/devices.schema"
+import { Devices, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
 import { GetDevicesOutputModel } from "src/features/devices/api/models/output/get-devices.output-model"
 

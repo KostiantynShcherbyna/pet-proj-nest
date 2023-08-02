@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -15,27 +14,23 @@ import {
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
+import { UpdateCommentBodyInputModel } from "src/features/comments/api/models/input/update-comment.body.input-model"
+import { CommentsQueryRepository } from "src/features/comments/infrastructure/comments.query.repository"
+import { CreateCommentCommand } from "src/features/posts/application/use-cases/create-comment.use-case"
+import { UpdatePostLikeCommand } from "src/features/posts/application/use-cases/update-post-like.use-case"
+import { PostsQueryRepository } from "src/features/posts/infrastructure/posts.query.repository"
+import { callErrorMessage } from "src/infrastructure/adapters/exception-message.adapter"
 import { DeviceSessionOptional } from "src/infrastructure/decorators/device-session-optional.decorator"
 import { DeviceSession } from "src/infrastructure/decorators/device-session.decorator"
-import { UpdateCommentBodyInputModel } from "src/features/comments/api/models/input/update-comment.body.input-model"
-import { UpdatePostBodyInputModel } from "src/features/posts/api/models/input/update-post.body.input-model"
-import { CommentsQueryRepository } from "src/features/comments/infrastructure/comments.query.repository"
-import { PostsQueryRepository } from "src/features/posts/infrastructure/posts.query.repository"
-import { CreateCommentCommand } from "src/features/posts/application/use-cases/create-comment.use-case"
-import { DeletePostCommand } from "src/features/posts/application/use-cases/delete-post.use-case"
-import { UpdatePostLikeCommand } from "src/features/posts/application/use-cases/update-post-like.use-case"
-import { UpdatePostCommand } from "src/features/posts/application/use-cases/update-post.use-case"
-import { callErrorMessage } from "src/infrastructure/adapters/exception-message.adapter"
-import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { AccessMiddleware } from "../../../infrastructure/guards/access-middleware.guard"
-import { BasicGuard } from "../../../infrastructure/guards/basic.guard"
-import { GetCommentsParamInputModel } from "./models/input/get-comments.param.input-model"
+import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
-import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
 import { DeviceSessionOptionalReqInputModel } from "./models/input/device-session-optional.req.input-model"
+import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
+import { GetCommentsParamInputModel } from "./models/input/get-comments.param.input-model"
+import { GetCommentsQueryInputModel } from "./models/input/get-comments.query.input-model"
 import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-model"
 import { IdParamInputModel } from "./models/input/id.param.input-model"
-import { GetCommentsQueryInputModel } from "./models/input/get-comments.query.input-model"
 import { LikeStatusBodyInputModel } from "./models/input/like-status.body.input-model"
 
 @Controller("posts")
@@ -74,51 +69,6 @@ export class PostsController {
     return postContract.data
   }
 
-  // @UseGuards(BasicGuard)
-  // @Post()
-  // async createPost(
-  //   @Body() bodyPost: UpdatePostBodyInputModel
-  // ) {
-  //   const resultContruct = await this.transactionScriptService.createPost(bodyPost)
-  //   if (resultContruct.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-  //   )
-  //   return resultContruct.data
-  // }
-
-  @UseGuards(BasicGuard)
-  @Put(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePost(
-    @Param() param: IdParamInputModel,
-    @Body() bodyPost: UpdatePostBodyInputModel,
-  ) {
-    const resultContruct = await this.commandBus.execute(
-      new UpdatePostCommand(
-        bodyPost,
-        param.id
-      )
-    )
-    if (resultContruct.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
-    )
-    return
-  }
-
-  @UseGuards(BasicGuard)
-  @Delete(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(
-    @Param() param: IdParamInputModel
-  ) {
-    const resultContruct = await this.commandBus.execute(
-      new DeletePostCommand(param.id)
-    )
-    if (resultContruct.error === ErrorEnums.POST_NOT_DELETED) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_DELETED, "id")
-    )
-    return
-  }
 
   @UseGuards(AccessMiddleware)
   @Get(":postId/comments")

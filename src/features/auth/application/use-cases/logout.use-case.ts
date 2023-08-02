@@ -4,7 +4,7 @@ import { Types } from "mongoose"
 import { Contract } from "src/infrastructure/utils/contract"
 import { DevicesRepository } from "src/features/devices/infrastructure/devices.repository"
 import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Devices, DevicesModel } from "src/features/auth/application/entity/devices.schema"
+import { Devices, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 
 export class LogoutCommand {

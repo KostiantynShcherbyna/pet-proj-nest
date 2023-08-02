@@ -1,4 +1,4 @@
-import { DevicesModel } from "src/features/auth/application/entity/devices.schema"
+import { DevicesModel } from "src/features/auth/application/entitys/devices.schema"
 
 export interface CreateDeviceDto {
   deviceIp: string

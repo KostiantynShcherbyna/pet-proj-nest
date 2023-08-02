@@ -1,4 +1,4 @@
-export type confirmationAndExpirationDto = {
+export interface CheckEmailAndLoginDto {
     email: string
     login: string
     inputEmail: string

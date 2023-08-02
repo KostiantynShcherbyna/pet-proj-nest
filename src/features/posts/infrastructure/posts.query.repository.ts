@@ -3,7 +3,7 @@ import { BlogsRepository } from "../../blogs/infrastructure/blogs.repository"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
 import { CreateBloggerPostOutputModel, PostsView } from "src/features/blogger/api/models/output/create-blogger-post.output-model"
-import { ILike, Posts, PostsModel } from "src/features/posts/application/entity/posts.schema"
+import { ILike, Posts, PostsModel } from "src/features/blogger/application/entity/posts.schema"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,

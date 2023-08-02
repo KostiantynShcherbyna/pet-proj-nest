@@ -1,18 +1,21 @@
 import { JwtService } from "@nestjs/jwt"
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { randomUUID } from "crypto"
-import { addMinutes, addSeconds } from "date-fns"
-import { HydratedDocument, Model, Types } from "mongoose"
-import { CreateDeviceDto } from "src/infrastructure/dto/create-device.dto"
-import { CreateDeviceTokensDto } from "src/infrastructure/dto/create-device-tokens.dto"
-import { RefreshDeviceTokensDto } from "src/infrastructure/dto/refresh-device-tokens.dto"
+import { addSeconds } from "date-fns"
+import { HydratedDocument, Model } from "mongoose"
+
+import { CreateDeviceTokensDto } from "src/features/auth/utils/create-device-tokens.dto"
+
 import {
   ACCESS_EXPIRES_TIME,
   EXPIRE_AT_ACCESS,
   EXPIRE_AT_REFRESH,
   REFRESH_EXPIRES_TIME
 } from "src/infrastructure/utils/constants"
-import { RefreshDeviceDto } from "src/infrastructure/dto/refresh-device.dto"
+import { CreateDeviceDto } from "../../utils/create-device.dto"
+import { RefreshDeviceTokensDto } from "../../utils/refresh-device-tokens.dto"
+import { RefreshDeviceDto } from "../../utils/refresh-device.dto"
+
 
 
 @Schema()

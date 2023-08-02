@@ -8,7 +8,7 @@ import {
   LikeStatus
 } from "src/infrastructure/utils/constants"
 import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
-import { CreatePostBodyDto } from "../../../../infrastructure/dto/create-post-body.dto"
+import { CreatePostBodyDto } from "../../utils/create-post-body.dto"
 
 
 export interface IExtendedLikesInfo {

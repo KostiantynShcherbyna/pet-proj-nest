@@ -6,7 +6,7 @@ import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/appl
 import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
 import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
 import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
-import { Posts, PostsModel } from "src/features/posts/application/entity/posts.schema"
+import { Posts, PostsModel } from "src/features/blogger/application/entity/posts.schema"
 import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
 import { BannedBlogUsersView } from "src/features/blogger/api/models/output/get-banned-blog-users.output-model"

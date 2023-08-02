@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { ILike } from "src/features/posts/application/entity/posts.schema"
+import { ILike } from "src/features/blogger/application/entity/posts.schema"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
