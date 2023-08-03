@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Contract } from "src/infrastructure/utils/contract"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class ConfirmationCommand {
     constructor(public code: string) { }

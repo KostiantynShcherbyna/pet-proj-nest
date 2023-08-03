@@ -1,12 +1,11 @@
-import { ConfigService } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { ConfigType } from "src/infrastructure/settings/configuration"
-import { Contract } from "src/infrastructure/utils/contract"
-import { AuthRepository } from "src/features/auth/infrastructure/auth.repository"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { TokensService } from "src/infrastructure/services/tokens.service"
-import { Secrets } from "src/infrastructure/utils/constants"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { TokensService } from "../../../../infrastructure/services/tokens.service"
+import { AuthRepository } from "../../infrastructure/auth.repository"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { ConfigService, ConfigType } from "@nestjs/config"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { Secrets } from "../../../../infrastructure/utils/constants"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class NewPasswordCommand {
     constructor(public newPassword: string, public recoveryCode: string) { }
@@ -18,7 +17,7 @@ export class NewPassword implements ICommandHandler<NewPasswordCommand>{
         protected tokensService: TokensService,
         protected authRepository: AuthRepository,
         protected usersRepository: UsersRepository,
-        protected configService: ConfigService<ConfigType, true>,
+        protected configService: ConfigService<ConfigType<any>, true>,
     ) {
     }
 

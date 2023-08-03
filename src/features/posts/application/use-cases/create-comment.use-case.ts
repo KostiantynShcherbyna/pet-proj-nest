@@ -45,13 +45,12 @@ export class CreateComment implements ICommandHandler<CreateCommentCommand> {
     const foundPost = await this.postsRepository.findPost(command.postId)
     if (foundPost === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
 
-    // BANNED USER CANT'T PAST COMMENT
+    // BANNED USER CAN'T PAST COMMENT
     const bloggerBannedUser = await this.bannedBlogUsersRepository.findBannedBlogUser(command.userId, foundPost.blogId)
     if (bloggerBannedUser !== null) return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
     const newComment = this.CommentsModel.createComment(command.postId, command.content, user, this.CommentsModel)
-    await this.commentsRepository.saveDocument(newComment)
 
     const newPostsComment = this.PostsCommentsModel.createPostComment(
       command.postId,

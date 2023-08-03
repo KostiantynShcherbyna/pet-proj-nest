@@ -1,13 +1,12 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { Posts, PostsDocument, PostsModel } from "../entity/posts.schema"
 import { InjectModel } from "@nestjs/mongoose"
-import { Contract } from "src/infrastructure/utils/contract"
-import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
-import { PostsRepository } from "src/features/posts/infrastructure/posts.repository"
-import { Posts, PostsDocument, PostsModel } from "src/features/blogger/application/entity/posts.schema"
-import { LikeStatus } from "src/infrastructure/utils/constants"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { CreateBloggerPostOutputModel } from "src/features/blogger/api/models/output/create-blogger-post.output-model"
-
+import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { PostsRepository } from "../../../posts/infrastructure/posts.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { CreateBloggerPostOutputModel } from "../../api/models/output/create-blogger-post.output-model"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+import { LikeStatus } from "../../../../infrastructure/utils/constants"
 
 export class CreatePostCommand {
   constructor(

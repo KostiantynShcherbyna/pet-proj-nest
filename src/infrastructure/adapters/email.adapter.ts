@@ -1,7 +1,7 @@
 import { UsersDocument } from "src/features/super-admin/application/entity/users.schema"
 import { emailService } from "../services/email.service"
 
-export const emailAdapter = {
+export class EmailAdapter {
     async sendConfirmationCode(user: UsersDocument) {
 
         const domain = `https://somesite.com`
@@ -24,7 +24,7 @@ export const emailAdapter = {
         const isSend = await emailService.sendEmail(emailDTO)
 
         return isSend
-    },
+    }
 
 
     async sendPasswordRecovery(email: string, passwordRecoveryToken: string) {

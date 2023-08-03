@@ -1,14 +1,13 @@
-import { ConfigService } from "@nestjs/config"
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Types } from "mongoose"
-import { ConfigType } from "src/infrastructure/settings/configuration"
-import { Contract } from "src/infrastructure/utils/contract"
-import { DevicesRepository } from "src/features/devices/infrastructure/devices.repository"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Secrets } from "src/infrastructure/utils/constants"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
 import { DeviceSessionReqInputModel } from "../../api/models/input/device-session.req.input-model"
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { DevicesRepository } from "../../../devices/infrastructure/devices.repository"
+import { ConfigService, ConfigType } from "@nestjs/config"
+import { Contract } from "../../../../infrastructure/utils/contract"
 import { RefreshTokenOutputModel } from "../../api/models/output/refresh-token.output-model"
+import { Types } from "mongoose"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+import { Secrets } from "../../../../infrastructure/utils/constants"
 
 
 export class RefreshTokenCommand {
@@ -21,7 +20,7 @@ export class RefreshToken implements ICommandHandler<RefreshTokenCommand> {
   constructor(
     protected usersRepository: UsersRepository,
     protected devicesRepository: DevicesRepository,
-    protected configService: ConfigService<ConfigType, true>,
+    protected configService: ConfigService<ConfigType<any>, true>,
   ) {
   }
 

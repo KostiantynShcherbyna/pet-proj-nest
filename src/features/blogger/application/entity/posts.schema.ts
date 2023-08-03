@@ -1,14 +1,14 @@
-import { Prop, Schema, SchemaFactory, raw } from "@nestjs/mongoose"
-import { HydratedDocument, Model, Types } from "mongoose"
-import { UpdatePostBodyInputModel } from "src/features/posts/api/models/input/update-post.body.input-model"
+import { Prop, raw, Schema, SchemaFactory } from "@nestjs/mongoose"
 import {
+  LikeStatus,
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
-  POSTS_TITLE_MAX_LENGTH,
-  LikeStatus
-} from "src/infrastructure/utils/constants"
-import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
+  POSTS_TITLE_MAX_LENGTH
+} from "../../../../infrastructure/utils/constants"
 import { CreatePostBodyDto } from "../../utils/create-post-body.dto"
+import { HydratedDocument, Model, Types } from "mongoose"
+import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
+import { UpdatePostBodyInputModel } from "../../api/models/input/update-post.body.input-model"
 
 
 export interface IExtendedLikesInfo {
@@ -147,11 +147,11 @@ export class Posts {
   }
 
 
-  updatePost(bodyPostDto: UpdatePostBodyInputModel) {
+  updatePost(bodyPostDto: UpdatePostBodyInputModel, blogId: string) {
     this.title = bodyPostDto.title
     this.shortDescription = bodyPostDto.shortDescription
     this.content = bodyPostDto.content
-    this.blogId = bodyPostDto.blogId
+    this.blogId = blogId
   }
 
   createOrUpdateLike(user: UsersDocument, newLikeStatus: string) {

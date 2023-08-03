@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { HydratedDocument, Model } from "mongoose"
 import { TokensService } from "src/infrastructure/services/tokens.service"
-import { PASSWORD_HASH_EXPIRES_TIME } from "src/infrastructure/utils/constants"
+import { PASSWORD_HASH_EXPIRES_TIME } from "../../../../infrastructure/utils/constants"
 
 
 // export interface IRecoveryCode {

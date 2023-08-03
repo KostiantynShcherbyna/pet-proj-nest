@@ -1,25 +1,29 @@
-import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose'
-import { HydratedDocument, Model, Types } from 'mongoose'
+import { Prop, raw, Schema, SchemaFactory } from "@nestjs/mongoose"
 import {
   COMMENT_CONTENT_MAX_LENGTH,
   COMMENT_CONTENT_MIN_LENGTH,
-  LikeStatus,
-} from 'src/infrastructure/utils/constants'
-import { UsersDocument } from '../../../super-admin/application/entity/users.schema'
+  LikeStatus
+} from "../../../../infrastructure/utils/constants"
+import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
+import { HydratedDocument, Model, Types } from "mongoose"
+
 
 export interface ICommentatorInfo {
   userId: string
   userLogin: string
 }
+
 export interface ILikesInfo {
   likesCount: number
   dislikesCount: number
   likes: ILike[]
 }
+
 export interface ILike {
   userId: string
   status: string
 }
+
 export interface IPostInfo {
   id: string
   title: string
@@ -133,7 +137,6 @@ export class PostsComments {
 
     const newComment = {
       _id: commentId,
-      // commentId: commentId,
       content: content,
       commentatorInfo: {
         userId: user.id,
@@ -225,6 +228,7 @@ export class PostsComments {
     }
   }
 }
+
 interface PostsCommentsStatics {
   createPostComment(
     postId: string,

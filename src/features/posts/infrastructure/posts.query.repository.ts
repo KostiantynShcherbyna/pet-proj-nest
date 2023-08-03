@@ -1,24 +1,25 @@
-import { Injectable, Inject, NotFoundException } from "@nestjs/common"
-import { BlogsRepository } from "../../blogs/infrastructure/blogs.repository"
+import { Injectable } from "@nestjs/common"
+import { ILike, Posts, PostsModel } from "../../blogger/application/entity/posts.schema"
 import { InjectModel } from "@nestjs/mongoose"
-import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { CreateBloggerPostOutputModel, PostsView } from "src/features/blogger/api/models/output/create-blogger-post.output-model"
-import { ILike, Posts, PostsModel } from "src/features/blogger/application/entity/posts.schema"
+import { Comments, CommentsModel } from "../../comments/application/entity/comments.schema"
+import { BlogsRepository } from "../../blogs/infrastructure/blogs.repository"
+import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
+import { Contract } from "../../../infrastructure/utils/contract"
+import {
+  CreateBloggerPostOutputModel,
+  PostsView
+} from "../../blogger/api/models/output/create-blogger-post.output-model"
+import { GetPostsQueryInputModel } from "../api/models/input/get-posts.query.input-model"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT,
-  SORT_DIRECTION_DEFAULT,
   SortDirection
-} from "src/infrastructure/utils/constants"
-import { Contract } from "src/infrastructure/utils/contract"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
-import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
-import { GetPostsQueryInputModel } from "../api/models/input/get-posts.query.input-model"
+} from "../../../infrastructure/utils/constants"
+import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
 
-// import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 @Injectable()
 export class PostsQueryRepository {

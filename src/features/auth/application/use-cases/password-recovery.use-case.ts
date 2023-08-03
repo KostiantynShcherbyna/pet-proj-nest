@@ -1,14 +1,13 @@
-import { ConfigService } from "@nestjs/config"
+import { ConfigService, ConfigType } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { ConfigType } from "src/infrastructure/settings/configuration"
-import { Contract } from "src/infrastructure/utils/contract"
-import { AuthRepository } from "src/features/auth/infrastructure/auth.repository"
-import { RecoveryCodes, RecoveryCodesModel } from "src/features/auth/application/entitys/recovery-code.schema"
-import { TokensService } from "src/infrastructure/services/tokens.service"
-import { Secrets } from "src/infrastructure/utils/constants"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { emailAdapter } from "src/infrastructure/adapters/email.adapter"
+import { RecoveryCodes, RecoveryCodesModel } from "../entitys/recovery-code.schema"
+import { InjectModel } from "@nestjs/mongoose"
+import { TokensService } from "../../../../infrastructure/services/tokens.service"
+import { AuthRepository } from "../../infrastructure/auth.repository"
+import { EmailAdapter } from "../../../../infrastructure/adapters/email.adapter"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+import { Secrets } from "../../../../infrastructure/utils/constants"
 
 
 export class PasswordRecoveryCommand {
@@ -21,7 +20,8 @@ export class PasswordRecovery implements ICommandHandler<PasswordRecoveryCommand
         @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
         protected tokensService: TokensService,
         protected authRepository: AuthRepository,
-        protected configService: ConfigService<ConfigType, true>,
+        protected emailAdapter: EmailAdapter,
+        protected configService: ConfigService<ConfigType<any>, true>,
     ) {
     }
 
@@ -38,7 +38,7 @@ export class PasswordRecovery implements ICommandHandler<PasswordRecoveryCommand
         oldRecoveryCode.deactivatePasswordRecovery()
 
         // SENDING PASSWORD RECOVERY ↓↓↓
-        const isSend = await emailAdapter.sendPasswordRecovery(newRecoveryCodeDocument.email, newRecoveryCodeDocument.recoveryCode)
+        const isSend = await this.emailAdapter.sendPasswordRecovery(newRecoveryCodeDocument.email, newRecoveryCodeDocument.recoveryCode)
         if (isSend === false) {
             const deletedResult = await this.RecoveryCodesModel.deleteOne({ email: comamnd.email })
             if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_DELETE)

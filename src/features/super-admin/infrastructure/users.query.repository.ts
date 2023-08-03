@@ -1,19 +1,15 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
 import { UsersView } from "src/features/super-admin/api/models/output/create-user.output-model"
 import { GetUserOutputModel } from "src/features/auth/api/models/output/get-user.output-model"
-import {
-  BanStatus,
-  PAGE_NUMBER_DEFAULT,
-  PAGE_SIZE_DEFAULT,
-  SEARCH_EMAIL_TERM_DEFAULT,
-  SEARCH_LOGIN_TERM_DEFAULT,
-  SORT_BY_DEFAULT,
-  SortDirection
-} from "src/infrastructure/utils/constants"
 import { QueryUserSAInputModel } from "src/features/super-admin/api/models/input/get-users.query.input-model"
+import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
+import { Users, UsersModel } from "../application/entity/users.schema"
+import {
+  BanStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT,
+  SEARCH_EMAIL_TERM_DEFAULT,
+  SEARCH_LOGIN_TERM_DEFAULT, SORT_BY_DEFAULT, SortDirection
+} from "../../../infrastructure/utils/constants"
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 

@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose/dist/common"
+import { InjectModel } from "@nestjs/mongoose"
+import { Devices, DevicesModel } from "../entitys/devices.schema"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { DevicesRepository } from "../../../devices/infrastructure/devices.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
 import { Types } from "mongoose"
-import { Contract } from "src/infrastructure/utils/contract"
-import { DevicesRepository } from "src/features/devices/infrastructure/devices.repository"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Devices, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class LogoutCommand {
     constructor(
@@ -28,7 +28,6 @@ export class Logout implements ICommandHandler<LogoutCommand> {
     }
 
     async execute(command: LogoutCommand): Promise<Contract<null | boolean>> {
-        const { deviceId } = command
         const userDto = ["_id", new Types.ObjectId(command.userId)]
         const user = await this.usersRepository.findUser(userDto)
         if (user === null)

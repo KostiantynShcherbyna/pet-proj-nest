@@ -1,34 +1,31 @@
+// import { Posts, PostsModel } from "src/schemas/posts.schema"
+
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Types } from "mongoose"
-import { Contract } from "src/infrastructure/utils/contract"
-import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/application/entity/banned-blog-users.schema"
-import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
-import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
-import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
-import { Posts, PostsModel } from "src/features/blogger/application/entity/posts.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { BannedBlogUsersView } from "src/features/blogger/api/models/output/get-banned-blog-users.output-model"
+import { Blogs, BlogsModel } from "../../blogger/application/entity/blogs.schema"
+import { Posts, PostsModel } from "../../blogger/application/entity/posts.schema"
+import { Comments, CommentsModel } from "../../comments/application/entity/comments.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "../../blogger/application/entity/banned-blog-users.schema"
+import { PostsComments, PostsCommentsModel } from "../../comments/application/entity/posts-comments.schema"
+import { BlogsRepository } from "./blogs.repository"
+import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
 import {
   BlogsOutputModel,
   CreateBloggerBlogOutputModel
-} from "src/features/blogger/api/models/output/create-blogger-blog.output-model"
+} from "../../blogger/api/models/output/create-blogger-blog.output-model"
+import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
+import { GetBlogsQueryInputModel } from "../api/models/input/get-blogs.query.input-model"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
-  PAGE_SIZE_DEFAULT,
-  SEARCH_LOGIN_TERM_DEFAULT,
-  SEARCH_NAME_TERM_DEFAULT,
-  SORT_BY_DEFAULT,
-  SortDirection
+  PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT,
+  SEARCH_NAME_TERM_DEFAULT, SORT_BY_DEFAULT, SortDirection
 } from "../../../infrastructure/utils/constants"
-import { BlogsRepository } from "./blogs.repository"
-import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
-import { GetBlogsQueryInputModel } from "../api/models/input/get-blogs.query.input-model"
 import { GetPostsCommentsQueryInputModel } from "../api/models/input/get-posts-comments.query.input-model"
-
-// import { Posts, PostsModel } from "src/schemas/posts.schema"
+import { Contract } from "../../../infrastructure/utils/contract"
+import { BannedBlogUsersView } from "../../blogger/api/models/output/get-banned-blog-users.output-model"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
+import { Types } from "mongoose"
 
 @Injectable()
 export class BlogsQueryRepository {

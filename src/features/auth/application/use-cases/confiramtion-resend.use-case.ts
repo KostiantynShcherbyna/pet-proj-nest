@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Contract } from "src/infrastructure/utils/contract"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { emailAdapter } from "src/infrastructure/adapters/email.adapter"
+import { Users, UsersModel } from "../../../super-admin/application/entity/users.schema"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { EmailAdapter } from "../../../../infrastructure/adapters/email.adapter"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class ConfirmationResendCommand {
     constructor(public email: string) { }
@@ -15,6 +15,7 @@ export class ConfirmationResend implements ICommandHandler<ConfirmationResendCom
     constructor(
         @InjectModel(Users.name) protected UsersModel: UsersModel,
         protected usersRepository: UsersRepository,
+        protected emailAdapter: EmailAdapter,
     ) {
     }
 
@@ -34,7 +35,7 @@ export class ConfirmationResend implements ICommandHandler<ConfirmationResendCom
         await this.usersRepository.saveDocument(user)
 
         // SENDING EMAIL ↓↓↓
-        const isSend = await emailAdapter.sendConfirmationCode(user)
+        const isSend = await this.emailAdapter.sendConfirmationCode(user)
         if (isSend === false) {
             const deletedResult = await this.UsersModel.deleteOne({ _id: user._id })
             if (deletedResult.deletedCount === 0) return new Contract(null, ErrorEnums.USER_NOT_DELETED)

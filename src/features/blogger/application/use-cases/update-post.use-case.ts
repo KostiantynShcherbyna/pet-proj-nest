@@ -37,10 +37,9 @@ export class UpdatePostBlogger implements ICommandHandler<UpdatePostCommand> {
       title: command.body.title,
       shortDescription: command.body.shortDescription,
       content: command.body.content,
-      blogId: command.blogId,
     }
 
-    post.updatePost(updateDto)
+    post.updatePost(updateDto, command.blogId)
     await this.postsRepository.saveDocument(post)
 
     return new Contract(true, null)

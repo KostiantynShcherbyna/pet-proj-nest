@@ -1,10 +1,10 @@
 import { Transform, TransformFnParams } from "class-transformer"
-import { IsNotEmpty, IsString, Length, MaxLength } from "class-validator"
+import { IsNotEmpty, IsString, MaxLength } from "class-validator"
 import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH
-} from "src/infrastructure/utils/constants"
+} from "../../../../../infrastructure/utils/constants"
 
 export class CreatePostBodyInputModel {
   @Transform(({ value }: TransformFnParams) => value?.trim())

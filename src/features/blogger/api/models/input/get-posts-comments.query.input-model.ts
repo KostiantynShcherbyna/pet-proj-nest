@@ -1,6 +1,12 @@
-import { Type } from "class-transformer"
 import { IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator"
-import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/infrastructure/utils/constants"
+import {
+  PAGE_NUMBER_DEFAULT,
+  PAGE_SIZE_DEFAULT,
+  SORT_BY_DEFAULT,
+  SortDirection
+} from "../../../../../infrastructure/utils/constants"
+import { Type } from "class-transformer"
+
 
 export class GetPostsCommentsQueryInputModel {
   @IsOptional()

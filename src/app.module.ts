@@ -71,6 +71,7 @@ import { configuration } from "./infrastructure/settings/configuration"
 import { LoginLocalStrategy } from "./infrastructure/strategy/login.local.strategy"
 import { TestingController } from "./infrastructure/testing/api/testing.controller"
 import { TokensService } from "./infrastructure/services/tokens.service"
+import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 
 
 const useCases = [
@@ -128,6 +129,7 @@ const otherProviders = [
   JwtService,
   LoginLocalStrategy,
   BlogIdIsExist,
+  EmailAdapter,
 ]
 
 
