@@ -14,19 +14,19 @@ describe(`blogs and posts`, () => {
   let mongoServer: MongoMemoryServer
   beforeAll(async () => {
 
-    mongoServer = await MongoMemoryServer.create()
-    const mongoUri = mongoServer.getUri()
+    // mongoServer = await MongoMemoryServer.create()
+    // const mongoUri = mongoServer.getUri()
 
-    jest.mock("../settings/configuration", () => ({
-      default: async () => ({
-        PORT: Number(process.env.PORT) || 5000,
-        MONGOOSE_URI: mongoUri,
-
-        ACCESS_JWT_SECRET: process.env.ACCESS_JWT_SECRET || "ACCESSJWTSECRET",
-        REFRESH_JWT_SECRET: process.env.REFRESH_JWT_SECRET || "REFRESHJWTSECRET",
-        PASSWORD_RECOVERY_CODE_SECRET: process.env.PASSWORD_RECOVERY_CODE_SECRET || "PASSWORDRECOVERYCODESECRET",
-      })
-    }))
+    // jest.mock("../settings/configuration", () => ({
+    //   default: async () => ({
+    //     PORT: Number(process.env.PORT) || 5000,
+    //     MONGOOSE_URI: mongoUri,
+    //
+    //     ACCESS_JWT_SECRET: process.env.ACCESS_JWT_SECRET || "ACCESSJWTSECRET",
+    //     REFRESH_JWT_SECRET: process.env.REFRESH_JWT_SECRET || "REFRESHJWTSECRET",
+    //     PASSWORD_RECOVERY_CODE_SECRET: process.env.PASSWORD_RECOVERY_CODE_SECRET || "PASSWORDRECOVERYCODESECRET",
+    //   })
+    // }))
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
