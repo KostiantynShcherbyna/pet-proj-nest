@@ -1,12 +1,13 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Contract } from "src/infrastructure/utils/contract"
-import { CommentsRepository } from "src/features/comments/infrastructure/comments.repository"
-import { PostsCommentsRepository } from "src/features/blogger/infrastructure/posts-comments.repository"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
-import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Comments, CommentsModel } from "../entity/comments.schema"
+import { PostsComments, PostsCommentsModel } from "../entity/posts-comments.schema"
+import { PostsCommentsRepository } from "../../../blogger/infrastructure/posts-comments.repository"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { CommentsRepository } from "../../infrastructure/comments.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+
 
 export class DeleteCommentCommand {
   constructor(

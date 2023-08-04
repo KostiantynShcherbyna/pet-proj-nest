@@ -14,14 +14,6 @@ import {
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
-import { UpdateCommentBodyInputModel } from "src/features/comments/api/models/input/update-comment.body.input-model"
-import { CommentsQueryRepository } from "src/features/comments/infrastructure/comments.query.repository"
-import { CreateCommentCommand } from "src/features/posts/application/use-cases/create-comment.use-case"
-import { UpdatePostLikeCommand } from "src/features/posts/application/use-cases/update-post-like.use-case"
-import { PostsQueryRepository } from "src/features/posts/infrastructure/posts.query.repository"
-import { callErrorMessage } from "src/infrastructure/adapters/exception-message.adapter"
-import { DeviceSessionOptional } from "src/infrastructure/decorators/device-session-optional.decorator"
-import { DeviceSession } from "src/infrastructure/decorators/device-session.decorator"
 import { AccessMiddleware } from "../../../infrastructure/guards/access-middleware.guard"
 import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
@@ -32,6 +24,14 @@ import { GetCommentsQueryInputModel } from "./models/input/get-comments.query.in
 import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-model"
 import { IdParamInputModel } from "./models/input/id.param.input-model"
 import { LikeStatusBodyInputModel } from "./models/input/like-status.body.input-model"
+import { PostsQueryRepository } from "../infrastructure/posts.query.repository"
+import { CommentsQueryRepository } from "../../comments/infrastructure/comments.query.repository"
+import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
+import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
+import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/update-comment.body.input-model"
+import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
+import { CreateCommentCommand } from "../application/use-cases/create-comment.use-case"
+import { UpdatePostLikeCommand } from "../application/use-cases/update-post-like.use-case"
 
 @Controller("posts")
 export class PostsController {

@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Contract } from "src/infrastructure/utils/contract"
-import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
-import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Blogs, BlogsModel } from "../../../blogger/application/entity/blogs.schema"
+import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+import { Contract } from "../../../../infrastructure/utils/contract"
+
 
 export class BanBlogCommand {
   constructor(

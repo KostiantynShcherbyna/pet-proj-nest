@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Contract } from "src/infrastructure/utils/contract"
-import { DevicesRepository } from "src/features/devices/infrastructure/devices.repository"
-import { Devices, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Devices, DevicesModel } from "../../../auth/application/entitys/devices.schema"
+import { DevicesRepository } from "../../infrastructure/devices.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+
 
 export class DeleteSpecialDeviceCommand {
   constructor(

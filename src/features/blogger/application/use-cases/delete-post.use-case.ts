@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Contract } from "src/infrastructure/utils/contract"
-import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
-import { PostsRepository } from "src/features/posts/infrastructure/posts.repository"
-import { Posts, PostsModel } from "src/features/blogger/application/entity/posts.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Posts, PostsModel } from "../entity/posts.schema"
+import { PostsRepository } from "../../../posts/infrastructure/posts.repository"
+import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+
 
 export class DeletePostCommand {
   constructor(

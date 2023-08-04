@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { UsersRepository } from 'src/features/super-admin/infrastructure/users.repository';
-import { StrategyNames } from 'src/infrastructure/utils/constants';
-import { ErrorEnums } from 'src/infrastructure/utils/error-enums';
+import { StrategyNames } from "../utils/constants"
+import { UsersRepository } from "../../features/super-admin/infrastructure/users.repository"
+import { ErrorEnums } from "../utils/error-enums"
+
 
 @Injectable()
 export class LoginLocalStrategy extends PassportStrategy(Strategy, StrategyNames.loginLocalStrategy) {

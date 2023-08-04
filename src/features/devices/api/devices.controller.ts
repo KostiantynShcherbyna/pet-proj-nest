@@ -11,15 +11,15 @@ import {
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
-import { DeviceSession } from "src/infrastructure/decorators/device-session.decorator"
-import { RefreshGuard } from "src/infrastructure/guards/refresh.guard"
-import { AuthQueryRepository } from "src/features/auth/infrastructure/auth.query.repository"
-import { DeleteOtherDevicesCommand } from "src/features/devices/application/use-cases/delete-other-devices.use-case"
-import { DeleteSpecialDeviceCommand } from "src/features/devices/application/use-cases/delete-special-device.use-case"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
-import { callErrorMessage } from "src/infrastructure/adapters/exception-message.adapter"
 import { DeleteSpecialDeviceParamInputModel } from "./models/input/delete-special-device.param.input-model"
 import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
+import { AuthQueryRepository } from "../../auth/infrastructure/auth.query.repository"
+import { RefreshGuard } from "../../../infrastructure/guards/refresh.guard"
+import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
+import { DeleteOtherDevicesCommand } from "../application/use-cases/delete-other-devices.use-case"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
+import { DeleteSpecialDeviceCommand } from "../application/use-cases/delete-special-device.use-case"
+import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
 
 @Controller("security")
 export class DevicesController {

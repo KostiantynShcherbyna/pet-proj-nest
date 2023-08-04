@@ -4,7 +4,7 @@ import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH
-} from "src/infrastructure/utils/constants"
+} from "../../../../../infrastructure/utils/constants"
 
 export class UpdatePostBodyInputModel {
   @Transform(({ value }: TransformFnParams) => value?.trim())

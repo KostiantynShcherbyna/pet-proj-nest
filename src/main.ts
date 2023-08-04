@@ -6,26 +6,30 @@ import cookieParser from "cookie-parser"
 import { AppModule } from "./app.module"
 import { ErrorExceptionFilter, HttpExceptionFilter } from "./infrastructure/filters/exeption.filter"
 import { errorsFactory } from "./infrastructure/adapters/exception-message.factory.adapter"
+import { appSettings } from "./app.settings"
 
 
 
 async function bootstrap() {
 
   const app = await NestFactory.create(AppModule)
-  app.use(cookieParser());
-  app.enableCors()
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      stopAtFirstError: true,
-      exceptionFactory: errorsFactory
-    }),
-  )
-  app.useGlobalFilters(
-    new ErrorExceptionFilter(),
-    new HttpExceptionFilter()
-  )
-  useContainer(app.select(AppModule), { fallbackOnErrors: true })
+  appSettings(app)
+
+  // app.use(cookieParser());
+  // app.enableCors()
+  // useContainer(app.select(AppModule), { fallbackOnErrors: true })
+
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     transform: true,
+  //     stopAtFirstError: true,
+  //     exceptionFactory: errorsFactory
+  //   }),
+  // )
+  // app.useGlobalFilters(
+  //   new ErrorExceptionFilter(),
+  //   new HttpExceptionFilter()
+  // )
 
   const configService = app.get(ConfigService);
   const port = configService.get('PORT', 5000);

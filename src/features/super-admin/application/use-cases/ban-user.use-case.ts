@@ -1,11 +1,12 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Types } from "mongoose"
-import { Contract } from "src/infrastructure/utils/contract"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Devices, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
-import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Users, UsersModel } from "../entity/users.schema"
+import { Devices, DevicesModel } from "../../../auth/application/entitys/devices.schema"
+import { UsersRepository } from "../../infrastructure/users.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+
 
 export class BanUserCommand {
   constructor(

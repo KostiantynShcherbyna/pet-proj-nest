@@ -1,9 +1,9 @@
+import { UpdatePostBodyInputModel } from "../../api/models/input/update-post.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Contract } from "src/infrastructure/utils/contract"
-import { UpdatePostBodyInputModel } from "src/features/blogger/api/models/input/update-post.body.input-model"
-import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
-import { PostsRepository } from "src/features/posts/infrastructure/posts.repository"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { PostsRepository } from "../../../posts/infrastructure/posts.repository"
+import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class UpdatePostCommand {
   constructor(

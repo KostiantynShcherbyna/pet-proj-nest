@@ -5,15 +5,19 @@ import {
   ServiceUnavailableException
 } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
-import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
-import { Posts, PostsModel } from "src/features/blogger/application/entity/posts.schema"
-import { Users, UsersModel } from "src/features/super-admin/application/entity/users.schema"
 import { Devices, DevicesModel } from "../../features/auth/application/entitys/devices.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "../../features/auth/application/entitys/recovery-code.schema"
 import { RequestAttempts, RequestAttemptsModel } from "../../features/auth/application/entitys/request-attempts.schema"
-import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/application/entity/banned-blog-users.schema"
-import { PostsComments, PostsCommentsModel } from "src/features/comments/application/entity/posts-comments.schema"
+import { Blogs, BlogsModel } from "../../features/blogger/application/entity/blogs.schema"
+import { Comments, CommentsModel } from "../../features/comments/application/entity/comments.schema"
+import { Posts, PostsModel } from "../../features/blogger/application/entity/posts.schema"
+import { Users, UsersModel } from "../../features/super-admin/application/entity/users.schema"
+import {
+  BannedBlogUsers,
+  BannedBlogUsersModel
+} from "../../features/blogger/application/entity/banned-blog-users.schema"
+import { PostsComments, PostsCommentsModel } from "../../features/comments/application/entity/posts-comments.schema"
+
 
 @Controller("testing")
 export class TestingController {

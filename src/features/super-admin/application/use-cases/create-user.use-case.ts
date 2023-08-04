@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { Users, UsersDocument, UsersModel } from "src/features/super-admin/application/entity/users.schema"
-import { CreateUserOutputModel } from "src/features/super-admin/api/models/output/create-user.output-model"
+import { Users, UsersDocument, UsersModel } from "../entity/users.schema"
+import { UsersRepository } from "../../infrastructure/users.repository"
+import { CreateUserOutputModel } from "../../api/models/output/create-user.output-model"
+
 
 export class CreateUserCommand {
   constructor(

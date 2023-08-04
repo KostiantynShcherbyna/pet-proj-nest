@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Types } from "mongoose"
-import { Contract } from "src/infrastructure/utils/contract"
-import { Comments, CommentsDocument, CommentsModel } from "src/features/comments/application/entity/comments.schema"
+import { Comments, CommentsDocument, CommentsModel } from "../application/entity/comments.schema"
+import { Contract } from "../../../infrastructure/utils/contract"
+
 
 @Injectable()
 export class CommentsRepository {

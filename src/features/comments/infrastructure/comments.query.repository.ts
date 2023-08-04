@@ -1,21 +1,20 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { dtoManager } from "src/infrastructure/adapters/output-model.adapter"
-import { ILike } from "src/features/blogger/application/entity/posts.schema"
+import { PostsQueryRepository } from "../../posts/infrastructure/posts.query.repository"
+import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
+import { Comments, CommentsModel, ILike } from "../application/entity/comments.schema"
+import { Contract } from "../../../infrastructure/utils/contract"
+import { CommentsView, GetCommentsOutputModel } from "../api/models/output/get-comments.output-model"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
-  SORT_BY_DEFAULT,
-  SortDirection
-} from "src/infrastructure/utils/constants"
-import { CommentsView, GetCommentsOutputModel } from "src/features/comments/api/models/output/get-comments.output-model"
-import { Comments, CommentsModel } from "src/features/comments/application/entity/comments.schema"
-import { PostsQueryRepository } from "../../posts/infrastructure/posts.query.repository"
-import { GetCommentsQueryInputModel } from "src/features/comments/api/models/input/get-comments.query.input-model"
-import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
-import { Contract } from "src/infrastructure/utils/contract"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+  SORT_BY_DEFAULT, SortDirection
+} from "../../../infrastructure/utils/constants"
+import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
+import { GetCommentsQueryInputModel } from "../api/models/input/get-comments.query.input-model"
+
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 

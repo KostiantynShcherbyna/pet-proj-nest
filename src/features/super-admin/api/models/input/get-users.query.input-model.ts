@@ -1,6 +1,12 @@
 import { Type } from "class-transformer"
 import { IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator"
-import { BanStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "src/infrastructure/utils/constants"
+import {
+  BanStatus,
+  PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT,
+  SORT_BY_DEFAULT,
+  SortDirection
+} from "../../../../../infrastructure/utils/constants"
+
 
 export class QueryUserSAInputModel {
   @IsOptional()

@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Contract } from "src/infrastructure/utils/contract"
-import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+
 
 export class BindBlogCommand {
   constructor(

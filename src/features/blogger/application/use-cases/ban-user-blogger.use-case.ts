@@ -1,13 +1,13 @@
+import { Contract } from "../../../../infrastructure/utils/contract"
+import { BanUserBodyInputModel } from "../../api/models/input/ban-user.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Contract } from "src/infrastructure/utils/contract"
-import { BanUserBodyInputModel } from "src/features/blogger/api/models/input/ban-user.body.input-model"
-import { BannedBlogUsersRepository } from "src/features/blogger/infrastructure/banned-blog-users.repository"
-import { BlogsRepository } from "src/features/blogs/infrastructure/blogs.repository"
-import { UsersRepository } from "src/features/super-admin/infrastructure/users.repository"
-import { BannedBlogUsers, BannedBlogUsersModel } from "src/features/blogger/application/entity/banned-blog-users.schema"
-import { Blogs, BlogsModel } from "src/features/blogger/application/entity/blogs.schema"
-import { ErrorEnums } from "src/infrastructure/utils/error-enums"
+import { Blogs, BlogsModel } from "../entity/blogs.schema"
+import { InjectModel } from "@nestjs/mongoose"
+import { BannedBlogUsers, BannedBlogUsersModel } from "../entity/banned-blog-users.schema"
+import { BannedBlogUsersRepository } from "../../infrastructure/banned-blog-users.repository"
+import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class BanUserBloggerCommand {
   constructor(

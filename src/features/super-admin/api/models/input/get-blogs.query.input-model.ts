@@ -9,7 +9,12 @@ import {
   MaxLength,
   Min
 } from "class-validator"
-import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT, SortDirection } from "../../../../../infrastructure/utils/constants"
+import {
+  PAGE_NUMBER_DEFAULT,
+  PAGE_SIZE_DEFAULT,
+  SORT_BY_DEFAULT,
+  SortDirection
+} from "../../../../../infrastructure/utils/constants"
 import { Type } from "class-transformer"
 
 export class GetBlogsQueryInputModel {
