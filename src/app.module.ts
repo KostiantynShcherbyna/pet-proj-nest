@@ -73,6 +73,7 @@ import { TestingController } from "./infrastructure/testing/api/testing.controll
 import { TokensService } from "./infrastructure/services/tokens.service"
 import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
+import { emailService } from "./infrastructure/services/emailService"
 
 
 const useCases = [

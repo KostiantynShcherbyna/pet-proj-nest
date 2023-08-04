@@ -20,4 +20,5 @@ export const appSettings = (app: INestApplication) => {
         new HttpExceptionFilter()
     )
     useContainer(app.select(AppModule), { fallbackOnErrors: true })
+    return app
 }

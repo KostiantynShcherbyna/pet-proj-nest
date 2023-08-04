@@ -7,11 +7,15 @@ import { appSettings } from "../src/app.settings"
 import { EmailAdapterMock } from "../src/infrastructure/testing/infrastructure/email-adapter.mock"
 import { Users } from "../src/features/super-admin/application/entity/users.schema"
 import { LikeStatus } from "../src/infrastructure/utils/constants"
+import { RegistrationBodyInputModel } from "../src/features/auth/api/models/input/registration.body.input-model"
+import { BlogsRepository } from "../src/features/blogs/infrastructure/blogs.repository"
 
 
 describe(`blogs and posts`, () => {
+  jest.setTimeout(30 * 1000)
   let app: INestApplication
   let httpServer: any
+  let blogRepo: BlogsRepository
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -23,7 +27,8 @@ describe(`blogs and posts`, () => {
 
 
     app = moduleRef.createNestApplication()
-    appSettings(app)
+    app = appSettings(app)
+    blogRepo = app.get(BlogsRepository)
     await app.init()
 
     httpServer = app.getHttpServer()
@@ -37,30 +42,31 @@ describe(`blogs and posts`, () => {
     await app.close()
   })
 
-
   let user1: Users
   it(`+ Registration user`, async () => {
 
-    const regDto = {
+    const regDto: RegistrationBodyInputModel = {
       "login": "kstntn",
       "password": "password",
       "email": "kstntn.xxx@gmail.com"
     }
 
-    await request(httpServer)
-      .post(`auth/registration`)
+    const createUserRes = await request(httpServer)
+      .post(`/auth/registration`)
       .send(regDto)
-      .expect(HttpStatus.NO_CONTENT)
+
+    expect(createUserRes.status).toBe(HttpStatus.NO_CONTENT)
+    expect.setState({user: { ...regDto, code: '123' }})
 
     const user1Result = await request(httpServer)
-      .get(`testing/user`)
+      .get(`/testing/user`)
       .send({
         loginOrEmail: "kstntn.xxx@gmail.com"
       })
       .expect(HttpStatus.OK)
 
     const usersResult = await request(httpServer)
-      .get(`sa/users`)
+      .get(`/sa/users`)
       .set("Authorization", `Basic YWRtaW46cXdlcnR5`)
       .expect(HttpStatus.OK)
 
@@ -70,13 +76,13 @@ describe(`blogs and posts`, () => {
 
 
   it(`+ Confirmation user`, async () => {
-
+  const { user } = expect.getState()
     const confirmData = {
       "code": user1.emailConfirmation.confirmationCode
     }
 
     await request(httpServer)
-      .post(`auth/confirmation`)
+      .post(`/auth/confirmation`)
       .send(confirmData)
       .expect(HttpStatus.CREATED)
   })
@@ -94,7 +100,7 @@ describe(`blogs and posts`, () => {
     }
 
     const accessTokenResult = await request(httpServer)
-      .post(`auth/login`)
+      .post(`/auth/login`)
       .send(loginDto)
       .expect(HttpStatus.OK)
 

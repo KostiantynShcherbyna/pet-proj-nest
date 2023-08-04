@@ -70,7 +70,6 @@ export class TestingController {
   }
 
   @Get("user")
-  @HttpCode(HttpStatus.OK)
   async getUser(
     @Body() bodyUser: UserBodyInputModel,
   ) {
