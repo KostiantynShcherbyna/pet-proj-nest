@@ -12,7 +12,6 @@ export class TestingRepository {
 
   async getUser(bodyUser: UserBodyInputModel): Promise<null | UsersDocument> {
 
-    console.log("bodyUser-repo = " + bodyUser)
 
     const searchDto = {
       login: bodyUser.loginOrEmail,

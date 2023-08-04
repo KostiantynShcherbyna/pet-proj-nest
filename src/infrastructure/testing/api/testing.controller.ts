@@ -73,11 +73,10 @@ export class TestingController {
   async getUser(
     @Body() bodyUser: UserBodyInputModel,
   ) {
-    console.log("bodyUser-contr-before = " + bodyUser)
     const user = await this.testingRepository.getUser(bodyUser)
-    console.log("user-contr-after = " + user)
     if (user === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
     )
+    return user
   }
 }
