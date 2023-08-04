@@ -171,8 +171,7 @@ export class Users {
         }
       },
       emailConfirmation: {
-        // confirmationCode: randomUUID(),
-        confirmationCode: "123",
+        confirmationCode: randomUUID(),
         expirationDate: add(new Date(), {
           hours: 1,
           minutes: 3,
