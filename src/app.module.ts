@@ -69,9 +69,10 @@ import { CreateToken } from "./infrastructure/services/tokens/create-token.use-c
 import { VerifyToken } from "./infrastructure/services/tokens/verify-token.use-case"
 import { configuration } from "./infrastructure/settings/configuration"
 import { LoginLocalStrategy } from "./infrastructure/strategy/login.local.strategy"
-import { TestingController } from "./infrastructure/testing/testing.controller"
+import { TestingController } from "./infrastructure/testing/api/testing.controller"
 import { TokensService } from "./infrastructure/services/tokens.service"
 import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
+import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
 
 
 const useCases = [
@@ -123,6 +124,7 @@ const repository = [
   DevicesRepository,
   BannedBlogUsersRepository,
   PostsCommentsRepository,
+  TestingRepository,
 ]
 const otherProviders = [
   throttler,

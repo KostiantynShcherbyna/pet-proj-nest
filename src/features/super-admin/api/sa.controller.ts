@@ -142,10 +142,10 @@ export class SAController {
   async deleteUser(
     @Param() param: IdParamInputModel
   ) {
-    const resultContruct = await this.commandBus.execute(
+    const resultContract = await this.commandBus.execute(
       new DeleteUserCommand(param.id)
     )
-    if (resultContruct.error === ErrorEnums.USER_NOT_DELETED) throw new NotFoundException(
+    if (resultContract.error === ErrorEnums.USER_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_DELETED, "id")
     )
     return
