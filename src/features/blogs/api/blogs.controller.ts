@@ -36,7 +36,7 @@ export class BlogsController {
   ) {
     const postsContract = await this.postsQueryRepository.findPosts(
       queryPost,
-      deviceSession.userId,
+      deviceSession?.userId,
       param.blogId,
     )
     if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
