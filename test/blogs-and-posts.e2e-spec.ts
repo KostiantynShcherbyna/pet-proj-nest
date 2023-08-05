@@ -9,6 +9,7 @@ import { RegistrationBodyInputModel } from "../src/features/auth/api/models/inpu
 import { BlogsRepository } from "../src/features/blogs/infrastructure/blogs.repository"
 import { LikeStatus } from "../src/infrastructure/utils/constants"
 import { randomUUID } from "crypto"
+import { Types } from "mongoose"
 
 
 describe(`e2e-pet-proj-nest`, () => {
@@ -827,399 +828,433 @@ describe(`e2e-pet-proj-nest`, () => {
     }
   )
 
-  //
-  // // POSTS ↓↓↓
-  // it(`+ GET, should return 200 and empty arr`, async () => {
-  //
-  //   await request(httpServer)
-  //     .get(`/posts`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 0,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 0,
-  //       items: []
-  //     })
-  // })
-  //
-  // it(`- GET, shouldn't return any posts`, async () => {
-  //
-  //   await request(httpServer)
-  //     .get(`/posts/0`)
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: expect.any(String),
-  //           field: "id"
-  //         },
-  //       ]
-  //     })
-  // })
+  // POSTS ↓↓↓
+  describe(`POSTS`, () => {
+
+    it(`+ GET, should return 200 and empty arr`, async () => {
+
+      await request(httpServer)
+        .get(`/posts`)
+        .expect(HttpStatus.OK, {
+          pagesCount: 0,
+          page: 1,
+          pageSize: 10,
+          totalCount: 0,
+          items: []
+        })
+    })
+
+    it(`- GET, shouldn't return any posts`, async () => {
+
+      const postsResult = await request(httpServer)
+        .get(`/posts/0`)
+        .expect(HttpStatus.BAD_REQUEST,)
+
+      expect(postsResult.body).toEqual({
+        errorsMessages: [
+          {
+            message: expect.any(String),
+            field: "id"
+          },
+        ]
+      })
+
+    })
 
 
-  // it(`- POST, shouldn't creat post w/o authorization`, async () => {
-  //
-  //   const data = {
-  //     title: "aaaaaaa",
-  //     shortDescription: "bbbbbbbb",
-  //     content: "cccccccccc",
-  //     blogId: "0",
-  //
-  //   }
-  //
-  //   await request(httpServer)
-  //     .post(`/posts`)
-  //     .send(data)
-  //     .expect(HttpStatus.UNAUTHORIZED)
-  //
-  //   await request(httpServer)
-  //     .get(`/posts`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 0,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 0,
-  //       items: []
-  //     })
-  // })
+    it(`- POST, shouldn't creat post w/o authorization`,
+      async () => {
 
-  // it(`- POST, shouldn't creat post, blogs doesn't exist`, async () => {
-  //
-  //   const data = {
-  //     title: "aaaaaaa",
-  //     shortDescription: "bbbbbbbb",
-  //     content: "cccccccccc",
-  //     blogId: "0"
-  //   }
-  //
-  //   await request(httpServer)
-  //     .post(`/posts`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: `your value of 'blogId': 0 is invalid`,
-  //           field: "blogId"
-  //         }
-  //       ]
-  //     })
-  //
-  //   await request(httpServer)
-  //     .get(`/posts`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 0,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 0,
-  //       items: []
-  //     })
-  // })
-  //
-  // it(`- POST, should't create post w/ incorrect data`, async () => {
-  //
-  //   const data = {
-  //     // title: "aaaaaaa",
-  //     shortDescription: "bbbbbbbb",
-  //     content: "cccccccccc",
-  //     blogId: "0",
-  //   }
-  //
-  //   await request(httpServer)
-  //     .post(`/posts`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: "field 'title' is must be a 'string' type",
-  //           field: "title"
-  //         },
-  //         {
-  //           message: "your value of 'blogId': 0 is invalid",
-  //           field: "blogId"
-  //         }
-  //       ]
-  //     })
-  //
-  // })
-  //
-  // it(`- POST, should't create post w/ incorrect data one more time`, async () => {
-  //
-  //   const data = {
-  //     // title: "aaaaaaa",
-  //     shortDescription: "bbbbbbbb",
-  //     content: "cccccccccc",
-  //     blogId: `${createdNewBlog2.id}`,
-  //     blogName: `${createdNewBlog2.name}`
-  //   }
-  //
-  //   await request(httpServer)
-  //     .post(`/posts`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: "field 'title' is must be a 'string' type",
-  //           field: "title"
-  //         },
-  //       ]
-  //     })
-  //
-  // })
-  //
-  // let createdNewPost
-  // it(`+ POST, should create post`, async () => {
-  //
-  //   const data = {
-  //     title: "Rim",
-  //     shortDescription: "Rim's shortDescription",
-  //     content: "Rim's content",
-  //     blogId: `${createdNewBlog2.id}`,
-  //     blogName: expect.any(String),
-  //     createdAt: expect.any(String),
-  //   }
-  //
-  //   const expectedPost = {
-  //     ...data,
-  //     id: expect.any(String)
-  //   }
-  //
-  //   const newPost = await request(httpServer)
-  //     .post(`/posts`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.CREATED)
-  //
-  //   createdNewPost = newPost.body
-  //
-  //   expect(createdNewPost).toEqual(expectedPost)
-  // })
-  //
-  // let createdNewPost2
-  // it(`+ POST, should create post`, async () => {
-  //
-  //   const data = {
-  //     title: "Aim",
-  //     shortDescription: "Aim's shortDescription",
-  //     content: "Aim's content",
-  //     blogId: `${createdNewBlog2.id}`,
-  //     blogName: expect.any(String),
-  //     createdAt: expect.any(String),
-  //   }
-  //
-  //   const expectedPost = {
-  //     ...data,
-  //     id: expect.any(String)
-  //   }
-  //
-  //   const newPost = await request(httpServer)
-  //     .post(`/posts`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.CREATED)
-  //
-  //   createdNewPost2 = newPost.body
-  //
-  //   expect(createdNewPost2).toEqual(expectedPost)
-  // })
-  //
-  //
-  // it(`+ GET, should return 200 and arr w/ two posts`, async () => {
-  //
-  //   await request(httpServer)
-  //     .get(`/posts/`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 1,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 2,
-  //       items: [
-  //         createdNewPost2,
-  //         createdNewPost
-  //       ]
-  //     })
-  // })
-  //
-  // it(`+ GET, should return 200 and arr w/ filtred post`, async () => {
-  //
-  //   await request(httpServer)
-  //     .get(`/posts?sortDirection=asc`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 1,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 2,
-  //       items: [
-  //         createdNewPost,
-  //         createdNewPost2
-  //       ]
-  //     })
-  // })
-  //
-  //
-  // it(`- PUT, should't update post w/o autorization`, async () => {
-  //
-  //   const data = {
-  //     title: "Rim",
-  //     shortDescription: "Rim's shortDescription",
-  //     content: "Rim's content",
-  //     blogId: `${createdNewBlog2.id}`,
-  //     blogName: `${createdNewBlog2.name}`
-  //   }
-  //
-  //
-  //   await request(httpServer)
-  //     .put(`/posts/${createdNewPost.id}`)
-  //     .send(data)
-  //     .expect(HttpStatus.UNAUTHORIZED)
-  //
-  //   await request(httpServer)
-  //     .get(`/posts/${createdNewPost.id}`)
-  //     .expect(HttpStatus.OK, createdNewPost)
-  // })
-  //
-  // it(`- PUT, should't update post, post does't exist`, async () => {
-  //
-  //   const data = {
-  //     title: "Rim",
-  //     shortDescription: "Rim's shortDescription",
-  //     content: "Rim's content",
-  //     blogId: `${createdNewBlog2.id}`,
-  //   }
-  //
-  //   await request(httpServer)
-  //     .put(`/posts/0000`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: `your value of 'id': 0000 is invalid`,
-  //           field: `id`
-  //         }
-  //       ]
-  //     })
-  // })
-  //
-  // it(`- PUT, should't update post w/ incorrect input data`, async () => {
-  //
-  //   const data = {
-  //     title: "Rimmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
-  //     shortDescription: "Rim's shortDescription",
-  //     content: "Rim's content",
-  //     blogId: `${createdNewBlog2.id}`,
-  //     blogName: `${createdNewBlog2.name}`
-  //   }
-  //
-  //   const MAX_LENGTH_TITLE = 30
-  //
-  //   await request(httpServer)
-  //     .put(`/posts/${createdNewPost.id}`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: `max length is ${MAX_LENGTH_TITLE} characters`,
-  //           field: `title`
-  //         }
-  //       ]
-  //     })
-  // })
-  //
-  // it(`+ PUT, should update post w/ correct input data`, async () => {
-  //
-  //   const data = {
-  //     title: "Rim2",
-  //     shortDescription: "Rim2's shortDescription",
-  //     content: "Rim2's content",
-  //     blogId: `${createdNewPost.blogId}`,
-  //     blogName: `${createdNewPost.blogName}`
-  //   }
-  //
-  //   const expectedPostToBe = {
-  //     ...createdNewPost,
-  //     title: data.title,
-  //     shortDescription: data.shortDescription,
-  //     content: data.content
-  //   }
-  //
-  //   await request(httpServer)
-  //     .put(`/posts/${createdNewPost.id}`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .send(data)
-  //     .expect(HttpStatus.NO_CONTENT)
-  //
-  //   const updatedPostBody = await request(httpServer)
-  //     .get(`/posts/${createdNewPost.id}`)
-  //     .expect(HttpStatus.OK)
-  //
-  //   const updatedPost = updatedPostBody.body
-  //
-  //   expect(updatedPost).toEqual(expectedPostToBe)
-  // })
-  //
-  // it(`- DELETE, should't delete post w/o auterization`, async () => {
-  //
-  //   await request(httpServer)
-  //     .delete(`/posts/${createdNewPost.id}`)
-  //     .expect(HttpStatus.UNAUTHORIZED)
-  // })
-  //
-  // it(`- DELETE, should't delete post does't exist`, async () => {
-  //
-  //   await request(httpServer)
-  //     .delete(`/posts/0000`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .expect(HttpStatus.BAD_REQUEST, {
-  //       errorsMessages: [
-  //         {
-  //           message: `your value of 'id': 0000 is invalid`,
-  //           field: `id`
-  //         }
-  //       ]
-  //     })
-  // })
-  //
-  // it(`- DELETE, should delete post`, async () => {
-  //
-  //   await request(httpServer)
-  //     .delete(`/posts/${createdNewPost.id}`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .expect(HttpStatus.NO_CONTENT)
-  //
-  //   await request(httpServer)
-  //     .get(`/posts/${createdNewPost.id}`)
-  //     .expect(HttpStatus.NOT_FOUND)
-  //
-  //   await request(httpServer)
-  //     .get(`/posts/`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 1,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 1,
-  //       items: [createdNewPost2]
-  //     })
-  //
-  //   await request(httpServer)
-  //     .delete(`/posts/${createdNewPost2.id}`)
-  //     .set("Authorization", "Basic YWRtaW46cXdlcnR5")
-  //     .expect(HttpStatus.NO_CONTENT)
-  //
-  //
-  //   await request(httpServer)
-  //     .get(`/posts/`)
-  //     .expect(HttpStatus.OK, {
-  //       pagesCount: 0,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 0,
-  //       items: []
-  //     })
-  // })
+        const { createdNewBlog } = expect.getState()
+
+        const data = {
+          title: "aaaaaaa",
+          shortDescription: "bbbbbbbb",
+          content: "cccccccccc",
+        }
+
+        await request(httpServer)
+          .post(`blogger/blogs/${createdNewBlog._id.toString()}/posts`)
+          .send(data)
+          .expect(HttpStatus.UNAUTHORIZED)
+
+        const postsResult = await request(httpServer)
+          .get(`/posts`)
+          .expect(HttpStatus.OK)
+
+        expect(postsResult.body).toEqual(
+          {
+            pagesCount: 0,
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: []
+          }
+        )
+
+      })
+
+
+    it(`- POST, shouldn't creat post, blogs doesn't exist`,
+      async () => {
+
+        const { accessTokenUser1 } = expect.getState()
+
+        const data = {
+          title: "aaaaaaa",
+          shortDescription: "bbbbbbbb",
+          content: "cccccccccc",
+        }
+
+        const postsResult = await request(httpServer)
+          .post(`blogger/blogs/${(new Types.ObjectId).toString()}/posts`)
+          .auth(accessTokenUser1, { type: "bearer" })
+          .send(data)
+          .expect(HttpStatus.BAD_REQUEST,)
+
+
+        expect(postsResult.body).toEqual(
+          {
+            errorsMessages: [
+              {
+                message: expect.any(String),
+                field: "blogId"
+              }
+            ]
+          }
+        )
+
+        await request(httpServer)
+          .get(`/posts`)
+          .expect(HttpStatus.OK, {
+            pagesCount: 0,
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: []
+          })
+      })
+
+
+    it(`- POST, should't create post w/ incorrect data`, async () => {
+
+      const data = {
+        // title: "aaaaaaa",
+        shortDescription: "bbbbbbbb",
+        content: "cccccccccc",
+        blogId: "0",
+      }
+
+      await request(httpServer)
+        .post(`/posts`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.BAD_REQUEST, {
+          errorsMessages: [
+            {
+              message: "field 'title' is must be a 'string' type",
+              field: "title"
+            },
+            {
+              message: "your value of 'blogId': 0 is invalid",
+              field: "blogId"
+            }
+          ]
+        })
+
+    })
+
+
+    it(`- POST, should't create post w/ incorrect data one more time`, async () => {
+
+      const { createdNewBlog2 } = expect.getState()
+
+      const data = {
+        // title: "aaaaaaa",
+        shortDescription: "bbbbbbbb",
+        content: "cccccccccc",
+        blogId: `${createdNewBlog2.id}`,
+        blogName: `${createdNewBlog2.name}`
+      }
+
+      await request(httpServer)
+        .post(`/posts`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.BAD_REQUEST, {
+          errorsMessages: [
+            {
+              message: "field 'title' is must be a 'string' type",
+              field: "title"
+            },
+          ]
+        })
+
+    })
+
+    let createdNewPost
+    it(`+ POST, should create post`, async () => {
+
+      const { createdNewBlog2 } = expect.getState()
+
+      const data = {
+        title: "Rim",
+        shortDescription: "Rim's shortDescription",
+        content: "Rim's content",
+        blogId: `${createdNewBlog2.id}`,
+        blogName: expect.any(String),
+        createdAt: expect.any(String),
+      }
+
+      const expectedPost = {
+        ...data,
+        id: expect.any(String)
+      }
+
+      const newPost = await request(httpServer)
+        .post(`/posts`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.CREATED)
+
+      createdNewPost = newPost.body
+
+      expect(createdNewPost).toEqual(expectedPost)
+    })
+
+    let createdNewPost2
+    it(`+ POST, should create post`, async () => {
+
+      const { createdNewBlog2 } = expect.getState()
+
+      const data = {
+        title: "Aim",
+        shortDescription: "Aim's shortDescription",
+        content: "Aim's content",
+        blogId: `${createdNewBlog2.id}`,
+        blogName: expect.any(String),
+        createdAt: expect.any(String),
+      }
+
+      const expectedPost = {
+        ...data,
+        id: expect.any(String)
+      }
+
+      const newPost = await request(httpServer)
+        .post(`/posts`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.CREATED)
+
+      createdNewPost2 = newPost.body
+
+      expect(createdNewPost2).toEqual(expectedPost)
+    })
+
+
+    it(`+ GET, should return 200 and arr w/ two posts`, async () => {
+
+      await request(httpServer)
+        .get(`/posts/`)
+        .expect(HttpStatus.OK, {
+          pagesCount: 1,
+          page: 1,
+          pageSize: 10,
+          totalCount: 2,
+          items: [
+            createdNewPost2,
+            createdNewPost
+          ]
+        })
+    })
+
+    it(`+ GET, should return 200 and arr w/ filtred post`, async () => {
+
+      await request(httpServer)
+        .get(`/posts?sortDirection=asc`)
+        .expect(HttpStatus.OK, {
+          pagesCount: 1,
+          page: 1,
+          pageSize: 10,
+          totalCount: 2,
+          items: [
+            createdNewPost,
+            createdNewPost2
+          ]
+        })
+    })
+
+
+    it(`- PUT, should't update post w/o autorization`, async () => {
+
+      const { createdNewBlog2 } = expect.getState()
+
+      const data = {
+        title: "Rim",
+        shortDescription: "Rim's shortDescription",
+        content: "Rim's content",
+        blogId: `${createdNewBlog2.id}`,
+        blogName: `${createdNewBlog2.name}`
+      }
+
+
+      await request(httpServer)
+        .put(`/posts/${createdNewPost.id}`)
+        .send(data)
+        .expect(HttpStatus.UNAUTHORIZED)
+
+      await request(httpServer)
+        .get(`/posts/${createdNewPost.id}`)
+        .expect(HttpStatus.OK, createdNewPost)
+    })
+
+    it(`- PUT, should't update post, post does't exist`, async () => {
+
+      const { createdNewBlog2 } = expect.getState()
+
+      const data = {
+        title: "Rim",
+        shortDescription: "Rim's shortDescription",
+        content: "Rim's content",
+        blogId: `${createdNewBlog2.id}`,
+      }
+
+      await request(httpServer)
+        .put(`/posts/0000`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.BAD_REQUEST, {
+          errorsMessages: [
+            {
+              message: `your value of 'id': 0000 is invalid`,
+              field: `id`
+            }
+          ]
+        })
+    })
+
+    it(`- PUT, should't update post w/ incorrect input data`, async () => {
+
+      const { createdNewBlog2 } = expect.getState()
+
+      const data = {
+        title: "Rimmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+        shortDescription: "Rim's shortDescription",
+        content: "Rim's content",
+        blogId: `${createdNewBlog2.id}`,
+        blogName: `${createdNewBlog2.name}`
+      }
+
+      const MAX_LENGTH_TITLE = 30
+
+      await request(httpServer)
+        .put(`/posts/${createdNewPost.id}`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.BAD_REQUEST, {
+          errorsMessages: [
+            {
+              message: `max length is ${MAX_LENGTH_TITLE} characters`,
+              field: `title`
+            }
+          ]
+        })
+    })
+
+    it(`+ PUT, should update post w/ correct input data`, async () => {
+
+      const data = {
+        title: "Rim2",
+        shortDescription: "Rim2's shortDescription",
+        content: "Rim2's content",
+        blogId: `${createdNewPost.blogId}`,
+        blogName: `${createdNewPost.blogName}`
+      }
+
+      const expectedPostToBe = {
+        ...createdNewPost,
+        title: data.title,
+        shortDescription: data.shortDescription,
+        content: data.content
+      }
+
+      await request(httpServer)
+        .put(`/posts/${createdNewPost.id}`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .send(data)
+        .expect(HttpStatus.NO_CONTENT)
+
+      const updatedPostBody = await request(httpServer)
+        .get(`/posts/${createdNewPost.id}`)
+        .expect(HttpStatus.OK)
+
+      const updatedPost = updatedPostBody.body
+
+      expect(updatedPost).toEqual(expectedPostToBe)
+    })
+
+    it(`- DELETE, should't delete post w/o auterization`, async () => {
+
+      await request(httpServer)
+        .delete(`/posts/${createdNewPost.id}`)
+        .expect(HttpStatus.UNAUTHORIZED)
+    })
+
+    it(`- DELETE, should't delete post does't exist`, async () => {
+
+      await request(httpServer)
+        .delete(`/posts/0000`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .expect(HttpStatus.BAD_REQUEST, {
+          errorsMessages: [
+            {
+              message: `your value of 'id': 0000 is invalid`,
+              field: `id`
+            }
+          ]
+        })
+    })
+
+    it(`- DELETE, should delete post`, async () => {
+
+      await request(httpServer)
+        .delete(`/posts/${createdNewPost.id}`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .expect(HttpStatus.NO_CONTENT)
+
+      await request(httpServer)
+        .get(`/posts/${createdNewPost.id}`)
+        .expect(HttpStatus.NOT_FOUND)
+
+      await request(httpServer)
+        .get(`/posts/`)
+        .expect(HttpStatus.OK, {
+          pagesCount: 1,
+          page: 1,
+          pageSize: 10,
+          totalCount: 1,
+          items: [createdNewPost2]
+        })
+
+      await request(httpServer)
+        .delete(`/posts/${createdNewPost2.id}`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .expect(HttpStatus.NO_CONTENT)
+
+
+      await request(httpServer)
+        .get(`/posts/`)
+        .expect(HttpStatus.OK, {
+          pagesCount: 0,
+          page: 1,
+          pageSize: 10,
+          totalCount: 0,
+          items: []
+        })
+    })
+
+  })
 
 
 })
