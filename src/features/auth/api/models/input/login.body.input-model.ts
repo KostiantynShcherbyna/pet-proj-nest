@@ -1,13 +1,14 @@
 import { Transform, TransformFnParams } from "class-transformer"
 import { IsNotEmpty, IsString } from "class-validator"
+import { trimValue } from "../../../../../infrastructure/decorators/trim.decorator"
 
 export class LoginBodyInputModel {
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }) => trimValue(value, "loginOrEmail"))
   @IsNotEmpty()
   @IsString()
   loginOrEmail: string
 
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }) => trimValue(value, "password"))
   @IsNotEmpty()
   @IsString()
   password: string

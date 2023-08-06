@@ -6,21 +6,22 @@ import {
   BLOGS_WEBSITEURL_REGEX
 } from "../../../../../infrastructure/utils/constants"
 import { Transform, TransformFnParams } from "class-transformer"
+import { trimValue } from "../../../../../infrastructure/decorators/trim.decorator"
 
 export class UpdateBlogBodyInputModel {
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }) => trimValue(value, "name"))
   @IsString()
   @IsNotEmpty()
   @MaxLength(BLOGS_NAME_MAX_LENGTH)
   name: string
 
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }) => trimValue(value, "description"))
   @IsString()
   @IsNotEmpty()
   @MaxLength(BLOGS_DESCRIPTION_MAX_LENGTH)
   description: string
 
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }) => trimValue(value, "websiteUrl"))
   @IsString()
   @IsNotEmpty()
   @MaxLength(BLOGS_WEBSITEURL_MAX_LENGTH)

@@ -20,8 +20,8 @@ export class TestingRepository {
 
     const foundUser = await this.UsersModel.findOne({
       $or: [
-        { "accountData.email": searchDto.email },
         { "accountData.login": searchDto.login },
+        { "accountData.email": searchDto.email },
       ]
     })
     if (foundUser === null) {
