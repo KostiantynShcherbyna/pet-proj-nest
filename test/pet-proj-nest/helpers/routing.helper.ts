@@ -56,16 +56,16 @@ export const endpoints = {
     getBlogs() {
       return `${bloggerController}/blogs`
     },
-    postBlogPost(blogId: string) {
+    postPost(blogId: string) {
       return `${bloggerController}/blogs/${blogId}/posts`
     },
-    getBlogPosts(blogId: string) {
+    getPosts(blogId: string) {
       return `${bloggerController}/blogs/${blogId}/posts`
     },
-    putBlogPost(blogId: string, postId: string) {
+    putPost(blogId: string, postId: string) {
       return `${bloggerController}/blogs/${blogId}/posts/${postId}`
     },
-    deleteBlogPost(blogId: string, postId: string) {
+    deletePost(blogId: string, postId: string) {
       return `${bloggerController}/blogs/${blogId}/posts/${postId}`
     },
     banUser(id: string) {

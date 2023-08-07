@@ -4,11 +4,8 @@ import { endpoints } from "./routing.helper"
 import { LoginBodyInputModel } from "../../../src/features/auth/api/models/input/login.body.input-model"
 import { Request } from "express"
 import { NewPasswordBodyInputModel } from "../../../src/features/auth/api/models/input/new-password.body.input-model"
-
-export const suAuthData = {
-  login: "admin",
-  password: "qwerty",
-}
+import { CreateBlogBodyInputModel } from "../../../src/features/blogger/api/models/input/create-blog.body.input-model"
+import { superUser } from "../../ht16/helpers/prepeared-data"
 
 export const preparedBlog = {
   valid: {
@@ -77,7 +74,7 @@ type CreateAndLoginUserTestType = {
   refreshToken: string;
 };
 
-export class TestingAuth {
+export class AuthTestingHelper {
   constructor(private readonly server: any) {
   }
 
@@ -89,16 +86,7 @@ export class TestingAuth {
     }
   }
 
-  async createUserBySU() {
-    const inputUserData = this.createInputUserData()
-    const response = await request(this.server)
-      .post(endpoints.saController.postUser())
-      .auth(suAuthData.login, suAuthData.password, { type: "basic" })
-      .send(inputUserData)
-
-    return { id: response.body.id, ...inputUserData }
-  }
-
+  // AUTH ↓↓↓
   async registration() {
     const inputUserData = this.createInputUserData()
     const response = await request(this.server)
@@ -108,12 +96,43 @@ export class TestingAuth {
     return { status: response.status, inputUserData }
   }
 
+  async registrationUsers(usersCount: number): Promise<CreateUserTestType[]> {
+    const registrationsDto: CreateUserTestType[] = []
+    for (let i = 0; i < usersCount; i++) {
+      const inputUserData = {
+        login: `user${i}`,
+        email: `user${i}@email.com`,
+        password: `password${i}`,
+      }
+      const response = await request(this.server)
+        .post(endpoints.authController.registration())
+        .send(inputUserData)
+
+      registrationsDto.push({ id: response.body.id, ...inputUserData })
+    }
+    return registrationsDto
+  }
+
   async registrationConfirmation(confirmationCode: string) {
     const response = await request(this.server)
       .post(endpoints.authController.registrationConfirmation())
       .send({ code: confirmationCode })
 
     return { status: response.status }
+  }
+
+  async registrationConfirmationUsers(confirmationCodes: string[]) {
+    const confirmationsDto: { confirmationCode: string, status: number }[] = []
+
+    for (const confirmationCode of confirmationCodes) {
+      const response = await request(this.server)
+        .post(endpoints.authController.registrationConfirmation())
+        .send({ code: confirmationCodes })
+
+      confirmationsDto.push({ confirmationCode: confirmationCode, status: response.status })
+    }
+
+    return confirmationsDto
   }
 
   async registrationEmailResending(email: string) {
@@ -134,6 +153,24 @@ export class TestingAuth {
     const refreshToken = response.headers["set-cookie"][0].split(";")[0].split("=")[1]
 
     return { status: response.status, accessToken, refreshToken }
+  }
+
+  async loginUsers(loginBodyInputs: LoginBodyInputModel[]) {
+    const loginsDto: { loginOrEmail: string, status: number, accessToken: string, refreshToken: string }[] = []
+
+    for (const loginBodyInput of loginBodyInputs) {
+      const response = await request(this.server)
+        .post(endpoints.authController.login())
+        .set("User-Agent", faker.internet.userAgent())
+        .send({ loginOrEmail: loginBodyInput.loginOrEmail, password: loginBodyInput.password })
+
+      const accessToken = response.body.accessToken
+      const refreshToken = response.headers["set-cookie"][0].split(";")[0].split("=")[1]
+
+      loginsDto.push({ loginOrEmail: loginBodyInput.loginOrEmail, status: response.status, accessToken, refreshToken })
+    }
+
+    return loginsDto
   }
 
   async refreshToken(oldRefreshToken: string) {
@@ -160,7 +197,22 @@ export class TestingAuth {
       .post(endpoints.authController.newPassword())
       .send({ newPassword, recoveryCode })
 
-    console.log("response", response.body)
+    return { status: response.status }
+  }
+
+  async me(accessToken: string) {
+    const response = await request(this.server)
+      .get(endpoints.authController.me())
+      .auth(accessToken, { type: "bearer" })
+
+    return { status: response.status, body: response.body }
+  }
+
+  async logout(refreshToken: string) {
+    const response = await request(this.server)
+      .post(endpoints.authController.logout())
+      .set("cookie", `refreshToken=${refreshToken}`)
+
     return { status: response.status }
   }
 

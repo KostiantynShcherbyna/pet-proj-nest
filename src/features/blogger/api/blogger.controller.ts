@@ -37,6 +37,7 @@ import { UpdatePostBodyInputModel } from "./models/input/update-post.body.input-
 import { DeletePostCommand } from "../application/use-cases/delete-post.use-case"
 import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
 import { BanUserBloggerCommand } from "../application/use-cases/ban-user-blogger.use-case"
+import { CreateBlogBodyInputModel } from "./models/input/create-blog.body.input-model"
 
 
 @Controller("blogger")
@@ -121,7 +122,7 @@ export class BloggerController {
   @Post("blogs")
   async createBlog(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
-    @Body() bodyBlog: UpdateBlogBodyInputModel
+    @Body() bodyBlog: CreateBlogBodyInputModel,
   ) {
     const createdBlogContract = await this.commandBus.execute(
       new CreateBlogCommand(
