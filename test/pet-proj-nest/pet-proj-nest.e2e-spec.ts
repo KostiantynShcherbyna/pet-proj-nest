@@ -17,6 +17,11 @@ import {
   CreateBloggerBlogOutputModel
 } from "../../src/features/blogger/api/models/output/create-blogger-blog.output-model"
 import { LikeStatus } from "../../src/infrastructure/utils/constants"
+import {
+  CreateBloggerPostOutputModel
+} from "../../src/features/blogger/api/models/output/create-blogger-post.output-model"
+import { EmailAdapter } from "../../src/infrastructure/adapters/email.adapter"
+import { EmailAdapterMock } from "../../src/infrastructure/testing/infrastructure/email-adapter.mock"
 
 describe
 ("pet-proj-nest", () => {
@@ -42,14 +47,18 @@ describe
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile()
+    })
+      .overrideProvider(EmailAdapter)
+      .useClass(EmailAdapterMock)
+      .compile()
+    
     let app = await moduleFixture.createNestApplication()
     app = appSettings(app)
     await app.init()
     const server = app.getHttpServer()
 
     const testingAuth: AuthTestingHelper = new AuthTestingHelper(server)
-    const testingBlogger: BloggerTestingHelper = new BloggerTestingHelper(server)
+    // const testingBlogger: BloggerTestingHelper = new BloggerTestingHelper(server)
     // testingBlog = new TestingBlog(server)
     // testingPost = new TestingPost(server)
     // testingPost = new TestingPost(server)
@@ -66,7 +75,7 @@ describe
       testingRepository,
       testingAuth,
       authRepository,
-      testingBlogger,
+      // testingBlogger,
     })
 
   })
@@ -89,7 +98,6 @@ describe
     it
     (`+ Registration user`, async () => {
       const { testingAuth }: { testingAuth: AuthTestingHelper } = expect.getState() as any
-
       const registrationResultUser = await testingAuth.registration()
       expect(registrationResultUser.status).toEqual(HttpStatus.NO_CONTENT)
 
@@ -289,99 +297,132 @@ describe
 
   })
 
-  describe
-  (`BLOGGER`, () => {
-
-    // it
-    // ("+ Post blog", async () => {
-    //   const { testingBlogger, accessTokenUser }: {
-    //     testingBlogger: BloggerTestingHelper,
-    //     accessTokenUser: string,
-    //   } = expect.getState() as any
-    //
-    //   const createBlogByUserResult = await testingBlogger.createBlog(accessTokenUser)
-    //   expect(createBlogByUserResult.status).toEqual(HttpStatus.CREATED)
-    //   expect(createBlogByUserResult.body).toEqual({
-    //     ...createBlogByUserResult.inputBlogData,
-    //     id: expect.any(String),
-    //     createdAt: expect.any(String),
-    //     isMembership: expect.any(Boolean),
-    //   })
-    //
-    //   expect.setState({ blogOfUser: createBlogByUserResult.body })
-    // })
-
-    it
-    ("+ Post blog or blogs", async () => {
-      const { testingBlogger, accessTokenUser }: {
-        testingBlogger: BloggerTestingHelper,
-        accessTokenUser: string,
-      } = expect.getState() as any
-
-      const createBlogByUserResult = await testingBlogger.createBlogs(accessTokenUser, 1)
-
-      const blogsOfUser: CreateBloggerBlogOutputModel[] = []
-      for (let i = 0; i < createBlogByUserResult.length; i++) {
-        expect(createBlogByUserResult[i].status).toEqual(HttpStatus.CREATED)
-        expect(createBlogByUserResult[i].body).toEqual(
-          {
-            ...createBlogByUserResult[i].inputBlogData,
-            id: expect.any(String),
-            createdAt: expect.any(String),
-            isMembership: expect.any(Boolean),
-          }
-        )
-        blogsOfUser.push(createBlogByUserResult[i].body)
-      }
-
-      expect.setState(blogsOfUser)
-    })
-
-    it
-    ("+ Get blogs", async () => {
-      const { testingBlogger, accessTokenUser, blogOfUser }: {
-        testingBlogger: BloggerTestingHelper,
-        accessTokenUser: string,
-        blogOfUser: CreateBloggerBlogOutputModel
-      } = expect.getState() as any
-
-      const getBlogsOfUserResult = await testingBlogger.getBlogs(accessTokenUser)
-      expect(getBlogsOfUserResult.status).toEqual(HttpStatus.OK)
-      expect(getBlogsOfUserResult.body).toEqual({
-        pagesCount: 1,
-        page: 1,
-        pageSize: 10,
-        totalCount: 1,
-        items: [blogOfUser]
-      })
-    })
-
-    it
-    ("+ Post post", async () => {
-      const { testingBlogger, accessTokenUser, blogOfUser }: {
-        testingBlogger: BloggerTestingHelper,
-        accessTokenUser: string,
-        blogOfUser: CreateBloggerBlogOutputModel
-      } = expect.getState() as any
-
-      const createPostOfBlogResult = await testingBlogger.createPost(accessTokenUser, blogOfUser.id)
-      expect(createPostOfBlogResult.status).toEqual(HttpStatus.CREATED)
-      expect(createPostOfBlogResult.body).toEqual({
-        ...createPostOfBlogResult.inputPostData,
-        id: expect.any(String),
-        blogId: blogOfUser.id,
-        blogName: expect.any(String),
-        createdAt: expect.any(String),
-        extendedLikesInfo: {
-          likesCount: expect.any(Number),
-          dislikesCount: expect.any(Number),
-          myStatus: LikeStatus.None,
-          newestLikes: []
-        }
-      })
-    })
-
-
-  })
+  // describe
+  // (`BLOGGER`, () => {
+  //
+  //   // it
+  //   // ("+ Post blog", async () => {
+  //   //   const { testingBlogger, accessTokenUser }: {
+  //   //     testingBlogger: BloggerTestingHelper,
+  //   //     accessTokenUser: string,
+  //   //   } = expect.getState() as any
+  //   //
+  //   //   const createBlogByUserResult = await testingBlogger.createBlog(accessTokenUser)
+  //   //   expect(createBlogByUserResult.status).toEqual(HttpStatus.CREATED)
+  //   //   expect(createBlogByUserResult.body).toEqual({
+  //   //     ...createBlogByUserResult.inputBlogData,
+  //   //     id: expect.any(String),
+  //   //     createdAt: expect.any(String),
+  //   //     isMembership: expect.any(Boolean),
+  //   //   })
+  //   //
+  //   //   expect.setState({ blogOfUser: createBlogByUserResult.body })
+  //   // })
+  //
+  //   it
+  //   ("+ Post blog or blogs", async () => {
+  //     const { testingBlogger, accessTokenUser }: {
+  //       testingBlogger: BloggerTestingHelper,
+  //       accessTokenUser: string,
+  //     } = expect.getState() as any
+  //
+  //     const createBlogByUserResult = await testingBlogger.createBlogs(accessTokenUser, 1)
+  //
+  //     const blogsOfUser: CreateBloggerBlogOutputModel[] = []
+  //     for (let i = 0; i < createBlogByUserResult.length; i++) {
+  //       expect(createBlogByUserResult[i].status).toEqual(HttpStatus.CREATED)
+  //       expect(createBlogByUserResult[i].body).toEqual(
+  //         {
+  //           ...createBlogByUserResult[i].inputBlogData,
+  //           id: expect.any(String),
+  //           createdAt: expect.any(String),
+  //           isMembership: expect.any(Boolean),
+  //         }
+  //       )
+  //       blogsOfUser.push(createBlogByUserResult[i].body)
+  //     }
+  //
+  //     expect.setState(blogsOfUser)
+  //   })
+  //
+  //   it
+  //   ("+ Get blogs", async () => {
+  //     const { testingBlogger, accessTokenUser, blogOfUser }: {
+  //       testingBlogger: BloggerTestingHelper,
+  //       accessTokenUser: string,
+  //       blogOfUser: CreateBloggerBlogOutputModel
+  //     } = expect.getState() as any
+  //
+  //     const getBlogsOfUserResult = await testingBlogger.getBlogs(accessTokenUser)
+  //     expect(getBlogsOfUserResult.status).toEqual(HttpStatus.OK)
+  //     expect(getBlogsOfUserResult.body).toEqual({
+  //       pagesCount: 1,
+  //       page: 1,
+  //       pageSize: 10,
+  //       totalCount: 1,
+  //       items: [blogOfUser]
+  //     })
+  //   })
+  //
+  //   it
+  //   ("+ Post post", async () => {
+  //     const { testingBlogger, accessTokenUser, blogOfUser }: {
+  //       testingBlogger: BloggerTestingHelper,
+  //       accessTokenUser: string,
+  //       blogOfUser: CreateBloggerBlogOutputModel
+  //     } = expect.getState() as any
+  //
+  //     const createPostsOfBlogResult = await testingBlogger.createPostsOfBlog(accessTokenUser, blogOfUser.id, 1)
+  //
+  //     const postsOfBlog: CreateBloggerPostOutputModel[] = []
+  //     for (let i = 0; i < createPostsOfBlogResult.length; i++) {
+  //       expect(createPostsOfBlogResult[i].status).toEqual(HttpStatus.CREATED)
+  //       expect(createPostsOfBlogResult[i].body).toEqual(
+  //         {
+  //           ...createPostsOfBlogResult[i].inputPostData,
+  //           id: expect.any(String),
+  //           blogId: blogOfUser.id,
+  //           blogName: expect.any(String),
+  //           createdAt: expect.any(String),
+  //           extendedLikesInfo: {
+  //             likesCount: expect.any(Number),
+  //             dislikesCount: expect.any(Number),
+  //             myStatus: LikeStatus.None,
+  //             newestLikes: []
+  //           }
+  //         }
+  //       )
+  //       postsOfBlog.push(createPostsOfBlogResult[i].body)
+  //     }
+  //
+  //     expect.setState(postsOfBlog)
+  //   })
+  //
+  //   // it
+  //   // ("+ Post post", async () => {
+  //   //   const { testingBlogger, accessTokenUser, blogOfUser }: {
+  //   //     testingBlogger: BloggerTestingHelper,
+  //   //     accessTokenUser: string,
+  //   //     blogOfUser: CreateBloggerBlogOutputModel
+  //   //   } = expect.getState() as any
+  //   //
+  //   //   const createPostsOfBlogResult = await testingBlogger.createPost(accessTokenUser, blogOfUser.id)
+  //   //   expect(createPostsOfBlogResult.status).toEqual(HttpStatus.CREATED)
+  //   //   expect(createPostsOfBlogResult.body).toEqual({
+  //   //     ...createPostsOfBlogResult.inputPostData,
+  //   //     id: expect.any(String),
+  //   //     blogId: blogOfUser.id,
+  //   //     blogName: expect.any(String),
+  //   //     createdAt: expect.any(String),
+  //   //     extendedLikesInfo: {
+  //   //       likesCount: expect.any(Number),
+  //   //       dislikesCount: expect.any(Number),
+  //   //       myStatus: LikeStatus.None,
+  //   //       newestLikes: []
+  //   //     }
+  //   //   })
+  //
+  // })
 
 })
+

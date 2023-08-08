@@ -63,8 +63,8 @@ export class BloggerTestingHelper {
 
   async createBlogs(accessToken: string, countOfBlogs: number) {
     const blogsView: {
-      body: CreateBloggerBlogOutputModel,
       status: number,
+      body: CreateBloggerBlogOutputModel,
       inputBlogData: CreateBlogBodyInputModel
     }[] = []
 
@@ -78,25 +78,31 @@ export class BloggerTestingHelper {
         .post(endpoints.bloggerController.postBlog())
         .auth(accessToken, { type: "bearer" })
         .send(inputBlogData)
-      blogsView.push({ body: response.body, status: response.status, inputBlogData })
+
+      console.log("status", response.status, "body", response.body)
+      blogsView.push({ status: response.status, body: response.body, inputBlogData })
     }
+    console.log("blogsView", blogsView)
     return blogsView
   }
 
-  async createPostsForBlog(countOfPosts: number, blog: CreatePostParamInputModel) {
-    const posts: CreateBloggerPostOutputModel[] = []
+  async createPostsOfBlog(accessToken: string, blogId: string, countOfPosts: number,) {
+    const posts: {
+      status: number,
+      body: CreateBloggerPostOutputModel,
+      inputPostData: CreatePostBodyInputModel
+    }[] = []
     for (let i = 0; i < countOfPosts; i++) {
       const inputPostData = {
         title: `title${i}`,
         shortDescription: `shortDescription${i}`,
         content: `content${i}`,
-        blogId: blog.blogId,
       }
       const response = await request(this.server)
-        .post(endpoints.bloggerController.postPost(blog.blogId))
-        .auth(superUser.login, superUser.password, { type: "basic" })
+        .post(endpoints.bloggerController.postPost(blogId))
+        .auth(accessToken, { type: "bearer" })
         .send(inputPostData)
-      posts.push(response.body)
+      posts.push({ status: response.status, body: response.body, inputPostData })
     }
     return posts
   }
