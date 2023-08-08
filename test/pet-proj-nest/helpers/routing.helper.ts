@@ -1,5 +1,5 @@
 const authController = `/auth`
-const bloggerController = `/blogger/blogs`
+const bloggerController = `/blogger`
 const blogsController = `/blogs`
 const commentsController = `/comments`
 const devicesController = `/security/devices`

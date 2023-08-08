@@ -22,6 +22,7 @@ import {
 } from "../../src/features/blogger/api/models/output/create-blogger-post.output-model"
 import { EmailAdapter } from "../../src/infrastructure/adapters/email.adapter"
 import { EmailAdapterMock } from "../../src/infrastructure/testing/infrastructure/email-adapter.mock"
+import request from "supertest"
 
 describe
 ("pet-proj-nest", () => {
@@ -51,14 +52,14 @@ describe
       .overrideProvider(EmailAdapter)
       .useClass(EmailAdapterMock)
       .compile()
-    
+
     let app = await moduleFixture.createNestApplication()
     app = appSettings(app)
     await app.init()
     const server = app.getHttpServer()
 
-    const testingAuth: AuthTestingHelper = new AuthTestingHelper(server)
-    // const testingBlogger: BloggerTestingHelper = new BloggerTestingHelper(server)
+    const authTestingHelper: AuthTestingHelper = new AuthTestingHelper(server)
+    const bloggerTestingHelper: BloggerTestingHelper = new BloggerTestingHelper(server)
     // testingBlog = new TestingBlog(server)
     // testingPost = new TestingPost(server)
     // testingPost = new TestingPost(server)
@@ -73,21 +74,22 @@ describe
       server,
 
       testingRepository,
-      testingAuth,
+      authTestingHelper,
       authRepository,
-      // testingBlogger,
+      bloggerTestingHelper,
     })
-
+    await request(server).delete(`/testing/all-data`)
   })
 
   afterAll
   (async () => {
 
-    const { mongoMemoryServer, app }: {
+    const { mongoMemoryServer, app, server }: {
       mongoMemoryServer: MongoMemoryServer,
-      app: INestApplication
+      app: INestApplication,
+      server
     } = expect.getState() as any
-
+    await request(server).delete(`/testing/all-data`)
     await app.close()
     await mongoMemoryServer.stop()
   })
@@ -97,8 +99,8 @@ describe
 
     it
     (`+ Registration user`, async () => {
-      const { testingAuth }: { testingAuth: AuthTestingHelper } = expect.getState() as any
-      const registrationResultUser = await testingAuth.registration()
+      const { authTestingHelper }: { authTestingHelper: AuthTestingHelper } = expect.getState() as any
+      const registrationResultUser = await authTestingHelper.registration()
       expect(registrationResultUser.status).toEqual(HttpStatus.NO_CONTENT)
 
       expect.setState({ inputDataUser: { ...registrationResultUser.inputUserData } })
@@ -106,9 +108,9 @@ describe
 
     it
     (`+ Registration-confirmation user`, async () => {
-      const { inputDataUser, testingAuth, testingRepository }: {
+      const { inputDataUser, authTestingHelper, testingRepository }: {
         inputDataUser: RegistrationBodyInputModel,
-        testingAuth: AuthTestingHelper,
+        authTestingHelper: AuthTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -116,15 +118,15 @@ describe
       expect(user).not.toBeNull()
       expect(user?.emailConfirmation.confirmationCode).not.toBeNull()
 
-      const confirmationResultUser = await testingAuth.registrationConfirmation(user!.emailConfirmation.confirmationCode!)
+      const confirmationResultUser = await authTestingHelper.registrationConfirmation(user!.emailConfirmation.confirmationCode!)
       expect(confirmationResultUser.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
     it
     (`+ Login user`, async () => {
-      const { inputDataUser, testingAuth, testingRepository }: {
+      const { inputDataUser, authTestingHelper, testingRepository }: {
         inputDataUser: RegistrationBodyInputModel,
-        testingAuth: AuthTestingHelper,
+        authTestingHelper: AuthTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -132,7 +134,7 @@ describe
       expect(user).toBeDefined()
       expect(user?.emailConfirmation.confirmationCode).toBeDefined()
 
-      const loginResultUser = await testingAuth.login({
+      const loginResultUser = await authTestingHelper.login({
         loginOrEmail: inputDataUser.login || inputDataUser.email,
         password: inputDataUser.password
       })
@@ -154,9 +156,9 @@ describe
 
     it
     (`+ registration`, async () => {
-      const { testingAuth }: { testingAuth: AuthTestingHelper } = expect.getState() as any
+      const { authTestingHelper }: { authTestingHelper: AuthTestingHelper } = expect.getState() as any
 
-      const registrationResultUser1 = await testingAuth.registration()
+      const registrationResultUser1 = await authTestingHelper.registration()
       expect(registrationResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
 
       expect.setState({ inputDataUser1: { ...registrationResultUser1.inputUserData } })
@@ -164,9 +166,9 @@ describe
 
     it
     (`+ registration-email-resending`, async () => {
-      const { inputDataUser1, testingAuth, testingRepository }: {
+      const { inputDataUser1, authTestingHelper, testingRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        testingAuth: AuthTestingHelper,
+        authTestingHelper: AuthTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -175,15 +177,15 @@ describe
       expect(user1?.emailConfirmation.confirmationCode).not.toBeNull()
       expect(user1?.emailConfirmation.isConfirmed).toEqual(false)
 
-      const resendingUser1 = await testingAuth.registrationEmailResending(inputDataUser1.email)
+      const resendingUser1 = await authTestingHelper.registrationEmailResending(inputDataUser1.email)
       expect(resendingUser1.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
     it
     (`+ registration-confirmation`, async () => {
-      const { inputDataUser1, testingAuth, testingRepository }: {
+      const { inputDataUser1, authTestingHelper, testingRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        testingAuth: AuthTestingHelper,
+        authTestingHelper: AuthTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -192,15 +194,15 @@ describe
       expect(user1?.emailConfirmation.confirmationCode).not.toBeNull()
       expect(user1?.emailConfirmation.isConfirmed).toEqual(false)
 
-      const confirmationResultUser1 = await testingAuth.registrationConfirmation(user1!.emailConfirmation.confirmationCode!)
+      const confirmationResultUser1 = await authTestingHelper.registrationConfirmation(user1!.emailConfirmation.confirmationCode!)
       expect(confirmationResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
     it
     (`+ login`, async () => {
-      const { inputDataUser1, testingAuth, testingRepository }: {
+      const { inputDataUser1, authTestingHelper, testingRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        testingAuth: AuthTestingHelper,
+        authTestingHelper: AuthTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -208,7 +210,7 @@ describe
       expect(user1).toBeDefined()
       expect(user1?.emailConfirmation.confirmationCode).toBeDefined()
 
-      const loginResultUser1 = await testingAuth.login({
+      const loginResultUser1 = await authTestingHelper.login({
         loginOrEmail: inputDataUser1.login || inputDataUser1.email,
         password: inputDataUser1.password
       })
@@ -224,12 +226,12 @@ describe
 
     it
     (`+ refresh-token`, async () => {
-      const { testingAuth, refreshTokenUser1 }: {
-        testingAuth: AuthTestingHelper,
+      const { authTestingHelper, refreshTokenUser1 }: {
+        authTestingHelper: AuthTestingHelper,
         refreshTokenUser1: string,
       } = expect.getState() as any
 
-      const refreshTokenResultUser1 = await testingAuth.refreshToken(refreshTokenUser1)
+      const refreshTokenResultUser1 = await authTestingHelper.refreshToken(refreshTokenUser1)
       expect(refreshTokenResultUser1.status).toEqual(HttpStatus.OK)
       expect(refreshTokenResultUser1.accessToken).toEqual(expect.any(String))
       expect(refreshTokenResultUser1.refreshToken).toEqual(expect.any(String))
@@ -242,9 +244,9 @@ describe
 
     it
     (`+ password-recovery`, async () => {
-      const { inputDataUser1, testingAuth, testingRepository, authRepository }: {
+      const { inputDataUser1, authTestingHelper, testingRepository, authRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        testingAuth: AuthTestingHelper,
+        authTestingHelper: AuthTestingHelper,
         testingRepository: TestingRepository,
         authRepository: AuthRepository,
       } = expect.getState() as any
@@ -252,7 +254,7 @@ describe
       const user1 = await testingRepository.getUser({ loginOrEmail: inputDataUser1.email })
       expect(user1).toBeDefined()
 
-      const passwordRecoveryResultUser1 = await testingAuth.passwordRecovery(user1!.accountData.email)
+      const passwordRecoveryResultUser1 = await authTestingHelper.passwordRecovery(user1!.accountData.email)
       expect(passwordRecoveryResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
 
       const passwordRecoveryCodeUser1 = await authRepository.findRecoveryCode(user1!.accountData.email)
@@ -261,12 +263,12 @@ describe
 
     it
     (`+ new-password`, async () => {
-      const { testingAuth, passwordRecoveryCodeUser1 }: {
-        testingAuth: AuthTestingHelper,
+      const { authTestingHelper, passwordRecoveryCodeUser1 }: {
+        authTestingHelper: AuthTestingHelper,
         passwordRecoveryCodeUser1: RecoveryCodesDocument,
       } = expect.getState() as any
 
-      const newPasswordResultUser1 = await testingAuth.newPassword({
+      const newPasswordResultUser1 = await authTestingHelper.newPassword({
         newPassword: faker.internet.password(),
         recoveryCode: passwordRecoveryCodeUser1.recoveryCode,
       })
@@ -275,154 +277,203 @@ describe
 
     it
     (`+ me`, async () => {
-      const { testingAuth, accessTokenUser1_1 }: {
-        testingAuth: AuthTestingHelper,
+      const { authTestingHelper, accessTokenUser1_1 }: {
+        authTestingHelper: AuthTestingHelper,
         accessTokenUser1_1: string,
       } = expect.getState() as any
 
-      const meResultUser1 = await testingAuth.me(accessTokenUser1_1)
+      const meResultUser1 = await authTestingHelper.me(accessTokenUser1_1)
       expect(meResultUser1.status).toEqual(HttpStatus.OK)
     })
 
     it
     (`+ logout`, async () => {
-      const { testingAuth, refreshTokenUser1_1 }: {
-        testingAuth: AuthTestingHelper,
+      const { authTestingHelper, refreshTokenUser1_1 }: {
+        authTestingHelper: AuthTestingHelper,
         refreshTokenUser1_1: string,
       } = expect.getState() as any
 
-      const logoutResultUser1 = await testingAuth.logout(refreshTokenUser1_1)
+      const logoutResultUser1 = await authTestingHelper.logout(refreshTokenUser1_1)
       expect(logoutResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
   })
 
-  // describe
-  // (`BLOGGER`, () => {
-  //
-  //   // it
-  //   // ("+ Post blog", async () => {
-  //   //   const { testingBlogger, accessTokenUser }: {
-  //   //     testingBlogger: BloggerTestingHelper,
-  //   //     accessTokenUser: string,
-  //   //   } = expect.getState() as any
-  //   //
-  //   //   const createBlogByUserResult = await testingBlogger.createBlog(accessTokenUser)
-  //   //   expect(createBlogByUserResult.status).toEqual(HttpStatus.CREATED)
-  //   //   expect(createBlogByUserResult.body).toEqual({
-  //   //     ...createBlogByUserResult.inputBlogData,
-  //   //     id: expect.any(String),
-  //   //     createdAt: expect.any(String),
-  //   //     isMembership: expect.any(Boolean),
-  //   //   })
-  //   //
-  //   //   expect.setState({ blogOfUser: createBlogByUserResult.body })
-  //   // })
-  //
-  //   it
-  //   ("+ Post blog or blogs", async () => {
-  //     const { testingBlogger, accessTokenUser }: {
-  //       testingBlogger: BloggerTestingHelper,
-  //       accessTokenUser: string,
-  //     } = expect.getState() as any
-  //
-  //     const createBlogByUserResult = await testingBlogger.createBlogs(accessTokenUser, 1)
-  //
-  //     const blogsOfUser: CreateBloggerBlogOutputModel[] = []
-  //     for (let i = 0; i < createBlogByUserResult.length; i++) {
-  //       expect(createBlogByUserResult[i].status).toEqual(HttpStatus.CREATED)
-  //       expect(createBlogByUserResult[i].body).toEqual(
-  //         {
-  //           ...createBlogByUserResult[i].inputBlogData,
-  //           id: expect.any(String),
-  //           createdAt: expect.any(String),
-  //           isMembership: expect.any(Boolean),
-  //         }
-  //       )
-  //       blogsOfUser.push(createBlogByUserResult[i].body)
-  //     }
-  //
-  //     expect.setState(blogsOfUser)
-  //   })
-  //
-  //   it
-  //   ("+ Get blogs", async () => {
-  //     const { testingBlogger, accessTokenUser, blogOfUser }: {
-  //       testingBlogger: BloggerTestingHelper,
-  //       accessTokenUser: string,
-  //       blogOfUser: CreateBloggerBlogOutputModel
-  //     } = expect.getState() as any
-  //
-  //     const getBlogsOfUserResult = await testingBlogger.getBlogs(accessTokenUser)
-  //     expect(getBlogsOfUserResult.status).toEqual(HttpStatus.OK)
-  //     expect(getBlogsOfUserResult.body).toEqual({
-  //       pagesCount: 1,
-  //       page: 1,
-  //       pageSize: 10,
-  //       totalCount: 1,
-  //       items: [blogOfUser]
-  //     })
-  //   })
-  //
-  //   it
-  //   ("+ Post post", async () => {
-  //     const { testingBlogger, accessTokenUser, blogOfUser }: {
-  //       testingBlogger: BloggerTestingHelper,
-  //       accessTokenUser: string,
-  //       blogOfUser: CreateBloggerBlogOutputModel
-  //     } = expect.getState() as any
-  //
-  //     const createPostsOfBlogResult = await testingBlogger.createPostsOfBlog(accessTokenUser, blogOfUser.id, 1)
-  //
-  //     const postsOfBlog: CreateBloggerPostOutputModel[] = []
-  //     for (let i = 0; i < createPostsOfBlogResult.length; i++) {
-  //       expect(createPostsOfBlogResult[i].status).toEqual(HttpStatus.CREATED)
-  //       expect(createPostsOfBlogResult[i].body).toEqual(
-  //         {
-  //           ...createPostsOfBlogResult[i].inputPostData,
-  //           id: expect.any(String),
-  //           blogId: blogOfUser.id,
-  //           blogName: expect.any(String),
-  //           createdAt: expect.any(String),
-  //           extendedLikesInfo: {
-  //             likesCount: expect.any(Number),
-  //             dislikesCount: expect.any(Number),
-  //             myStatus: LikeStatus.None,
-  //             newestLikes: []
-  //           }
-  //         }
-  //       )
-  //       postsOfBlog.push(createPostsOfBlogResult[i].body)
-  //     }
-  //
-  //     expect.setState(postsOfBlog)
-  //   })
-  //
-  //   // it
-  //   // ("+ Post post", async () => {
-  //   //   const { testingBlogger, accessTokenUser, blogOfUser }: {
-  //   //     testingBlogger: BloggerTestingHelper,
-  //   //     accessTokenUser: string,
-  //   //     blogOfUser: CreateBloggerBlogOutputModel
-  //   //   } = expect.getState() as any
-  //   //
-  //   //   const createPostsOfBlogResult = await testingBlogger.createPost(accessTokenUser, blogOfUser.id)
-  //   //   expect(createPostsOfBlogResult.status).toEqual(HttpStatus.CREATED)
-  //   //   expect(createPostsOfBlogResult.body).toEqual({
-  //   //     ...createPostsOfBlogResult.inputPostData,
-  //   //     id: expect.any(String),
-  //   //     blogId: blogOfUser.id,
-  //   //     blogName: expect.any(String),
-  //   //     createdAt: expect.any(String),
-  //   //     extendedLikesInfo: {
-  //   //       likesCount: expect.any(Number),
-  //   //       dislikesCount: expect.any(Number),
-  //   //       myStatus: LikeStatus.None,
-  //   //       newestLikes: []
-  //   //     }
-  //   //   })
-  //
-  // })
+  describe
+  (`BLOGGER`, () => {
+
+    // it
+    // ("+ Post blog", async () => {
+    //   const { bloggerTestingHelper, accessTokenUser }: {
+    //     bloggerTestingHelper: BloggerTestingHelper,
+    //     accessTokenUser: string,
+    //   } = expect.getState() as any
+    //
+    //   const createBlogByUserResult = await bloggerTestingHelper.createBlog(accessTokenUser)
+    //   expect(createBlogByUserResult.status).toEqual(HttpStatus.CREATED)
+    //   expect(createBlogByUserResult.body).toEqual({
+    //     ...createBlogByUserResult.inputBlogData,
+    //     id: expect.any(String),
+    //     createdAt: expect.any(String),
+    //     isMembership: expect.any(Boolean),
+    //   })
+    //
+    //   expect.setState({ blogOfUser: createBlogByUserResult.body })
+    // })
+
+    it
+    ("+ Post blog or blogs", async () => {
+      const { bloggerTestingHelper, accessTokenUser }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+      } = expect.getState() as any
+
+      const createBlogByUserResult = await bloggerTestingHelper.createBlogs(accessTokenUser, 1)
+
+      const blogsOfUser: CreateBloggerBlogOutputModel[] = []
+      for (let i = 0; i < createBlogByUserResult.length; i++) {
+        expect(createBlogByUserResult[i].status).toEqual(HttpStatus.CREATED)
+        expect(createBlogByUserResult[i].body).toEqual(
+          {
+            ...createBlogByUserResult[i].inputBlogData,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            isMembership: expect.any(Boolean),
+          }
+        )
+        blogsOfUser.push(createBlogByUserResult[i].body)
+      }
+
+      expect.setState({ blogsOfUser })
+    })
+
+    it
+    ("+ Get blogs", async () => {
+      const { bloggerTestingHelper, accessTokenUser, blogsOfUser }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        blogsOfUser: CreateBloggerBlogOutputModel[]
+      } = expect.getState() as any
+
+      const getBlogsOfUserResult = await bloggerTestingHelper.getBlogs(accessTokenUser)
+      expect(getBlogsOfUserResult.status).toEqual(HttpStatus.OK)
+      expect(getBlogsOfUserResult.body.page).toBe(1)
+      expect(getBlogsOfUserResult.body.pageSize).toBe(10)
+      expect(getBlogsOfUserResult.body.pagesCount).toBe(1)
+      expect(getBlogsOfUserResult.body.totalCount).toBe(blogsOfUser.length)
+      expect(getBlogsOfUserResult.body.items).toHaveLength(blogsOfUser.length)
+      expect(getBlogsOfUserResult.body.items).toEqual(blogsOfUser)
+      // expect(getBlogsOfUserResult.body).toEqual({
+      //   pagesCount: 1,
+      //   page: 1,
+      //   pageSize: 10,
+      //   totalCount: 1,
+      //   items: blogsOfUser
+      // })
+    })
+
+    it
+    ("+ Post post or posts", async () => {
+      const { bloggerTestingHelper, accessTokenUser, blogsOfUser }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        blogsOfUser: CreateBloggerBlogOutputModel[]
+      } = expect.getState() as any
+
+      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
+      const createPostsOfBlogResult = await bloggerTestingHelper.createPostsOfBlog(accessTokenUser, blogsId, 1)
+
+      const postsOfBlog: CreateBloggerPostOutputModel[] = []
+      for (let i = 0; i < createPostsOfBlogResult.length; i++) {
+        expect(createPostsOfBlogResult[i].status).toEqual(HttpStatus.CREATED)
+        expect(createPostsOfBlogResult[i].body).toEqual(
+          {
+            ...createPostsOfBlogResult[i].inputPostData,
+
+            id: expect.any(String),
+            blogId: blogsOfUser[i].id,
+            blogName: expect.any(String),
+            createdAt: expect.any(String),
+            extendedLikesInfo: {
+              likesCount: expect.any(Number),
+              dislikesCount: expect.any(Number),
+              myStatus: LikeStatus.None,
+              newestLikes: []
+            }
+          }
+        )
+        postsOfBlog.push(createPostsOfBlogResult[i].body)
+      }
+
+      expect.setState({ postsOfBlog })
+    })
+
+    it
+    ("+ Update blog", async () => {
+      const { bloggerTestingHelper, accessTokenUser, blogsOfUser }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        blogsOfUser: CreateBloggerBlogOutputModel[]
+      } = expect.getState() as any
+
+      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
+      const updateBlogStatusResult = await bloggerTestingHelper.updateBlog(accessTokenUser, blogsId[0])
+      expect(updateBlogStatusResult).toEqual(HttpStatus.NO_CONTENT)
+
+      // const blogsResult = await bloggerTestingHelper.getBlogs(accessTokenUser)
+      // expect(blogsResult.status).toEqual(HttpStatus.NO_CONTENT)
+      // expect(blogsResult.body).toEqual({
+      //
+      // })
+
+    })
+
+    it
+    ("+ Update post", async () => {
+      const { bloggerTestingHelper, accessTokenUser, blogsOfUser, postsOfBlog }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        blogsOfUser: CreateBloggerBlogOutputModel[]
+        postsOfBlog: CreateBloggerPostOutputModel[],
+      } = expect.getState() as any
+
+      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
+      const postsId = postsOfBlog.map(postOfBlog => postOfBlog.id)
+      const updatePostStatusResult = await bloggerTestingHelper.updatePost(accessTokenUser, blogsId[0], postsId[0])
+      expect(updatePostStatusResult).toEqual(HttpStatus.NO_CONTENT)
+
+    })
+
+    it
+    ("+ Get posts", async () => {
+      const { bloggerTestingHelper, accessTokenUser, blogsOfUser, postsOfBlog }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        blogsOfUser: CreateBloggerBlogOutputModel[]
+        postsOfBlog: CreateBloggerPostOutputModel[],
+      } = expect.getState() as any
+
+      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
+      // const postsId = postsOfBlog.map(postOfBlog => postOfBlog.id)
+      const getPostsResult = await bloggerTestingHelper.getPosts(accessTokenUser, blogsId[0])
+      // const updatedPost = postsOfBlog.filter(post => post.id === postsId[0])
+
+      expect(getPostsResult.status).toBe(HttpStatus.OK)
+      expect(getPostsResult.body.page).toBe(1)
+      expect(getPostsResult.body.pageSize).toBe(10)
+      expect(getPostsResult.body.pagesCount).toBe(1)
+      expect(getPostsResult.body.totalCount).toBe(postsOfBlog.length)
+      expect(getPostsResult.body.items).toHaveLength(postsOfBlog.length)
+      expect(getPostsResult.body.items[0]).toEqual({
+        ...postsOfBlog[0],
+        content: "updatedContent",
+        shortDescription: "updatedShortDescription",
+        title: "updatedTitle",
+      })
+
+    })
+
+  })
 
 })
 

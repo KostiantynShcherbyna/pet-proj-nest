@@ -72,21 +72,20 @@ export class BloggerTestingHelper {
       const inputBlogData = {
         name: `name${i}`,
         description: `description${i}`,
-        websiteUrl: `websiteUrl${i}.com`,
+        websiteUrl: `https://www.websiteUrl${i}.com`,
       }
       const response = await request(this.server)
         .post(endpoints.bloggerController.postBlog())
         .auth(accessToken, { type: "bearer" })
         .send(inputBlogData)
 
-      console.log("status", response.status, "body", response.body)
       blogsView.push({ status: response.status, body: response.body, inputBlogData })
     }
-    console.log("blogsView", blogsView)
+
     return blogsView
   }
 
-  async createPostsOfBlog(accessToken: string, blogId: string, countOfPosts: number,) {
+  async createPostsOfBlog(accessToken: string, blogsId: string[], countOfPosts: number,) {
     const posts: {
       status: number,
       body: CreateBloggerPostOutputModel,
@@ -99,12 +98,48 @@ export class BloggerTestingHelper {
         content: `content${i}`,
       }
       const response = await request(this.server)
-        .post(endpoints.bloggerController.postPost(blogId))
+        .post(endpoints.bloggerController.postPost(blogsId[i]))
         .auth(accessToken, { type: "bearer" })
         .send(inputPostData)
       posts.push({ status: response.status, body: response.body, inputPostData })
     }
     return posts
+  }
+
+  async getPosts(accessToken: string, blogId: string) {
+    const response = await request(this.server)
+      .get(endpoints.bloggerController.getPosts(blogId))
+      .auth(accessToken, { type: "bearer" })
+
+    return { status: response.status, body: response.body }
+  }
+
+  async updateBlog(accessToken: string, blogId: string) {
+    const inputBlogData = {
+      name: `updatedName`,
+      description: `updatedDescription`,
+      websiteUrl: `https://www.updatedWebsiteUrl.com`,
+    }
+    const response = await request(this.server)
+      .put(endpoints.bloggerController.putBlog(blogId))
+      .auth(accessToken, { type: "bearer" })
+      .send(inputBlogData)
+
+    return response.status
+  }
+
+  async updatePost(accessToken: string, blogId: string, postId: string) {
+    const inputPostData = {
+      title: `updatedTitle`,
+      shortDescription: `updatedShortDescription`,
+      content: `updatedContent`,
+    }
+    const response = await request(this.server)
+      .put(endpoints.bloggerController.putPost(blogId, postId))
+      .auth(accessToken, { type: "bearer" })
+      .send(inputPostData)
+
+    return response.status
   }
 
 
