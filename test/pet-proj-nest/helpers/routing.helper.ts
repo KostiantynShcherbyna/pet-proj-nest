@@ -80,6 +80,12 @@ export const endpoints = {
     postUser() {
       return `${saController}/users`
     }
+  },
+
+  postsController: {
+    postComment(postId: string) {
+      return `${postsController}/${postId}/comments`
+    }
   }
 
 

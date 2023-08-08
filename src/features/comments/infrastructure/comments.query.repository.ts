@@ -51,31 +51,6 @@ export class CommentsQueryRepository {
       return !bannedUserIds.includes(like.userId)
     })
 
-    // const commentCopy = {
-    //   _id: foundComment._id,
-    //   postId: foundComment.postId,
-    //   content: foundComment.content,
-    //   commentatorInfo: foundComment.commentatorInfo,
-    //   createdAt: foundComment.createdAt,
-    //   likesInfo: {
-    //     likesCount:,
-    //     dislikesCount:,
-    //     like:,
-    //   }
-    // }
-
-    // commentCopy.likesInfo.likesCount -= likesCountMy
-    // commentCopy.likesInfo.dislikesCount -= dislikesCountMy
-    // commentCopy.likesInfo.like = trueLikes
-
-    // if (userId) {
-    //   const foundUser = await this.usersRepository.findUser(userId)
-    //   if (foundUser === null)
-    //     return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-    //   if (foundUser.accountData.banInfo.isBanned === true)
-    //     return new Contract(null, ErrorEnums.USER_IS_BANNED)
-    // }
-
     // Looking for a Like if userId is defined
     let like: ILike | undefined
     if (userId) {
@@ -94,19 +69,9 @@ export class CommentsQueryRepository {
 
   async findComments(postId: string, query: GetCommentsQueryInputModel, userId?: string): Promise<Contract<null | CommentsView>> {
 
-    // if (userId) {
-    //   const foundUser = await this.usersRepository.findUser(userId)
-    //   if (foundUser === null)
-    //     return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-    //   if (foundUser.accountData.banInfo.isBanned === true)
-    //     return new Contract(null, ErrorEnums.USER_IS_BANNED)
-    // }
-
-
     const foundPost = await this.postsQueryRepository.findPost(postId, userId)
     if (foundPost.error === ErrorEnums.POST_NOT_FOUND)
       return new Contract(null, ErrorEnums.POST_NOT_FOUND)
-
 
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT

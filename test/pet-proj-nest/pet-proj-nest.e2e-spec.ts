@@ -3,16 +3,13 @@ import { MongoMemoryServer } from "mongodb-memory-server"
 import { Test, TestingModule } from "@nestjs/testing"
 import { AppModule } from "../../src/app.module"
 import { appSettings } from "../../src/app.settings"
-import { AuthTestingHelper } from "./helpers/auth-testing.helper"
+import { PublicTestingHelper } from "./helpers/public-testing.helper"
 import { TestingRepository } from "../../src/infrastructure/testing/infrastructure/testing.repository"
 import { RegistrationBodyInputModel } from "../../src/features/auth/api/models/input/registration.body.input-model"
-import { assignToken } from "@nestjs/core/middleware/utils"
 import { AuthRepository } from "../../src/features/auth/infrastructure/auth.repository"
 import { faker } from "@faker-js/faker"
-import { PasswordRecovery } from "../../src/features/auth/application/use-cases/password-recovery.use-case"
 import { RecoveryCodesDocument } from "../../src/features/auth/application/entitys/recovery-code.schema"
 import { BloggerTestingHelper } from "./helpers/blogger-testing.helper"
-import { Blogs, BlogsDocument } from "../../src/features/blogger/application/entity/blogs.schema"
 import {
   CreateBloggerBlogOutputModel
 } from "../../src/features/blogger/api/models/output/create-blogger-blog.output-model"
@@ -58,7 +55,7 @@ describe
     await app.init()
     const server = app.getHttpServer()
 
-    const authTestingHelper: AuthTestingHelper = new AuthTestingHelper(server)
+    const publicTestingHelper: PublicTestingHelper = new PublicTestingHelper(server)
     const bloggerTestingHelper: BloggerTestingHelper = new BloggerTestingHelper(server)
     // testingBlog = new TestingBlog(server)
     // testingPost = new TestingPost(server)
@@ -74,7 +71,7 @@ describe
       server,
 
       testingRepository,
-      authTestingHelper,
+      publicTestingHelper,
       authRepository,
       bloggerTestingHelper,
     })
@@ -99,8 +96,8 @@ describe
 
     it
     (`+ Registration user`, async () => {
-      const { authTestingHelper }: { authTestingHelper: AuthTestingHelper } = expect.getState() as any
-      const registrationResultUser = await authTestingHelper.registration()
+      const { publicTestingHelper }: { publicTestingHelper: PublicTestingHelper } = expect.getState() as any
+      const registrationResultUser = await publicTestingHelper.registration()
       expect(registrationResultUser.status).toEqual(HttpStatus.NO_CONTENT)
 
       expect.setState({ inputDataUser: { ...registrationResultUser.inputUserData } })
@@ -108,9 +105,9 @@ describe
 
     it
     (`+ Registration-confirmation user`, async () => {
-      const { inputDataUser, authTestingHelper, testingRepository }: {
+      const { inputDataUser, publicTestingHelper, testingRepository }: {
         inputDataUser: RegistrationBodyInputModel,
-        authTestingHelper: AuthTestingHelper,
+        publicTestingHelper: PublicTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -118,15 +115,15 @@ describe
       expect(user).not.toBeNull()
       expect(user?.emailConfirmation.confirmationCode).not.toBeNull()
 
-      const confirmationResultUser = await authTestingHelper.registrationConfirmation(user!.emailConfirmation.confirmationCode!)
+      const confirmationResultUser = await publicTestingHelper.registrationConfirmation(user!.emailConfirmation.confirmationCode!)
       expect(confirmationResultUser.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
     it
     (`+ Login user`, async () => {
-      const { inputDataUser, authTestingHelper, testingRepository }: {
+      const { inputDataUser, publicTestingHelper, testingRepository }: {
         inputDataUser: RegistrationBodyInputModel,
-        authTestingHelper: AuthTestingHelper,
+        publicTestingHelper: PublicTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -134,7 +131,7 @@ describe
       expect(user).toBeDefined()
       expect(user?.emailConfirmation.confirmationCode).toBeDefined()
 
-      const loginResultUser = await authTestingHelper.login({
+      const loginResultUser = await publicTestingHelper.login({
         loginOrEmail: inputDataUser.login || inputDataUser.email,
         password: inputDataUser.password
       })
@@ -156,9 +153,9 @@ describe
 
     it
     (`+ registration`, async () => {
-      const { authTestingHelper }: { authTestingHelper: AuthTestingHelper } = expect.getState() as any
+      const { publicTestingHelper }: { publicTestingHelper: PublicTestingHelper } = expect.getState() as any
 
-      const registrationResultUser1 = await authTestingHelper.registration()
+      const registrationResultUser1 = await publicTestingHelper.registration()
       expect(registrationResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
 
       expect.setState({ inputDataUser1: { ...registrationResultUser1.inputUserData } })
@@ -166,9 +163,9 @@ describe
 
     it
     (`+ registration-email-resending`, async () => {
-      const { inputDataUser1, authTestingHelper, testingRepository }: {
+      const { inputDataUser1, publicTestingHelper, testingRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        authTestingHelper: AuthTestingHelper,
+        publicTestingHelper: PublicTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -177,15 +174,15 @@ describe
       expect(user1?.emailConfirmation.confirmationCode).not.toBeNull()
       expect(user1?.emailConfirmation.isConfirmed).toEqual(false)
 
-      const resendingUser1 = await authTestingHelper.registrationEmailResending(inputDataUser1.email)
+      const resendingUser1 = await publicTestingHelper.registrationEmailResending(inputDataUser1.email)
       expect(resendingUser1.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
     it
     (`+ registration-confirmation`, async () => {
-      const { inputDataUser1, authTestingHelper, testingRepository }: {
+      const { inputDataUser1, publicTestingHelper, testingRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        authTestingHelper: AuthTestingHelper,
+        publicTestingHelper: PublicTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -194,15 +191,15 @@ describe
       expect(user1?.emailConfirmation.confirmationCode).not.toBeNull()
       expect(user1?.emailConfirmation.isConfirmed).toEqual(false)
 
-      const confirmationResultUser1 = await authTestingHelper.registrationConfirmation(user1!.emailConfirmation.confirmationCode!)
+      const confirmationResultUser1 = await publicTestingHelper.registrationConfirmation(user1!.emailConfirmation.confirmationCode!)
       expect(confirmationResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
     it
     (`+ login`, async () => {
-      const { inputDataUser1, authTestingHelper, testingRepository }: {
+      const { inputDataUser1, publicTestingHelper, testingRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        authTestingHelper: AuthTestingHelper,
+        publicTestingHelper: PublicTestingHelper,
         testingRepository: TestingRepository,
       } = expect.getState() as any
 
@@ -210,7 +207,7 @@ describe
       expect(user1).toBeDefined()
       expect(user1?.emailConfirmation.confirmationCode).toBeDefined()
 
-      const loginResultUser1 = await authTestingHelper.login({
+      const loginResultUser1 = await publicTestingHelper.login({
         loginOrEmail: inputDataUser1.login || inputDataUser1.email,
         password: inputDataUser1.password
       })
@@ -226,12 +223,12 @@ describe
 
     it
     (`+ refresh-token`, async () => {
-      const { authTestingHelper, refreshTokenUser1 }: {
-        authTestingHelper: AuthTestingHelper,
+      const { publicTestingHelper, refreshTokenUser1 }: {
+        publicTestingHelper: PublicTestingHelper,
         refreshTokenUser1: string,
       } = expect.getState() as any
 
-      const refreshTokenResultUser1 = await authTestingHelper.refreshToken(refreshTokenUser1)
+      const refreshTokenResultUser1 = await publicTestingHelper.refreshToken(refreshTokenUser1)
       expect(refreshTokenResultUser1.status).toEqual(HttpStatus.OK)
       expect(refreshTokenResultUser1.accessToken).toEqual(expect.any(String))
       expect(refreshTokenResultUser1.refreshToken).toEqual(expect.any(String))
@@ -244,9 +241,9 @@ describe
 
     it
     (`+ password-recovery`, async () => {
-      const { inputDataUser1, authTestingHelper, testingRepository, authRepository }: {
+      const { inputDataUser1, publicTestingHelper, testingRepository, authRepository }: {
         inputDataUser1: RegistrationBodyInputModel,
-        authTestingHelper: AuthTestingHelper,
+        publicTestingHelper: PublicTestingHelper,
         testingRepository: TestingRepository,
         authRepository: AuthRepository,
       } = expect.getState() as any
@@ -254,7 +251,7 @@ describe
       const user1 = await testingRepository.getUser({ loginOrEmail: inputDataUser1.email })
       expect(user1).toBeDefined()
 
-      const passwordRecoveryResultUser1 = await authTestingHelper.passwordRecovery(user1!.accountData.email)
+      const passwordRecoveryResultUser1 = await publicTestingHelper.passwordRecovery(user1!.accountData.email)
       expect(passwordRecoveryResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
 
       const passwordRecoveryCodeUser1 = await authRepository.findRecoveryCode(user1!.accountData.email)
@@ -263,12 +260,12 @@ describe
 
     it
     (`+ new-password`, async () => {
-      const { authTestingHelper, passwordRecoveryCodeUser1 }: {
-        authTestingHelper: AuthTestingHelper,
+      const { publicTestingHelper, passwordRecoveryCodeUser1 }: {
+        publicTestingHelper: PublicTestingHelper,
         passwordRecoveryCodeUser1: RecoveryCodesDocument,
       } = expect.getState() as any
 
-      const newPasswordResultUser1 = await authTestingHelper.newPassword({
+      const newPasswordResultUser1 = await publicTestingHelper.newPassword({
         newPassword: faker.internet.password(),
         recoveryCode: passwordRecoveryCodeUser1.recoveryCode,
       })
@@ -277,23 +274,23 @@ describe
 
     it
     (`+ me`, async () => {
-      const { authTestingHelper, accessTokenUser1_1 }: {
-        authTestingHelper: AuthTestingHelper,
+      const { publicTestingHelper, accessTokenUser1_1 }: {
+        publicTestingHelper: PublicTestingHelper,
         accessTokenUser1_1: string,
       } = expect.getState() as any
 
-      const meResultUser1 = await authTestingHelper.me(accessTokenUser1_1)
+      const meResultUser1 = await publicTestingHelper.me(accessTokenUser1_1)
       expect(meResultUser1.status).toEqual(HttpStatus.OK)
     })
 
     it
     (`+ logout`, async () => {
-      const { authTestingHelper, refreshTokenUser1_1 }: {
-        authTestingHelper: AuthTestingHelper,
+      const { publicTestingHelper, refreshTokenUser1_1 }: {
+        publicTestingHelper: PublicTestingHelper,
         refreshTokenUser1_1: string,
       } = expect.getState() as any
 
-      const logoutResultUser1 = await authTestingHelper.logout(refreshTokenUser1_1)
+      const logoutResultUser1 = await publicTestingHelper.logout(refreshTokenUser1_1)
       expect(logoutResultUser1.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
@@ -343,7 +340,6 @@ describe
         )
         blogsOfUser.push(createBlogByUserResult[i].body)
       }
-
       expect.setState({ blogsOfUser })
     })
 
@@ -363,13 +359,6 @@ describe
       expect(getBlogsOfUserResult.body.totalCount).toBe(blogsOfUser.length)
       expect(getBlogsOfUserResult.body.items).toHaveLength(blogsOfUser.length)
       expect(getBlogsOfUserResult.body.items).toEqual(blogsOfUser)
-      // expect(getBlogsOfUserResult.body).toEqual({
-      //   pagesCount: 1,
-      //   page: 1,
-      //   pageSize: 10,
-      //   totalCount: 1,
-      //   items: blogsOfUser
-      // })
     })
 
     it
@@ -404,7 +393,6 @@ describe
         )
         postsOfBlog.push(createPostsOfBlogResult[i].body)
       }
-
       expect.setState({ postsOfBlog })
     })
 
@@ -454,9 +442,7 @@ describe
       } = expect.getState() as any
 
       const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
-      // const postsId = postsOfBlog.map(postOfBlog => postOfBlog.id)
       const getPostsResult = await bloggerTestingHelper.getPosts(accessTokenUser, blogsId[0])
-      // const updatedPost = postsOfBlog.filter(post => post.id === postsId[0])
 
       expect(getPostsResult.status).toBe(HttpStatus.OK)
       expect(getPostsResult.body.page).toBe(1)
@@ -469,6 +455,68 @@ describe
         content: "updatedContent",
         shortDescription: "updatedShortDescription",
         title: "updatedTitle",
+      })
+    })
+
+    it
+    ("+ Post comment or comments", async () => {
+      const { publicTestingHelper, accessTokenUser, postsOfBlog }: {
+        publicTestingHelper: PublicTestingHelper,
+        accessTokenUser: string,
+        postsOfBlog: CreateBloggerPostOutputModel[],
+      } = expect.getState() as any
+
+      const postsId = postsOfBlog.map(postOfBlog => postOfBlog.id)
+      const commentsDtoResult = await publicTestingHelper.createComments(accessTokenUser, postsId, 2)
+
+      commentsDtoResult.forEach(commentDto => {
+        expect(commentDto.status).toBe(HttpStatus.CREATED)
+        expect(commentDto.body.id).toBeDefined()
+        expect(commentDto.body.content).toBeDefined()
+        expect(commentDto.body.commentatorInfo.userId).toBeDefined()
+        expect(commentDto.body.commentatorInfo.userLogin).toBeDefined()
+        expect(commentDto.body.createdAt).toBeDefined()
+        expect(commentDto.body.likesInfo.likesCount).toBeDefined()
+        expect(commentDto.body.likesInfo.dislikesCount).toBeDefined()
+        expect(commentDto.body.likesInfo.myStatus).toBeDefined()
+      })
+
+      expect.setState({ allCommentsCount: commentsDtoResult.length })
+    })
+
+    it
+    ("+ Get blogs comments", async () => {
+      const { bloggerTestingHelper, accessTokenUser, postsOfBlog, allCommentsCount }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        blogsOfUser: CreateBloggerBlogOutputModel[]
+        postsOfBlog: CreateBloggerPostOutputModel[],
+        allCommentsCount: number
+      } = expect.getState() as any
+
+      const getBlogsCommentsResult = await bloggerTestingHelper.getBlogsComments(accessTokenUser)
+
+      const pagesCount = Math.ceil(allCommentsCount / 10)
+
+      expect(getBlogsCommentsResult.status).toBe(HttpStatus.OK)
+      expect(getBlogsCommentsResult.body.page).toBe(1)
+      expect(getBlogsCommentsResult.body.pageSize).toBe(10)
+      expect(getBlogsCommentsResult.body.pagesCount).toBe(pagesCount)
+      expect(getBlogsCommentsResult.body.totalCount).toBe(allCommentsCount)
+      expect(getBlogsCommentsResult.body.items).toHaveLength(allCommentsCount)
+      getBlogsCommentsResult.body.items.forEach(item => {
+        expect(item.id).toBeDefined()
+        expect(item.content).toBeDefined()
+        expect(item.commentatorInfo.userId).toBeDefined()
+        expect(item.commentatorInfo.userLogin).toBeDefined()
+        expect(item.createdAt).toBeDefined()
+        expect(item.likesInfo.likesCount).toBeDefined()
+        expect(item.likesInfo.dislikesCount).toBeDefined()
+        expect(item.likesInfo.myStatus).toBeDefined()
+        expect(item.postInfo.id).toBeDefined()
+        expect(item.postInfo.title).toBeDefined()
+        expect(item.postInfo.blogId).toBeDefined()
+        expect(item.postInfo.blogName).toBeDefined()
       })
 
     })

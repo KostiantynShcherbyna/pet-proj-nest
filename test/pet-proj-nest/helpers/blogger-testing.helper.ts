@@ -142,5 +142,13 @@ export class BloggerTestingHelper {
     return response.status
   }
 
+  async getBlogsComments(accessToken: string) {
+    const response = await request(this.server)
+      .get(endpoints.bloggerController.getBlogsComments())
+      .auth(accessToken, { type: "bearer" })
+
+    return { status: response.status, body: response.body }
+  }
+
 
 }

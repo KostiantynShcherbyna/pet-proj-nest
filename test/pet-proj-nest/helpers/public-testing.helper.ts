@@ -74,7 +74,7 @@ type CreateAndLoginUserTestType = {
   refreshToken: string;
 };
 
-export class AuthTestingHelper {
+export class PublicTestingHelper {
   constructor(private readonly server: any) {
   }
 
@@ -85,6 +85,13 @@ export class AuthTestingHelper {
       password: faker.internet.password()
     }
   }
+
+  private createCommentInputData() {
+    return {
+      content: faker.lorem.words(10),
+    }
+  }
+
 
   // AUTH ↓↓↓
   async registration() {
@@ -216,5 +223,21 @@ export class AuthTestingHelper {
     return { status: response.status }
   }
 
+
+// POSTS ↓↓↓
+  async createComments(accessToken: string, postsId: string[], countOfComments: number) {
+    const commentsDto: any = []
+    for (let i = 0; i < postsId.length; i++) {
+      for (let j = 0; j < countOfComments; j++) {
+        const inputCommentData = this.createCommentInputData()
+        const response = await request(this.server)
+          .post(endpoints.postsController.postComment(postsId[i]))
+          .auth(accessToken, { type: "bearer" })
+          .send(inputCommentData)
+        commentsDto.push({ status: response.status, body: response.body, postId: postsId[i] })
+      }
+    }
+    return commentsDto
+  }
 
 }
