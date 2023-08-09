@@ -79,6 +79,12 @@ export const endpoints = {
   saController: {
     postUser() {
       return `${saController}/users`
+    },
+    getUsers() {
+      return `${saController}/users`
+    },
+    banUser(id: string) {
+      return `${saController}/${id}/users`
     }
   },
 

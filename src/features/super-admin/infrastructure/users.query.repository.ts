@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { UsersView } from "src/features/super-admin/api/models/output/create-user.output-model"
-import { GetUserOutputModel } from "src/features/auth/api/models/output/get-user.output-model"
+import { MeOutputModel } from "src/features/auth/api/models/output/me-output.model"
 import { QueryUserSAInputModel } from "src/features/super-admin/api/models/input/get-users.query.input-model"
 import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
 import { Users, UsersModel } from "../application/entity/users.schema"
@@ -20,7 +20,7 @@ export class UsersQueryRepository {
   ) {
   }
 
-  async findUser(userId: string): Promise<null | GetUserOutputModel> {
+  async findUser(userId: string): Promise<null | MeOutputModel> {
 
     const user = await this.UsersModel.findById(userId)
     if (user === null) return null

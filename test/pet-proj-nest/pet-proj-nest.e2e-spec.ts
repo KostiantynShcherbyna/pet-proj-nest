@@ -20,6 +20,9 @@ import {
 import { EmailAdapter } from "../../src/infrastructure/adapters/email.adapter"
 import { EmailAdapterMock } from "../../src/infrastructure/testing/infrastructure/email-adapter.mock"
 import request from "supertest"
+import { MeOutputModel } from "../../src/features/auth/api/models/output/me-output.model"
+import { SaTestingHelper } from "./helpers/sa-testing.helper"
+import { CreateUserOutputModel } from "../../src/features/super-admin/api/models/output/create-user.output-model"
 
 describe
 ("pet-proj-nest", () => {
@@ -57,6 +60,7 @@ describe
 
     const publicTestingHelper: PublicTestingHelper = new PublicTestingHelper(server)
     const bloggerTestingHelper: BloggerTestingHelper = new BloggerTestingHelper(server)
+    const saTestingHelper: SaTestingHelper = new SaTestingHelper(server)
     // testingBlog = new TestingBlog(server)
     // testingPost = new TestingPost(server)
     // testingPost = new TestingPost(server)
@@ -74,6 +78,7 @@ describe
       publicTestingHelper,
       authRepository,
       bloggerTestingHelper,
+      saTestingHelper,
     })
     await request(server).delete(`/testing/all-data`)
   })
@@ -281,6 +286,8 @@ describe
 
       const meResultUser1 = await publicTestingHelper.me(accessTokenUser1_1)
       expect(meResultUser1.status).toEqual(HttpStatus.OK)
+
+      expect.setState({ user1OutputView: meResultUser1.body })
     })
 
     it
@@ -362,7 +369,7 @@ describe
     })
 
     it
-    ("+ Post post or posts", async () => {
+    ("+ Create post or posts", async () => {
       const { bloggerTestingHelper, accessTokenUser, blogsOfUser }: {
         bloggerTestingHelper: BloggerTestingHelper,
         accessTokenUser: string,
@@ -404,8 +411,7 @@ describe
         blogsOfUser: CreateBloggerBlogOutputModel[]
       } = expect.getState() as any
 
-      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
-      const updateBlogStatusResult = await bloggerTestingHelper.updateBlog(accessTokenUser, blogsId[0])
+      const updateBlogStatusResult = await bloggerTestingHelper.updateBlog(accessTokenUser, blogsOfUser[0].id)
       expect(updateBlogStatusResult).toEqual(HttpStatus.NO_CONTENT)
 
       // const blogsResult = await bloggerTestingHelper.getBlogs(accessTokenUser)
@@ -425,9 +431,7 @@ describe
         postsOfBlog: CreateBloggerPostOutputModel[],
       } = expect.getState() as any
 
-      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
-      const postsId = postsOfBlog.map(postOfBlog => postOfBlog.id)
-      const updatePostStatusResult = await bloggerTestingHelper.updatePost(accessTokenUser, blogsId[0], postsId[0])
+      const updatePostStatusResult = await bloggerTestingHelper.updatePost(accessTokenUser, postsOfBlog[0].blogId, postsOfBlog[0].id)
       expect(updatePostStatusResult).toEqual(HttpStatus.NO_CONTENT)
 
     })
@@ -435,14 +439,13 @@ describe
     it
     ("+ Get posts", async () => {
       const { bloggerTestingHelper, accessTokenUser, blogsOfUser, postsOfBlog }: {
-        bloggerTestingHelper: BloggerTestingHelper,
-        accessTokenUser: string,
+        bloggerTestingHelper: BloggerTestingHelper
+        accessTokenUser: string
         blogsOfUser: CreateBloggerBlogOutputModel[]
-        postsOfBlog: CreateBloggerPostOutputModel[],
+        postsOfBlog: CreateBloggerPostOutputModel[]
       } = expect.getState() as any
 
-      const blogsId = blogsOfUser.map(blogOfUser => blogOfUser.id)
-      const getPostsResult = await bloggerTestingHelper.getPosts(accessTokenUser, blogsId[0])
+      const getPostsResult = await bloggerTestingHelper.getPosts(accessTokenUser, blogsOfUser[0].id)
 
       expect(getPostsResult.status).toBe(HttpStatus.OK)
       expect(getPostsResult.body.page).toBe(1)
@@ -459,7 +462,7 @@ describe
     })
 
     it
-    ("+ Post comment or comments", async () => {
+    ("+ Create comment or comments", async () => {
       const { publicTestingHelper, accessTokenUser, postsOfBlog }: {
         publicTestingHelper: PublicTestingHelper,
         accessTokenUser: string,
@@ -486,11 +489,10 @@ describe
 
     it
     ("+ Get blogs comments", async () => {
-      const { bloggerTestingHelper, accessTokenUser, postsOfBlog, allCommentsCount }: {
-        bloggerTestingHelper: BloggerTestingHelper,
-        accessTokenUser: string,
+      const { bloggerTestingHelper, accessTokenUser, allCommentsCount }: {
+        bloggerTestingHelper: BloggerTestingHelper
+        accessTokenUser: string
         blogsOfUser: CreateBloggerBlogOutputModel[]
-        postsOfBlog: CreateBloggerPostOutputModel[],
         allCommentsCount: number
       } = expect.getState() as any
 
@@ -518,10 +520,116 @@ describe
         expect(item.postInfo.blogId).toBeDefined()
         expect(item.postInfo.blogName).toBeDefined()
       })
+    })
 
+    it
+    ("+ Delete post", async () => {
+      const { bloggerTestingHelper, accessTokenUser, postsOfBlog }: {
+        bloggerTestingHelper: BloggerTestingHelper,
+        accessTokenUser: string,
+        postsOfBlog: CreateBloggerPostOutputModel[],
+      } = expect.getState() as any
+
+      const deleteStatusResult = await bloggerTestingHelper.deletePost(accessTokenUser, postsOfBlog[0].blogId, postsOfBlog[0].id)
+      expect(deleteStatusResult).toBe(HttpStatus.NO_CONTENT)
+
+      const getPostsResult = await bloggerTestingHelper.getPosts(accessTokenUser, postsOfBlog[0].blogId)
+      expect(getPostsResult.status).toBe(HttpStatus.OK)
+      expect(getPostsResult.body.page).toBe(1)
+      expect(getPostsResult.body.pageSize).toBe(10)
+      expect(getPostsResult.body.pagesCount).toBe(postsOfBlog.length - 1)
+      expect(getPostsResult.body.totalCount).toBe(postsOfBlog.length - 1)
+      expect(getPostsResult.body.items).toHaveLength(postsOfBlog.length - 1)
+    })
+
+    it
+    ("+ Ban user", async () => {
+      const { bloggerTestingHelper, accessTokenUser, postsOfBlog, user1OutputView }: {
+        bloggerTestingHelper: BloggerTestingHelper
+        accessTokenUser: string
+        postsOfBlog: CreateBloggerPostOutputModel[]
+        user1OutputView: MeOutputModel
+      } = expect.getState() as any
+
+      const banStatusResult = await bloggerTestingHelper.banUser(accessTokenUser, user1OutputView.userId, postsOfBlog[0].blogId)
+      expect(banStatusResult).toBe(HttpStatus.NO_CONTENT)
+    })
+
+    it
+    ("+ Get all banned users of blog", async () => {
+      const { bloggerTestingHelper, accessTokenUser, postsOfBlog, user1OutputView }: {
+        bloggerTestingHelper: BloggerTestingHelper
+        accessTokenUser: string
+        postsOfBlog: CreateBloggerPostOutputModel[]
+        user1OutputView: MeOutputModel
+      } = expect.getState() as any
+
+      const getBannedUsersOfBlogResult = await bloggerTestingHelper.getBannedUsersOfBlog(accessTokenUser, postsOfBlog[0].blogId)
+      expect(getBannedUsersOfBlogResult.status).toBe(HttpStatus.OK)
+      expect(getBannedUsersOfBlogResult.body.page).toBe(1)
+      expect(getBannedUsersOfBlogResult.body.pageSize).toBe(10)
+      expect(getBannedUsersOfBlogResult.body.pagesCount).toBe(1)
+      expect(getBannedUsersOfBlogResult.body.totalCount).toBe(1)
+      expect(getBannedUsersOfBlogResult.body.items).toHaveLength(1)
+      expect(getBannedUsersOfBlogResult.body.items[0].id).toEqual(user1OutputView.userId)
     })
 
   })
 
+  describe(`SA`, () => {
+
+    it("+ Create SAUser ", async () => {
+      const { saTestingHelper }: { saTestingHelper: SaTestingHelper } = expect.getState() as any
+
+      const createSaUsersResult = await saTestingHelper.createUsers(4)
+
+      const saUserViews: CreateUserOutputModel[] = []
+      expect(createSaUsersResult).toHaveLength(4)
+      createSaUsersResult.forEach(saUserResult => {
+        expect(saUserResult.status).toEqual(HttpStatus.CREATED)
+        expect(saUserResult.body.id).toBeDefined()
+        expect(saUserResult.body.login).toBeDefined()
+        expect(saUserResult.body.email).toBeDefined()
+        expect(saUserResult.body.createdAt).toBeDefined()
+        expect(saUserResult.body.banInfo.isBanned).toBeDefined()
+        expect(saUserResult.body.banInfo.banDate).toBeDefined()
+        expect(saUserResult.body.banInfo.banReason).toBeDefined()
+        saUserViews.push(saUserResult.body)
+      })
+
+      expect.setState({ saUserViews: saUserViews })
+    })
+
+    it("+ Get all users ", async () => {
+      const { saTestingHelper, saUserViews }: {
+        saTestingHelper: SaTestingHelper
+        saUserViews: CreateUserOutputModel[]
+      } = expect.getState() as any
+
+      const getUsersResult = await saTestingHelper.getUsers()
+      expect(getUsersResult.status).toBe(HttpStatus.OK)
+      expect(getUsersResult.body.page).toBe(1)
+      expect(getUsersResult.body.pageSize).toBe(10)
+      expect(getUsersResult.body.pagesCount).toBe(1)
+      expect(getUsersResult.body.totalCount).toBe(saUserViews.length)
+      expect(getUsersResult.body.items).toHaveLength(saUserViews.length)
+      expect(getUsersResult.body.items).toEqual(saUserViews)
+    })
+
+    it("+ Ban user ", async () => {
+      const { saTestingHelper, saUserViews }: {
+        saTestingHelper: SaTestingHelper
+        saUserViews: CreateUserOutputModel[]
+      } = expect.getState() as any
+
+      const banUserStatusResult = await saTestingHelper.banUser(saUserViews[1].id)
+      expect(banUserStatusResult).toBe(HttpStatus.NO_CONTENT)
+
+    })
+
+
+  })
+
 })
+
 

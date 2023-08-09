@@ -150,5 +150,35 @@ export class BloggerTestingHelper {
     return { status: response.status, body: response.body }
   }
 
+  async deletePost(accessToken: string, blogId: string, postId: string) {
+    const response = await request(this.server)
+      .delete(endpoints.bloggerController.deletePost(blogId, postId))
+      .auth(accessToken, { type: "bearer" })
+
+    return response.status
+  }
+
+  async banUser(accessToken: string, userId: string, blogId: string) {
+    const inputBanData = {
+      isBanned: true,
+      banReason: "stringstringstringst",
+      blogId: blogId,
+    }
+    const response = await request(this.server)
+      .put(endpoints.bloggerController.banUser(userId))
+      .auth(accessToken, { type: "bearer" })
+      .send(inputBanData)
+
+    return response.status
+  }
+
+  async getBannedUsersOfBlog(accessToken: string, blogId: string) {
+    const response = await request(this.server)
+      .get(endpoints.bloggerController.getBannedUsersOfBlog(blogId))
+      .auth(accessToken, { type: "bearer" })
+
+    return { status: response.status, body: response.body }
+  }
+
 
 }
