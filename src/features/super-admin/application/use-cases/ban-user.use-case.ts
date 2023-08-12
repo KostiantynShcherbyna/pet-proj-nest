@@ -36,11 +36,11 @@ export class BanUser implements ICommandHandler<BanUserCommand> {
     if (user.accountData.banInfo.isBanned === command.isBanned)
       return new Contract(true, null)
 
-    const result = command.isBanned === true
+    const result = command.isBanned
       ? await user.banUser(command.banReason, command.userId, this.DevicesModel)
       : user.unBanUser()
 
-    if (result === 0) return new Contract(null, ErrorEnums.USER_NOT_BANNED)
+    // if (result === 0) return new Contract(null, ErrorEnums.USER_NOT_BANNED)
 
     await this.usersRepository.saveDocument(user)
 

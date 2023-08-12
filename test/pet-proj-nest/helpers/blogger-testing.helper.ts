@@ -6,8 +6,6 @@ import { CreatePostBodyInputModel } from "../../../src/features/blogger/api/mode
 import {
   CreateBloggerBlogOutputModel
 } from "../../../src/features/blogger/api/models/output/create-blogger-blog.output-model"
-import { superUser } from "../../ht16/helpers/prepeared-data"
-import { CreatePostParamInputModel } from "../../../src/features/blogger/api/models/input/create-post.param.input-model"
 import {
   CreateBloggerPostOutputModel
 } from "../../../src/features/blogger/api/models/output/create-blogger-post.output-model"

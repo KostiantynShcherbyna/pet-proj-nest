@@ -1,51 +1,50 @@
 export enum ErrorEnums {
 
-    EMAIL_NOT_SENT = `Email not sent`,
+  EMAIL_NOT_SENT = `Email not sent`,
 
-    //↓↓↓ AUTH
-    TOKEN_NOT_VERIFY = `Token not verified`,
-    DEVICE_NOT_FOUND = `Device not found`,
-    DEVICE_NOT_DELETE = `Device_not deleted`,
-    DEVICES_NOT_DELETE = `Devices not deleted`,
-    PASSWORD_NOT_COMPARED = `Password not compared`,
-    RECOVERY_CODE_INVALID = `RECOVERY_CODE_INVALID`,
-    RECOVERY_CODE_NOT_FOUND = `RECOVERY_CODE_NOT_FOUND`,
-    RECOVERY_CODE_NOT_DELETE = `RECOVERY_CODE_NOT_DELETE`,
-    FOREIGN_DEVICE = `Foreign device`,
-    CONFIRMATION_CODE_EXPIRED = `Confirmation code is expired`,
+  //↓↓↓ AUTH
+  TOKEN_NOT_VERIFY = `Token not verified`,
+  DEVICE_NOT_FOUND = `Device not found`,
+  DEVICE_NOT_DELETE = `Device_not deleted`,
+  DEVICES_NOT_DELETE = `Devices not deleted`,
+  PASSWORD_NOT_COMPARED = `Password not compared`,
+  RECOVERY_CODE_INVALID = `RECOVERY_CODE_INVALID`,
+  RECOVERY_CODE_NOT_FOUND = `RECOVERY_CODE_NOT_FOUND`,
+  RECOVERY_CODE_NOT_DELETE = `RECOVERY_CODE_NOT_DELETE`,
+  FOREIGN_DEVICE = `Foreign device`,
+  CONFIRMATION_CODE_EXPIRED = `Confirmation code is expired`,
 
-    // ↓↓↓ BLOGS
-    BLOG_NOT_FOUND = `Blog not found`,
-    BLOG_IS_BANNED = `Blog is banned`,
-    BLOG_NOT_DELETED = `Blog not deleted`,
-    FOREIGN_BLOG = `Foreign blog`,
+  // ↓↓↓ BLOGS
+  BLOG_NOT_FOUND = `Blog not found`,
+  BLOG_IS_BANNED = `Blog is banned`,
+  BLOG_NOT_DELETED = `Blog not deleted`,
+  FOREIGN_BLOG = `Foreign blog`,
+  BLOG_ALREADY_BOUND = `Blog already bound`,
 
-    // ↓↓↓ POSTS
-    POST_NOT_FOUND = `Post not found`,
-    POST_NOT_DELETED = `Post not deleted`,
-    POSTS_NOT_DELETED = `Posts not deleted`,
-    FOREIGN_POST = `Foreign post`,
+  // ↓↓↓ POSTS
+  POST_NOT_FOUND = `Post not found`,
+  POST_NOT_DELETED = `Post not deleted`,
+  POSTS_NOT_DELETED = `Posts not deleted`,
+  FOREIGN_POST = `Foreign post`,
 
 
-    // ↓↓↓ USERS
-    USER_IS_BANNED = `User is banned`,
-    USER_NOT_FOUND = `User not found`,
-    USER_NOT_BANNED = `User not banned`,
-    USER_NOT_DELETED = `User not deleted`,
-    USER_EMAIL_EXIST = `User email exist`,
-    USER_LOGIN_EXIST = `User login exist`,
-    USER_EMAIL_CONFIRMED = `User email is confirmed`,
-    USER_EMAIL_NOT_CONFIRMED = `User email not confirmed`,
+  // ↓↓↓ USERS
+  USER_IS_BANNED = `User is banned`,
+  USER_NOT_FOUND = `User not found`,
+  USER_NOT_BANNED = `User not banned`,
+  USER_NOT_DELETED = `User not deleted`,
+  USER_EMAIL_EXIST = `User email exist`,
+  USER_LOGIN_EXIST = `User login exist`,
+  USER_EMAIL_CONFIRMED = `User email is confirmed`,
+  USER_EMAIL_NOT_CONFIRMED = `User email not confirmed`,
 
-    // ↓↓↓ COMMENTS
-    COMMENT_NOT_FOUND = `Comment not found`,
-    COMMENT_NOT_DELETE = `Comment not deleted`,
-    FOREIGN_COMMENT = `Foreign comment not updated`,
-    POST_COMMENT_NOT_DELETE = `Post's comment not deleted`,
+  // ↓↓↓ COMMENTS
+  COMMENT_NOT_FOUND = `Comment not found`,
+  COMMENT_NOT_DELETE = `Comment not deleted`,
+  FOREIGN_COMMENT = `Foreign comment not updated`,
+  POST_COMMENT_NOT_DELETE = `Post's comment not deleted`,
 
 }
-
-
 
 
 // export const errorMessages = {
@@ -76,7 +75,6 @@ export enum ErrorEnums {
 //     },
 
 
-
 //     // ↓↓↓ POSTS
 //     notFoundPost(id: string, res: Response) {
 //         res
@@ -103,7 +101,6 @@ export enum ErrorEnums {
 //                 ]
 //             })
 //     },
-
 
 
 //     // ↓↓↓ USERS
@@ -169,11 +166,7 @@ export enum ErrorEnums {
 //         }
 
 
-
 //     },
-
-
-
 
 
 //     // ↓↓↓ JWT
@@ -200,8 +193,6 @@ export enum ErrorEnums {
 //                 ]
 //             })
 //     },
-
-
 
 
 //     // ↓↓↓ POST COMMENTS

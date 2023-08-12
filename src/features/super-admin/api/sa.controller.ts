@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -69,14 +70,17 @@ export class SAController {
   async bindBlog(
     @Param() param: BindInputModel,
   ) {
-    const foundBlogView = await this.commandBus.execute(
+    const foundBlogContract = await this.commandBus.execute(
       new BindBlogCommand(
         param.id,
         param.userId
       )
     )
-    if (foundBlogView === null) throw new NotFoundException(
+    if (foundBlogContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    if (foundBlogContract.error === ErrorEnums.BLOG_ALREADY_BOUND) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.BLOG_ALREADY_BOUND, "id")
     )
     return
   }

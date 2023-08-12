@@ -230,13 +230,13 @@ export class Users {
     this.emailConfirmation.sentEmails.push({ sentDate: new Date() })
   }
 
-  async banUser(banReason: string, userId: string, DevicesModel: DevicesModel): Promise<null | number> {
+  async banUser(banReason: string, userId: string, DevicesModel: DevicesModel): Promise<void> {
     this.accountData.banInfo.isBanned = true
     this.accountData.banInfo.banDate = new Date().toISOString()
     this.accountData.banInfo.banReason = banReason
 
     const deleteResult = await DevicesModel.deleteMany({ userId: userId })
-    return deleteResult.deletedCount
+    // return deleteResult.deletedCount
   }
 
   unBanUser() {

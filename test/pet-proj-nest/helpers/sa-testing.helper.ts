@@ -1,13 +1,15 @@
-import { CreateBlogBodyInputModel } from "../../../src/features/blogger/api/models/input/create-blog.body.input-model"
 import request from "supertest"
 import { endpoints } from "./routing.helper"
 import { faker } from "@faker-js/faker"
-import { CreatePostBodyInputModel } from "../../../src/features/blogger/api/models/input/create-post.body.input-model"
-import { superUser } from "../../ht16/helpers/prepeared-data"
 import {
   CreateUserOutputModel,
   UsersView
 } from "../../../src/features/super-admin/api/models/output/create-user.output-model"
+
+export const superUser = {
+  login: "admin",
+  password: "qwerty",
+}
 
 type CreateUserTestType = {
   id: string;
@@ -59,8 +61,69 @@ export class SaTestingHelper {
     const response = await request(this.server)
       .put(endpoints.saController.banUser(id))
       .auth(superUser.login, superUser.password, { type: "basic" })
+      .send({
+        isBanned: true,
+        banReason: faker.string.alpha(20),
+      })
 
     return response.status
+  }
+
+  async unbanUser(id: string): Promise<number> {
+    const response = await request(this.server)
+      .put(endpoints.saController.banUser(id))
+      .auth(superUser.login, superUser.password, { type: "basic" })
+      .send({
+        isBanned: false,
+        banReason: faker.string.alpha(20),
+      })
+
+    return response.status
+  }
+
+  async deleteUser(id: string): Promise<number> {
+    const response = await request(this.server)
+      .delete(endpoints.saController.deleteUser(id))
+      .auth(superUser.login, superUser.password, { type: "basic" })
+
+    return response.status
+  }
+
+  async banBlog(id: string): Promise<number> {
+    const response = await request(this.server)
+      .put(endpoints.saController.banBlog(id))
+      .auth(superUser.login, superUser.password, { type: "basic" })
+      .send({
+        isBanned: true
+      })
+
+    return response.status
+  }
+
+  async unbanBlog(id: string): Promise<number> {
+    const response = await request(this.server)
+      .put(endpoints.saController.banBlog(id))
+      .auth(superUser.login, superUser.password, { type: "basic" })
+      .send({
+        isBanned: false
+      })
+
+    return response.status
+  }
+
+  async bindBlog(id: string, userId: string) {
+    const response = await request(this.server)
+      .put(endpoints.saController.bindBlog(id, userId))
+      .auth(superUser.login, superUser.password, { type: "basic" })
+    return { status: response.status, body: response.body }
+  }
+
+  async getBlogs() {
+    const response = await request(this.server)
+      .get(endpoints.saController.getBlogs())
+      .auth(superUser.login, superUser.password, { type: "basic" })
+
+    return { status: response.status, body: response.body }
   }
 
 }

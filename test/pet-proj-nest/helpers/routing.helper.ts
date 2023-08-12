@@ -9,7 +9,7 @@ const testingController = `/testing`
 
 
 export const endpoints = {
-
+  // PUBLIC ↓↓↓
   authController: {
     passwordRecovery() {
       return `${authController}/password-recovery`
@@ -40,6 +40,20 @@ export const endpoints = {
     },
   },
 
+  postsController: {
+    postComment(postId: string) {
+      return `${postsController}/${postId}/comments`
+    },
+  },
+
+  blogsController: {
+    getBlog(blogId: string) {
+      return `${blogsController}/${blogId}`
+    },
+  },
+
+
+  // BLOGGER ↓↓↓
   bloggerController: {
     getBlogsComments() {
       return `${bloggerController}/blogs/comments`
@@ -76,6 +90,7 @@ export const endpoints = {
     },
   },
 
+  // SA ↓↓↓
   saController: {
     postUser() {
       return `${saController}/users`
@@ -84,15 +99,21 @@ export const endpoints = {
       return `${saController}/users`
     },
     banUser(id: string) {
-      return `${saController}/${id}/users`
-    }
+      return `${saController}/users/${id}/ban`
+    },
+    deleteUser(id: string) {
+      return `${saController}/users/${id}`
+    },
+    banBlog(id: string) {
+      return `${saController}/blogs/${id}/ban`
+    },
+    bindBlog(id: string, userId: string) {
+      return `${saController}/blogs/${id}/bind-with-user/${userId}`
+    },
+    getBlogs() {
+      return `${saController}/blogs`
+    },
   },
-
-  postsController: {
-    postComment(postId: string) {
-      return `${postsController}/${postId}/comments`
-    }
-  }
 
 
   // bloggerController: {

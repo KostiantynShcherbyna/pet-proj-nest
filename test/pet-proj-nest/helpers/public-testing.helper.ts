@@ -2,10 +2,7 @@ import { faker } from "@faker-js/faker"
 import request from "supertest"
 import { endpoints } from "./routing.helper"
 import { LoginBodyInputModel } from "../../../src/features/auth/api/models/input/login.body.input-model"
-import { Request } from "express"
 import { NewPasswordBodyInputModel } from "../../../src/features/auth/api/models/input/new-password.body.input-model"
-import { CreateBlogBodyInputModel } from "../../../src/features/blogger/api/models/input/create-blog.body.input-model"
-import { superUser } from "../../ht16/helpers/prepeared-data"
 
 export const preparedBlog = {
   valid: {
@@ -239,5 +236,16 @@ export class PublicTestingHelper {
     }
     return commentsDto
   }
+
+
+//    BLOGS ↓↓↓
+  async getBlog(accessToken: string, blogId: string) {
+    const response = await request(this.server)
+      .get(endpoints.blogsController.getBlog(blogId))
+      .auth(accessToken, { type: "bearer" })
+
+    return { status: response.status, body: response.body }
+  }
+
 
 }

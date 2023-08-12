@@ -5,13 +5,9 @@ import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 
 export class BindBlogCommand {
-  constructor(
-    public id: string,
-    public userId: string
-  ) {
+  constructor(public id: string, public userId: string) {
   }
 }
-
 
 @CommandHandler(BindBlogCommand)
 export class BindBlogBlogger implements ICommandHandler<BindBlogCommand> {
@@ -25,6 +21,7 @@ export class BindBlogBlogger implements ICommandHandler<BindBlogCommand> {
 
     const blog = await this.blogsRepository.findBlog(command.id)
     if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    if (blog.blogOwnerInfo.userId) return new Contract(null, ErrorEnums.BLOG_ALREADY_BOUND)
 
     blog.bindBlog(command.userId)
     await this.blogsRepository.saveDocument(blog)
