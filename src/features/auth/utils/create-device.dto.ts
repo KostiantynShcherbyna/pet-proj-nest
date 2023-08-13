@@ -1,4 +1,4 @@
-import { DevicesModel } from "src/features/auth/application/entitys/devices.schema"
+import { DevicesModel } from "src/features/entities/mongoose/devices.schema"
 
 export interface CreateDeviceDto {
   deviceIp: string

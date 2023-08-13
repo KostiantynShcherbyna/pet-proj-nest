@@ -2,11 +2,11 @@
 
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Blogs, BlogsModel } from "../../blogger/application/entity/blogs.schema"
-import { Posts, PostsModel } from "../../blogger/application/entity/posts.schema"
-import { Comments, CommentsModel } from "../../comments/application/entity/comments.schema"
-import { BannedBlogUsers, BannedBlogUsersModel } from "../../blogger/application/entity/banned-blog-users.schema"
-import { PostsComments, PostsCommentsModel } from "../../comments/application/entity/posts-comments.schema"
+import { Blogs, BlogsModel } from "../../entities/mongoose/blogs.schema"
+import { Posts, PostsModel } from "../../entities/mongoose/posts.schema"
+import { Comments, CommentsModel } from "../../entities/mongoose/comments.schema"
+import { BannedBlogUsers, BannedBlogUsersModel } from "../../entities/mongoose/banned-blog-users.schema"
+import { PostsComments, PostsCommentsModel } from "../../entities/mongoose/posts-comments.schema"
 import { BlogsRepository } from "./blogs.repository"
 import { UsersRepository } from "../../super-admin/infrastructure/users.repository"
 import {

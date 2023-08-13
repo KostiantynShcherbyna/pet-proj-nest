@@ -1,5 +1,5 @@
 import { EmailAdapter } from "../../adapters/email.adapter"
-import { UsersDocument } from "../../../features/super-admin/application/entity/users.schema"
+import { UsersDocument } from "../../../features/entities/mongoose/users.schema"
 
 export class EmailAdapterMock {
   async sendConfirmationCode(user: UsersDocument): Promise<boolean> {

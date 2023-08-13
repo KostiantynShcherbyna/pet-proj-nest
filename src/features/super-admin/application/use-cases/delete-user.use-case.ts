@@ -1,6 +1,6 @@
 import { CommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Users, UsersModel } from "../entity/users.schema"
+import { Users, UsersModel } from "../../../entities/mongoose/users.schema"
 import { UsersRepository } from "../../infrastructure/users.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"

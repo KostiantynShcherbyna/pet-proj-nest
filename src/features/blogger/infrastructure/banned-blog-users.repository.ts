@@ -4,7 +4,7 @@ import {
   BannedBlogUsers,
   BannedBlogUsersDocument,
   BannedBlogUsersModel
-} from "../application/entity/banned-blog-users.schema"
+} from "../../entities/mongoose/banned-blog-users.schema"
 
 
 @Injectable()

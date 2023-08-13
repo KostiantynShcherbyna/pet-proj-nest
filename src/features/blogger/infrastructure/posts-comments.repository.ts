@@ -4,7 +4,7 @@ import {
   PostsComments,
   PostsCommentsDocument,
   PostsCommentsModel
-} from "../../comments/application/entity/posts-comments.schema"
+} from "../../entities/mongoose/posts-comments.schema"
 
 
 @Injectable()

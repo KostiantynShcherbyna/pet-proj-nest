@@ -3,8 +3,9 @@ import {
   COMMENT_CONTENT_MAX_LENGTH,
   COMMENT_CONTENT_MIN_LENGTH,
   LikeStatus
-} from "../../../../infrastructure/utils/constants"
-import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
+} from "../../../infrastructure/utils/constants"
+import { UsersDocument } from "./users.schema"
+import { Contract } from "../../../infrastructure/utils/contract"
 import { HydratedDocument, Model, Types } from "mongoose"
 
 
@@ -12,34 +13,23 @@ export interface ICommentatorInfo {
   userId: string
   userLogin: string
 }
-
 export interface ILikesInfo {
   likesCount: number
   dislikesCount: number
   likes: ILike[]
 }
-
 export interface ILike {
   userId: string
   status: string
 }
 
-export interface IPostInfo {
-  id: string
-  title: string
-  blogId: string
-  blogName: string
-}
-
-
 @Schema()
-export class PostsComments {
-
-  // @Prop({
-  //   type: String,
-  //   required: true,
-  // })
-  // commentId: string
+export class Comments {
+  @Prop({
+    type: String,
+    required: true,
+  })
+  postId: string
 
   @Prop({
     type: String,
@@ -101,81 +91,46 @@ export class PostsComments {
   )
   likesInfo: ILikesInfo
 
-  @Prop(
-    raw({
-      id: {
-        type: String,
-        required: true,
-      },
-      title: {
-        type: String,
-        required: true,
-      },
-      blogId: {
-        type: String,
-        required: true,
-      },
-      blogName: {
-        type: String,
-        required: true,
-      },
-    }),
-  )
-  postInfo: IPostInfo
-
-  static createPostComment(
+  static createComment(
     postId: string,
     content: string,
     user: UsersDocument,
-    PostsCommentsModel: PostsCommentsModel,
-    commentId: Types.ObjectId,
-    title: string,
-    blogId: string,
-    blogName: string,
-    createdAt: string,
-  ): PostsCommentsDocument {
+    CommentsModel: CommentsModel,
+  ): CommentsDocument {
 
+    const date = new Date().toISOString()
     const newComment = {
-      _id: commentId,
+      postId: postId,
       content: content,
       commentatorInfo: {
         userId: user.id,
         userLogin: user.accountData.login,
       },
-      createdAt: createdAt,
+      createdAt: date,
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
         likes: [],
       },
-      postInfo: {
-        id: postId,
-        title: title,
-        blogId: blogId,
-        blogName: blogName
-      }
     }
-    const newCommentInsertResult = new PostsCommentsModel(newComment)
+    const newCommentInsertResult = new CommentsModel(newComment)
     return newCommentInsertResult
   }
 
-  static async deletePostComments(postId: string, PostsCommentsModel: PostsCommentsModel): Promise<number> {
-    const deletePostCommentsResult = await PostsCommentsModel.deleteMany({ "postInfo.id": postId })
-    return deletePostCommentsResult.deletedCount
+  static async deleteComment(commentId: string, CommentsModel: CommentsModel): Promise<Contract<number>> {
+    let deleteCommentResult = await CommentsModel.deleteOne({
+      _id: new Types.ObjectId(commentId),
+    })
+    return new Contract(deleteCommentResult.deletedCount, null)
   }
 
-  // static async updatePostComments(postId: string, title: string, PostsCommentsModel: PostsCommentsModel) {
-  //   const updatePostCommentsResult = await PostsCommentsModel.updateMany({ "postInfo.id": postId }, { "postInfo.title": title })
-  //   return updatePostCommentsResult.modifiedCount
-  // }
-  // updatePostComment(title: string) {
-  //   this.postInfo.title = title
-  // }
+  checkCommentator(userId: string) {
+    return this.commentatorInfo.userId === userId
+  }
 
-  // checkCommentator(userId: string) {
-  //   return this.commentatorInfo.userId === userId
-  // }
-
+  updateComment(content: string) {
+    this.content = content
+  }
 
   createOrUpdateLike(userId: string, newLikeStatus: string) {
     const like = this.likesInfo.likes.find((like) => like.userId === userId)
@@ -228,36 +183,25 @@ export class PostsComments {
     }
   }
 }
-
-interface PostsCommentsStatics {
-  createPostComment(
+interface CommentsStatics {
+  createComment(
     postId: string,
     content: string,
     user: UsersDocument,
-    PostsCommentsModel: PostsCommentsModel,
-    commentId: Types.ObjectId,
-    title: string,
-    blogId: string,
-    blogName: string,
-    createdAt: string,
-  ): PostsCommentsDocument
+    CommentsModel: CommentsModel,
+  ): CommentsDocument
 
-  deletePostComments(
+  deleteComment(
     commentId: string,
-    PostsCommentsModel: PostsCommentsModel,
-  ): Promise<number>
-
-  updatePostComments(
-    commentId: string,
-    PostsCommentsModel: PostsCommentsModel,
-  ): Promise<number>
+    CommentsModel: CommentsModel,
+  ): Promise<Contract<number>>
 }
 
-export const PostsCommentsSchema = SchemaFactory.createForClass(PostsComments)
-PostsCommentsSchema.statics.createPostComment = PostsComments.createPostComment
-// PostsCommentsSchema.methods.checkCommentator = PostsComments.prototype.checkCommentator
-// PostsCommentsSchema.methods.updatePostComment = PostsComments.prototype.updatePostComment
-PostsCommentsSchema.methods.createOrUpdateLike = PostsComments.prototype.createOrUpdateLike
+export const CommentsSchema = SchemaFactory.createForClass(Comments)
+CommentsSchema.statics.createComment = Comments.createComment
+CommentsSchema.methods.checkCommentator = Comments.prototype.checkCommentator
+CommentsSchema.methods.updateComment = Comments.prototype.updateComment
+CommentsSchema.methods.createOrUpdateLike = Comments.prototype.createOrUpdateLike
 
-export type PostsCommentsDocument = HydratedDocument<PostsComments>
-export type PostsCommentsModel = Model<PostsCommentsDocument> & PostsCommentsStatics
+export type CommentsDocument = HydratedDocument<Comments>
+export type CommentsModel = Model<CommentsDocument> & CommentsStatics

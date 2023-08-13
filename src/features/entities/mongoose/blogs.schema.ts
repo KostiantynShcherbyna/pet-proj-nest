@@ -3,13 +3,13 @@ import {
   BLOGS_DESCRIPTION_MAX_LENGTH,
   BLOGS_NAME_MAX_LENGTH,
   BLOGS_WEBSITEURL_MAX_LENGTH, BLOGS_WEBSITEURL_REGEX
-} from "../../../../infrastructure/utils/constants"
-import { CreateBlogCommand } from "../use-cases/create-blog.use-case"
+} from "../../../infrastructure/utils/constants"
+import { CreateBlogCommand } from "../../blogger/application/use-cases/create-blog.use-case"
 import { PostsModel } from "./posts.schema"
-import { Contract } from "../../../../infrastructure/utils/contract"
-import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+import { Contract } from "../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { UpdateBlogBodyInputModel } from "../../api/models/input/update-blog.body.input-model"
+import { UpdateBlogBodyInputModel } from "../../blogger/api/models/input/update-blog.body.input-model"
 
 
 export interface IBlogOwnerInfo {

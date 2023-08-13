@@ -8,7 +8,7 @@
 // import { isUUID } from '@nestjs/common/utils/is-uuid';
 // import { INestApplication } from '@nestjs/common';
 // import { MongoMemoryServer } from 'mongodb-memory-server';
-// import { TestingRepository } from '../../src/modules/testing/infrastructure/testing.repository.mongodb';
+// import { TestingRepository } from '../../src/modules/testing/entities/testing.repository.mongodb';
 // import { TestingBlog, TestingComment, TestingPost, TestingUser } from '../helpers/prepeared-data';
 // import { Test, TestingModule } from '@nestjs/testing';
 // import { AppModule } from '../../src/app.module';

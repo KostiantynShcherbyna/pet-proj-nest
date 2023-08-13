@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Users, UsersDocument, UsersModel } from "../application/entity/users.schema"
+import { Users, UsersDocument, UsersModel } from "../../entities/mongoose/users.schema"
 
 @Injectable()
 export class UsersRepository {

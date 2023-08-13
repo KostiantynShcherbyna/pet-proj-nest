@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose"
-import { Devices, DevicesModel } from "../entitys/devices.schema"
+import { Devices, DevicesModel } from "../../../entities/mongoose/devices.schema"
 import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
 import { DevicesRepository } from "../../../devices/infrastructure/devices.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"

@@ -4,11 +4,11 @@ import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH
-} from "../../../../infrastructure/utils/constants"
-import { CreatePostBodyDto } from "../../utils/create-post-body.dto"
+} from "../../../infrastructure/utils/constants"
+import { CreatePostBodyDto } from "../../blogger/utils/create-post-body.dto"
 import { HydratedDocument, Model, Types } from "mongoose"
-import { UsersDocument } from "../../../super-admin/application/entity/users.schema"
-import { UpdatePostBodyInputModel } from "../../api/models/input/update-post.body.input-model"
+import { UsersDocument } from "./users.schema"
+import { UpdatePostBodyInputModel } from "../../blogger/api/models/input/update-post.body.input-model"
 
 
 export interface IExtendedLikesInfo {

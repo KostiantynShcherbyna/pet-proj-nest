@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose"
-import { PostsComments, PostsCommentsModel } from "../entity/posts-comments.schema"
+import { PostsComments, PostsCommentsModel } from "../../../entities/mongoose/posts-comments.schema"
 import { PostsCommentsRepository } from "../../../blogger/infrastructure/posts-comments.repository"
 import { CommentsRepository } from "../../infrastructure/comments.repository"
 import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Posts, PostsModel } from "../../blogger/application/entity/posts.schema"
+import { Posts, PostsModel } from "../../entities/mongoose/posts.schema"
 import { Types } from "mongoose"
 
 @Injectable()

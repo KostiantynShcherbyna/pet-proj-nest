@@ -1,4 +1,4 @@
-import { Devices, DevicesDocument, DevicesModel } from "src/features/auth/application/entitys/devices.schema"
+import { Devices, DevicesDocument, DevicesModel } from "src/features/entities/mongoose/devices.schema"
 
 export type RefreshDeviceTokensDto = {
     accessToken: string

@@ -8,14 +8,14 @@ import {
   EMAIL_REGISTRATION_REGEX,
   LOGIN_MAX_LENGTH,
   LOGIN_MIN_LENGTH
-} from "../../../../infrastructure/utils/constants"
-import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
-import { generateHashManager } from "../../../../infrastructure/services/generate-hash.service"
-import { RegistrationBodyDto } from "../../../auth/utils/registration-body.dto"
-import { Contract } from "../../../../infrastructure/utils/contract"
-import { DevicesModel } from "../../../auth/application/entitys/devices.schema"
-import { RegistrationBodyInputModel } from "../../../auth/api/models/input/registration.body.input-model"
-import { compareHashManager } from "../../../../infrastructure/services/compare-hash.service"
+} from "../../../infrastructure/utils/constants"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
+import { generateHashManager } from "../../../infrastructure/services/generate-hash.service"
+import { RegistrationBodyDto } from "../../auth/utils/registration-body.dto"
+import { Contract } from "../../../infrastructure/utils/contract"
+import { DevicesModel } from "./devices.schema"
+import { RegistrationBodyInputModel } from "../../auth/api/models/input/registration.body.input-model"
+import { compareHashManager } from "../../../infrastructure/services/compare-hash.service"
 
 
 export interface IAccountData {

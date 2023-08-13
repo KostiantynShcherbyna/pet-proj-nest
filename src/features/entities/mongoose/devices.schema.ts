@@ -3,16 +3,16 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { randomUUID } from "crypto"
 import { addSeconds } from "date-fns"
 import { HydratedDocument, Model } from "mongoose"
-import { CreateDeviceDto } from "../../utils/create-device.dto"
-import { CreateDeviceTokensDto } from "../../utils/create-device-tokens.dto"
+import { CreateDeviceDto } from "../../auth/utils/create-device.dto"
+import { CreateDeviceTokensDto } from "../../auth/utils/create-device-tokens.dto"
 import {
   ACCESS_EXPIRES_TIME,
   EXPIRE_AT_ACCESS,
   EXPIRE_AT_REFRESH,
   REFRESH_EXPIRES_TIME
-} from "../../../../infrastructure/utils/constants"
-import { RefreshDeviceDto } from "../../utils/refresh-device.dto"
-import { RefreshDeviceTokensDto } from "../../utils/refresh-device-tokens.dto"
+} from "../../../infrastructure/utils/constants"
+import { RefreshDeviceDto } from "../../auth/utils/refresh-device.dto"
+import { RefreshDeviceTokensDto } from "../../auth/utils/refresh-device-tokens.dto"
 
 
 

@@ -8,7 +8,7 @@ import { TestingRepository } from "../../src/infrastructure/testing/infrastructu
 import { RegistrationBodyInputModel } from "../../src/features/auth/api/models/input/registration.body.input-model"
 import { AuthRepository } from "../../src/features/auth/infrastructure/auth.repository"
 import { faker } from "@faker-js/faker"
-import { RecoveryCodesDocument } from "../../src/features/auth/application/entitys/recovery-code.schema"
+import { RecoveryCodesDocument } from "../../src/features/entities/mongoose/recovery-code.schema"
 import { BloggerTestingHelper } from "./helpers/blogger-testing.helper"
 import {
   CreateBloggerBlogOutputModel
@@ -23,7 +23,7 @@ import request from "supertest"
 import { MeOutputModel } from "../../src/features/auth/api/models/output/me-output.model"
 import { SaTestingHelper } from "./helpers/sa-testing.helper"
 import { CreateUserOutputModel } from "../../src/features/super-admin/api/models/output/create-user.output-model"
-import { UsersDocument } from "../../src/features/super-admin/application/entity/users.schema"
+import { UsersDocument } from "../../src/features/entities/mongoose/users.schema"
 
 describe
 ("pet-proj-nest", () => {

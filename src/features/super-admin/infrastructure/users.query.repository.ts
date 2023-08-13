@@ -4,7 +4,7 @@ import { UsersView } from "src/features/super-admin/api/models/output/create-use
 import { MeOutputModel } from "src/features/auth/api/models/output/me-output.model"
 import { QueryUserSAInputModel } from "src/features/super-admin/api/models/input/get-users.query.input-model"
 import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
-import { Users, UsersModel } from "../application/entity/users.schema"
+import { Users, UsersModel } from "../../entities/mongoose/users.schema"
 import {
   BanStatus, PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT,
   SEARCH_EMAIL_TERM_DEFAULT,

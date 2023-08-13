@@ -1,6 +1,6 @@
 import { ConfigService, ConfigType } from "@nestjs/config"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { RecoveryCodes, RecoveryCodesModel } from "../entitys/recovery-code.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "../../../entities/mongoose/recovery-code.schema"
 import { InjectModel } from "@nestjs/mongoose"
 import { TokensService } from "../../../../infrastructure/services/tokens.service"
 import { AuthRepository } from "../../infrastructure/auth.repository"
