@@ -1,7 +1,7 @@
 import { UpdatePostBodyInputModel } from "../../api/models/input/update-post.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { PostsRepository } from "../../../posts/infrastructure/posts.repository"
-import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
+import { PostsRepository } from "../../../../repositories/posts/mongoose/posts.repository"
+import { BlogsRepository } from "../../../../repositories/blogs/mongoose/blogs.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 

@@ -9,21 +9,21 @@ import {
   ServiceUnavailableException
 } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import { Devices, DevicesModel } from "../../../features/entities/mongoose/devices.schema"
-import { RecoveryCodes, RecoveryCodesModel } from "../../../features/entities/mongoose/recovery-code.schema"
+import { Devices, DevicesModel } from "../../../features/devices/application/entites/mongoose/devices.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "../../../features/auth/application/entities/mongoose/recovery-code.schema"
 import {
   RequestAttempts,
   RequestAttemptsModel
-} from "../../../features/entities/mongoose/request-attempts.schema"
-import { Blogs, BlogsModel } from "../../../features/entities/mongoose/blogs.schema"
-import { Comments, CommentsModel } from "../../../features/entities/mongoose/comments.schema"
-import { Posts, PostsModel } from "../../../features/entities/mongoose/posts.schema"
-import { Users, UsersModel } from "../../../features/entities/mongoose/users.schema"
+} from "../../../features/auth/application/entities/mongoose/request-attempts.schema"
+import { Blogs, BlogsModel } from "../../../features/blogger/application/entities/mongoose/blogs.schema"
+import { Comments, CommentsModel } from "../../../features/comments/application/entities/mongoose/comments.schema"
+import { Posts, PostsModel } from "../../../features/blogger/application/entities/mongoose/posts.schema"
+import { Users, UsersModel } from "../../../features/super-admin/application/entities/mongoose/users.schema"
 import {
   BannedBlogUsers,
   BannedBlogUsersModel
-} from "../../../features/entities/mongoose/banned-blog-users.schema"
-import { PostsComments, PostsCommentsModel } from "../../../features/entities/mongoose/posts-comments.schema"
+} from "../../../features/blogger/application/entities/mongoose/banned-blog-users.schema"
+import { PostsComments, PostsCommentsModel } from "../../../features/blogger/application/entities/mongoose/posts-comments.schema"
 import { TestingRepository } from "../infrastructure/testing.repository"
 import { UserBodyInputModel } from "./models/input/user.body.input-model"
 import { callErrorMessage } from "../../adapters/exception-message.adapter"

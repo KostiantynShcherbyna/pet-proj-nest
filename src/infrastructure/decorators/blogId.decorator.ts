@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { BlogsRepository } from "../../features/blogs/infrastructure/blogs.repository"
+import { BlogsRepository } from "../../repositories/blogs/mongoose/blogs.repository"
 
 
 @ValidatorConstraint({ name: 'BlogIdIsExist', async: true })

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Types } from "mongoose"
-import { PostsRepository } from "../../infrastructure/posts.repository"
-import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { PostsRepository } from "../../../../repositories/posts/mongoose/posts.repository"
+import { UsersRepository } from "../../../../repositories/users/mongoose/users.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 

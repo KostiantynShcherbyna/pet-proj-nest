@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Types } from "mongoose"
-import { Users, UsersModel } from "../../../entities/mongoose/users.schema"
-import { Devices, DevicesModel } from "../../../entities/mongoose/devices.schema"
-import { UsersRepository } from "../../infrastructure/users.repository"
+import { Users, UsersModel } from "../entities/mongoose/users.schema"
+import { Devices, DevicesModel } from "../../../devices/application/entites/mongoose/devices.schema"
+import { UsersRepository } from "../../../../repositories/users/mongoose/users.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 

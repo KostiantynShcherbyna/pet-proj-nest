@@ -1,12 +1,12 @@
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { BanUserBodyInputModel } from "../../api/models/input/ban-user.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Blogs, BlogsModel } from "../../../entities/mongoose/blogs.schema"
+import { Blogs, BlogsModel } from "../entities/mongoose/blogs.schema"
 import { InjectModel } from "@nestjs/mongoose"
-import { BannedBlogUsers, BannedBlogUsersModel } from "../../../entities/mongoose/banned-blog-users.schema"
-import { BannedBlogUsersRepository } from "../../infrastructure/banned-blog-users.repository"
-import { BlogsRepository } from "../../../blogs/infrastructure/blogs.repository"
-import { UsersRepository } from "../../../super-admin/infrastructure/users.repository"
+import { BannedBlogUsers, BannedBlogUsersModel } from "../entities/mongoose/banned-blog-users.schema"
+import { BannedBlogUsersRepository } from "../../../../repositories/bloggers/mongoose/banned-blog-users.repository"
+import { BlogsRepository } from "../../../../repositories/blogs/mongoose/blogs.repository"
+import { UsersRepository } from "../../../../repositories/users/mongoose/users.repository"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export class BanUserBloggerCommand {
