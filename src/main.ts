@@ -13,6 +13,7 @@ import { appSettings } from "./app.settings"
 async function bootstrap() {
 
   const app = await NestFactory.create(AppModule)
+
   appSettings(app)
 
   // app.use(cookieParser());

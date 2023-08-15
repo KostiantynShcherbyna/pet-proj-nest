@@ -41,19 +41,19 @@ export class LoginSql implements ICommandHandler<LoginSqlCommand> {
 
   async execute(command: LoginSqlCommand): Promise<Contract<null | LoginOutputModel>> {
     // ↓↓↓ CHECK IN LOGIN-LOCAL-STRATEGY
-    const user = await this.usersSqlRepository.findUserLoginOrEmail({
+    const user = await this.usersSqlRepository.findUserByLoginOrEmail({
       login: command.loginBody.loginOrEmail,
       email: command.loginBody.loginOrEmail
     })
     if (user === null)
       return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-    if (user.accountData.banInfo.isBanned === true)
+    if (user.isBanned === true)
       return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
-    if (user.emailConfirmation.isConfirmed === false)
+    if (user.isConfirmed === false)
       return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
-    if (await compareHashManager(user.accountData.passwordHash, command.loginBody.password) === false)
+    if (await compareHashManager(user.passwordHash, command.loginBody.password) === false)
       return new Contract(null, ErrorEnums.PASSWORD_NOT_COMPARED)
     // ↑↑↑
 
@@ -66,7 +66,7 @@ export class LoginSql implements ICommandHandler<LoginSqlCommand> {
       id: randomUUID(),
       ip: command.deviceIp,
       title: command.userAgent,
-      userId: user.id,
+      userId: user.userId,
       lastActiveDate: newIssueAt.toISOString(),
       expireAt: addSeconds(newIssueAt, EXPIRE_AT_ACCESS)
     }

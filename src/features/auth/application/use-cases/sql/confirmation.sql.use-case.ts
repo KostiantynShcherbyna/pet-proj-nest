@@ -16,15 +16,15 @@ export class ConfirmationSql implements ICommandHandler<ConfirmationSqlCommand> 
   }
 
   async execute(command: ConfirmationSqlCommand): Promise<Contract<null | boolean>> {
-    const user = await this.usersSqlRepository.findUser({ key: "ConfirmationCode", value: command.code })
+    const user = await this.usersSqlRepository.findUserByConfirmCode(command.code)
     if (user === null)
       return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-    if (user.emailConfirmation.isConfirmed === true)
+    if (user.isConfirmed === true)
       return new Contract(null, ErrorEnums.USER_EMAIL_CONFIRMED)
-    if (user.emailConfirmation.expirationDate && !(user.emailConfirmation.expirationDate < new Date()))
+    if (user.expirationDate && (user.expirationDate < new Date()))
       return new Contract(null, ErrorEnums.CONFIRMATION_CODE_EXPIRED)
 
-    await this.usersSqlRepository.updateConfirmation({ userId: user.id, isConfirm: true })
+    await this.usersSqlRepository.updateConfirmation({ userId: user.userId, isConfirm: true })
 
     return new Contract(true, null)
   }

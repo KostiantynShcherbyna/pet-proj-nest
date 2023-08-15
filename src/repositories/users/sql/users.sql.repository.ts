@@ -11,63 +11,101 @@ import { InjectDataSource } from "@nestjs/typeorm"
 @Injectable()
 export class UsersSqlRepository {
   constructor(
-    @InjectModel(Users.name) protected UsersModel: UsersModel,
     @InjectDataSource() protected dataSource: DataSource
   ) {
   }
 
   async createUser({ login, email, passwordHash }) {
     const newUserResult = await this.dataSource.query(`
-    insert into users."AccountData"("Login", "Email", "PasswordHash", "PasswordRecoveryCode")
-    values($1, $2, null, $3)
-    returning "UserId", "Login", "Email", "CreatedAt"
+    insert into users."AccountData"("Login", "Email", "PasswordHash", "CreatedAt")
+    values($1, $2, $3, CURRENT_TIMESTAMP)
+    returning "UserId" as "userId", "Login" as "login", "Email" as "email", "CreatedAt" as "createdAt"
     `, [login, email, passwordHash])
-    return newUserResult
+    return newUserResult[0]
   }
 
-  async createEmailConfirmation(userId: number) {
+  async createEmailConfirmation(
+    emailConfirmationDto: {
+      userId: number,
+      confirmationCode: string,
+      expirationDate: Date,
+      isConfirmed: boolean
+    }
+  ) {
     await this.dataSource.query(`
     insert into users."EmailConfirmation"("UserId", "ConfirmationCode", "ExpirationDate", "IsConfirmed")
-    values(${userId}, null, null, true)
-    `)
-  }
-
-  async updateConfirmationCode(
-    { id, newConfirmationCode }: { id: number, newConfirmationCode: string }
-  ) {
-    const updateResult = await this.dataSource.query(`
-    update users."EmailConfirmation"
-    set "ConfirmationCode" = S2
-    where "UserId" = $1
-    `, [id, newConfirmationCode])
-    return updateResult[0]
+    values($1, $2, $3, $4)
+    `, [
+        emailConfirmationDto.userId,
+        emailConfirmationDto.confirmationCode,
+        emailConfirmationDto.expirationDate,
+        emailConfirmationDto.isConfirmed
+      ]
+    )
   }
 
   async createBanInfo(userId: number) {
     await this.dataSource.query(`
     insert into users."BanInfo"("UserId", "IsBanned", "BanReason", "BanDate")
-    values(${userId}, false, null, null)
-    `)
+    values($1, false, null, null)
+    `, [userId])
   }
 
-  async createSentEmailDate(userId: string) {
+  async updateConfirmationCode(
+    { userId, confirmationCode, expirationDate }: { userId: number, confirmationCode: string, expirationDate: Date }
+  ) {
+    console.log("newConfirmationCode", confirmationCode)
+    const updateResult = await this.dataSource.query(`
+    update users."EmailConfirmation"
+    set "ConfirmationCode" = $2, "ExpirationDate" = $3
+    where "UserId" = $1
+    `, [userId, confirmationCode, expirationDate])
+    return updateResult[0]
+  }
+
+  async createSentConfirmCodeDate(userId: string) {
     await this.dataSource.query(`
     insert into users."SentConfirmationCodeDates"("UserId","SentDate")
-    values(${userId}, CURRENT_TIMESTAMP)
-    `)
+    values($1, CURRENT_TIMESTAMP)
+    `, [userId])
   }
 
   async findUser({ key, value }) {
     const user = await this.dataSource.query(`
-    select a."UserId", "Login", "Email", "PasswordHash", "CreatedAt",
-           b."IsBanned", "BanDate", "BanReason"
-           c."ConfirmationCode", "ExpirationDate", "IsConfirmed",
+    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+       b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+       c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
     from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId"
+    left join users."BanInfo" b on b."UserId" = a."UserId" 
     left join users."EmailConfirmation" c on c."UserId" = a."UserId"
-    where $1 = $2
-    `, [key, value])
+    where ${key} = $1
+    `, [value])
+    return user.length ? user[0] : null
+  }
 
+  async findUserByConfirmCode(value) {
+    const user = await this.dataSource.query(`
+    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+       b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+       c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
+    from users."AccountData" a
+    left join users."BanInfo" b on b."UserId" = a."UserId" 
+    left join users."EmailConfirmation" c on c."UserId" = a."UserId"
+    where "ConfirmationCode" = $1
+    `, [value])
+    return user.length ? user[0] : null
+  }
+
+  async findUserByEmail(value) {
+    const user = await this.dataSource.query(`
+    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+       b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+       c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
+    from users."AccountData" a
+    left join users."BanInfo" b on b."UserId" = a."UserId" 
+    left join users."EmailConfirmation" c on c."UserId" = a."UserId"
+    where "Email" = $1
+    `, [value])
     return user.length ? user[0] : null
   }
 
@@ -80,13 +118,13 @@ export class UsersSqlRepository {
     return bannedUsers
   }
 
-  async findUserLoginOrEmail(userAuthData: { login: string, email: string }) {
+  async findUserByLoginOrEmail(userAuthData: { login: string, email: string }) {
     const foundUser = await this.dataSource.query(`
-    select a."UserId", "Login", "Email", "PasswordHash", "CreatedAt",
-           b."IsBanned", "BanDate", "BanReason"
-           c."ConfirmationCode", "ExpirationDate", "IsConfirmed",
+    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+       b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+       c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
     from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId"
+    left join users."BanInfo" b on b."UserId" = a."UserId" 
     left join users."EmailConfirmation" c on c."UserId" = a."UserId"
     where "Login" = $1 or "Email" = $2
     `, [userAuthData.login, userAuthData.email])

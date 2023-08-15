@@ -23,33 +23,33 @@ import { ConfirmationBodyInputModel } from "./models/input/confirmation.body.inp
 import { BodyConfirmationResendInputModel } from "./models/input/registration-resend.body.input-model"
 import { PasswordRecoveryBodyInputModel } from "./models/input/password-recovery.body.input-model"
 import { NewPasswordBodyInputModel } from "./models/input/new-password.body.input-model"
-import { UsersQueryRepository } from "../../../repositories/users/mongoose/users.query.repository"
 import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
 import { RegistrationBodyInputModel } from "./models/input/registration.body.input-model"
-import { ConfirmationCommand } from "../application/use-cases/mongoose/confirmation.use-case"
-import { ConfirmationResendCommand } from "../application/use-cases/mongoose/confirmation-resend.use-case"
 import { StrategyNames, USER_AGENT } from "../../../infrastructure/utils/constants"
-import { LoginCommand } from "../application/use-cases/mongoose/login.use-case"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
-import { LogoutCommand } from "../application/use-cases/mongoose/logout.use-case"
-import { RefreshTokenCommand } from "../application/use-cases/mongoose/refresh-token.use-case"
-import { RegistrationCommand } from "../application/use-cases/mongoose/registration.use-case"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
-import { PasswordRecoveryCommand } from "../application/use-cases/mongoose/password-recovery.use-case"
-import { NewPasswordCommand } from "../application/use-cases/mongoose/new-password.use-case"
+import { LoginSqlCommand } from "../application/use-cases/sql/login.sql.use-case"
+import { LogoutSqlCommand } from "../application/use-cases/sql/logout.sql.use-case"
+import { RefreshTokenSqlCommand } from "../application/use-cases/sql/refresh-token.sql.use-case"
+import { RegistrationSqlCommand } from "../application/use-cases/sql/registration.sql.use-case"
+import { ConfirmationSqlCommand } from "../application/use-cases/sql/confirmation.sql.use-case"
+import { ConfirmationResendSqlCommand } from "../application/use-cases/sql/confirmation-resend.sql.use-case"
+import { PasswordRecoverySqlCommand } from "../application/use-cases/sql/password-recovery.sql.use-case"
+import { NewPasswordSqlCommand } from "../application/use-cases/sql/new-password.sql.use-case"
+import { UsersSqlRepository } from "../../../repositories/users/sql/users.sql.repository"
 
-@Controller("aauth")
-export class AuthController {
+@Controller("auth")
+export class AuthSqlController {
   constructor(
-    protected usersQueryRepository: UsersQueryRepository,
+    protected usersSqlRepository: UsersSqlRepository,
     protected commandBus: CommandBus
   ) {
   }
 
   @Post("login")
   // @Throttle(5, 10)
-  @UseGuards(AuthGuard(StrategyNames.loginLocalStrategy))
+  @UseGuards(AuthGuard(StrategyNames.loginSqlLocalStrategy))
   @HttpCode(HttpStatus.OK)
   async login(
     @Headers("user-agent") userAgent: string = USER_AGENT,
@@ -58,7 +58,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const loginContract = await this.commandBus.execute(
-      new LoginCommand(
+      new LoginSqlCommand(
         bodyAuth,
         ip,
         userAgent
@@ -81,7 +81,7 @@ export class AuthController {
     @DeviceSession() deviceSession: DeviceSessionReqInputModel
   ) {
     const logoutContract = await this.commandBus.execute(
-      new LogoutCommand(
+      new LogoutSqlCommand(
         deviceSession.deviceId,
         deviceSession.expireAt,
         deviceSession.ip,
@@ -109,7 +109,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshTokenContract = await this.commandBus.execute(
-      new RefreshTokenCommand(
+      new RefreshTokenSqlCommand(
         deviceSession,
         ip,
         userAgent
@@ -132,7 +132,7 @@ export class AuthController {
     @Body() bodyRegistration: RegistrationBodyInputModel
   ) {
     const registrationContract = await this.commandBus.execute(
-      new RegistrationCommand(
+      new RegistrationSqlCommand(
         bodyRegistration.login,
         bodyRegistration.email,
         bodyRegistration.password
@@ -158,7 +158,7 @@ export class AuthController {
     @Body() bodyConfirmation: ConfirmationBodyInputModel
   ) {
     const confirmationContract = await this.commandBus.execute(
-      new ConfirmationCommand(bodyConfirmation.code)
+      new ConfirmationSqlCommand(bodyConfirmation.code)
     )
 
     if (confirmationContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
@@ -181,7 +181,7 @@ export class AuthController {
     @Body() bodyConfirmationResend: BodyConfirmationResendInputModel
   ) {
     const confirmationResendContract = await this.commandBus.execute(
-      new ConfirmationResendCommand(bodyConfirmationResend.email)
+      new ConfirmationResendSqlCommand(bodyConfirmationResend.email)
     )
 
     if (confirmationResendContract.error === ErrorEnums.USER_NOT_FOUND) throw new BadRequestException(
@@ -201,7 +201,7 @@ export class AuthController {
   async getMe(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    const userView = await this.usersQueryRepository.findUser(deviceSession.userId)
+    const userView = await this.usersSqlRepository.findUser({ key: "UserId", value: deviceSession.userId })
     if (userView === null) throw new UnauthorizedException()
     return userView
   }
@@ -214,7 +214,7 @@ export class AuthController {
     @Body() bodyPasswordRecovery: PasswordRecoveryBodyInputModel
   ) {
     const isRecoveryContract = await this.commandBus.execute(
-      new PasswordRecoveryCommand(bodyPasswordRecovery.email)
+      new PasswordRecoverySqlCommand(bodyPasswordRecovery.email)
     )
     if (isRecoveryContract.error === ErrorEnums.EMAIL_NOT_SENT) throw new InternalServerErrorException()
     if (isRecoveryContract.error === ErrorEnums.RECOVERY_CODE_NOT_DELETE) throw new InternalServerErrorException()
@@ -229,7 +229,7 @@ export class AuthController {
     @Body() bodyNewPassword: NewPasswordBodyInputModel
   ) {
     const newPasswordContract = await this.commandBus.execute(
-      new NewPasswordCommand(
+      new NewPasswordSqlCommand(
         bodyNewPassword.newPassword,
         bodyNewPassword.recoveryCode
       )

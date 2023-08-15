@@ -4,6 +4,8 @@ import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapt
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { generateHashManager } from "../../../../../infrastructure/services/generate-hash.service"
+import { add } from "date-fns"
+import { randomUUID } from "crypto"
 
 
 export class RegistrationSqlCommand {
@@ -26,26 +28,37 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
 
   async execute(command: RegistrationSqlCommand): Promise<Contract<null | boolean>> {
 
-    const user = await this.usersSqlRepository.findUserLoginOrEmail({ login: command.login, email: command.email })
-    if (user.email === command.email) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
-    if (user.login === command.login) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
+    const user = await this.usersSqlRepository.findUserByLoginOrEmail({ login: command.login, email: command.email })
+    if (user?.email === command.email) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
+    if (user?.login === command.login) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
 
     const passwordHash = await generateHashManager(command.password)
+
     const newUser = await this.usersSqlRepository.createUser({
       login: command.login,
       email: command.email,
       passwordHash: passwordHash,
     })
-    await this.usersSqlRepository.createEmailConfirmation(newUser.id)
-    await this.usersSqlRepository.createBanInfo(newUser.id)
+    const emailConfirmationDto = {
+      userId: newUser.userId,
+      confirmationCode: randomUUID(),
+      expirationDate: add(new Date(), {
+        hours: 1,
+        minutes: 3,
+      }),
+      isConfirmed: false
+    }
+    console.log("confirmationCode", emailConfirmationDto.confirmationCode)
+    await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto)
+    await this.usersSqlRepository.createBanInfo(newUser.userId)
 
     // SENDING EMAIL ↓↓↓ TODO TO CLASS
-    const isSend = await this.emailAdapter.sendConfirmationCode(newUser)
-    if (isSend === false) {
-      await this.usersSqlRepository.deleteUser(newUser.id)
-      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    }
-    await this.usersSqlRepository.createSentEmailDate(user.id)
+    // const isSend = await this.emailAdapter.sendConfirmationCode(newUser)
+    // if (isSend === false) {
+    //   await this.usersSqlRepository.deleteUser(newUser.id)
+    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    // }
+    await this.usersSqlRepository.createSentConfirmCodeDate(newUser.userId)
     return new Contract(true, null)
   }
 

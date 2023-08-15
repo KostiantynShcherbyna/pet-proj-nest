@@ -10,7 +10,10 @@ import { AppService } from "./app.service"
 import { AuthController } from "./features/auth/api/auth.controller"
 import { Devices, DevicesSchema } from "./features/devices/application/entites/mongoose/devices.schema"
 import { RecoveryCodes, RecoveryCodesSchema, } from "./features/auth/application/entities/mongoose/recovery-code.schema"
-import { RequestAttempts, RequestAttemptsSchema } from "./features/auth/application/entities/mongoose/request-attempts.schema"
+import {
+  RequestAttempts,
+  RequestAttemptsSchema
+} from "./features/auth/application/entities/mongoose/request-attempts.schema"
 import { ConfirmationResend } from "./features/auth/application/use-cases/mongoose/confirmation-resend.use-case"
 import { Confirmation } from "./features/auth/application/use-cases/mongoose/confirmation.use-case"
 import { Login } from "./features/auth/application/use-cases/mongoose/login.use-case"
@@ -22,7 +25,10 @@ import { Registration } from "./features/auth/application/use-cases/mongoose/reg
 import { AuthQueryRepository } from "./repositories/auth/mongoose/auth.query.repository"
 import { AuthRepository } from "./repositories/auth/mongoose/auth.repository"
 import { BloggerController } from "./features/blogger/api/blogger.controller"
-import { BannedBlogUsers, BannedBlogUsersSchema } from "./features/blogger/application/entities/mongoose/banned-blog-users.schema"
+import {
+  BannedBlogUsers,
+  BannedBlogUsersSchema
+} from "./features/blogger/application/entities/mongoose/banned-blog-users.schema"
 import { Blogs, BlogsSchema } from "./features/blogger/application/entities/mongoose/blogs.schema"
 import { Posts, PostsSchema } from "./features/blogger/application/entities/mongoose/posts.schema"
 import { BanUserBlogger } from "./features/blogger/application/use-cases/ban-user-blogger.use-case"
@@ -39,7 +45,10 @@ import { BlogsQueryRepository } from "./repositories/blogs/mongoose/blogs.query.
 import { BlogsRepository } from "./repositories/blogs/mongoose/blogs.repository"
 import { CommentsController } from "./features/comments/api/comments.controller"
 import { Comments, CommentsSchema } from "./features/comments/application/entities/mongoose/comments.schema"
-import { PostsComments, PostsCommentsSchema } from "./features/blogger/application/entities/mongoose/posts-comments.schema"
+import {
+  PostsComments,
+  PostsCommentsSchema
+} from "./features/blogger/application/entities/mongoose/posts-comments.schema"
 import { DeleteComment } from "./features/comments/application/use-cases/delete-comment.use-case"
 import { UpdateCommentLike } from "./features/comments/application/use-cases/update-comment-like.use-case"
 import { UpdateComment } from "./features/comments/application/use-cases/update-comment.use-case"
@@ -85,6 +94,9 @@ import { NewPasswordSql } from "./features/auth/application/use-cases/sql/new-pa
 import { PasswordRecoverySql } from "./features/auth/application/use-cases/sql/password-recovery.sql.use-case"
 import { RefreshTokenSql } from "./features/auth/application/use-cases/sql/refresh-token.sql.use-case"
 import { RegistrationSql } from "./features/auth/application/use-cases/sql/registration.sql.use-case"
+import { TypeOrmModule } from "@nestjs/typeorm"
+import { AuthSqlController } from "./features/auth/api/auth.sql.controller"
+import { LoginSqlLocalStrategy } from "./infrastructure/strategy/login.sql.local.strategy"
 
 
 const useCases = [
@@ -155,6 +167,7 @@ const otherProviders = [
   throttler,
   JwtService,
   LoginLocalStrategy,
+  LoginSqlLocalStrategy,
   BlogIdIsExist,
   EmailAdapter,
 ]
@@ -164,12 +177,23 @@ const otherProviders = [
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ".env",
       load: [configuration]
     }),
     MongooseModule.forRoot(
       configuration().MONGOOSE_URI
     ),
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: "localhost",
+      port: 5432,
+      username: "nestjsk",
+      password: "nestjsk",
+      database: "pet-proj-nest-db",
+      // entities: [],
+      autoLoadEntities: false,
+      synchronize: false,
+    }),
     ThrottlerModule.forRoot(),
     MongooseModule.forFeature([
       { name: Blogs.name, schema: BlogsSchema },
@@ -200,6 +224,8 @@ const otherProviders = [
     AuthController,
     AppController,
     DevicesController,
+
+    AuthSqlController,
   ],
   providers: [
     ...otherProviders,
@@ -208,4 +234,5 @@ const otherProviders = [
     ...useCases,
   ],
 })
-export class AppModule { }
+export class AppModule {
+}

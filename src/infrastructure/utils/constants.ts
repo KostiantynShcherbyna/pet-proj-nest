@@ -71,7 +71,8 @@ export enum BasicToken {
 }
 
 export enum StrategyNames {
-  loginLocalStrategy = 'login-local-strategy'
+  loginLocalStrategy = 'login-local-strategy',
+  loginSqlLocalStrategy = 'login-sql-local-strategy'
 }
 
 export enum Secrets {
