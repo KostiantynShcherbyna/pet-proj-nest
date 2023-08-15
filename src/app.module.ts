@@ -11,8 +11,8 @@ import { AuthController } from "./features/auth/api/auth.controller"
 import { Devices, DevicesSchema } from "./features/devices/application/entites/mongoose/devices.schema"
 import { RecoveryCodes, RecoveryCodesSchema, } from "./features/auth/application/entities/mongoose/recovery-code.schema"
 import { RequestAttempts, RequestAttemptsSchema } from "./features/auth/application/entities/mongoose/request-attempts.schema"
-import { ConfirmationResend } from "./features/auth/application/use-cases/mongoose/confiramtion-resend.use-case"
-import { Confirmation } from "./features/auth/application/use-cases/mongoose/confiramtion.use-case"
+import { ConfirmationResend } from "./features/auth/application/use-cases/mongoose/confirmation-resend.use-case"
+import { Confirmation } from "./features/auth/application/use-cases/mongoose/confirmation.use-case"
 import { Login } from "./features/auth/application/use-cases/mongoose/login.use-case"
 import { Logout } from "./features/auth/application/use-cases/mongoose/logout.use-case"
 import { NewPassword } from "./features/auth/application/use-cases/mongoose/new-password.use-case"
@@ -75,6 +75,16 @@ import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
 import { emailService } from "./infrastructure/services/emailService"
 import { UsersSqlRepository } from "./repositories/users/sql/users.sql.repository"
+import { DevicesSqlRepository } from "./repositories/devices/sql/devices.sql.repository"
+import { AuthSqlRepository } from "./repositories/auth/sql/auth.sql.repository"
+import { ConfirmationSql } from "./features/auth/application/use-cases/sql/confirmation.sql.use-case"
+import { ConfirmationResendSql } from "./features/auth/application/use-cases/sql/confirmation-resend.sql.use-case"
+import { LoginSql } from "./features/auth/application/use-cases/sql/login.sql.use-case"
+import { LogoutSql } from "./features/auth/application/use-cases/sql/logout.sql.use-case"
+import { NewPasswordSql } from "./features/auth/application/use-cases/sql/new-password.sql.use-case"
+import { PasswordRecoverySql } from "./features/auth/application/use-cases/sql/password-recovery.sql.use-case"
+import { RefreshTokenSql } from "./features/auth/application/use-cases/sql/refresh-token.sql.use-case"
+import { RegistrationSql } from "./features/auth/application/use-cases/sql/registration.sql.use-case"
 
 
 const useCases = [
@@ -107,6 +117,15 @@ const useCases = [
   BanUser,
   BanBlog,
   BanUserBlogger,
+
+  ConfirmationSql,
+  ConfirmationResendSql,
+  LoginSql,
+  LogoutSql,
+  NewPasswordSql,
+  PasswordRecoverySql,
+  RefreshTokenSql,
+  RegistrationSql,
 ]
 const services = [
   AppService,
@@ -129,6 +148,8 @@ const repository = [
   TestingRepository,
 
   UsersSqlRepository,
+  DevicesSqlRepository,
+  AuthSqlRepository,
 ]
 const otherProviders = [
   throttler,
