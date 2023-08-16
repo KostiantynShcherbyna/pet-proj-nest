@@ -26,17 +26,17 @@ export class LogoutSql implements ICommandHandler<LogoutSqlCommand> {
 
   async execute(command: LogoutSqlCommand): Promise<Contract<null | boolean>> {
 
-    const user = await this.usersSqlRepository.findUser({ key: "UserId", value: command.userId })
+    const user = await this.usersSqlRepository.findUserByUserId(command.userId)
     if (user === null)
       return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-    const device = await this.devicesSqlRepository.findDevice(command.deviceId)
+    const device = await this.devicesSqlRepository.findDeviceByDeviceId(command.deviceId)
     if (device === null)
       return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
     if (command.lastActiveDate < device.lastActiveDate)
       return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
-    const deleteResult = await this.devicesSqlRepository.deleteDevice(Number(command.deviceId))
+    const deleteResult = await this.devicesSqlRepository.deleteDevice(command.deviceId)
     if (deleteResult === null)
       return new Contract(null, ErrorEnums.DEVICE_NOT_DELETE)
 

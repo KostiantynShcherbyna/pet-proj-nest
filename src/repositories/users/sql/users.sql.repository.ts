@@ -83,6 +83,19 @@ export class UsersSqlRepository {
     return user.length ? user[0] : null
   }
 
+  async findUserByUserId(value) {
+    const user = await this.dataSource.query(`
+    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+       b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+       c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
+    from users."AccountData" a
+    left join users."BanInfo" b on b."UserId" = a."UserId" 
+    left join users."EmailConfirmation" c on c."UserId" = a."UserId"
+    where a."UserId" = $1
+    `, [value])
+    return user.length ? user[0] : null
+  }
+
   async findUserByConfirmCode(value) {
     const user = await this.dataSource.query(`
     select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
@@ -152,12 +165,13 @@ export class UsersSqlRepository {
     `, [id, userBan.isBanned, userBan.banReason])
   }
 
-  async updatePasswordHash(id: number, newPasswordHash: string) {
-    await this.dataSource.query(`
+  async updatePasswordHash(userId: number, newPasswordHash: string) {
+    const updateResult = await this.dataSource.query(`
     update users."AccountData" 
     set "PasswordHash" = $2
-    where "Id" = $1
-    `, [id, newPasswordHash])
+    where "UserId" = $1
+    `, [userId, newPasswordHash])
+    return updateResult.length ? updateResult[1] : null
   }
 
   async updateConfirmation(props: { userId: number, isConfirm: boolean }) {

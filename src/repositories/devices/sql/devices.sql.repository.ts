@@ -19,39 +19,45 @@ export class DevicesSqlRepository {
   ) {
   }
 
-  async findDevice(id: string) {
+  async findDeviceByDeviceId(id: string) {
     const device = await this.dataSource.query(`
-    select "Id"
+    select "DeviceId" as "deviceId",
+     "Ip" as "ip",
+     "Title" as "title",
+     "LastActiveDate" as "lastActiveDate",
+     "UserId" as "userId",
+     "ExpireAt" as "expireAt"
     from devices."Devices"
-    where "Id" = $1
+    where "DeviceId" = $1
     `, [id])
 
     return device.length ? device[0] : null
   }
 
-  async createDevice({ id, ip, title, userId, lastActiveDate, expireAt }) {
+  async createDevice({ deviceId, ip, title, userId, lastActiveDate, expireAt }) {
     const newDeviceResult = await this.dataSource.query(`
-    insert into devices."Devices"("Id", "Ip", "Title", "UserId", "LastActiveDate", "ExpireAt")
+    insert into devices."Devices"("DeviceId", "Ip", "Title", "UserId", "LastActiveDate", "ExpireAt")
     values($1, $2, $3, $4, $5, $6)
-    returning "Id"
-    `, [id, ip, title, userId, lastActiveDate, expireAt])
+    returning "DeviceId"
+    `, [deviceId, ip, title, userId, lastActiveDate, expireAt])
     return newDeviceResult[0]
   }
 
-  async updateActiveDate({ id, lastActiveDate, expireAt }) {
-    await this.dataSource.query(`
+  async updateActiveDate({ deviceId, lastActiveDate, expireAt }) {
+    const updateResult = await this.dataSource.query(`
     update devices."Devices"
     set "LastActiveDate" = $2, "ExpireAt" = $3
-    where "Id" = $1
-    `, [id, lastActiveDate, expireAt])
+    where "DeviceId" = $1
+    `, [deviceId, lastActiveDate, expireAt])
+    return updateResult.length ? updateResult[1] : null
   }
 
-  async deleteDevice(id: number) {
+  async deleteDevice(deviceId: string) {
     const deleteResult = await this.dataSource.query(`
-    delete from users."EmailConfirmation"
-    where "Id" = $1
-    `, [id])
-    return deleteResult.length ? deleteResult : null
+    delete from devices."Devices"
+    where "DeviceId" = $1
+    `, [deviceId])
+    return deleteResult.length ? deleteResult[1] : null
   }
 
 }

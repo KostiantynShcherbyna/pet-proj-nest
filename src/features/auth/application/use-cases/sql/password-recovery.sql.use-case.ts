@@ -31,6 +31,9 @@ export class PasswordRecoverySql implements ICommandHandler<PasswordRecoverySqlC
     const passwordRecoveryCodeSecret = this.configService.get(Secrets.PASSWORD_RECOVERY_CODE_SECRET, { infer: true })
     // const passwordHashExpiresTime = this.configService.get(PASSWORD_HASH_EXPIRES_TIME, { infer: true })
 
+    const recoveryCode = await this.authSqlRepository.findLastRecoveryCodeByEmail(command.email)
+    if (recoveryCode !== null) await this.authSqlRepository.deactivatePasswordRecoveryCode(recoveryCode.id)
+
     const newPasswordRecoveryCode = await this.tokensService.createToken(
       { email: command.email },
       passwordRecoveryCodeSecret,
@@ -42,17 +45,16 @@ export class PasswordRecoverySql implements ICommandHandler<PasswordRecoverySqlC
       recoveryCode: newPasswordRecoveryCode,
       active: true,
     })
-
+    console.log("newRecoveryCode", newRecoveryCode)
     // SENDING PASSWORD RECOVERY ↓↓↓
-    const isSend = await this.emailAdapter.sendPasswordRecovery(newRecoveryCode.email, newRecoveryCode.recoveryCode)
-    if (!isSend) {
-      const deletedResult = await this.authSqlRepository.deletePasswordRecoveryCode(newRecoveryCode.id)
-      if (deletedResult.deletedCount === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_DELETE)
-      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    }
+    // const isSend = await this.emailAdapter.sendPasswordRecovery(newRecoveryCode.email, newRecoveryCode.recoveryCode)
+    // if (!isSend) {
+    //   const deletedResult = await this.authSqlRepository.deletePasswordRecoveryCode(newRecoveryCode.id)
+    //   if (deletedResult.deletedCount === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_DELETE)
+    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    // }
 
-    const oldRecoveryCode = await this.authSqlRepository.findRecoveryCode(command.email)
-    if (oldRecoveryCode !== null) await this.authSqlRepository.deactivatePasswordRecoveryCode(oldRecoveryCode.id)
+
 
     return new Contract(true, null)
   }

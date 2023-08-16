@@ -63,7 +63,7 @@ export class LoginSql implements ICommandHandler<LoginSqlCommand> {
     const newIssueAt = new Date(Date.now())
 
     const tokensPayload = {
-      id: randomUUID(),
+      deviceId: randomUUID(),
       ip: command.deviceIp,
       title: command.userAgent,
       userId: user.userId,

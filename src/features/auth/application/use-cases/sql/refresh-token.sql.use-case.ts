@@ -14,6 +14,7 @@ import { JwtService } from "@nestjs/jwt"
 import { DevicesSqlRepository } from "../../../../../repositories/devices/sql/devices.sql.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
+import { TokensService } from "../../../../../infrastructure/services/tokens.service"
 
 
 export class RefreshTokenSqlCommand {
@@ -27,17 +28,17 @@ export class RefreshTokenSql implements ICommandHandler<RefreshTokenSqlCommand> 
     protected configService: ConfigService<ConfigType<any>, true>,
     protected devicesSqlRepository: DevicesSqlRepository,
     protected usersSqlRepository: UsersSqlRepository,
-    protected jwtService: JwtService,
+    protected tokensService: TokensService,
   ) {
   }
 
   async execute(command: RefreshTokenSqlCommand): Promise<Contract<null | RefreshTokenOutputModel>> {
 
-    const user = await this.usersSqlRepository.findUser({ key: "UserId", value: command.deviceSession.userId })
+    const user = await this.usersSqlRepository.findUserByUserId(command.deviceSession.userId)
     if (user === null)
       return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-    const device = await this.devicesSqlRepository.findDevice(command.deviceSession.deviceId)
+    const device = await this.devicesSqlRepository.findDeviceByDeviceId(command.deviceSession.deviceId)
     if (device === null)
       return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
     if (command.deviceSession.lastActiveDate < device.lastActiveDate)
@@ -49,26 +50,22 @@ export class RefreshTokenSql implements ICommandHandler<RefreshTokenSqlCommand> 
     const newIssueAt = new Date(Date.now())
 
     const tokensPayload = {
-      id: device.userId,
+      userId: device.userId,
       ip: command.deviceIp,
       title: command.userAgent,
       deviceId: device.deviceId,
       lastActiveDate: newIssueAt.toISOString(),
       expireAt: addSeconds(newIssueAt, EXPIRE_AT_ACCESS)
     }
-    const accessToken = await this.jwtService.signAsync(
+    const accessToken = await this.tokensService.createToken(
       tokensPayload,
-      {
-        secret: accessJwtSecret,
-        expiresIn: ACCESS_EXPIRES_TIME
-      }
+      accessJwtSecret,
+      ACCESS_EXPIRES_TIME
     )
-    const refreshToken = await this.jwtService.signAsync(
+    const refreshToken = await this.tokensService.createToken(
       tokensPayload,
-      {
-        secret: refreshJwtSecret,
-        expiresIn: REFRESH_EXPIRES_TIME
-      }
+      refreshJwtSecret,
+      REFRESH_EXPIRES_TIME
     )
 
     await this.devicesSqlRepository.updateActiveDate(tokensPayload)

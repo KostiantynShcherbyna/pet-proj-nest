@@ -16,19 +16,21 @@ export class AuthSqlRepository {
   ) {
   }
 
-  async findRecoveryCode(email: string) {
-    const recoveryCode = await this.dataSource.query(`
-    select "Email"
-    from users."RecoveryCodes"
+  async findLastRecoveryCodeByEmail(email: string) {
+    const recoveryCodes = await this.dataSource.query(`
+    select "Id" as "id",
+     "Email" as "email",
+     "RecoveryCode" as "recoveryCode",
+     "Active" as "active"
+    from auth."RecoveryCodes"
     where "Email" = $1
     `, [email])
-
-    return recoveryCode.length ? recoveryCode[0] : null
+    return recoveryCodes.length ? recoveryCodes[recoveryCodes.length - 1] : null
   }
 
   async createPasswordRecoveryCode({ email, recoveryCode, active }) {
     const newRecoveryCode = await this.dataSource.query(`
-    insert into recoveryCodes."RecoveryCodes"("Email", "RecoveryCode", "Active")
+    insert into auth."RecoveryCodes"("Email", "RecoveryCode", "Active")
     values($1, $2, $3)
     returning "Id", "Email", "RecoveryCode"
     `, [email, recoveryCode, active])
@@ -37,19 +39,19 @@ export class AuthSqlRepository {
 
   async deactivatePasswordRecoveryCode(id: number) {
     const deactivateResult = await this.dataSource.query(`
-    update recoveryCodes."RecoveryCodes"
+    update auth."RecoveryCodes"
     set "Active" = false
-    where "Active" = $1
+    where "Id" = $1
     `, [id])
     return deactivateResult.length ? deactivateResult[0] : null
   }
 
   async deletePasswordRecoveryCode(id: number) {
     const deleteResult = await this.dataSource.query(`
-    delete from users."RecoveryCodes"
+    delete from auth."RecoveryCodes"
     where "Id" = $1, 
     `, [id])
-    return deleteResult.length ? deleteResult[0] : null
+    return deleteResult.length ? deleteResult[1] : null
   }
 
 }

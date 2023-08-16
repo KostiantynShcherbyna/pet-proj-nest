@@ -29,18 +29,17 @@ export class NewPasswordSql implements ICommandHandler<NewPasswordSqlCommand> {
     const verifiedEmailDto = await this.tokensService.verifyToken(command.recoveryCode, passwordRecoveryCodeSecret)
     if (verifiedEmailDto === null) return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
-    const oldRecoveryCodeDto = await this.authSqlRepository.findRecoveryCode(verifiedEmailDto.email)
-    if (oldRecoveryCodeDto === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_FOUND)
-    if (oldRecoveryCodeDto.recoveryCode !== command.recoveryCode) return new Contract(null, ErrorEnums.RECOVERY_CODE_INVALID)
+    const lastRecoveryCodeDto = await this.authSqlRepository.findLastRecoveryCodeByEmail(verifiedEmailDto.email)
+    if (lastRecoveryCodeDto === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_FOUND)
+    if (lastRecoveryCodeDto.recoveryCode !== command.recoveryCode) return new Contract(null, ErrorEnums.RECOVERY_CODE_INVALID)
 
-    const user = await this.usersSqlRepository.findUser({
-      key: "Email",
-      value: verifiedEmailDto.email
-    })
+    const user = await this.usersSqlRepository.findUserByEmail(verifiedEmailDto.email)
     if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
     const newPasswordHash = await generateHashManager(command.newPassword)
-    await this.usersSqlRepository.updatePasswordHash(user.id, newPasswordHash)
+    await this.usersSqlRepository.updatePasswordHash(user.userId, newPasswordHash)
+
+    await this.authSqlRepository.deactivatePasswordRecoveryCode(lastRecoveryCodeDto.id)
 
     return new Contract(true, null)
   }

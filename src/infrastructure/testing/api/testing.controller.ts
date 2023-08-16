@@ -70,12 +70,13 @@ export class TestingController {
           await this.RecoveryCodesModel.deleteMany({}),
           await this.BannedBlogUsersModel.deleteMany({}),
           await this.PostsCommentsModel.deleteMany({}),
+          await this.dataSource.query(`delete from auth."RecoveryCodes"`),
+          await this.dataSource.query(`delete from devices."Devices"`),
           await this.dataSource.query(`delete from users."SentConfirmationCodeDates"`),
           await this.dataSource.query(`delete from users."BanInfo"`),
           await this.dataSource.query(`delete from users."EmailConfirmation"`),
           await this.dataSource.query(`delete from users."AccountData"`),
           // await this.dataSource.query(`ALTER SEQUENCE users RESTART WITH 1`),
-
         ]
       )
       return
