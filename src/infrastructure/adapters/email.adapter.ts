@@ -2,7 +2,7 @@ import { UsersDocument } from "src/features/super-admin/application/entities/mon
 import { emailService } from "../services/emailService"
 
 export class EmailAdapter {
-  async sendConfirmationCode(user: UsersDocument) {
+  async sendConfirmationCode(user: any) {
 
     const domain = `https://somesite.com`
 
@@ -12,12 +12,12 @@ export class EmailAdapter {
       pass: "lkzebhjjcjymsvqc",
       from: "Kostyan <kstntn.xxx@gmail.com>",
 
-      email: user.accountData.email,
+      email: user.accountData?.email || user.email,
       subject: "registration confirmation",
       message: `<h1>Thank for your registration</h1>
             <p>To finish registration please follow the link below:
-            <a href="${domain}/confirm-email?code=${user.emailConfirmation.confirmationCode}">
-            complete registration with code</a> ${user.emailConfirmation.confirmationCode}
+            <a href="${domain}/confirm-email?code=${user.emailConfirmation?.confirmationCode || user.confirmationCode}">
+            complete registration with code</a> ${user.emailConfirmation?.confirmationCode || user.confirmationCode}
             </p>`
     }
 

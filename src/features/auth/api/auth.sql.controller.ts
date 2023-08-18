@@ -201,7 +201,7 @@ export class AuthSqlController {
   async getMe(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    const userView = await this.usersSqlRepository.findUser({ key: "UserId", value: deviceSession.userId })
+    const userView = await this.usersSqlRepository.findUserByUserId(deviceSession.userId)
     if (userView === null) throw new UnauthorizedException()
     return userView
   }

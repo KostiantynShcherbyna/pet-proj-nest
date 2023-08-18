@@ -7,7 +7,10 @@ import { GetCommentsOutputModel } from "src/features/comments/api/models/output/
 import { LikeStatus } from "../utils/constants"
 import { BannedBlogUsersDocument } from "src/features/blogger/application/entities/mongoose/banned-blog-users.schema"
 import { Types } from "mongoose"
-import { PostsComments, PostsCommentsDocument } from "src/features/blogger/application/entities/mongoose/posts-comments.schema"
+import {
+  PostsComments,
+  PostsCommentsDocument
+} from "src/features/blogger/application/entities/mongoose/posts-comments.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 
@@ -78,8 +81,6 @@ export const dtoManager = {
     })
 
   },
-
-
 
 
   //  ↓↓↓ POSTS
@@ -165,7 +166,6 @@ export const dtoManager = {
   },
 
 
-
   // ↓↓↓ COMMENTS
   changeCommentView(data: CommentsDocument, myStatus: string): GetCommentsOutputModel {
     return {
@@ -207,7 +207,6 @@ export const dtoManager = {
   },
 
 
-
   // ↓↓↓ USERS
   createUserView(data: UsersDocument) {
     return {
@@ -242,6 +241,21 @@ export const dtoManager = {
     })
   },
 
+  changeUsersSqlView(users: any) {
+    return users.map(user => {
+      return {
+        id: user.id.toString(),
+        login: user.login,
+        email: user.email,
+        createdAt: user.createdAt,
+        banInfo: {
+          banDate: user.banDate,
+          banReason: user.banReason,
+          isBanned: user.isBanned,
+        }
+      }
+    })
+  },
 
 
   // ↓↓↓ DEVICES

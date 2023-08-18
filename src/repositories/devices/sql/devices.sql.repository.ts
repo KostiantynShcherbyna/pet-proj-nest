@@ -20,7 +20,7 @@ export class DevicesSqlRepository {
   }
 
   async findDeviceByDeviceId(id: string) {
-    const device = await this.dataSource.query(`
+    const devices = await this.dataSource.query(`
     select "DeviceId" as "deviceId",
      "Ip" as "ip",
      "Title" as "title",
@@ -31,7 +31,7 @@ export class DevicesSqlRepository {
     where "DeviceId" = $1
     `, [id])
 
-    return device.length ? device[0] : null
+    return devices.length ? devices[0] : null
   }
 
   async createDevice({ deviceId, ip, title, userId, lastActiveDate, expireAt }) {
@@ -57,6 +57,15 @@ export class DevicesSqlRepository {
     delete from devices."Devices"
     where "DeviceId" = $1
     `, [deviceId])
+    return deleteResult.length ? deleteResult[1] : null
+  }
+
+  async deleteOtherDevices({ userId, deviceId }) {
+    const deleteResult = await this.dataSource.query(`
+    delete from devices."Devices"
+    where "UserId" = $1 and "DeviceId" <> $2
+//     where "DeviceId" not in (select "DeviceId" from devices."Devices" where "DeviceId" = $1)
+    `, [userId, deviceId])
     return deleteResult.length ? deleteResult[1] : null
   }
 

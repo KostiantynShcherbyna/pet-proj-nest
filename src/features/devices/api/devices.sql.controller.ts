@@ -20,12 +20,15 @@ import { DeleteOtherDevicesCommand } from "../application/use-cases/mongoose/del
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { DeleteSpecialDeviceCommand } from "../application/use-cases/mongoose/delete-special-device.use-case"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
+import { DevicesSqlQueryRepository } from "../../../repositories/devices/sql/devices.sql.query.repository"
+import { DeleteOtherDevicesSqlCommand } from "../application/use-cases/sql/delete-other-devices.use-case"
+import { DeleteSpecialDeviceSqlCommand } from "../application/use-cases/sql/delete-special-device.use-case"
 
 @Controller("security")
-export class DevicesController {
+export class DevicesSqlController {
   constructor(
     private commandBus: CommandBus,
-    protected authQueryRepository: AuthQueryRepository,
+    protected devicesSqlQueryRepository: DevicesSqlQueryRepository,
   ) {
   }
 
@@ -34,7 +37,7 @@ export class DevicesController {
   async getDevices(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    return await this.authQueryRepository.findDevicesByUserIdView(deviceSession.userId)
+    return await this.devicesSqlQueryRepository.findDevicesByUserId(deviceSession.userId)
   }
 
   @UseGuards(RefreshGuard)
@@ -44,7 +47,7 @@ export class DevicesController {
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
     const result = await this.commandBus.execute(
-      new DeleteOtherDevicesCommand(
+      new DeleteOtherDevicesSqlCommand(
         deviceSession.userId,
         deviceSession.deviceId
       )
@@ -62,7 +65,7 @@ export class DevicesController {
     @Param() param: DeleteSpecialDeviceParamInputModel,
   ) {
     const result = await this.commandBus.execute(
-      new DeleteSpecialDeviceCommand(
+      new DeleteSpecialDeviceSqlCommand(
         param.deviceId,
         deviceSession.userId
       )

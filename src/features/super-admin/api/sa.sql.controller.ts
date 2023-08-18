@@ -33,12 +33,18 @@ import { QueryUserSAInputModel } from "./models/input/get-users.query.input-mode
 import { CreateUserBodyInputModel } from "./models/input/create-user.body.input-model"
 import { CreateUserCommand } from "../application/use-cases/mongoose/create-user.use-case"
 import { DeleteUserCommand } from "../application/use-cases/mongoose/delete-user.use-case"
+import { BanUserSqlCommand } from "../application/use-cases/sql/ban-user.sql.use-case"
+import { CreateUserSqlCommand } from "../application/use-cases/sql/create-user.sql.use-case"
+import { UsersSqlQueryRepository } from "../../../repositories/users/sql/users.sql.query.repository"
+import { DeleteUserSqlCommand } from "../application/use-cases/sql/delete-user.sql.use-case"
+import { IdSqlParamInputModel } from "./models/input/id.sql.param.input-model"
 
-@Controller("ssa")
-export class SAController {
+@Controller("sa")
+export class SASqlController {
   constructor(
     private commandBus: CommandBus,
     protected usersQueryRepository: UsersQueryRepository,
+    protected usersSqlQueryRepository: UsersSqlQueryRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
   ) {
   }
@@ -100,11 +106,11 @@ export class SAController {
   @Put("users/:id/ban")
   @HttpCode(HttpStatus.NO_CONTENT)
   async banUser(
-    @Param() param: IdParamInputModel,
+    @Param() param: IdSqlParamInputModel,
     @Body() bodyUserBan: BanUserBodyInputModel
   ) {
     const banContract = await this.commandBus.execute(
-      new BanUserCommand(
+      new BanUserSqlCommand(
         param.id,
         bodyUserBan.isBanned,
         bodyUserBan.banReason,
@@ -122,7 +128,7 @@ export class SAController {
   async getUsers(
     @Query() queryUser: QueryUserSAInputModel
   ) {
-    return await this.usersQueryRepository.findUsers(queryUser)
+    return await this.usersSqlQueryRepository.findUsers(queryUser)
   }
 
 
@@ -131,13 +137,17 @@ export class SAController {
   async createUser(
     @Body() bodyUser: CreateUserBodyInputModel
   ) {
-    return await this.commandBus.execute(
-      new CreateUserCommand(
+    const createResult = await this.commandBus.execute(
+      new CreateUserSqlCommand(
         bodyUser.login,
         bodyUser.email,
         bodyUser.password
       )
     )
+    if (createResult.error) throw new InternalServerErrorException()
+    const userView = await this.usersSqlQueryRepository.findUsersByUserId(createResult.data)
+    if (userView === null) throw new NotFoundException()
+    return userView
   }
 
 
@@ -145,10 +155,10 @@ export class SAController {
   @Delete("users/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
-    @Param() param: IdParamInputModel
+    @Param() param: IdSqlParamInputModel
   ) {
     const resultContract = await this.commandBus.execute(
-      new DeleteUserCommand(param.id)
+      new DeleteUserSqlCommand(param.id)
     )
     if (resultContract.error === ErrorEnums.USER_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_DELETED, "id")

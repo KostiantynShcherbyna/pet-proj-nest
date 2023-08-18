@@ -47,14 +47,12 @@ export class PasswordRecoverySql implements ICommandHandler<PasswordRecoverySqlC
     })
     console.log("newRecoveryCode", newRecoveryCode)
     // SENDING PASSWORD RECOVERY ↓↓↓
-    // const isSend = await this.emailAdapter.sendPasswordRecovery(newRecoveryCode.email, newRecoveryCode.recoveryCode)
-    // if (!isSend) {
-    //   const deletedResult = await this.authSqlRepository.deletePasswordRecoveryCode(newRecoveryCode.id)
-    //   if (deletedResult.deletedCount === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_DELETE)
-    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    // }
-
-
+    const isSend = await this.emailAdapter.sendPasswordRecovery(newRecoveryCode.email, newRecoveryCode.recoveryCode)
+    if (!isSend) {
+      const deletedResult = await this.authSqlRepository.deletePasswordRecoveryCode(newRecoveryCode.id)
+      if (deletedResult.deletedCount === null) return new Contract(null, ErrorEnums.RECOVERY_CODE_NOT_DELETE)
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    }
 
     return new Contract(true, null)
   }

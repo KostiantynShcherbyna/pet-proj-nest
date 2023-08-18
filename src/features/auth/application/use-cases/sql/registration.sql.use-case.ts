@@ -53,11 +53,11 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
     await this.usersSqlRepository.createBanInfo(newUser.userId)
 
     // SENDING EMAIL ↓↓↓ TODO TO CLASS
-    // const isSend = await this.emailAdapter.sendConfirmationCode(newUser)
-    // if (isSend === false) {
-    //   await this.usersSqlRepository.deleteUser(newUser.id)
-    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    // }
+    const isSend = await this.emailAdapter.sendConfirmationCode(newUser)
+    if (isSend === false) {
+      await this.usersSqlRepository.deleteUser(newUser.id)
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    }
     await this.usersSqlRepository.createSentConfirmCodeDate(newUser.userId)
     return new Contract(true, null)
   }

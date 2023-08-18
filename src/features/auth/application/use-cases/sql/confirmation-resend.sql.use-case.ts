@@ -36,11 +36,11 @@ export class ConfirmationResendSql implements ICommandHandler<ConfirmationResend
 
     await this.usersSqlRepository.updateConfirmationCode(updatedEmailConfirmationDto)
     // SENDING EMAIL ↓↓↓
-    // const isSend = await this.emailAdapter.sendConfirmationCode(user)
-    // if (isSend === false) {
-    //   await this.usersSqlRepository.deleteUser(user.id)
-    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    // }
+    const isSend = await this.emailAdapter.sendConfirmationCode(user)
+    if (isSend === false) {
+      await this.usersSqlRepository.deleteUser(user.id)
+      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    }
 
     await this.usersSqlRepository.createSentConfirmCodeDate(user.userId)
 

@@ -27,8 +27,8 @@ export class UsersSqlRepository {
   async createEmailConfirmation(
     emailConfirmationDto: {
       userId: number,
-      confirmationCode: string,
-      expirationDate: Date,
+      confirmationCode: string | null,
+      expirationDate: Date | null,
       isConfirmed: boolean
     }
   ) {
@@ -70,18 +70,18 @@ export class UsersSqlRepository {
     `, [userId])
   }
 
-  async findUser({ key, value }) {
-    const user = await this.dataSource.query(`
-    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
-       b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
-       c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
-    from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId" 
-    left join users."EmailConfirmation" c on c."UserId" = a."UserId"
-    where ${key} = $1
-    `, [value])
-    return user.length ? user[0] : null
-  }
+  // async findUser({ key, value }) {
+  //   const user = await this.dataSource.query(`
+  //   select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+  //      b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+  //      c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
+  //   from users."AccountData" a
+  //   left join users."BanInfo" b on b."UserId" = a."UserId"
+  //   left join users."EmailConfirmation" c on c."UserId" = a."UserId"
+  //   where ${key} = $1
+  //   `, [value])
+  //   return user.length ? user[0] : null
+  // }
 
   async findUserByUserId(value) {
     const user = await this.dataSource.query(`
@@ -144,28 +144,68 @@ export class UsersSqlRepository {
     return foundUser.length ? foundUser[0] : null
   }
 
-  async deleteUser(id: number) {
-    // await this.dataSource.transaction(async manager => {
-    //   await manager.query(`delete from users."EmailConfirmation" where "UserId" = $1`, [id])
-    //   await manager.query(`delete from users."BanInfo" where "UserId" = $1`, [id])
-    //   await manager.query(`delete from users."Users" where "UserId" = $1`, [id])
-    // })
+  async deleteUser(userId: string) {
+    const deleteResults = await this.dataSource.transaction(async manager => {
+      const result1 = await manager.query(`delete from users."EmailConfirmation" where "UserId" = $1`, [userId])
+      const result2 = await manager.query(`delete from users."BanInfo" where "UserId" = $1`, [userId])
+      const result3 = await manager.query(`delete from users."AccountData" where "UserId" = $1`, [userId])
+      return [result1[1], result2[1], result3[1]]
+    })
     await this.dataSource.query(`
-    delete 
-    from users."EmailConfirmation"
-    where "UserId" = $1
-    `, [id])
+        delete
+        from users."SentConfirmationCodeDates"
+        where "UserId" = $1
+        `, [userId])
+
+    return deleteResults.every(res => res === 1)
   }
 
-  async updateUserBan(id: number, userBan: any) {
-    await this.dataSource.query(`
-    update users."AccountData" 
-    set "IsBanned" = $2, "BanReason" = $3, "BanDate" = CURRENT_TIMESTAMP
-    where "UserId" = $1
-    `, [id, userBan.isBanned, userBan.banReason])
+  // async deleteUser(userId: string) {
+  //   const deleteResults = await Promise.all([
+  //       await this.dataSource.query(`
+  //       delete
+  //       from users."EmailConfirmation"
+  //       where "UserId" = $1
+  //       `, [userId]),
+  //
+  //       await this.dataSource.query(`
+  //       delete
+  //       from users."BanInfo"
+  //       where "UserId" = $1
+  //       `, [userId]),
+  //
+  //       await this.dataSource.query(`
+  //       delete
+  //       from users."AccountData"
+  //       where "UserId" = $1
+  //       `, [userId]),
+  //     ]
+  //   )
+  //   await this.dataSource.query(`
+  //       delete
+  //       from users."SentConfirmationCodeDates"
+  //       where "UserId" = $1
+  //       `, [userId])
+  //
+  //   return deleteResults.every(res => res[1] === 1)
+  // }
+
+  async updateUserBan(userId, isBanned, banReason?) {
+    const updateResult = isBanned
+      ? await this.dataSource.query(`
+        update users."BanInfo" 
+        set "IsBanned" = $2, "BanReason" = $3, "BanDate" = CURRENT_TIMESTAMP
+        where "UserId" = $1
+        `, [userId, isBanned, banReason])
+      : await this.dataSource.query(`
+        update users."BanInfo" 
+        set "IsBanned" = $2, "BanReason" = null, "BanDate" = null
+        where "UserId" = $1
+        `, [userId, isBanned])
+    return updateResult.length ? updateResult[1] : null
   }
 
-  async updatePasswordHash(userId: number, newPasswordHash: string) {
+  async updatePasswordHash(userId: string, newPasswordHash: string) {
     const updateResult = await this.dataSource.query(`
     update users."AccountData" 
     set "PasswordHash" = $2
@@ -174,7 +214,7 @@ export class UsersSqlRepository {
     return updateResult.length ? updateResult[1] : null
   }
 
-  async updateConfirmation(props: { userId: number, isConfirm: boolean }) {
+  async updateConfirmation(props: { userId: string, isConfirm: boolean }) {
     await this.dataSource.query(`
     update users."EmailConfirmation" 
     set "IsConfirmed" = $2

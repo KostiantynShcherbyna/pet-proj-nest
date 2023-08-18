@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Users, UsersDocument, UsersModel } from "../entities/mongoose/users.schema"
-import { UsersRepository } from "../../../../repositories/users/mongoose/users.repository"
-import { CreateUserOutputModel } from "../../api/models/output/create-user.output-model"
+import { Users, UsersDocument, UsersModel } from "../../entities/mongoose/users.schema"
+import { UsersRepository } from "../../../../../repositories/users/mongoose/users.repository"
+import { CreateUserOutputModel } from "../../../api/models/output/create-user.output-model"
 
 
 export class CreateUserCommand {
