@@ -41,7 +41,7 @@ export class RefreshTokenSql implements ICommandHandler<RefreshTokenSqlCommand> 
     const device = await this.devicesSqlRepository.findDeviceByDeviceId(command.deviceSession.deviceId)
     if (device === null)
       return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
-    if (command.deviceSession.lastActiveDate < device.lastActiveDate)
+    if (command.deviceSession.lastActiveDate !== device.lastActiveDate.toISOString())
       return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
     const accessJwtSecret = this.configService.get(Secrets.ACCESS_JWT_SECRET, { infer: true })

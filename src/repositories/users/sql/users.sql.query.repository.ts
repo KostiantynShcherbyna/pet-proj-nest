@@ -12,7 +12,7 @@ import {
   BanStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT, SEARCH_EMAIL_TERM_DEFAULT,
-  SEARCH_LOGIN_TERM_DEFAULT, SORT_BY_DEFAULT, SortDirection, SortDirectionSQL
+  SEARCH_LOGIN_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_BY_DEFAULT_SQL, SortDirection,
 } from "../../../infrastructure/utils/constants"
 import { dtoManager } from "../../../infrastructure/adapters/output-model.adapter"
 
@@ -21,6 +21,15 @@ export class UsersSqlQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource
   ) {
+  }
+
+  async findMe(value) {
+    const user = await this.dataSource.query(`
+    select a."UserId" as "userId", "Login" as "login", "Email" as "email"
+    from users."AccountData" a
+    where a."UserId" = $1
+    `, [value])
+    return user.length ? user[0] : null
   }
 
   async findUsersByEmail(value) {
@@ -44,8 +53,8 @@ export class UsersSqlQueryRepository {
     const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
     const searchEmailTerm = query.searchEmailTerm || SEARCH_EMAIL_TERM_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortBy = query.sortBy || SORT_BY_DEFAULT
-    const sortDirection = query.sortDirection || SortDirectionSQL.Desc
+    const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
+    const sortDirection = query.sortDirection || SortDirection.Desc
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const offset = (pageNumber - 1) * pageSize
     const searchingQuery = `
@@ -57,7 +66,7 @@ export class UsersSqlQueryRepository {
     select count(*)
     from users."AccountData" a
     left join users."BanInfo" b on b."UserId" = a."UserId"
-    where (a."Login" like $2 or a."Email" like $3)
+    where (a."Login" ilike $2 or a."Email" ilike $3)
     and (b."IsBanned" = $1 OR $1 IS NULL)
     `, [isBanned, `%${searchLoginTerm}%`, `%${searchEmailTerm}%`,])
 
@@ -68,12 +77,15 @@ export class UsersSqlQueryRepository {
            b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason"
     from users."AccountData" a
     left join users."BanInfo" b on b."UserId" = a."UserId"
-    where (a."Login" like $2 or a."Email" like $3)
+    where (a."Login" ilike $2 or a."Email" ilike $3)
     and (b."IsBanned" = $1 OR $1 IS NULL)
-    order by "${sortBy}" ${sortDirection} 
+    order by "${sortBy}" ${
+      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+    } ${sortDirection}
     limit $4
     offset $5
     `
+
     const users = await this.dataSource.query(
       queryForm, [
         isBanned, // 1

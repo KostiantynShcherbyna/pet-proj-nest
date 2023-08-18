@@ -104,9 +104,10 @@ import { CreateUserSql } from "./features/super-admin/application/use-cases/sql/
 import { DeleteUserSql } from "./features/super-admin/application/use-cases/sql/delete-user.sql.use-case"
 import { SASqlController } from "./features/super-admin/api/sa.sql.controller"
 import { DevicesSqlQueryRepository } from "./repositories/devices/sql/devices.sql.query.repository"
-import { DeleteOtherDevicesSql } from "./features/devices/application/use-cases/sql/delete-other-devices.use-case"
-import { DeleteSpecialDeviceSql } from "./features/devices/application/use-cases/sql/delete-special-device.use-case"
+import { DeleteOtherDevicesSql } from "./features/devices/application/use-cases/sql/delete-other-devices.sql.use-case"
+import { DeleteSpecialDeviceSql } from "./features/devices/application/use-cases/sql/delete-special-device.sql.use-case"
 import { UsersSqlQueryRepository } from "./repositories/users/sql/users.sql.query.repository"
+import { DevicesSqlController } from "./features/devices/api/devices.sql.controller"
 
 
 const useCases = [
@@ -246,6 +247,7 @@ const otherProviders = [
 
     AuthSqlController,
     SASqlController,
+    DevicesSqlController,
   ],
   providers: [
     ...otherProviders,

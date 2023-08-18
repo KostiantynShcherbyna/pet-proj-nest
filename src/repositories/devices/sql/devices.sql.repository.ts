@@ -63,8 +63,8 @@ export class DevicesSqlRepository {
   async deleteOtherDevices({ userId, deviceId }) {
     const deleteResult = await this.dataSource.query(`
     delete from devices."Devices"
-    where "UserId" = $1 and "DeviceId" <> $2
-//     where "DeviceId" not in (select "DeviceId" from devices."Devices" where "DeviceId" = $1)
+    where "UserId" = $1
+    and "DeviceId" != $2
     `, [userId, deviceId])
     return deleteResult.length ? deleteResult[1] : null
   }

@@ -21,7 +21,7 @@ import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { DeleteSpecialDeviceCommand } from "../application/use-cases/mongoose/delete-special-device.use-case"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
 
-@Controller("security")
+@Controller("ssecurity")
 export class DevicesController {
   constructor(
     private commandBus: CommandBus,

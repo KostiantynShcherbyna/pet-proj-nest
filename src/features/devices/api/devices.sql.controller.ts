@@ -21,8 +21,8 @@ import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { DeleteSpecialDeviceCommand } from "../application/use-cases/mongoose/delete-special-device.use-case"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
 import { DevicesSqlQueryRepository } from "../../../repositories/devices/sql/devices.sql.query.repository"
-import { DeleteOtherDevicesSqlCommand } from "../application/use-cases/sql/delete-other-devices.use-case"
-import { DeleteSpecialDeviceSqlCommand } from "../application/use-cases/sql/delete-special-device.use-case"
+import { DeleteOtherDevicesSqlCommand } from "../application/use-cases/sql/delete-other-devices.sql.use-case"
+import { DeleteSpecialDeviceSqlCommand } from "../application/use-cases/sql/delete-special-device.sql.use-case"
 
 @Controller("security")
 export class DevicesSqlController {

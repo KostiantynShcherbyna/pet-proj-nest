@@ -29,8 +29,8 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const ACCESS_EXPIRES_TIME = "1000s"
-export const REFRESH_EXPIRES_TIME = "2000s"
+export const ACCESS_EXPIRES_TIME = "10s"
+export const REFRESH_EXPIRES_TIME = "20s"
 export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 
@@ -56,11 +56,13 @@ export enum SortDirection {
   Desc = "desc",
 }
 
-export enum SortDirectionSQL {
-  Asc = "ASC",
-  Desc = "DESC",
-}
+// export enum SortDirection {
+//   Asc = "asc",
+//   Desc = "desc",
+// }
+
 export const SORT_BY_DEFAULT = "createdAt"
+export const SORT_BY_DEFAULT_SQL = "CreatedAt"
 export const PAGE_SIZE_DEFAULT = 10
 export const PAGE_NUMBER_DEFAULT = 1
 export const SEARCH_NAME_TERM_DEFAULT = ""

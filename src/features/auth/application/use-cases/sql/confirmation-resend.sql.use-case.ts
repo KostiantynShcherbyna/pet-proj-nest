@@ -34,13 +34,13 @@ export class ConfirmationResendSql implements ICommandHandler<ConfirmationResend
       }),
     }
 
-    await this.usersSqlRepository.updateConfirmationCode(updatedEmailConfirmationDto)
+    await this.usersSqlRepository.createConfirmationCode(updatedEmailConfirmationDto)
     // SENDING EMAIL ↓↓↓
-    const isSend = await this.emailAdapter.sendConfirmationCode(user)
-    if (isSend === false) {
-      await this.usersSqlRepository.deleteUser(user.id)
-      return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
-    }
+    this.emailAdapter.sendConfirmationCode(user)
+    // if (isSend === false) {
+    //   await this.usersSqlRepository.deleteUser(user.id)
+    //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
+    // }
 
     await this.usersSqlRepository.createSentConfirmCodeDate(user.userId)
 

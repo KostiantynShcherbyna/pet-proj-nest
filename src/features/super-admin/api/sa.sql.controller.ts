@@ -144,7 +144,12 @@ export class SASqlController {
         bodyUser.password
       )
     )
-    if (createResult.error) throw new InternalServerErrorException()
+    if (createResult.error === ErrorEnums.USER_EMAIL_EXIST) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_EMAIL_EXIST, bodyUser.email)
+    )
+    if (createResult.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(
+      callErrorMessage(ErrorEnums.USER_LOGIN_EXIST, bodyUser.login)
+    )
     const userView = await this.usersSqlQueryRepository.findUsersByUserId(createResult.data)
     if (userView === null) throw new NotFoundException()
     return userView

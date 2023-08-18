@@ -5,7 +5,7 @@ import {
   UsersDocument,
   UsersModel
 } from "../../../features/super-admin/application/entities/mongoose/users.schema"
-import { DataSource } from "typeorm"
+import { DataSource, QueryRunner } from "typeorm"
 import { InjectDataSource } from "@nestjs/typeorm"
 
 @Injectable()
@@ -15,12 +15,12 @@ export class UsersSqlRepository {
   ) {
   }
 
-  async createUser({ login, email, passwordHash }) {
+  async createUser({ login, email, passwordHash, createdAt }) {
     const newUserResult = await this.dataSource.query(`
     insert into users."AccountData"("Login", "Email", "PasswordHash", "CreatedAt")
-    values($1, $2, $3, CURRENT_TIMESTAMP)
+    values($1, $2, $3, $4)
     returning "UserId" as "userId", "Login" as "login", "Email" as "email", "CreatedAt" as "createdAt"
-    `, [login, email, passwordHash])
+    `, [login, email, passwordHash, createdAt])
     return newUserResult[0]
   }
 
@@ -51,23 +51,34 @@ export class UsersSqlRepository {
     `, [userId])
   }
 
-  async updateConfirmationCode(
+  async createConfirmationCode(
     { userId, confirmationCode, expirationDate }: { userId: number, confirmationCode: string, expirationDate: Date }
   ) {
     console.log("newConfirmationCode", confirmationCode)
-    const updateResult = await this.dataSource.query(`
-    update users."EmailConfirmation"
-    set "ConfirmationCode" = $2, "ExpirationDate" = $3
-    where "UserId" = $1
+    const createResult = await this.dataSource.query(`
+    insert into users."EmailConfirmation"("UserId", "ConfirmationCode", "ExpirationDate")
+    values($1, $2, $3)
     `, [userId, confirmationCode, expirationDate])
-    return updateResult[0]
+    return createResult[0]
   }
 
-  async createSentConfirmCodeDate(userId: string) {
+  // async updateConfirmationCode(
+  //   { userId, confirmationCode, expirationDate }: { userId: number, confirmationCode: string, expirationDate: Date }
+  // ) {
+  //   console.log("newConfirmationCode", confirmationCode)
+  //   const updateResult = await this.dataSource.query(`
+  //   update users."EmailConfirmation"
+  //   set "ConfirmationCode" = $2, "ExpirationDate" = $3
+  //   where "UserId" = $1
+  //   `, [userId, confirmationCode, expirationDate])
+  //   return updateResult[0]
+  // }
+
+  async createSentConfirmCodeDate(userId: string, sentDate: string) {
     await this.dataSource.query(`
     insert into users."SentConfirmationCodeDates"("UserId","SentDate")
-    values($1, CURRENT_TIMESTAMP)
-    `, [userId])
+    values($1, $2)
+    `, [userId, sentDate])
   }
 
   // async findUser({ key, value }) {
@@ -145,6 +156,16 @@ export class UsersSqlRepository {
   }
 
   async deleteUser(userId: string) {
+
+    //   async deleteUser(userId: string, queryRunner?: QueryRunner) {const queryRunner = this.dataSource.createQueryRunner()
+    //   await queryRunner.startTransaction();
+    //   try{
+    //   this.dataSource.query('', {}, queryRunner)
+    //
+    // await this.usersRepository.deleteById(userId, querryRunner)
+    //   await  queryRunner.commitTransaction()
+    //   }catch(e){await queryRunner.rollbackTransaction()
+    //   }
     const deleteResults = await this.dataSource.transaction(async manager => {
       const result1 = await manager.query(`delete from users."EmailConfirmation" where "UserId" = $1`, [userId])
       const result2 = await manager.query(`delete from users."BanInfo" where "UserId" = $1`, [userId])

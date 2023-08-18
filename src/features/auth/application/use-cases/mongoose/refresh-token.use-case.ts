@@ -9,12 +9,10 @@ import { Types } from "mongoose"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { Secrets } from "../../../../../infrastructure/utils/constants"
 
-
 export class RefreshTokenCommand {
   constructor(public deviceSession: DeviceSessionReqInputModel, public deviceIp: string, public userAgent: string) {
   }
 }
-
 @CommandHandler(RefreshTokenCommand)
 export class RefreshToken implements ICommandHandler<RefreshTokenCommand> {
   constructor(
@@ -23,9 +21,7 @@ export class RefreshToken implements ICommandHandler<RefreshTokenCommand> {
     protected configService: ConfigService<ConfigType<any>, true>,
   ) {
   }
-
   async execute(command: RefreshTokenCommand): Promise<Contract<null | RefreshTokenOutputModel>> {
-
 
     const userDto = ["_id", new Types.ObjectId(command.deviceSession.userId)]
     const user = await this.usersRepository.findUser(userDto)

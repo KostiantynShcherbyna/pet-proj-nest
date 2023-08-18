@@ -38,17 +38,20 @@ import { ConfirmationResendSqlCommand } from "../application/use-cases/sql/confi
 import { PasswordRecoverySqlCommand } from "../application/use-cases/sql/password-recovery.sql.use-case"
 import { NewPasswordSqlCommand } from "../application/use-cases/sql/new-password.sql.use-case"
 import { UsersSqlRepository } from "../../../repositories/users/sql/users.sql.repository"
+import { Throttle } from "@nestjs/throttler"
+import { UsersSqlQueryRepository } from "../../../repositories/users/sql/users.sql.query.repository"
 
 @Controller("auth")
 export class AuthSqlController {
   constructor(
     protected usersSqlRepository: UsersSqlRepository,
+    protected usersSqlQueryRepository: UsersSqlQueryRepository,
     protected commandBus: CommandBus
   ) {
   }
 
   @Post("login")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @UseGuards(AuthGuard(StrategyNames.loginSqlLocalStrategy))
   @HttpCode(HttpStatus.OK)
   async login(
@@ -126,7 +129,7 @@ export class AuthSqlController {
 
 
   @Post("registration")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
     @Body() bodyRegistration: RegistrationBodyInputModel
@@ -152,7 +155,7 @@ export class AuthSqlController {
 
 
   @Post("registration-confirmation")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
     @Body() bodyConfirmation: ConfirmationBodyInputModel
@@ -175,7 +178,7 @@ export class AuthSqlController {
 
 
   @Post("registration-email-resending")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendInputModel
@@ -201,14 +204,14 @@ export class AuthSqlController {
   async getMe(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    const userView = await this.usersSqlRepository.findUserByUserId(deviceSession.userId)
+    const userView = await this.usersSqlQueryRepository.findMe(deviceSession.userId)
     if (userView === null) throw new UnauthorizedException()
     return userView
   }
 
 
   @Post("password-recovery")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
     @Body() bodyPasswordRecovery: PasswordRecoveryBodyInputModel
@@ -223,7 +226,7 @@ export class AuthSqlController {
 
 
   @Post("new-password")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
     @Body() bodyNewPassword: NewPasswordBodyInputModel
