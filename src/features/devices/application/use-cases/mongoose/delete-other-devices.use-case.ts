@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Devices, DevicesModel } from "../../entites/mongoose/devices.schema"
-import { DevicesRepository } from "../../../../../repositories/devices/mongoose/devices.repository"
+import { DevicesRepository } from "../../../infrastructure/mongoose/devices.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 

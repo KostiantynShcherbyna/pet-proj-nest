@@ -1,6 +1,6 @@
 import { UpdateBlogBodyInputModel } from "../../api/models/input/update-blog.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { BlogsRepository } from "../../../../repositories/blogs/mongoose/blogs.repository"
+import { BlogsRepository } from "../../../blogs/infrastructure/mongoose/blogs.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 

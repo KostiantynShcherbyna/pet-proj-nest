@@ -2,7 +2,7 @@ import { DeviceSessionReqInputModel } from "../../../api/models/input/device-ses
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ConfigService, ConfigType } from "@nestjs/config"
 import { RefreshTokenOutputModel } from "../../../api/models/output/refresh-token.output-model"
-import { UsersSqlRepository } from "../../../../../repositories/users/sql/users.sql.repository"
+import { UsersSqlRepository } from "../../../../super-admin/infrastructure/sql/users.sql.repository"
 import { addSeconds } from "date-fns"
 import {
   ACCESS_EXPIRES_TIME,
@@ -11,7 +11,7 @@ import {
   Secrets
 } from "../../../../../infrastructure/utils/constants"
 import { JwtService } from "@nestjs/jwt"
-import { DevicesSqlRepository } from "../../../../../repositories/devices/sql/devices.sql.repository"
+import { DevicesSqlRepository } from "../../../../devices/infrastructure/sql/devices.sql.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { TokensService } from "../../../../../infrastructure/services/tokens.service"

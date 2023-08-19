@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose"
 import { PostsComments, PostsCommentsModel } from "../../../blogger/application/entities/mongoose/posts-comments.schema"
-import { PostsCommentsRepository } from "../../../../repositories/bloggers/mongoose/posts-comments.repository"
-import { CommentsRepository } from "../../../../repositories/comments/mongoose/comments.repository"
-import { UsersRepository } from "../../../../repositories/users/mongoose/users.repository"
+import { PostsCommentsRepository } from "../../../blogger/infrastructure/mongoose/posts-comments.repository"
+import { CommentsRepository } from "../../infrastructure/mongoose/comments.repository"
+import { UsersRepository } from "../../../super-admin/infrastructure/mongoose/users.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 

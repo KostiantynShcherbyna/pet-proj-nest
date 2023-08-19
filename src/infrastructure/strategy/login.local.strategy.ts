@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { PassportStrategy } from "@nestjs/passport"
 import { Strategy } from "passport-local"
 import { StrategyNames } from "../utils/constants"
-import { UsersRepository } from "../../repositories/users/mongoose/users.repository"
+import { UsersRepository } from "../../features/super-admin/infrastructure/mongoose/users.repository"
 import { ErrorEnums } from "../utils/error-enums"
 
 

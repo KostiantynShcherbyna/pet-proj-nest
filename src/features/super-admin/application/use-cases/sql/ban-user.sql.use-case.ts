@@ -3,10 +3,10 @@ import { InjectModel } from "@nestjs/mongoose/dist/common"
 import { Types } from "mongoose"
 import { Users, UsersModel } from "../../entities/mongoose/users.schema"
 import { Devices, DevicesModel } from "../../../../devices/application/entites/mongoose/devices.schema"
-import { UsersRepository } from "../../../../../repositories/users/mongoose/users.repository"
+import { UsersRepository } from "../../../infrastructure/mongoose/users.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { UsersSqlRepository } from "../../../../../repositories/users/sql/users.sql.repository"
+import { UsersSqlRepository } from "../../../infrastructure/sql/users.sql.repository"
 
 
 export class BanUserSqlCommand {

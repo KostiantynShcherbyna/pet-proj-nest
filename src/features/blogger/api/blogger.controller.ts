@@ -10,8 +10,8 @@ import {
   Query, UnauthorizedException,
   UseGuards
 } from "@nestjs/common"
-import { BlogsQueryRepository } from "../../../repositories/blogs/mongoose/blogs.query.repository"
-import { PostsQueryRepository } from "../../../repositories/posts/mongoose/posts.query.repository"
+import { BlogsQueryRepository } from "../../blogs/infrastructure/mongoose/blogs.query.repository"
+import { PostsQueryRepository } from "../../posts/infrastructure/mongoose/posts.query.repository"
 import { CommandBus } from "@nestjs/cqrs"
 import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"

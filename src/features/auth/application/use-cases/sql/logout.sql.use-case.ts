@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { DevicesSqlRepository } from "../../../../../repositories/devices/sql/devices.sql.repository"
-import { UsersSqlRepository } from "../../../../../repositories/users/sql/users.sql.repository"
+import { DevicesSqlRepository } from "../../../../devices/infrastructure/sql/devices.sql.repository"
+import { UsersSqlRepository } from "../../../../super-admin/infrastructure/sql/users.sql.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 

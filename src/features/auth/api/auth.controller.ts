@@ -23,7 +23,7 @@ import { ConfirmationBodyInputModel } from "./models/input/confirmation.body.inp
 import { BodyConfirmationResendInputModel } from "./models/input/registration-resend.body.input-model"
 import { PasswordRecoveryBodyInputModel } from "./models/input/password-recovery.body.input-model"
 import { NewPasswordBodyInputModel } from "./models/input/new-password.body.input-model"
-import { UsersQueryRepository } from "../../../repositories/users/mongoose/users.query.repository"
+import { UsersQueryRepository } from "../../super-admin/infrastructure/mongoose/users.query.repository"
 import { DeviceSessionReqInputModel } from "./models/input/device-session.req.input-model"
 import { RegistrationBodyInputModel } from "./models/input/registration.body.input-model"
 import { ConfirmationCommand } from "../application/use-cases/mongoose/confirmation.use-case"
