@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { UsersSqlRepository } from "../../../../super-admin/infrastructure/sql/users.sql.repository"
+import { UsersSqlRepository } from "../../../../sa/repository/sql/users.sql.repository"
 import { randomUUID } from "crypto"
 import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapter"
 import { Contract } from "../../../../../infrastructure/utils/contract"

@@ -18,18 +18,18 @@ import {
   RequestAttempts,
   RequestAttemptsModel
 } from "../../../features/auth/application/entities/mongoose/request-attempts.schema"
-import { Blogs, BlogsModel } from "../../../features/blogger/application/entities/mongoose/blogs.schema"
+import { Blogs, BlogsModel } from "../../../features/blogs/application/entities/mongoose/blogs.schema"
 import { Comments, CommentsModel } from "../../../features/comments/application/entities/mongoose/comments.schema"
-import { Posts, PostsModel } from "../../../features/blogger/application/entities/mongoose/posts.schema"
-import { Users, UsersModel } from "../../../features/super-admin/application/entities/mongoose/users.schema"
+import { Posts, PostsModel } from "../../../features/posts/application/entites/mongoose/posts.schema"
+import { Users, UsersModel } from "../../../features/sa/application/entities/mongoose/users.schema"
 import {
   BannedBlogUsers,
   BannedBlogUsersModel
-} from "../../../features/blogger/application/entities/mongoose/banned-blog-users.schema"
+} from "../../../features/blogs/application/entities/mongoose/banned-blog-users.schema"
 import {
   PostsComments,
   PostsCommentsModel
-} from "../../../features/blogger/application/entities/mongoose/posts-comments.schema"
+} from "../../../features/posts/application/entites/mongoose/posts-comments.schema"
 import { TestingRepository } from "../infrastructure/testing.repository"
 import { UserBodyInputModel } from "./models/input/user.body.input-model"
 import { callErrorMessage } from "../../adapters/exception-message.adapter"

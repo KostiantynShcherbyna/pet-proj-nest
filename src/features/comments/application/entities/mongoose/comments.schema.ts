@@ -4,7 +4,7 @@ import {
   COMMENT_CONTENT_MIN_LENGTH,
   LikeStatus
 } from "../../../../../infrastructure/utils/constants"
-import { UsersDocument } from "../../../../super-admin/application/entities/mongoose/users.schema"
+import { UsersDocument } from "../../../../sa/application/entities/mongoose/users.schema"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { HydratedDocument, Model, Types } from "mongoose"
 

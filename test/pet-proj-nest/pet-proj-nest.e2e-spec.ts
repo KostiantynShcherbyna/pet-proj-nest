@@ -6,7 +6,7 @@ import { appSettings } from "../../src/app.settings"
 import { PublicTestingHelper } from "./helpers/public-testing.helper"
 import { TestingRepository } from "../../src/infrastructure/testing/infrastructure/testing.repository"
 import { RegistrationBodyInputModel } from "../../src/features/auth/api/models/input/registration.body.input-model"
-import { AuthRepository } from "../../src/features/auth/infrastructure/mongoose/auth.repository"
+import { AuthRepository } from "../../src/features/auth/repository/mongoose/auth.repository"
 import { faker } from "@faker-js/faker"
 import { RecoveryCodesDocument } from "../../src/features/auth/application/entities/mongoose/recovery-code.schema"
 import { BloggerTestingHelper } from "./helpers/blogger-testing.helper"
@@ -22,8 +22,8 @@ import { EmailAdapterMock } from "../../src/infrastructure/testing/infrastructur
 import request from "supertest"
 import { MeOutputModel } from "../../src/features/auth/api/models/output/me-output.model"
 import { SaTestingHelper } from "./helpers/sa-testing.helper"
-import { CreateUserOutputModel } from "../../src/features/super-admin/api/models/output/create-user.output-model"
-import { UsersDocument } from "../../src/features/super-admin/application/entities/mongoose/users.schema"
+import { CreateUserOutputModel } from "../../src/features/sa/api/models/output/create-user.output-model"
+import { UsersDocument } from "../../src/features/sa/application/entities/mongoose/users.schema"
 
 describe
 ("pet-proj-nest", () => {

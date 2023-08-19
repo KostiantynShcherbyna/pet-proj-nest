@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Blogs, BlogsModel } from "../entities/mongoose/blogs.schema"
-import { Posts, PostsModel } from "../entities/mongoose/posts.schema"
+import { Blogs, BlogsModel } from "../../../blogs/application/entities/mongoose/blogs.schema"
+import { Posts, PostsModel } from "../../../posts/application/entites/mongoose/posts.schema"
 import { InjectModel } from "@nestjs/mongoose"
-import { BlogsRepository } from "../../../blogs/infrastructure/mongoose/blogs.repository"
+import { BlogsRepository } from "../../../blogs/repository/mongoose/blogs.repository"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 

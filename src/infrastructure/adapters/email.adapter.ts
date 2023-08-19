@@ -1,4 +1,4 @@
-import { UsersDocument } from "src/features/super-admin/application/entities/mongoose/users.schema"
+import { UsersDocument } from "src/features/sa/application/entities/mongoose/users.schema"
 import { emailService } from "../services/emailService"
 
 export class EmailAdapter {

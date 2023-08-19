@@ -1,16 +1,16 @@
-import { BlogsDocument as any } from "src/features/blogger/application/entities/mongoose/blogs.schema"
+import { BlogsDocument as any } from "src/features/blogs/application/entities/mongoose/blogs.schema"
 import { CommentsDocument } from "src/features/comments/application/entities/mongoose/comments.schema"
 import { Devices } from "src/features/devices/application/entites/mongoose/devices.schema"
-import { PostsDocument } from "src/features/blogger/application/entities/mongoose/posts.schema"
-import { UsersDocument } from "src/features/super-admin/application/entities/mongoose/users.schema"
+import { PostsDocument } from "src/features/posts/application/entites/mongoose/posts.schema"
+import { UsersDocument } from "src/features/sa/application/entities/mongoose/users.schema"
 import { GetCommentsOutputModel } from "src/features/comments/api/models/output/get-comments.output-model"
 import { LikeStatus } from "../utils/constants"
-import { BannedBlogUsersDocument } from "src/features/blogger/application/entities/mongoose/banned-blog-users.schema"
+import { BannedBlogUsersDocument } from "src/features/blogs/application/entities/mongoose/banned-blog-users.schema"
 import { Types } from "mongoose"
 import {
   PostsComments,
   PostsCommentsDocument
-} from "src/features/blogger/application/entities/mongoose/posts-comments.schema"
+} from "src/features/posts/application/entites/mongoose/posts-comments.schema"
 // import { Posts } from "src/schemas/posts.schema"
 
 

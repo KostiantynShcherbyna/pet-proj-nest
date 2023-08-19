@@ -4,7 +4,7 @@ import { faker } from "@faker-js/faker"
 import {
   CreateUserOutputModel,
   UsersView
-} from "../../../src/features/super-admin/api/models/output/create-user.output-model"
+} from "../../../src/features/sa/api/models/output/create-user.output-model"
 
 export const superUser = {
   login: "admin",
