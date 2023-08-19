@@ -32,12 +32,14 @@ import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/upd
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { CreateCommentCommand } from "../application/use-cases/create-comment.use-case"
 import { UpdatePostLikeCommand } from "../application/use-cases/update-post-like.use-case"
+import { PostsSqlQueryRepository } from "../repository/sql/posts.sql.query.repository"
 
 @Controller("posts")
 export class PostsSqlController {
   constructor(
     private commandBus: CommandBus,
     protected postsQueryRepository: PostsQueryRepository,
+    protected postsSqlQueryRepository: PostsSqlQueryRepository,
     protected commentsQueryRepository: CommentsQueryRepository,
   ) {
   }
@@ -48,7 +50,7 @@ export class PostsSqlController {
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
     @Query() queryPost: GetPostsQueryInputModel
   ) {
-    const postsContract = await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
+    const postsContract = await this.postsSqlQueryRepository.findPosts(queryPost, deviceSession?.userId)
     return postsContract.data
   }
 
@@ -58,7 +60,7 @@ export class PostsSqlController {
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
     @Param() param: IdParamInputModel,
   ) {
-    const postContract = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
+    const postContract = await this.postsSqlQueryRepository.findPost(param.id, deviceSession?.userId)
     if (postContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )

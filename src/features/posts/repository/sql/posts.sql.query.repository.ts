@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { ILike, Posts, PostsModel } from "../../application/entites/mongoose/posts.schema"
+import { ILike, Posts, PostsDocument, PostsModel } from "../../application/entites/mongoose/posts.schema"
 import { InjectModel } from "@nestjs/mongoose"
 import { Comments, CommentsModel } from "../../../comments/application/entities/mongoose/comments.schema"
 import { BlogsRepository } from "../../../blogs/repository/mongoose/blogs.repository"
@@ -15,11 +15,13 @@ import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
-  SORT_BY_DEFAULT,
+  SORT_BY_DEFAULT, SORT_BY_DEFAULT_SQL,
   SortDirection
 } from "../../../../infrastructure/utils/constants"
 import { dtoManager } from "../../../../infrastructure/adapters/output-model.adapter"
 import { BlogsSqlRepository } from "../../../blogs/repository/sql/blogs.sql.repository"
+import { InjectDataSource } from "@nestjs/typeorm"
+import { DataSource } from "typeorm"
 
 
 @Injectable()
@@ -29,96 +31,50 @@ export class PostsSqlQueryRepository {
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
-
+    @InjectDataSource() protected dataSource: DataSource,
     protected blogsSqlRepository: BlogsSqlRepository,
   ) {
   }
 
 
-  async findPosts(queryPost: GetPostsQueryInputModel, userId?: string, blogId?: string,): Promise<Contract<null | PostsView>> {
-
-    if (blogId) {
-      const blog = await this.blogsSqlRepository.findBlog(blogId)
-      if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-      if (blog.isBanned === true) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    }
+  async findPosts(queryPost: GetPostsQueryInputModel, userId?: string): Promise<Contract<null | PostsView>> {
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortBy = queryPost.sortBy || SORT_BY_DEFAULT
-    const sortDirection = queryPost.sortDirection === SortDirection.Asc
-      ? 1
-      : -1
-    const skippedPostsCount = (pageNumber - 1) * pageSize
+    const sortBy = queryPost.sortBy || SORT_BY_DEFAULT_SQL
+    const sortDirection = queryPost.sortDirection || SortDirection.Desc
+    const offset = (pageNumber - 1) * pageSize
 
-
-    const bannedUsers = await this.usersRepository.findBannedUsers()
-    const bannedUserIds = bannedUsers.map(user => user._id.toString())
-
-    // const totalCount = blogId
-    //   ? await this.PostsModel.countDocuments({ $and: [{ blogId: blogId }, { "extendedLikesInfo.like.userId": { $nin: bannedUserIds } }] })
-    //   : await this.PostsModel.countDocuments({ "extendedLikesInfo.like.userId": { $nin: bannedUserIds } })
-
-    const totalCount = blogId
-      ? await this.PostsModel.countDocuments({ blogId: blogId })
-      : await this.PostsModel.countDocuments()
-
-
-
-    // const totalCount = this.PostsModel.aggregate([
-    //   // Разворачиваем массив "likes" для дальнейшей обработки
-    //   { $unwind: '$extendedLikesInfo.like' },
-
-    //   // Фильтруем документы, у которых "userId" из "likes" отсутствует в массиве "notLikes"
-    //   { $match: { 'extendedLikesInfo.like.userId': { $nin: bannedUserIds } } },
-
-    //   // Группируем обратно по _id для подсчета количества документов
-    //   { $group: { _id: '$_id', count: { $sum: 1 } } }
-    // ]).count.length
-
-
-
-    const foundPosts = blogId
-      ? await this.PostsModel
-        .find({ blogId: blogId })
-        .sort({ [sortBy]: sortDirection })
-        .limit(pageSize)
-        .skip(skippedPostsCount)
-        .lean()
-      : await this.PostsModel
-        .find({})
-        .sort({ [sortBy]: sortDirection })
-        .limit(pageSize)
-        .skip(skippedPostsCount)
-        .lean()
-
-
-    const truePosts = foundPosts.map(post => {
-      let likesCount: number = 0
-      let dislikesCount: number = 0
-
-      const trueLikes = post.extendedLikesInfo.like.filter(like => {
-        if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCount++
-        if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCount++
-        return !bannedUserIds.includes(like.userId)
-      })
-
-      const trueNewestLikes = post.extendedLikesInfo.newestLikes.filter(newestLike => !bannedUserIds.includes(newestLike.userId))
-
-      const postCopy = { ...post }
-      postCopy.extendedLikesInfo.likesCount -= likesCount
-      postCopy.extendedLikesInfo.dislikesCount -= dislikesCount
-      postCopy.extendedLikesInfo.like = trueLikes
-      postCopy.extendedLikesInfo.newestLikes = trueNewestLikes
-
-      return postCopy
-    })
-
+    const totalCount = await this.dataSource.query(`
+    select count (*)
+    from posts."Posts"
+    `)
 
     const pagesCount = Math.ceil(totalCount / pageSize)
 
+    const queryForm = `
+    select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
+             "BlogName" as "blogName","BlogId" as "blogId", "CreatedAt" as "createdAt",
+           b."LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
+           c."Status" as "myStatus",
+           d."AddedAt" as "addedAt", "UserId" as "userId", "Login" as "login"
+    from posts."Posts" a
+    left join posts."ExtendedLikesInfo" b
+    left join posts."Likes" c
+    left join posts."NewestLikes" d
+    order by "${sortBy}" ${
+      sortBy !== "createdAt" ? "COLLATE 'C'" : ""
+    } ${sortDirection}
+    limit $1
+    offset $2
+    `
 
-    const mappedPosts = dtoManager.changePostsView(truePosts, userId)
+    const foundPosts = await this.dataSource.query(queryForm, [
+      pageSize, // 1
+      offset, // 2
+    ])
+
+    const mappedPosts = this.changePostsView(foundPosts, userId)
 
     const postsView = {
       pagesCount: pagesCount,
@@ -134,46 +90,67 @@ export class PostsSqlQueryRepository {
 
   async findPost(postId: string, userId?: string): Promise<Contract<null | CreateBloggerPostOutputModel>> {
 
-    const post = await this.PostsModel.findById(postId)
-    if (post === null)
-      return new Contract(null, ErrorEnums.POST_NOT_FOUND)
+    const queryForm = `
+    select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
+             "BlogName" as "blogName","BlogId" as "blogId", "CreatedAt" as "createdAt",
+           b."LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
+           c."Status" as "myStatus",
+           d."AddedAt" as "addedAt", "UserId" as "userId", "Login" as "login"
+    from posts."Posts" a
+    left join posts."ExtendedLikesInfo" b
+    left join posts."Likes" c
+    left join posts."NewestLikes" d
+    where a."PostId" = $1
+    `
+    const foundPost = await this.dataSource.query(queryForm, [
+      postId, // 1
+    ])
 
-    const foundBlog = await this.blogsRepository.findBlog(post.blogId)
-    if (foundBlog === null || foundBlog.banInfo.isBanned === true)
-      return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-
-    const bannedUsers = await this.usersRepository.findBannedUsers()
-    const bannedUserIds = bannedUsers.map(user => user._id.toString())
-
-    let likesCount: number = 0
-    let dislikesCount: number = 0
-
-    const trueLikes = post.extendedLikesInfo.like.filter(like => {
-      if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Like) likesCount++
-      if (bannedUserIds.includes(like.userId) && like.status === LikeStatus.Dislike) dislikesCount++
-      return !bannedUserIds.includes(like.userId)
-    })
-
-    const trueNewestLikes = post.extendedLikesInfo.newestLikes.filter(newestLike => !bannedUserIds.includes(newestLike.userId))
-
-    const postCopy = new this.PostsModel(post)
-    postCopy.extendedLikesInfo.likesCount -= likesCount
-    postCopy.extendedLikesInfo.dislikesCount -= dislikesCount
-    postCopy.extendedLikesInfo.like = trueLikes
-    postCopy.extendedLikesInfo.newestLikes = trueNewestLikes
-
-    // Looking for a Like if userId is defined
-    let like: ILike | undefined
-    if (userId) like = postCopy.extendedLikesInfo.like.find(like => like.userId === userId)
-
-    const postView = dtoManager.changePostView(postCopy, like?.status || LikeStatus.None)
+    const postView = this.changePostView(foundPost)
 
     return new Contract(postView, null)
   }
 
+  private changePostsView(posts: any[], userId?: string) {
+    // const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status
+    //   || LikeStatus.None
 
- 
+    return posts.map(post => {
+      return {
+        id: post.postId,
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: post.blogId,
+        blogName: post.blogName,
+        createdAt: post.createdAt,
+        extendedLikesInfo: {
+          likesCount: post.likesCount,
+          dislikesCount: post.dislikesCount,
+          myStatus: post.myStatus || LikeStatus.None,
+          newestLikes: [],
+        },
+      }
+    })
+  }
 
+  private changePostView(post: any) {
+    return {
+      id: post.postId,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: post.blogName,
+      createdAt: post.createdAt,
+      extendedLikesInfo: {
+        likesCount: post.likesCount,
+        dislikesCount: post.dislikesCount,
+        myStatus: LikeStatus.None,
+        newestLikes: [],
+      },
+    }
+  }
 
 
 }
