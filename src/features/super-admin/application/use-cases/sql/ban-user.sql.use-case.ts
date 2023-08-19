@@ -40,6 +40,7 @@ export class BanUserSql implements ICommandHandler<BanUserSqlCommand> {
         command.userId,
         command.isBanned,
         command.banReason,
+        new Date(Date.now()).toISOString()
       )
       : await this.usersSqlRepository.updateUserBan(
         command.userId,

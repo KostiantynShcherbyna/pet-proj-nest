@@ -33,11 +33,12 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
     if (user?.login === command.login) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
 
     const passwordHash = await generateHashManager(command.password)
-
+    const newDate = new Date(Date.now()).toISOString()
     const newUser = await this.usersSqlRepository.createUser({
       login: command.login,
       email: command.email,
       passwordHash: passwordHash,
+      date: newDate
     })
     const emailConfirmationDto = {
       userId: newUser.userId,
@@ -45,7 +46,7 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
       expirationDate: add(new Date(), {
         hours: 1,
         minutes: 3,
-      }),
+      }).toISOString(),
       isConfirmed: false
     }
     console.log("confirmationCode", emailConfirmationDto.confirmationCode)
@@ -58,7 +59,7 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
     //   await this.usersSqlRepository.deleteUser(newUser.id)
     //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     // }
-    await this.usersSqlRepository.createSentConfirmCodeDate(newUser.userId)
+    await this.usersSqlRepository.createSentConfirmCodeDate(newUser.userId, newDate)
     return new Contract(true, null)
   }
 

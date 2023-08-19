@@ -31,7 +31,7 @@ export class ConfirmationResendSql implements ICommandHandler<ConfirmationResend
       expirationDate: add(new Date(), {
         hours: 1,
         minutes: 3,
-      }),
+      }).toISOString(),
     }
 
     await this.usersSqlRepository.createConfirmationCode(updatedEmailConfirmationDto)
@@ -42,7 +42,7 @@ export class ConfirmationResendSql implements ICommandHandler<ConfirmationResend
     //   return new Contract(null, ErrorEnums.EMAIL_NOT_SENT)
     // }
 
-    await this.usersSqlRepository.createSentConfirmCodeDate(user.userId)
+    await this.usersSqlRepository.createSentConfirmCodeDate(user.userId, new Date(Date.now()).toISOString())
 
     return new Contract(true, null)
   }

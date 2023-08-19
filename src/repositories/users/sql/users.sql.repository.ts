@@ -15,7 +15,7 @@ export class UsersSqlRepository {
   ) {
   }
 
-  async createUser({ login, email, passwordHash, createdAt }) {
+  async createUser({ login, email, passwordHash, createdAt }: any) {
     const newUserResult = await this.dataSource.query(`
     insert into users."AccountData"("Login", "Email", "PasswordHash", "CreatedAt")
     values($1, $2, $3, $4)
@@ -28,7 +28,7 @@ export class UsersSqlRepository {
     emailConfirmationDto: {
       userId: number,
       confirmationCode: string | null,
-      expirationDate: Date | null,
+      expirationDate: string | null,
       isConfirmed: boolean
     }
   ) {
@@ -52,7 +52,7 @@ export class UsersSqlRepository {
   }
 
   async createConfirmationCode(
-    { userId, confirmationCode, expirationDate }: { userId: number, confirmationCode: string, expirationDate: Date }
+    { userId, confirmationCode, expirationDate }: { userId: number, confirmationCode: string, expirationDate: string }
   ) {
     console.log("newConfirmationCode", confirmationCode)
     const createResult = await this.dataSource.query(`
@@ -211,13 +211,13 @@ export class UsersSqlRepository {
   //   return deleteResults.every(res => res[1] === 1)
   // }
 
-  async updateUserBan(userId, isBanned, banReason?) {
+  async updateUserBan(userId, isBanned, banReason?, banDate?) {
     const updateResult = isBanned
       ? await this.dataSource.query(`
         update users."BanInfo" 
-        set "IsBanned" = $2, "BanReason" = $3, "BanDate" = CURRENT_TIMESTAMP
+        set "IsBanned" = $2, "BanReason" = $3, "BanDate" = $4
         where "UserId" = $1
-        `, [userId, isBanned, banReason])
+        `, [userId, isBanned, banReason, banDate])
       : await this.dataSource.query(`
         update users."BanInfo" 
         set "IsBanned" = $2, "BanReason" = null, "BanDate" = null

@@ -40,6 +40,7 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
       login: command.login,
       email: command.email,
       passwordHash: passwordHash,
+      createdAt: new Date(Date.now()).toISOString()
     })
 
     const emailConfirmationDto = {
