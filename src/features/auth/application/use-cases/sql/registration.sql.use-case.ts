@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { UsersSqlRepository } from "../../../../sa/repository/sql/users.sql.repository"
+import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapter"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
@@ -21,7 +21,7 @@ export class RegistrationSqlCommand {
 export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> {
   constructor(
     // @InjectDataSource() protected dataSource: DataSource,
-    protected usersSqlRepository: UsersSqlRepository,
+    protected usersSqlRepository: UsersRepositorySql,
     protected emailAdapter: EmailAdapter,
   ) {
   }

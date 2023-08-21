@@ -1,22 +1,22 @@
 import { Controller, ForbiddenException, Get, NotFoundException, Param, Query, UseGuards } from "@nestjs/common"
 import { AccessMiddleware } from "../../../infrastructure/guards/access-middleware.guard"
-import { BlogsQueryRepository } from "../repository/mongoose/blogs.query.repository"
 import { CreatePostParamInputModel } from "./models/input/create-post.param.input-model"
 import { DeviceSessionOptionalReqInputModel } from "./models/input/device-session-optional.req.input-model"
 import { GetBlogsQueryInputModel } from "./models/input/get-blogs.query.input-model"
 import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-model"
 import { IdParamInputModel } from "./models/input/id.param.input-model"
-import { PostsQueryRepository } from "../../posts/repository/mongoose/posts.query.repository"
 import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
+import { BlogsQueryRepositorySql } from "../repository/sql/blogs.query.repository.sql"
+import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
+import { CreatePostParamInputModelSql } from "./models/input/create-post.param.input-model.sql"
 
 
-@Controller("bblogs")
-export class BlogsController {
+@Controller("blogs")
+export class BlogsControllerSql {
   constructor(
-    protected blogsQueryRepository: BlogsQueryRepository,
-    protected postsQueryRepository: PostsQueryRepository,
+    protected blogsQueryRepositorySql: BlogsQueryRepositorySql,
   ) {
   }
 
@@ -24,20 +24,20 @@ export class BlogsController {
   async getBlogs(
     @Query() queryBlog: GetBlogsQueryInputModel
   ) {
-    return await this.blogsQueryRepository.findBlogs(queryBlog)
+    return await this.blogsQueryRepositorySql.findBlogs(queryBlog)
   }
 
   @UseGuards(AccessMiddleware)
   @Get(":blogId/posts")
   async getPosts(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
-    @Param() param: CreatePostParamInputModel,
+    @Param() param: CreatePostParamInputModelSql,
     @Query() queryPost: GetPostsQueryInputModel,
   ) {
-    const postsContract = await this.postsQueryRepository.findPosts(
+    const postsContract = await this.blogsQueryRepositorySql.findBlogPosts(
       queryPost,
-      deviceSession?.userId,
       param.blogId,
+      deviceSession?.userId,
     )
     if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
@@ -49,9 +49,9 @@ export class BlogsController {
 
   @Get(":id")
   async getBlog(
-    @Param() param: IdParamInputModel,
+    @Param() param: IdParamInputModelSql,
   ) {
-    const foundBlogView = await this.blogsQueryRepository.findBlog(param.id)
+    const foundBlogView = await this.blogsQueryRepositorySql.findBlog(param.id)
 
     if (foundBlogView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")

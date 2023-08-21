@@ -4,7 +4,7 @@ import {
   BLOGS_NAME_MAX_LENGTH,
   BLOGS_WEBSITEURL_MAX_LENGTH, BLOGS_WEBSITEURL_REGEX
 } from "../../../../../infrastructure/utils/constants"
-import { CreateBlogCommand } from "../../../../blogger/application/use-cases/create-blog.use-case"
+import { CreateBlogCommand } from "../../../../blogger/application/use-cases/mongoose/create-blog.use-case"
 import { PostsModel } from "../../../../posts/application/entites/mongoose/posts.schema"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"

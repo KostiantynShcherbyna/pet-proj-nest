@@ -24,7 +24,6 @@ import { GetCommentsQueryInputModel } from "./models/input/get-comments.query.in
 import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-model"
 import { IdParamInputModel } from "./models/input/id.param.input-model"
 import { LikeStatusBodyInputModel } from "./models/input/like-status.body.input-model"
-import { PostsQueryRepository } from "../repository/mongoose/posts.query.repository"
 import { CommentsQueryRepository } from "../../comments/repository/mongoose/comments.query.repository"
 import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
@@ -32,12 +31,14 @@ import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/upd
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { CreateCommentCommand } from "../application/use-cases/create-comment.use-case"
 import { UpdatePostLikeCommand } from "../application/use-cases/update-post-like.use-case"
+import { PostsQueryRepositorySql } from "../repository/sql/posts.query.repository.sql"
+import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 
-@Controller("pposts")
-export class PostsController {
+@Controller("posts")
+export class PostsControllerSql {
   constructor(
     private commandBus: CommandBus,
-    protected postsQueryRepository: PostsQueryRepository,
+    protected postsSqlQueryRepository: PostsQueryRepositorySql,
     protected commentsQueryRepository: CommentsQueryRepository,
   ) {
   }
@@ -48,25 +49,21 @@ export class PostsController {
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
     @Query() queryPost: GetPostsQueryInputModel
   ) {
-    const postsContract = await this.postsQueryRepository.findPosts(queryPost, deviceSession?.userId)
-    return postsContract.data
+    const postsView = await this.postsSqlQueryRepository.findPosts(queryPost, deviceSession?.userId)
+    return postsView
   }
 
   @UseGuards(AccessMiddleware)
   @Get(":id")
   async getPost(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
-    @Param() param: IdParamInputModel,
+    @Param() param: IdParamInputModelSql,
   ) {
-    const postContract = await this.postsQueryRepository.findPost(param.id, deviceSession?.userId)
-    if (postContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
+    const postView = await this.postsSqlQueryRepository.findPost(param.id, deviceSession?.userId)
+    if (!postView) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "id")
     )
-    if (postContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-    )
-
-    return postContract.data
+    return postView
   }
 
 

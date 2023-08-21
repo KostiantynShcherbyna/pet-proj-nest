@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ConfigService, ConfigType } from "@nestjs/config"
 import { AuthSqlRepository } from "../../../repository/sql/auth.sql.repository"
-import { UsersSqlRepository } from "../../../../sa/repository/sql/users.sql.repository"
+import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 import { generateHashManager } from "../../../../../infrastructure/services/generate-hash.service"
 import { TokensService } from "../../../../../infrastructure/services/tokens.service"
 import { Contract } from "../../../../../infrastructure/utils/contract"
@@ -17,7 +17,7 @@ export class NewPasswordSqlCommand {
 export class NewPasswordSql implements ICommandHandler<NewPasswordSqlCommand> {
   constructor(
     protected tokensService: TokensService,
-    protected usersSqlRepository: UsersSqlRepository,
+    protected usersSqlRepository: UsersRepositorySql,
     protected configService: ConfigService<ConfigType<any>, true>,
     protected authSqlRepository: AuthSqlRepository,
   ) {

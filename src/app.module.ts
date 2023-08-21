@@ -31,13 +31,13 @@ import {
 } from "./features/blogs/application/entities/mongoose/banned-blog-users.schema"
 import { Blogs, BlogsSchema } from "./features/blogs/application/entities/mongoose/blogs.schema"
 import { Posts, PostsSchema } from "./features/posts/application/entites/mongoose/posts.schema"
-import { BanUserBlogger } from "./features/blogger/application/use-cases/ban-user-blogger.use-case"
-import { CreateBlogBlogger } from "./features/blogger/application/use-cases/create-blog.use-case"
-import { CreatePostBlogger } from "./features/blogger/application/use-cases/create-post.use-case"
-import { DeleteBlogBlogger } from "./features/blogger/application/use-cases/delete-blog.use-case"
-import { DeletePostBlogger } from "./features/blogger/application/use-cases/delete-post.use-case"
-import { UpdateBlogBlogger } from "./features/blogger/application/use-cases/update-blog.use-case"
-import { UpdatePostBlogger } from "./features/blogger/application/use-cases/update-post.use-case"
+import { BanUserBlogger } from "./features/blogger/application/use-cases/mongoose/ban-user-blogger.use-case"
+import { CreateBlogBlogger } from "./features/blogger/application/use-cases/mongoose/create-blog.use-case"
+import { CreatePostBlogger } from "./features/blogger/application/use-cases/mongoose/create-post.use-case"
+import { DeleteBlogBlogger } from "./features/blogger/application/use-cases/mongoose/delete-blog.use-case"
+import { DeletePostBlogger } from "./features/blogger/application/use-cases/mongoose/delete-post.use-case"
+import { UpdateBlogBlogger } from "./features/blogger/application/use-cases/mongoose/update-blog.use-case"
+import { UpdatePostBlogger } from "./features/blogger/application/use-cases/mongoose/update-post.use-case"
 import { BannedBlogUsersRepository } from "./features/blogger/repository/mongoose/banned-blog-users.repository"
 import { PostsCommentsRepository } from "./features/blogger/repository/mongoose/posts-comments.repository"
 import { BlogsController } from "./features/blogs/api/blogs.controller"
@@ -45,10 +45,7 @@ import { BlogsQueryRepository } from "./features/blogs/repository/mongoose/blogs
 import { BlogsRepository } from "./features/blogs/repository/mongoose/blogs.repository"
 import { CommentsController } from "./features/comments/api/comments.controller"
 import { Comments, CommentsSchema } from "./features/comments/application/entities/mongoose/comments.schema"
-import {
-  PostsComments,
-  PostsCommentsSchema
-} from "./features/posts/application/entites/mongoose/posts-comments.schema"
+import { PostsComments, PostsCommentsSchema } from "./features/posts/application/entites/mongoose/posts-comments.schema"
 import { DeleteComment } from "./features/comments/application/use-cases/delete-comment.use-case"
 import { UpdateCommentLike } from "./features/comments/application/use-cases/update-comment-like.use-case"
 import { UpdateComment } from "./features/comments/application/use-cases/update-comment.use-case"
@@ -82,9 +79,8 @@ import { TestingController } from "./infrastructure/testing/api/testing.controll
 import { TokensService } from "./infrastructure/services/tokens.service"
 import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
-import { emailService } from "./infrastructure/services/emailService"
-import { UsersSqlRepository } from "./features/sa/repository/sql/users.sql.repository"
-import { DevicesSqlRepository } from "./features/devices/repository/sql/devices.sql.repository"
+import { UsersRepositorySql } from "./features/sa/repository/sql/users.repository.sql"
+import { DevicesRepositorySql } from "./features/devices/repository/sql/devices.repository.sql"
 import { AuthSqlRepository } from "./features/auth/repository/sql/auth.sql.repository"
 import { ConfirmationSql } from "./features/auth/application/use-cases/sql/confirmation.sql.use-case"
 import { ConfirmationResendSql } from "./features/auth/application/use-cases/sql/confirmation-resend.sql.use-case"
@@ -97,17 +93,29 @@ import { RegistrationSql } from "./features/auth/application/use-cases/sql/regis
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { AuthSqlController } from "./features/auth/api/auth.sql.controller"
 import { LoginSqlLocalStrategy } from "./infrastructure/strategy/login.sql.local.strategy"
-import { BanBlogSql } from "./features/sa/application/use-cases/sql/ban-blog.sql.use-case"
-import { BanUserSql } from "./features/sa/application/use-cases/sql/ban-user.sql.use-case"
-import { BindBlogBloggerSql } from "./features/sa/application/use-cases/sql/bind-blog.sql.use-case"
-import { CreateUserSql } from "./features/sa/application/use-cases/sql/create-user.sql.use-case"
-import { DeleteUserSql } from "./features/sa/application/use-cases/sql/delete-user.sql.use-case"
-import { SASqlController } from "./features/sa/api/sa.sql.controller"
-import { DevicesSqlQueryRepository } from "./features/devices/repository/sql/devices.sql.query.repository"
-import { DeleteOtherDevicesSql } from "./features/devices/application/use-cases/sql/delete-other-devices.sql.use-case"
-import { DeleteSpecialDeviceSql } from "./features/devices/application/use-cases/sql/delete-special-device.sql.use-case"
-import { UsersSqlQueryRepository } from "./features/sa/repository/sql/users.sql.query.repository"
-import { DevicesSqlController } from "./features/devices/api/devices.sql.controller"
+import { BanBlogSql } from "./features/sa/application/use-cases/sql/ban-blog.use-case.sql"
+import { BanUserSql } from "./features/sa/application/use-cases/sql/ban-user.use-case.sql"
+import { BindBlogBloggerSql } from "./features/sa/application/use-cases/sql/bind-blog.use-case.sql"
+import { CreateUserSql } from "./features/sa/application/use-cases/sql/create-user.use-case.sql"
+import { DeleteUserSql } from "./features/sa/application/use-cases/sql/delete-user.use-case.sql"
+import { SaControllerSql } from "./features/sa/api/sa.controller.sql"
+import { DevicesQueryRepositorySql } from "./features/devices/repository/sql/devices.query.repository.sql"
+import { DeleteOtherDevicesSql } from "./features/devices/application/use-cases/sql/delete-other-devices.use-case.sql"
+import { DeleteSpecialDeviceSql } from "./features/devices/application/use-cases/sql/delete-special-device.use-case.sql"
+import { UsersQueryRepositorySql } from "./features/sa/repository/sql/users.query.repository.sql"
+import { DevicesControllerSql } from "./features/devices/api/devices.controller.sql"
+import { BlogsControllerSql } from "./features/blogs/api/blogs.controller.sql"
+import { PostsControllerSql } from "./features/posts/api/posts.controller.sql"
+import { BlogsQueryRepositorySql } from "./features/blogs/repository/sql/blogs.query.repository.sql"
+import { PostsQueryRepositorySql } from "./features/posts/repository/sql/posts.query.repository.sql"
+import { BlogsRepositorySql } from "./features/blogs/repository/sql/blogs.repository.sql"
+import { BloggerControllerSql } from "./features/blogger/api/blogger.controller.sql"
+import { CreateBlogBloggerSql } from "./features/blogger/application/use-cases/sql/create-blog.use-case.sql"
+import { CreatePostSql } from "./features/blogger/application/use-cases/sql/create-post.use-case.sql"
+import { PostsRepositorySql } from "./features/posts/repository/sql/posts.repository.sql"
+import { UpdateBlogSql } from "./features/blogger/application/use-cases/sql/update-blog.use-case.sql"
+import { DeleteBlogSql } from "./features/blogger/application/use-cases/sql/delete-blog.use-case.sql"
+import { DeletePostSql } from "./features/blogger/application/use-cases/sql/delete-post.use-case.sql"
 
 
 const useCases = [
@@ -156,6 +164,10 @@ const useCases = [
   DeleteUserSql,
   DeleteOtherDevicesSql,
   DeleteSpecialDeviceSql,
+  CreatePostSql,
+  UpdateBlogSql,
+  DeleteBlogSql,
+  DeletePostSql,
 ]
 const services = [
   AppService,
@@ -178,10 +190,15 @@ const repository = [
   TestingRepository,
 
   AuthSqlRepository,
-  DevicesSqlRepository,
-  DevicesSqlQueryRepository,
-  UsersSqlRepository,
-  UsersSqlQueryRepository,
+  DevicesRepositorySql,
+  DevicesQueryRepositorySql,
+  UsersRepositorySql,
+  UsersQueryRepositorySql,
+  BlogsQueryRepositorySql,
+  PostsQueryRepositorySql,
+  BlogsRepositorySql,
+  CreateBlogBloggerSql,
+  PostsRepositorySql,
 ]
 const otherProviders = [
   throttler,
@@ -246,8 +263,11 @@ const otherProviders = [
     DevicesController,
 
     AuthSqlController,
-    SASqlController,
-    DevicesSqlController,
+    SaControllerSql,
+    DevicesControllerSql,
+    BlogsControllerSql,
+    PostsControllerSql,
+    BloggerControllerSql,
   ],
   providers: [
     ...otherProviders,

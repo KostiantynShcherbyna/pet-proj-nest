@@ -37,15 +37,13 @@ import { ConfirmationSqlCommand } from "../application/use-cases/sql/confirmatio
 import { ConfirmationResendSqlCommand } from "../application/use-cases/sql/confirmation-resend.sql.use-case"
 import { PasswordRecoverySqlCommand } from "../application/use-cases/sql/password-recovery.sql.use-case"
 import { NewPasswordSqlCommand } from "../application/use-cases/sql/new-password.sql.use-case"
-import { UsersSqlRepository } from "../../sa/repository/sql/users.sql.repository"
 import { Throttle } from "@nestjs/throttler"
-import { UsersSqlQueryRepository } from "../../sa/repository/sql/users.sql.query.repository"
+import { UsersQueryRepositorySql } from "../../sa/repository/sql/users.query.repository.sql"
 
 @Controller("auth")
 export class AuthSqlController {
   constructor(
-    protected usersSqlRepository: UsersSqlRepository,
-    protected usersSqlQueryRepository: UsersSqlQueryRepository,
+    protected usersQueryRepositorySql: UsersQueryRepositorySql,
     protected commandBus: CommandBus
   ) {
   }
@@ -204,7 +202,7 @@ export class AuthSqlController {
   async getMe(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    const userView = await this.usersSqlQueryRepository.findMe(deviceSession.userId)
+    const userView = await this.usersQueryRepositorySql.findMe(deviceSession.userId)
     if (userView === null) throw new UnauthorizedException()
     return userView
   }

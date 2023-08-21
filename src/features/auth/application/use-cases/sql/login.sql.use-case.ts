@@ -5,7 +5,7 @@ import { ConfigType } from "src/infrastructure/settings/configuration"
 import { LoginBodyInputModel } from "../../../api/models/input/login.body.input-model"
 import { Devices, DevicesModel } from "../../../../devices/application/entites/mongoose/devices.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "../../entities/mongoose/recovery-code.schema"
-import { UsersSqlRepository } from "../../../../sa/repository/sql/users.sql.repository"
+import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 import { compareHashManager } from "../../../../../infrastructure/services/compare-hash.service"
 import { addSeconds } from "date-fns"
 import {
@@ -15,7 +15,7 @@ import {
 } from "../../../../../infrastructure/utils/constants"
 import { randomUUID } from "crypto"
 import { TokensService } from "../../../../../infrastructure/services/tokens.service"
-import { DevicesSqlRepository } from "../../../../devices/repository/sql/devices.sql.repository"
+import { DevicesRepositorySql } from "../../../../devices/repository/sql/devices.repository.sql"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { LoginOutputModel } from "../../../api/models/output/login.output-model"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
@@ -33,8 +33,8 @@ export class LoginSqlCommand {
 export class LoginSql implements ICommandHandler<LoginSqlCommand> {
   constructor(
     protected configService: ConfigService<ConfigType, true>,
-    protected devicesSqlRepository: DevicesSqlRepository,
-    protected usersSqlRepository: UsersSqlRepository,
+    protected devicesSqlRepository: DevicesRepositorySql,
+    protected usersSqlRepository: UsersRepositorySql,
     protected tokensService: TokensService,
   ) {
   }
