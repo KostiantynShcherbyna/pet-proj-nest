@@ -1,9 +1,11 @@
 import { UpdatePostBodyInputModel } from "../../../api/models/input/update-post.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { PostsRepository } from "../../../../posts/repository/mongoose/posts.repository"
-import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
+import { PostsRepositorySql } from "../../../../posts/repository/sql/posts.repository.sql"
+import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { InjectDataSource } from "@nestjs/typeorm"
+import { DataSource } from "typeorm"
 
 export class UpdatePostCommandSql {
   constructor(
@@ -16,32 +18,41 @@ export class UpdatePostCommandSql {
 }
 
 @CommandHandler(UpdatePostCommandSql)
-export class UpdatePostBloggerSql implements ICommandHandler<UpdatePostCommandSql> {
+export class UpdatePostSql implements ICommandHandler<UpdatePostCommandSql> {
   constructor(
-    protected postsRepository: PostsRepository,
-    protected blogsRepository: BlogsRepository,
+    @InjectDataSource() protected dataSource: DataSource,
+    protected postsRepositorySql: PostsRepositorySql,
+    protected blogsRepositorySql: BlogsRepositorySql,
   ) {
   }
 
   async execute(command: UpdatePostCommandSql): Promise<Contract<null | boolean>> {
 
-    const foundBlog = await this.blogsRepository.findBlog(command.blogId)
+    const foundBlog = await this.blogsRepositorySql.findBlog(command.blogId)
     if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    if (foundBlog.blogOwnerInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG)
+    if (foundBlog.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG)
 
-    const post = await this.postsRepository.findPost(command.postId)
+    const post = await this.postsRepositorySql.findPost(command.postId)
     if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
     if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_POST)
 
-    const updateDto = {
-      title: command.body.title,
-      shortDescription: command.body.shortDescription,
-      content: command.body.content,
+    const queryRunner = this.dataSource.createQueryRunner()
+    try {
+      await queryRunner.startTransaction()
+      await this.postsRepositorySql.updatePost({
+        postId: command.postId,
+        title: command.body.title,
+        shortDescription: command.body.shortDescription,
+        content: command.body.content,
+      }, queryRunner)
+      await queryRunner.commitTransaction()
+    } catch (e) {
+      console.log("UpdatePostSql", e)
+      await queryRunner.rollbackTransaction()
+      return new Contract(null, ErrorEnums.POST_NOT_UPDATED)
+    } finally {
+      await queryRunner.release()
     }
-
-    post.updatePost(updateDto, command.blogId)
-    await this.postsRepository.saveDocument(post)
-
     return new Contract(true, null)
   }
 

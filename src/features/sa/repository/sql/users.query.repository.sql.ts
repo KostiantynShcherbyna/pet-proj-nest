@@ -71,7 +71,7 @@ export class UsersQueryRepositorySql {
     from users."AccountData" a
     left join users."BanInfo" b on b."UserId" = a."UserId"
     where (a."Login" ilike $2 or a."Email" ilike $3)
-    and (b."IsBanned" = $1 OR $1 IS NULL)
+    and (b."IsBanned" = $1 or $1 IS NULL)
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}

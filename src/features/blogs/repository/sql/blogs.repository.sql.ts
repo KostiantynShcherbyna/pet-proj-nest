@@ -47,5 +47,34 @@ export class BlogsRepositorySql {
     return deleteBlogResult.length ? deleteBlogResult[1] : null
   }
 
+  async findBlogBanInfo(blogId: string, userId: string) {
+    const foundResult = await this.dataSource.query(`
+    select "BlogId" as "id", "UserId" as "userId", "IsBanned" as "isBanned", "BanInfoId" as "banInfoId"
+    from blogs."BanInfo"
+    where "BlogId" = $1
+    and "UserId" = $2
+    `, [blogId, userId])
+    return foundResult.length ? foundResult[0] : null
+  }
+
+  async createBanUserOfBlog({ blogId, userId, isBanned, banReason, banDate }): Promise<string> {
+    const createResult = await this.dataSource.query(`
+    insert into blogs."BanInfo"("BlogId", "UserId", "IsBanned", "BanReason", "BanDate")
+    values($1, $2, $3, $4, $5)
+    returning "BanInfoId" as "banInfoId"
+    `, [blogId, userId, isBanned, banReason, banDate])
+    return createResult[0].banInfoId
+  }
+
+  async unbanUserOfBlog({ blogId, userId }): Promise<number> {
+    const updateResult = await this.dataSource.query(`
+    update blogs."BanInfo"
+    set "IsBanned" = false, "BanReason" = null, "BanDate" = null
+    where "BlogId" = $1
+    and "UserId" = $2
+    `, [blogId, userId])
+    return updateResult.length ? updateResult[1] : null
+  }
+
 
 }

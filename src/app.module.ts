@@ -37,7 +37,6 @@ import { CreatePostBlogger } from "./features/blogger/application/use-cases/mong
 import { DeleteBlogBlogger } from "./features/blogger/application/use-cases/mongoose/delete-blog.use-case"
 import { DeletePostBlogger } from "./features/blogger/application/use-cases/mongoose/delete-post.use-case"
 import { UpdateBlogBlogger } from "./features/blogger/application/use-cases/mongoose/update-blog.use-case"
-import { UpdatePostBlogger } from "./features/blogger/application/use-cases/mongoose/update-post.use-case"
 import { BannedBlogUsersRepository } from "./features/blogger/repository/mongoose/banned-blog-users.repository"
 import { PostsCommentsRepository } from "./features/blogger/repository/mongoose/posts-comments.repository"
 import { BlogsController } from "./features/blogs/api/blogs.controller"
@@ -116,6 +115,10 @@ import { PostsRepositorySql } from "./features/posts/repository/sql/posts.reposi
 import { UpdateBlogSql } from "./features/blogger/application/use-cases/sql/update-blog.use-case.sql"
 import { DeleteBlogSql } from "./features/blogger/application/use-cases/sql/delete-blog.use-case.sql"
 import { DeletePostSql } from "./features/blogger/application/use-cases/sql/delete-post.use-case.sql"
+import { UpdatePost } from "./features/blogger/application/use-cases/mongoose/update-post.use-case"
+import { UpdatePostSql } from "./features/blogger/application/use-cases/sql/update-post.use-case.sql"
+import { BanUserBloggerSql } from "./features/blogger/application/use-cases/sql/ban-user-blogger.use-case.sql"
+import { BlogIdIsExistSql } from "./infrastructure/decorators/blogId.decorator.sql"
 
 
 const useCases = [
@@ -140,7 +143,7 @@ const useCases = [
   CreatePostBlogger,
   DeletePostBlogger,
   UpdatePostLike,
-  UpdatePostBlogger,
+  UpdatePost,
   CreateToken,
   VerifyToken,
   CreateUser,
@@ -168,6 +171,8 @@ const useCases = [
   UpdateBlogSql,
   DeleteBlogSql,
   DeletePostSql,
+  UpdatePostSql,
+  BanUserBloggerSql,
 ]
 const services = [
   AppService,
@@ -206,6 +211,7 @@ const otherProviders = [
   LoginLocalStrategy,
   LoginSqlLocalStrategy,
   BlogIdIsExist,
+  BlogIdIsExistSql,
   EmailAdapter,
 ]
 

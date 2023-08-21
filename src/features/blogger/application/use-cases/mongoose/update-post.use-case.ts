@@ -16,7 +16,7 @@ export class UpdatePostCommand {
 }
 
 @CommandHandler(UpdatePostCommand)
-export class UpdatePostBlogger implements ICommandHandler<UpdatePostCommand> {
+export class UpdatePost implements ICommandHandler<UpdatePostCommand> {
   constructor(
     protected postsRepository: PostsRepository,
     protected blogsRepository: BlogsRepository,

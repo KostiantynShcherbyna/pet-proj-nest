@@ -35,7 +35,6 @@ export class DeletePostSql implements ICommandHandler<DeletePostCommandSql> {
     if (foundBlog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
     if (foundBlog.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG)
 
-
     const post = await this.postsRepositorySql.findPost(command.postId)
     if (post === null) return new Contract(null, ErrorEnums.POST_NOT_FOUND)
     if (post.blogId !== command.blogId) return new Contract(null, ErrorEnums.FOREIGN_POST)

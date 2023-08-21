@@ -24,6 +24,7 @@ export enum ErrorEnums {
   // ↓↓↓ POSTS
   POST_NOT_FOUND = `Post not found`,
   POST_NOT_DELETED = `Post not deleted`,
+  POST_NOT_UPDATED = `Post not updated`,
   POSTS_NOT_DELETED = `Posts not deleted`,
   FOREIGN_POST = `Foreign post`,
 

@@ -27,7 +27,6 @@ import { CreateBlogCommand } from "../application/use-cases/mongoose/create-blog
 import { GetBlogsQueryInputModel } from "./models/input/get-blogs.query.input-model"
 import { DeviceSessionOptionalInputModel } from "./models/input/device-session-optional.input-model"
 import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
-import { CreatePostParamInputModel } from "./models/input/create-post.param.input-model"
 import { CreatePostBodyInputModel } from "./models/input/create-post.body.input-model"
 import { CreatePostCommand } from "../application/use-cases/mongoose/create-post.use-case"
 import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-model"
@@ -156,7 +155,7 @@ export class BloggerController {
   @Post("blogs/:blogId/posts")
   async createPost(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: CreatePostParamInputModel,
+    @Param() param: BlogIdParamInputModel,
     @Body() bodyBlogPost: CreatePostBodyInputModel
   ) {
     const result = await this.commandBus.execute(

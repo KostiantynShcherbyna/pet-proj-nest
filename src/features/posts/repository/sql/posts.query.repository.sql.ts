@@ -49,7 +49,6 @@ export class PostsQueryRepositorySql {
     left join posts."ExtendedLikesInfo" b on b."PostId" = a."PostId"
     left join posts."Likes" c on c."PostId" = a."PostId"
     left join posts."NewestLikes" d on d."PostId" = a."PostId"
-    where d."UserId" = $3 OR $3 IS NULL
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
@@ -60,7 +59,6 @@ export class PostsQueryRepositorySql {
     const foundPosts = await this.dataSource.query(queryForm, [
       pageSize, // 1
       offset, // 2
-      userId, // 3
     ])
 
     const mappedPosts = this.changePostsView(foundPosts, userId)

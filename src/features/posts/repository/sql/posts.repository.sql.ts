@@ -37,6 +37,16 @@ export class PostsRepositorySql {
     return findPostResult.length ? findPostResult[0] : null
   }
 
+  async updatePost({ postId, title, shortDescription, content }, queryRunner: QueryRunner): Promise<string> {
+    const updateResult = await queryRunner.query(`
+    update posts."Posts"
+    set "Title" = $2, "ShortDescription" = $3, "Content" = $4
+    where "PostId" = $1
+    `, [postId, title, shortDescription, content])
+    return updateResult.length ? updateResult[1] : null
+  }
+
+
   async deletePost(postId: string, queryRunner: QueryRunner): Promise<string> {
     const deletePostResult = await queryRunner.query(`
     delete from posts."Posts"

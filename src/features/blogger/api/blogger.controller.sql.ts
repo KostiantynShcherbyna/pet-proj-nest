@@ -27,10 +27,7 @@ import { GetBlogsQueryInputModel } from "./models/input/get-blogs.query.input-mo
 import { DeviceSessionOptionalInputModel } from "./models/input/device-session-optional.input-model"
 import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
 import { CreatePostBodyInputModel } from "./models/input/create-post.body.input-model"
-import { UpdatePostParamInputModel } from "./models/input/update-post.param.input-model"
-import { UpdatePostCommand } from "../application/use-cases/mongoose/update-post.use-case"
 import { UpdatePostBodyInputModel } from "./models/input/update-post.body.input-model"
-import { DeletePostCommand } from "../application/use-cases/mongoose/delete-post.use-case"
 import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
 import { BanUserBloggerCommand } from "../application/use-cases/mongoose/ban-user-blogger.use-case"
 import { CreateBlogBodyInputModel } from "./models/input/create-blog.body.input-model"
@@ -38,14 +35,16 @@ import { BlogsQueryRepositorySql } from "../../blogs/repository/sql/blogs.query.
 import { CreateBlogCommandSql } from "../application/use-cases/sql/create-blog.use-case.sql"
 import { PostsQueryRepositorySql } from "../../posts/repository/sql/posts.query.repository.sql"
 import { CreatePostCommandSql } from "../application/use-cases/sql/create-post.use-case.sql"
-import { CreatePostParamInputModelSql } from "./models/input/create-post.param.input-model.sql"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { UpdateBlogCommandSql } from "../application/use-cases/sql/update-blog.use-case.sql"
 import { DeleteBlogCommandSql } from "../application/use-cases/sql/delete-blog.use-case.sql"
 import { DeletePostCommandSql } from "../application/use-cases/sql/delete-post.use-case.sql"
 import { UpdatePostParamInputModelSql } from "./models/input/update-post.param.input-model.sql"
-import { BlogIdParamInputModel } from "./models/input/blogId.param.input-model"
 import { BlogIdParamInputModelSql } from "./models/input/blogId.param.input-model.sql"
+import { UpdatePostCommandSql } from "../application/use-cases/sql/update-post.use-case.sql"
+import { BanUserBodyInputModelSql } from "./models/input/ban-user.body.input-model.sql"
+import { BanUserBloggerCommandSql } from "../application/use-cases/sql/ban-user-blogger.use-case.sql"
+import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-comments.query.input-model"
 
 
 @Controller("blogger")
@@ -179,7 +178,7 @@ export class BloggerControllerSql {
   @Post("blogs/:blogId/posts")
   async createPost(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: CreatePostParamInputModelSql,
+    @Param() param: BlogIdParamInputModelSql,
     @Body() bodyBlogPost: CreatePostBodyInputModel
   ) {
     const newPostContract = await this.commandBus.execute(
@@ -226,12 +225,12 @@ export class BloggerControllerSql {
   @Put("blogs/:blogId/posts/:postId")
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
-    @Param() param: UpdatePostParamInputModel,
+    @Param() param: UpdatePostParamInputModelSql,
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Body() bodyPost: UpdatePostBodyInputModel,
   ) {
     const updateContract = await this.commandBus.execute(
-      new UpdatePostCommand(
+      new UpdatePostCommandSql(
         bodyPost,
         param.blogId,
         param.postId,
@@ -250,6 +249,7 @@ export class BloggerControllerSql {
     if (updateContract.error === ErrorEnums.FOREIGN_POST) throw new ForbiddenException(
       callErrorMessage(ErrorEnums.FOREIGN_POST, "postId")
     )
+    if (updateContract.error === ErrorEnums.POST_NOT_UPDATED) throw new InternalServerErrorException()
     return
   }
 
@@ -290,11 +290,11 @@ export class BloggerControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   async banUser(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() param: IdParamInputModel,
-    @Body() bodyUserBan: BanUserBodyInputModel
+    @Param() param: IdParamInputModelSql,
+    @Body() bodyUserBan: BanUserBodyInputModelSql
   ) {
     const banContract = await this.commandBus.execute(
-      new BanUserBloggerCommand(
+      new BanUserBloggerCommandSql(
         deviceSession.userId,
         param.id,
         bodyUserBan,
@@ -310,26 +310,27 @@ export class BloggerControllerSql {
     return
   }
 
-  // @UseGuards(AccessGuard)
-  // @Get("users/blog/:id")
-  // async getBannedBlogUsers(
-  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
-  //   @Param() param: IdParamInputModel,
-  //   @Query() queryBlog: GetPostsCommentsQueryInputModel
-  // ) {
-  //   const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBannedBlogUsers(
-  //     queryBlog,
-  //     param.id,
-  //     deviceSession.userId,
-  //   )
-  //   if (bannedBlogusersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-  //   )
-  //   if (bannedBlogusersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-  //     callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
-  //   )
-  //   return bannedBlogusersContract.data
-  // }
+  @UseGuards(AccessGuard)
+  @Get("users/blog/:id")
+  async getBannedBlogUsers(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Param() param: IdParamInputModelSql,
+    @Query() queryBlog: GetPostsCommentsQueryInputModel
+  ) {
+    const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBanInfoOfBlog(
+      param.id,
+      true,
+      queryBlog,
+      deviceSession.userId,
+    )
+    if (bannedBlogusersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    if (bannedBlogusersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
+    )
+    return bannedBlogusersContract.data
+  }
 
 
 }

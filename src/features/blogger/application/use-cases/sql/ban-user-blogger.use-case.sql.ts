@@ -1,13 +1,8 @@
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { BanUserBodyInputModel } from "../../../api/models/input/ban-user.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Blogs, BlogsModel } from "../../../../blogs/application/entities/mongoose/blogs.schema"
-import { InjectModel } from "@nestjs/mongoose"
-import { BannedBlogUsers, BannedBlogUsersModel } from "../../../../blogs/application/entities/mongoose/banned-blog-users.schema"
-import { BannedBlogUsersRepository } from "../../../repository/mongoose/banned-blog-users.repository"
-import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
-import { UsersRepository } from "../../../../sa/repository/mongoose/users.repository"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
+import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
 
 export class BanUserBloggerCommandSql {
   constructor(
@@ -21,44 +16,39 @@ export class BanUserBloggerCommandSql {
 @CommandHandler(BanUserBloggerCommandSql)
 export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandSql> {
   constructor(
-    @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
-    @InjectModel(BannedBlogUsers.name) protected BannedBlogUsersModel: BannedBlogUsersModel,
-    protected bannedBlogUsersRepository: BannedBlogUsersRepository,
-    protected blogsRepository: BlogsRepository,
-    protected usersRepository: UsersRepository,
+    protected blogsRepositorySql: BlogsRepositorySql,
   ) {
   }
 
   async execute(command: BanUserBloggerCommandSql) {
 
-    const foundBLog = await this.blogsRepository.findBlog(command.bodyUserBan.blogId)
+    const foundBLog = await this.blogsRepositorySql.findBlog(command.bodyUserBan.blogId)
     if (foundBLog === null)
       return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    if (foundBLog.blogOwnerInfo.userId !== command.ownerId)
+    if (foundBLog.userId !== command.ownerId)
       return new Contract(null, ErrorEnums.FOREIGN_BLOG)
-    if (foundBLog.banInfo.isBanned === command.bodyUserBan.isBanned)
+
+    const foundBlogBanInfo = await this.blogsRepositorySql.findBlogBanInfo(command.bodyUserBan.blogId, command.ownerId)
+    if (foundBlogBanInfo?.isBanned === command.bodyUserBan.isBanned)
       return new Contract(true, null)
 
 
-    const bannedBlogUserDocument = command.bodyUserBan.isBanned === true
-      ? await this.BannedBlogUsersModel.banUser({
-        userId: command.bannedUserId,
-        banReason: command.bodyUserBan.banReason,
+    const banInfoId = command.bodyUserBan.isBanned
+      ? await this.blogsRepositorySql.createBanUserOfBlog({
         blogId: command.bodyUserBan.blogId,
-        usersRepository: this.usersRepository,
-        BannedBlogUsersModel: this.BannedBlogUsersModel,
+        userId: command.bannedUserId,
+        isBanned: true,
+        banReason: command.bodyUserBan.banReason,
+        banDate: new Date(Date.now()).toISOString(),
       })
-      : await this.BannedBlogUsersModel.unbanUser(
-        command.bannedUserId,
-        command.bodyUserBan.blogId,
-        this.bannedBlogUsersRepository
-      )
+      : await this.blogsRepositorySql.unbanUserOfBlog({
+        blogId: command.bodyUserBan.blogId,
+        userId: command.bannedUserId
+      })
 
-    if (bannedBlogUserDocument === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-
-    await this.bannedBlogUsersRepository.saveDocument(bannedBlogUserDocument)
-
-    return new Contract(true, null)
+    return (!banInfoId)
+      ? new Contract(null, ErrorEnums.USER_NOT_FOUND)
+      : new Contract(true, null)
   }
 
   // async execute(command: BanUserBloggerCommand) {

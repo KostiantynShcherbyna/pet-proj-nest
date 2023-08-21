@@ -7,7 +7,7 @@ import { GetBlogsQueryInputModel } from "../../api/models/input/get-blogs.query.
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
-  PAGE_SIZE_DEFAULT,
+  PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT,
   SEARCH_NAME_TERM_DEFAULT,
   SORT_BY_DEFAULT_SQL,
   SortDirection
@@ -19,6 +19,9 @@ import { DataSource } from "typeorm"
 import { GetPostsQueryInputModel } from "../../../posts/api/models/input/get-posts.query.input-model"
 import { PostsView } from "../../../blogger/api/models/output/create-blogger-post.output-model"
 import { UsersRepositorySql } from "../../../sa/repository/sql/users.repository.sql"
+import { BannedBlogUsersView } from "../../../blogger/api/models/output/get-banned-blog-users.output-model"
+import { GetPostsCommentsQueryInputModel } from "../../api/models/input/get-posts-comments.query.input-model"
+import { BannedBlogUsersDocument } from "../../application/entities/mongoose/banned-blog-users.schema"
 
 @Injectable()
 export class BlogsQueryRepositorySql {
@@ -51,7 +54,7 @@ export class BlogsQueryRepositorySql {
     select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
              "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
     from blogs."Blogs" a
-    where a."UserId" = $1 OR $1 IS NULL
+    where (a."UserId" = $1 OR $1 IS NULL)
     and a."Name" ilike $2
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
@@ -161,6 +164,65 @@ export class BlogsQueryRepositorySql {
   }
 
 
+  async findBanInfoOfBlog(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
+
+    const blog = await this.blogsSqlRepository.findBlog(blogId)
+    if (blog === null)
+      return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    if (blog.userId !== userId)
+      return new Contract(null, ErrorEnums.FOREIGN_BLOG)
+
+    const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
+    const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
+    const offset = (pageNumber - 1) * pageSize
+
+    const totalCount = await this.dataSource.query(`
+    select count(*)
+    from blogs."BanInfo" a
+    left join users."AccountData" b
+    where a."BlogId" = $1
+    and a."IsBanned" = $2
+    and b."Login" ilike $3 on b."UserId" = a."UserId"
+    `, [blogId, isBanned, `%${searchLoginTerm}%`])
+
+    const pagesCount = Math.ceil(totalCount[0].count / pageSize)
+
+    const queryForm = `
+    select a."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+           b."UserId" as "id", "Login" as "login"
+    from blogs."BanInfo" a
+    left join users."AccountData" b
+    and a."IsBanned" = $2
+    and b."Login" ilike $3 on b."UserId" = a."UserId"
+    order by "${sortBy}" ${
+      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+    } ${sortDirection}
+    limit $3
+    offset $4
+    `
+
+    const banInfos = await this.dataSource.query(
+      queryForm, [
+        blogId, isBanned,
+        `%${searchLoginTerm}%`,
+        pageSize, // 3
+        offset, // 4
+      ])
+    const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
+
+    return new Contract({
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: totalCount,
+      items: banInfoViews
+    }, null)
+  }
+
+
   private changeBlogsView(blogs: any[]) {
     return blogs.map(blog => {
       return {
@@ -196,6 +258,21 @@ export class BlogsQueryRepositorySql {
         },
       }
     })
+  }
+
+  private createBanInfoOfBlogViews(banInfos: any[]) {
+    return banInfos.map(banInfo => {
+      return {
+        id: banInfo.id,
+        login: banInfo.login,
+        banInfo: {
+          isBanned: banInfo.isBanned,
+          banDate: banInfo.banDate,
+          banReason: banInfo.banReason,
+        }
+      }
+    })
+
   }
 
 }
