@@ -3,6 +3,7 @@ import { BanUserBodyInputModel } from "../../../api/models/input/ban-user.body.i
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 
 export class BanUserBloggerCommandSql {
   constructor(
@@ -17,6 +18,7 @@ export class BanUserBloggerCommandSql {
 export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandSql> {
   constructor(
     protected blogsRepositorySql: BlogsRepositorySql,
+    protected usersRepositorySql: UsersRepositorySql,
   ) {
   }
 
@@ -28,7 +30,13 @@ export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandS
     if (foundBLog.userId !== command.ownerId)
       return new Contract(null, ErrorEnums.FOREIGN_BLOG)
 
+    const userForBan = await this.usersRepositorySql.findUserByUserId(command.bannedUserId)
+    if (!userForBan)
+      return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+
     const foundBanUsersInfo = await this.blogsRepositorySql.findBanUsersInfo(command.bodyUserBan.blogId, command.ownerId)
+    if (!foundBanUsersInfo && !command.bodyUserBan.isBanned)
+      return new Contract(true, null)
     if (foundBanUsersInfo?.isBanned === command.bodyUserBan.isBanned)
       return new Contract(true, null)
 
@@ -47,7 +55,7 @@ export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandS
       })
 
     return (!banInfoId)
-      ? new Contract(null, ErrorEnums.USER_NOT_FOUND)
+      ? new Contract(null, ErrorEnums.USER_NOT_BANNED)
       : new Contract(true, null)
   }
 

@@ -34,14 +34,16 @@ export class PostsQueryRepositorySql {
 
     const totalCount = await this.dataSource.query(`
     select count (*)
-    from posts."Posts"
+    from posts."Posts" a
+    left join blogs."Blogs" b on b."BlogId" = a."BlogId" 
+    where b."IsBanned" = 'false'
     `)
 
     const pagesCount = Math.ceil(totalCount[0].count / pageSize)
 
     const queryForm = `
     select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
-             "BlogName" as "blogName","BlogId" as "blogId", "CreatedAt" as "createdAt",
+             "BlogName" as "blogName", a."BlogId" as "blogId", a."CreatedAt" as "createdAt",
            b."LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
            c."Status" as "myStatus",
            d."AddedAt" as "addedAt", "Login" as "login"
@@ -49,6 +51,8 @@ export class PostsQueryRepositorySql {
     left join posts."ExtendedLikesInfo" b on b."PostId" = a."PostId"
     left join posts."Likes" c on c."PostId" = a."PostId"
     left join posts."NewestLikes" d on d."PostId" = a."PostId"
+    left join blogs."Blogs" e on e."BlogId" = a."BlogId" 
+    where e."IsBanned" = 'false'
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
@@ -131,9 +135,11 @@ export class PostsQueryRepositorySql {
 
     const queryForm = `
     select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
-             "BlogName" as "blogName","BlogId" as "blogId", "CreatedAt" as "createdAt"
+             "BlogName" as "blogName", a."BlogId" as "blogId", a."CreatedAt" as "createdAt"
     from posts."Posts" a
+    left join blogs."Blogs" b on b."BlogId" = a."BlogId" 
     where a."PostId" = $1
+    and b."IsBanned" = 'false'
     `
     const foundPost = await this.dataSource.query(queryForm, [postId])
     return foundPost.length ? this.changePostView(foundPost[0]) : null

@@ -44,9 +44,9 @@ export class BlogsQueryRepositorySql {
     const blogsTotalCount = await this.dataSource.query(`
     select count(*)
     from blogs."Blogs" a
-    where a."UserId" = $1 OR $1 IS NULL
-    and a."Name" ilike $2
-    `, [userId, `%${searchNameTerm}%`])
+    where a."Name" ilike $1
+    and "IsBanned" = 'false'
+    `, [`%${searchNameTerm}%`])
 
     const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
 
@@ -54,8 +54,56 @@ export class BlogsQueryRepositorySql {
     select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
              "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
     from blogs."Blogs" a
-    where (a."UserId" = $1 OR $1 IS NULL)
-    and a."Name" ilike $2
+    where a."Name" ilike $1
+    and "IsBanned" = 'false'
+    order by "${sortBy}" ${
+      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+    } ${sortDirection}
+    limit $2
+    offset $3
+    `
+
+    const blogs = await this.dataSource.query(
+      queryForm, [
+        `%${searchNameTerm}%`, // 1
+        pageSize, // 2
+        offset, // 3
+      ])
+    const mappedBlogs = this.changeBlogsView(blogs)
+
+    return {
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: Number(blogsTotalCount[0].count),
+      items: mappedBlogs
+    }
+  }
+
+  async findBloggerBlogs(query: GetBlogsQueryInputModel, userId: string): Promise<null | BlogsOutputModel> {
+
+    const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
+    const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
+    const offset = (pageNumber - 1) * pageSize
+
+    const blogsTotalCount = await this.dataSource.query(`
+    select count(*)
+    from blogs."Blogs" a
+    where a."Name" ilike $1
+    and a."UserId" = $2
+    `, [`%${searchNameTerm}%`, userId])
+
+    const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
+
+    const queryForm = `
+    select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
+             "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
+    from blogs."Blogs" a
+    where a."Name" ilike $1
+    and a."UserId" = $2
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
@@ -65,8 +113,8 @@ export class BlogsQueryRepositorySql {
 
     const blogs = await this.dataSource.query(
       queryForm, [
-        userId, // 1
-        `%${searchNameTerm}%`, // 2
+        `%${searchNameTerm}%`, // 1
+        userId, // 2
         pageSize, // 3
         offset, // 4
       ])
@@ -100,17 +148,17 @@ export class BlogsQueryRepositorySql {
     const totalCount = await this.dataSource.query(`
     select count (*)
     from posts."Posts"
-    where "BlogId" = $1
+    where "BlogId" = $1 
     `, [blogId])
 
-    const pagesCount = Math.ceil(totalCount / pageSize)
+    const pagesCount = Math.ceil(totalCount[0].count / pageSize)
 
     const queryForm = `
     select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
              "BlogName" as "blogName", "BlogId" as "blogId", "CreatedAt" as "createdAt",
            b."LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
            c."Status" as "myStatus",
-           d."AddedAt" as "addedAt", "UserId" as "userId", "Login" as "login"
+           d."AddedAt" as "addedAt", d."UserId" as "userId", "Login" as "login"
     from posts."Posts" a
     left join posts."ExtendedLikesInfo" b on b."PostId" = a."PostId"
     left join posts."Likes" c on c."PostId" = a."PostId"
@@ -135,7 +183,7 @@ export class BlogsQueryRepositorySql {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: totalCount,
+      totalCount: Number(totalCount[0].count),
       items: mappedPosts
     }
 
@@ -143,12 +191,13 @@ export class BlogsQueryRepositorySql {
   }
 
 
-  async findBlog(blogId: string) {
+  async findPublicBlog(blogId: string) {
     const foundBlogResult = await this.dataSource.query(`
-    select "BlogId" as "id", "UserId" as "userId", "UserLogin" as "userLogin", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
+    select "BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
            "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
     from blogs."Blogs"
     where "BlogId" = $1
+    and "IsBanned" = 'false'
     `, [blogId])
     return foundBlogResult.length ? foundBlogResult[0] : null
   }
@@ -214,7 +263,7 @@ export class BlogsQueryRepositorySql {
         offset, // 5
       ])
     const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
-''
+    ""
     return new Contract({
       pagesCount: pagesCount,
       page: pageNumber,
@@ -289,7 +338,7 @@ export class BlogsQueryRepositorySql {
   private changeBlogsSAView(blogs: any[]) {
     return blogs.map(blog => {
       return {
-        id: blog.blogId,
+        id: blog.id,
         name: blog.name,
         description: blog.description,
         websiteUrl: blog.websiteUrl,

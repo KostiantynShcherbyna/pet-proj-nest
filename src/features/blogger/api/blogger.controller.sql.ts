@@ -151,7 +151,7 @@ export class BloggerControllerSql {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryBlog: GetBlogsQueryInputModel
   ) {
-    const blogs = await this.blogsQueryRepositorySql.findBlogs(
+    const blogs = await this.blogsQueryRepositorySql.findBloggerBlogs(
       queryBlog,
       deviceSession.userId,
     )
@@ -306,7 +306,9 @@ export class BloggerControllerSql {
     if (banContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
       callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
     )
-    if (banContract.error === ErrorEnums.DEVICES_NOT_DELETE) throw new InternalServerErrorException()
+    if (banContract.error === ErrorEnums.USER_NOT_BANNED) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_BANNED, "id")
+    )
     return
   }
 
