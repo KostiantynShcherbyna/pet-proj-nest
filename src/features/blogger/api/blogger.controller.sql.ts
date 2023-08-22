@@ -312,12 +312,12 @@ export class BloggerControllerSql {
 
   @UseGuards(AccessGuard)
   @Get("users/blog/:id")
-  async getBannedBlogUsers(
+  async getBannedUsersOfBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdParamInputModelSql,
     @Query() queryBlog: GetPostsCommentsQueryInputModel
   ) {
-    const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBanInfoOfBlog(
+    const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBanUsersInfos(
       param.id,
       true,
       queryBlog,

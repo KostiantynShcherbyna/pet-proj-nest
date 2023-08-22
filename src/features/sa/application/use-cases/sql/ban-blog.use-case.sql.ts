@@ -4,6 +4,7 @@ import { Blogs, BlogsModel } from "../../../../blogs/application/entities/mongoo
 import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { Contract } from "../../../../../infrastructure/utils/contract"
+import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
 
 
 export class BanBlogSqlCommand {
@@ -18,24 +19,23 @@ export class BanBlogSqlCommand {
 export class BanBlogSql implements ICommandHandler<BanBlogSqlCommand> {
   constructor(
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
-    protected blogsRepository: BlogsRepository,
+    protected blogsRepositorySql: BlogsRepositorySql,
   ) {
   }
 
   async execute(command: BanBlogSqlCommand) {
 
-    const foundBlog = await this.blogsRepository.findBlog(command.blogId)
+    const foundBlog = await this.blogsRepositorySql.findBlog(command.blogId)
     if (foundBlog === null)
       return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    if (foundBlog.banInfo.isBanned === command.isBanned)
+    if (foundBlog.isBanned === command.isBanned)
       return new Contract(true, null)
 
-
-    command.isBanned === true
-      ? foundBlog.banBlog()
-      : foundBlog.unbanBlog()
-
-    await this.blogsRepository.saveDocument(foundBlog)
+    await this.blogsRepositorySql.setBanBlogBySA({
+      blogId: command.blogId,
+      isBanned: command.isBanned,
+      banDate: new Date(Date.now()).toISOString()
+    })
 
     return new Contract(true, null)
   }

@@ -164,7 +164,7 @@ export class BlogsQueryRepositorySql {
   }
 
 
-  async findBanInfoOfBlog(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
+  async findBanUsersInfos(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
 
     const blog = await this.blogsSqlRepository.findBlog(blogId)
     if (blog === null)
@@ -181,35 +181,37 @@ export class BlogsQueryRepositorySql {
 
     const totalCount = await this.dataSource.query(`
     select count(*)
-    from blogs."BanInfo" a
-    left join users."AccountData" b
+    from blogs."BanUsersInfo" a
+    left join users."AccountData" b on b."UserId" = a."UserId"
     where a."BlogId" = $1
     and a."IsBanned" = $2
-    and b."Login" ilike $3 on b."UserId" = a."UserId"
+    and b."Login" ilike $3
     `, [blogId, isBanned, `%${searchLoginTerm}%`])
 
     const pagesCount = Math.ceil(totalCount[0].count / pageSize)
 
     const queryForm = `
     select a."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
-           b."UserId" as "id", "Login" as "login"
-    from blogs."BanInfo" a
-    left join users."AccountData" b
+             "UserId" as "id", "Login" as "login"
+    from blogs."BanUsersInfo" a
+    left join users."AccountData" b on b."UserId" = a."UserId"
+    where a."BlogId" = $1
     and a."IsBanned" = $2
-    and b."Login" ilike $3 on b."UserId" = a."UserId"
+    and b."Login" ilike $3
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
-    limit $3
-    offset $4
+    limit $4
+    offset $5
     `
 
     const banInfos = await this.dataSource.query(
       queryForm, [
-        blogId, isBanned,
-        `%${searchLoginTerm}%`,
-        pageSize, // 3
-        offset, // 4
+        blogId, // 1
+        isBanned, // 2
+        `%${searchLoginTerm}%`, // 3
+        pageSize, // 4
+        offset, // 5
       ])
     const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
 
@@ -217,7 +219,7 @@ export class BlogsQueryRepositorySql {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: totalCount,
+      totalCount: Number(totalCount[0].count),
       items: banInfoViews
     }, null)
   }

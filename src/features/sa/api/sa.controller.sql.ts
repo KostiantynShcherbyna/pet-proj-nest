@@ -16,8 +16,6 @@ import {
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { GetBlogsQueryInputModel } from "./models/input/get-blogs.query.input-model"
-import { IdParamInputModel } from "./models/input/id.param.input-model"
-import { UsersQueryRepository } from "../repository/mongoose/users.query.repository"
 import { BlogsQueryRepository } from "../../blogs/repository/mongoose/blogs.query.repository"
 import { BasicGuard } from "../../../infrastructure/guards/basic.guard"
 import { BanBlogParamInputModel } from "./models/input/ban-blog.param.input-model"
@@ -28,11 +26,8 @@ import { callErrorMessage } from "../../../infrastructure/adapters/exception-mes
 import { BindInputModel } from "./models/input/bind-blog.param.input-model"
 import { BindBlogCommand } from "../application/use-cases/mongoose/bind-blog.use-case"
 import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
-import { BanUserCommand } from "../application/use-cases/mongoose/ban-user.use-case"
 import { QueryUserSAInputModel } from "./models/input/get-users.query.input-model"
 import { CreateUserBodyInputModel } from "./models/input/create-user.body.input-model"
-import { CreateUserCommand } from "../application/use-cases/mongoose/create-user.use-case"
-import { DeleteUserCommand } from "../application/use-cases/mongoose/delete-user.use-case"
 import { BanUserSqlCommand } from "../application/use-cases/sql/ban-user.use-case.sql"
 import { CreateUserSqlCommand } from "../application/use-cases/sql/create-user.use-case.sql"
 import { UsersQueryRepositorySql } from "../repository/sql/users.query.repository.sql"
@@ -43,7 +38,6 @@ import { IdSqlParamInputModel } from "./models/input/id.sql.param.input-model"
 export class SaControllerSql {
   constructor(
     private commandBus: CommandBus,
-    protected usersQueryRepository: UsersQueryRepository,
     protected usersSqlQueryRepository: UsersQueryRepositorySql,
     protected blogsQueryRepository: BlogsQueryRepository,
   ) {
