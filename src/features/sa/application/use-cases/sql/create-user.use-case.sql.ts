@@ -9,6 +9,8 @@ import { generateHashManager } from "../../../../../infrastructure/services/gene
 import { randomUUID } from "crypto"
 import { add } from "date-fns"
 import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
+import { InjectDataSource } from "@nestjs/typeorm"
+import { DataSource } from "typeorm"
 
 
 export class CreateUserSqlCommand {
@@ -23,7 +25,7 @@ export class CreateUserSqlCommand {
 @CommandHandler(CreateUserSqlCommand)
 export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
   constructor(
-    @InjectModel(Users.name) protected UsersModel: UsersModel,
+    @InjectDataSource() protected dataSource: DataSource,
     protected usersSqlRepository: UsersRepositorySql,
   ) {
   }
@@ -35,52 +37,35 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
     if (user?.email === command.email) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
     if (user?.login === command.login) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
 
-    const passwordHash = await generateHashManager(command.password)
-    const newUser = await this.usersSqlRepository.createUser({
-      login: command.login,
-      email: command.email,
-      passwordHash: passwordHash,
-      createdAt: new Date(Date.now()).toISOString()
-    })
+    let newUser
+    const queryRunner = this.dataSource.createQueryRunner()
+    try {
+      await queryRunner.startTransaction()
+      const passwordHash = await generateHashManager(command.password)
+      const newUserDataDto = {
+        login: command.login,
+        email: command.email,
+        passwordHash: passwordHash,
+        createdAt: new Date(Date.now()).toISOString()
+      }
+      newUser = await this.usersSqlRepository.createUser(newUserDataDto)
 
-    const emailConfirmationDto = {
-      userId: newUser.userId,
-      confirmationCode: null,
-      expirationDate: null,
-      isConfirmed: true
+      const emailConfirmationDto = {
+        userId: newUser.userId,
+        confirmationCode: null,
+        expirationDate: null,
+        isConfirmed: true
+      }
+      await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto)
+      await this.usersSqlRepository.createBanInfo(newUser.userId)
+      await queryRunner.commitTransaction()
+    } catch (err) {
+      console.log("CreateUserSql", err)
+      await queryRunner.rollbackTransaction()
+      return new Contract(null, ErrorEnums.USER_NOT_DELETED)
+    } finally {
+      await queryRunner.release()
     }
-    await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto)
-    await this.usersSqlRepository.createBanInfo(newUser.userId)
-
     return new Contract(newUser.userId, null)
-
-    // async execute(command: CreateUserSqlCommand): Promise<CreateUserOutputModel> {
-    //
-    //   const newUser = await this.UsersModel.createUser(
-    //     {
-    //       login: command.login,
-    //       email: command.email,
-    //       password: command.password,
-    //     },
-    //     this.UsersModel
-    //   )
-    //   await this.usersRepository.saveDocument(newUser)
-    //   const userView = this.createUserView(newUser)
-    //   return userView
-    // }
-    //
-    //
-    // private createUserView(data: UsersDocument) {
-    //   return {
-    //     id: data._id.toString(),
-    //     login: data.accountData.login,
-    //     email: data.accountData.email,
-    //     createdAt: data.accountData.createdAt,
-    //     banInfo: {
-    //       banDate: data.accountData.banInfo.banDate,
-    //       banReason: data.accountData.banInfo.banReason,
-    //       isBanned: data.accountData.banInfo.isBanned,
-    //     }
-    //   }
   }
 }

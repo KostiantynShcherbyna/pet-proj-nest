@@ -164,7 +164,7 @@ export class BlogsQueryRepositorySql {
   }
 
 
-  async findBanUsersInfos(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
+  async findBanBlogUsers(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
 
     const blog = await this.blogsSqlRepository.findBlog(blogId)
     if (blog === null)
@@ -181,7 +181,7 @@ export class BlogsQueryRepositorySql {
 
     const totalCount = await this.dataSource.query(`
     select count(*)
-    from blogs."BanUsersInfo" a
+    from blogs."BanBlogUsers" a
     left join users."AccountData" b on b."UserId" = a."UserId"
     where a."BlogId" = $1
     and a."IsBanned" = $2
@@ -192,8 +192,8 @@ export class BlogsQueryRepositorySql {
 
     const queryForm = `
     select a."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
-             "UserId" as "id", "Login" as "login"
-    from blogs."BanUsersInfo" a
+           b."Login" as "login", b."UserId" as "id"
+    from blogs."BanBlogUsers" a
     left join users."AccountData" b on b."UserId" = a."UserId"
     where a."BlogId" = $1
     and a."IsBanned" = $2
@@ -214,7 +214,7 @@ export class BlogsQueryRepositorySql {
         offset, // 5
       ])
     const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
-
+''
     return new Contract({
       pagesCount: pagesCount,
       page: pageNumber,
@@ -222,6 +222,53 @@ export class BlogsQueryRepositorySql {
       totalCount: Number(totalCount[0].count),
       items: banInfoViews
     }, null)
+  }
+
+  async findBlogsSA(query: GetBlogsQueryInputModel): Promise<null | BlogsOutputModel> {
+
+    const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
+    const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
+    const offset = (pageNumber - 1) * pageSize
+
+    const blogsTotalCount = await this.dataSource.query(`
+    select count(*)
+    from blogs."Blogs" a
+    where a."Name" ilike $1
+    `, [`%${searchNameTerm}%`])
+
+    const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
+
+    const queryForm = `
+    select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
+             "CreatedAt" as "createdAt", "IsMembership" as "isMembership", "UserId" as "userId", "UserLogin" as "userLogin",
+             "IsBanned" as "isBanned", "BanDate" as "banDate"
+    from blogs."Blogs" a
+    where a."Name" ilike $1
+    order by "${sortBy}" ${
+      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+    } ${sortDirection}
+    limit $2
+    offset $3
+    `
+
+    const blogs = await this.dataSource.query(
+      queryForm, [
+        `%${searchNameTerm}%`, // 1
+        pageSize, // 2
+        offset, // 3
+      ])
+    const blogsView = this.changeBlogsSAView(blogs)
+
+    return {
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: Number(blogsTotalCount[0].count),
+      items: blogsView
+    }
   }
 
 
@@ -238,6 +285,28 @@ export class BlogsQueryRepositorySql {
     })
 
   }
+
+  private changeBlogsSAView(blogs: any[]) {
+    return blogs.map(blog => {
+      return {
+        id: blog.blogId,
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: blog.createdAt,
+        isMembership: false,
+        blogOwnerInfo: {
+          userId: blog.userId,
+          userLogin: blog.userLogin
+        },
+        banInfo: {
+          isBanned: blog.isBanned,
+          banDate: blog.banDate
+        }
+      }
+    })
+  }
+
 
   private changePostsView(posts: any[], userId?: string) {
     // const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status

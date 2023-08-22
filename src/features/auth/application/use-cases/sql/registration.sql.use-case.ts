@@ -6,6 +6,8 @@ import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { generateHashManager } from "../../../../../infrastructure/services/generate-hash.service"
 import { add } from "date-fns"
 import { randomUUID } from "crypto"
+import { InjectDataSource } from "@nestjs/typeorm"
+import { DataSource } from "typeorm"
 
 
 export class RegistrationSqlCommand {
@@ -20,7 +22,7 @@ export class RegistrationSqlCommand {
 @CommandHandler(RegistrationSqlCommand)
 export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> {
   constructor(
-    // @InjectDataSource() protected dataSource: DataSource,
+    @InjectDataSource() protected dataSource: DataSource,
     protected usersSqlRepository: UsersRepositorySql,
     protected emailAdapter: EmailAdapter,
   ) {
@@ -34,24 +36,37 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
 
     const passwordHash = await generateHashManager(command.password)
     const newDate = new Date(Date.now()).toISOString()
-    const newUser = await this.usersSqlRepository.createUser({
-      login: command.login,
-      email: command.email,
-      passwordHash: passwordHash,
-      date: newDate
-    })
-    const emailConfirmationDto = {
-      userId: newUser.userId,
-      confirmationCode: randomUUID(),
-      expirationDate: add(new Date(), {
-        hours: 1,
-        minutes: 3,
-      }).toISOString(),
-      isConfirmed: false
+
+    let newUser
+    const queryRunner = this.dataSource.createQueryRunner()
+    try {
+      await queryRunner.startTransaction()
+      newUser = await this.usersSqlRepository.createUser({
+        login: command.login,
+        email: command.email,
+        passwordHash: passwordHash,
+        date: newDate
+      })
+      const emailConfirmationDto = {
+        userId: newUser.userId,
+        confirmationCode: randomUUID(),
+        expirationDate: add(new Date(), {
+          hours: 1,
+          minutes: 3,
+        }).toISOString(),
+        isConfirmed: false
+      }
+      console.log("confirmationCode", emailConfirmationDto.confirmationCode)
+      await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto)
+      await this.usersSqlRepository.createBanInfo(newUser.userId)
+      await queryRunner.commitTransaction()
+    } catch (err) {
+      console.log("RegistrationSql", err)
+      await queryRunner.rollbackTransaction()
+      return new Contract(null, ErrorEnums.USER_NOT_DELETED)
+    } finally {
+      await queryRunner.release()
     }
-    console.log("confirmationCode", emailConfirmationDto.confirmationCode)
-    await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto)
-    await this.usersSqlRepository.createBanInfo(newUser.userId)
 
     // SENDING EMAIL ↓↓↓ TODO TO CLASS
     this.emailAdapter.sendConfirmationCode(newUser)

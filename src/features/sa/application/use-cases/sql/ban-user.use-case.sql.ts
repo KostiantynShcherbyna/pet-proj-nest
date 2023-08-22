@@ -9,7 +9,7 @@ import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
 
 
-export class BanUserSqlCommand {
+export class BanUserCommandSql {
   constructor(
     public userId: string,
     public isBanned: boolean,
@@ -18,8 +18,8 @@ export class BanUserSqlCommand {
   }
 }
 
-@CommandHandler(BanUserSqlCommand)
-export class BanUserSql implements ICommandHandler<BanUserSqlCommand> {
+@CommandHandler(BanUserCommandSql)
+export class BanUserSql implements ICommandHandler<BanUserCommandSql> {
   constructor(
     @InjectModel(Users.name) protected UsersModel: UsersModel,
     @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
@@ -27,7 +27,7 @@ export class BanUserSql implements ICommandHandler<BanUserSqlCommand> {
   ) {
   }
 
-  async execute(command: BanUserSqlCommand) {
+  async execute(command: BanUserCommandSql) {
 
     const user = await this.usersSqlRepository.findUserByUserId(command.userId)
     if (user === null)

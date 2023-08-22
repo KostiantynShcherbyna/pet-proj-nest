@@ -155,30 +155,66 @@ export class UsersRepositorySql {
     return foundUser.length ? foundUser[0] : null
   }
 
-  async deleteUser(userId: string) {
+  // async deleteUser(userId: string, queryRunner: QueryRunner) {
+  //
+  //   //   async deleteUser(userId: string, queryRunner?: QueryRunner) {const queryRunner = this.dataSource.createQueryRunner()
+  //   //   await queryRunner.startTransaction();
+  //   //   try{
+  //   //   this.dataSource.query('', {}, queryRunner)
+  //   //
+  //   // await this.usersRepository.deleteById(userId, querryRunner)
+  //   //   await  queryRunner.commitTransaction()
+  //   //   }catch(e){await queryRunner.rollbackTransaction()
+  //   //   }
+  //
+  //   const deleteResults = await this.dataSource.transaction(async manager => {
+  //     const result1 = await manager.query(`delete from users."EmailConfirmation" where "UserId" = $1`, [userId])
+  //     const result2 = await manager.query(`delete from users."BanInfo" where "UserId" = $1`, [userId])
+  //     const result3 = await manager.query(`delete from users."AccountData" where "UserId" = $1`, [userId])
+  //     return [result1[1], result2[1], result3[1]]
+  //   })
+  //   await this.dataSource.query(`
+  //       delete
+  //       from users."SentConfirmationCodeDates"
+  //       where "UserId" = $1
+  //       `, [userId])
+  //
+  //   return deleteResults.every(res => res === 1)
+  // }
 
-    //   async deleteUser(userId: string, queryRunner?: QueryRunner) {const queryRunner = this.dataSource.createQueryRunner()
-    //   await queryRunner.startTransaction();
-    //   try{
-    //   this.dataSource.query('', {}, queryRunner)
-    //
-    // await this.usersRepository.deleteById(userId, querryRunner)
-    //   await  queryRunner.commitTransaction()
-    //   }catch(e){await queryRunner.rollbackTransaction()
-    //   }
-    const deleteResults = await this.dataSource.transaction(async manager => {
-      const result1 = await manager.query(`delete from users."EmailConfirmation" where "UserId" = $1`, [userId])
-      const result2 = await manager.query(`delete from users."BanInfo" where "UserId" = $1`, [userId])
-      const result3 = await manager.query(`delete from users."AccountData" where "UserId" = $1`, [userId])
-      return [result1[1], result2[1], result3[1]]
-    })
-    await this.dataSource.query(`
-        delete
-        from users."SentConfirmationCodeDates"
-        where "UserId" = $1
-        `, [userId])
+  async deleteEmailConfirmation(userId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from users."EmailConfirmation" where "UserId" = $1
+    `, [userId])
+    return result[1]
+  }
 
-    return deleteResults.every(res => res === 1)
+  async deleteBanInfo(userId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from users."BanInfo" where "UserId" = $1
+    `, [userId])
+    return result[1]
+  }
+
+  async deleteSentConfirmationCodeDates(userId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from users."SentConfirmationCodeDates" where "UserId" = $1
+    `, [userId])
+    return result[1]
+  }
+
+  async deleteDevices(userId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from devices."Devices" where "UserId" = $1
+    `, [userId])
+    return result[1]
+  }
+
+  async deleteAccountData(userId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from users."AccountData" where "UserId" = $1
+    `, [userId])
+    return result[1]
   }
 
   // async deleteUser(userId: string) {

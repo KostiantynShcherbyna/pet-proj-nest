@@ -94,7 +94,7 @@ import { AuthSqlController } from "./features/auth/api/auth.sql.controller"
 import { LoginSqlLocalStrategy } from "./infrastructure/strategy/login.sql.local.strategy"
 import { BanBlogSql } from "./features/sa/application/use-cases/sql/ban-blog.use-case.sql"
 import { BanUserSql } from "./features/sa/application/use-cases/sql/ban-user.use-case.sql"
-import { BindBlogBloggerSql } from "./features/sa/application/use-cases/sql/bind-blog.use-case.sql"
+import { BindBlogSql } from "./features/sa/application/use-cases/sql/bind-blog.use-case.sql"
 import { CreateUserSql } from "./features/sa/application/use-cases/sql/create-user.use-case.sql"
 import { DeleteUserSql } from "./features/sa/application/use-cases/sql/delete-user.use-case.sql"
 import { SaControllerSql } from "./features/sa/api/sa.controller.sql"
@@ -162,7 +162,7 @@ const useCases = [
   RegistrationSql,
   BanBlogSql,
   BanUserSql,
-  BindBlogBloggerSql,
+  BindBlogSql,
   CreateUserSql,
   DeleteUserSql,
   DeleteOtherDevicesSql,

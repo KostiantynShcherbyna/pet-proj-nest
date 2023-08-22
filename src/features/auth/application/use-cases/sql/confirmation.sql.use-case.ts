@@ -14,7 +14,6 @@ export class ConfirmationSql implements ICommandHandler<ConfirmationSqlCommand> 
     protected usersSqlRepository: UsersRepositorySql,
   ) {
   }
-
   async execute(command: ConfirmationSqlCommand): Promise<Contract<null | boolean>> {
     const user = await this.usersSqlRepository.findUserByConfirmCode(command.code)
     if (user === null)

@@ -28,18 +28,22 @@ import { BindBlogCommand } from "../application/use-cases/mongoose/bind-blog.use
 import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
 import { QueryUserSAInputModel } from "./models/input/get-users.query.input-model"
 import { CreateUserBodyInputModel } from "./models/input/create-user.body.input-model"
-import { BanUserSqlCommand } from "../application/use-cases/sql/ban-user.use-case.sql"
+import { BanUserCommandSql } from "../application/use-cases/sql/ban-user.use-case.sql"
 import { CreateUserSqlCommand } from "../application/use-cases/sql/create-user.use-case.sql"
 import { UsersQueryRepositorySql } from "../repository/sql/users.query.repository.sql"
-import { DeleteUserSqlCommand } from "../application/use-cases/sql/delete-user.use-case.sql"
+import { DeleteUserCommandSql } from "../application/use-cases/sql/delete-user.use-case.sql"
 import { IdSqlParamInputModel } from "./models/input/id.sql.param.input-model"
+import { BanBlogCommandSql } from "../application/use-cases/sql/ban-blog.use-case.sql"
+import { BindBlogCommandSql } from "../application/use-cases/sql/bind-blog.use-case.sql"
+import { BlogsQueryRepositorySql } from "../../blogs/repository/sql/blogs.query.repository.sql"
+import { BanBlogParamInputModelSql } from "./models/input/ban-blog.param.input-model.sql"
 
 @Controller("sa")
 export class SaControllerSql {
   constructor(
     private commandBus: CommandBus,
     protected usersSqlQueryRepository: UsersQueryRepositorySql,
-    protected blogsQueryRepository: BlogsQueryRepository,
+    protected blogsQueryRepositorySql: BlogsQueryRepositorySql,
   ) {
   }
 
@@ -48,11 +52,11 @@ export class SaControllerSql {
   @Put("blogs/:id/ban")
   @HttpCode(HttpStatus.NO_CONTENT)
   async banBlog(
-    @Param() param: BanBlogParamInputModel,
+    @Param() param: BanBlogParamInputModelSql,
     @Body() bodyBlogBan: BanBlogBodyInputModel,
   ) {
     const banContract = await this.commandBus.execute(
-      new BanBlogCommand(
+      new BanBlogCommandSql(
         param.id,
         bodyBlogBan.isBanned,
       )
@@ -71,7 +75,7 @@ export class SaControllerSql {
     @Param() param: BindInputModel,
   ) {
     const foundBlogContract = await this.commandBus.execute(
-      new BindBlogCommand(
+      new BindBlogCommandSql(
         param.id,
         param.userId
       )
@@ -91,7 +95,7 @@ export class SaControllerSql {
   async getBlogs(
     @Query() queryBlog: GetBlogsQueryInputModel
   ) {
-    return await this.blogsQueryRepository.findSABlogs(queryBlog)
+    return await this.blogsQueryRepositorySql.findBlogsSA(queryBlog)
   }
 
 
@@ -104,7 +108,7 @@ export class SaControllerSql {
     @Body() bodyUserBan: BanUserBodyInputModel
   ) {
     const banContract = await this.commandBus.execute(
-      new BanUserSqlCommand(
+      new BanUserCommandSql(
         param.id,
         bodyUserBan.isBanned,
         bodyUserBan.banReason,
@@ -157,7 +161,7 @@ export class SaControllerSql {
     @Param() param: IdSqlParamInputModel
   ) {
     const resultContract = await this.commandBus.execute(
-      new DeleteUserSqlCommand(param.id)
+      new DeleteUserCommandSql(param.id)
     )
     if (resultContract.error === ErrorEnums.USER_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_DELETED, "id")

@@ -1,12 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { Blogs, BlogsDocument, BlogsModel } from "../../../../blogs/application/entities/mongoose/blogs.schema"
-import { InjectModel } from "@nestjs/mongoose"
-import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
-import { UsersRepository } from "../../../../sa/repository/mongoose/users.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
-import { CreateBloggerBlogOutputModel } from "../../../api/models/output/create-blogger-blog.output-model"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { Types } from "mongoose"
 import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
 

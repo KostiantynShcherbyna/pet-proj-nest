@@ -317,7 +317,7 @@ export class BloggerControllerSql {
     @Param() param: IdParamInputModelSql,
     @Query() queryBlog: GetPostsCommentsQueryInputModel
   ) {
-    const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBanUsersInfos(
+    const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBanBlogUsers(
       param.id,
       true,
       queryBlog,

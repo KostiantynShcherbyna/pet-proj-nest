@@ -7,7 +7,7 @@ import { Contract } from "../../../../../infrastructure/utils/contract"
 import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
 
 
-export class BanBlogSqlCommand {
+export class BanBlogCommandSql {
   constructor(
     public blogId: string,
     public isBanned: boolean,
@@ -15,15 +15,15 @@ export class BanBlogSqlCommand {
   }
 }
 
-@CommandHandler(BanBlogSqlCommand)
-export class BanBlogSql implements ICommandHandler<BanBlogSqlCommand> {
+@CommandHandler(BanBlogCommandSql)
+export class BanBlogSql implements ICommandHandler<BanBlogCommandSql> {
   constructor(
     @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
     protected blogsRepositorySql: BlogsRepositorySql,
   ) {
   }
 
-  async execute(command: BanBlogSqlCommand) {
+  async execute(command: BanBlogCommandSql) {
 
     const foundBlog = await this.blogsRepositorySql.findBlog(command.blogId)
     if (foundBlog === null)

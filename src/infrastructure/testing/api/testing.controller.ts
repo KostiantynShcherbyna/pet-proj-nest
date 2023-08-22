@@ -74,7 +74,7 @@ export class TestingController {
           await this.dataSource.query(`delete from posts."Likes"`),
           await this.dataSource.query(`delete from posts."NewestLikes"`),
           await this.dataSource.query(`delete from posts."Posts"`),
-          await this.dataSource.query(`delete from blogs."BanInfo"`),
+          await this.dataSource.query(`delete from blogs."BanBlogUsers"`),
           await this.dataSource.query(`delete from blogs."Blogs"`),
           await this.dataSource.query(`delete from auth."RecoveryCodes"`),
           await this.dataSource.query(`delete from devices."Devices"`),
