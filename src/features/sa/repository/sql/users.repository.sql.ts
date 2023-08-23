@@ -133,14 +133,14 @@ export class UsersRepositorySql {
     return user.length ? user[0] : null
   }
 
-  async findUsersByBan(isBanned: boolean) {
-    const bannedUsersResult = await this.dataSource.query(`
-    select "UserId" as "userId", "IsBanned" as "isBanned", "BanReason" as "banReason", "BanDate" as "banDate"
-    from users."BanInfo"
-    where "IsBanned" = $1
-    `, [isBanned])
-    return bannedUsersResult.length ? bannedUsersResult[0] : null
-  }
+  // async findUsersByBan(isBanned: boolean) {
+  //   const bannedUsersResult = await this.dataSource.query(`
+  //   select "UserId" as "userId", "IsBanned" as "isBanned", "BanReason" as "banReason", "BanDate" as "banDate"
+  //   from users."BanInfo"
+  //   where "IsBanned" = $1
+  //   `, [isBanned])
+  //   return bannedUsersResult.length ? bannedUsersResult[0] : null
+  // }
 
   async findUserByLoginOrEmail(userAuthData: { login: string, email: string }) {
     const foundUser = await this.dataSource.query(`

@@ -1,15 +1,15 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Comments, CommentsModel } from "../entities/mongoose/comments.schema"
-import { PostsComments, PostsCommentsModel } from "../../../posts/application/entites/mongoose/posts-comments.schema"
-import { PostsCommentsRepository } from "../../../blogger/repository/mongoose/posts-comments.repository"
-import { UsersRepository } from "../../../sa/repository/mongoose/users.repository"
-import { CommentsRepository } from "../../repository/mongoose/comments.repository"
-import { Contract } from "../../../../infrastructure/utils/contract"
-import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
+import { Comments, CommentsModel } from "../../entities/mongoose/comments.schema"
+import { PostsComments, PostsCommentsModel } from "../../../../posts/application/entites/mongoose/posts-comments.schema"
+import { PostsCommentsRepository } from "../../../../blogger/repository/mongoose/posts-comments.repository"
+import { UsersRepository } from "../../../../sa/repository/mongoose/users.repository"
+import { CommentsRepository } from "../../../repository/mongoose/comments.repository"
+import { Contract } from "../../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 
 
-export class DeleteCommentCommand {
+export class DeleteCommentCommandSql {
   constructor(
     public userId: string,
     public commentId: string
@@ -18,8 +18,8 @@ export class DeleteCommentCommand {
 }
 
 
-@CommandHandler(DeleteCommentCommand)
-export class DeleteComment implements ICommandHandler<DeleteCommentCommand> {
+@CommandHandler(DeleteCommentCommandSql)
+export class DeleteCommentSql implements ICommandHandler<DeleteCommentCommandSql> {
   constructor(
     @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
     @InjectModel(PostsComments.name) protected PostsCommentsModel: PostsCommentsModel,
@@ -29,7 +29,7 @@ export class DeleteComment implements ICommandHandler<DeleteCommentCommand> {
   ) {
   }
 
-  async execute(command: DeleteCommentCommand): Promise<Contract<null | boolean>> {
+  async execute(command: DeleteCommentCommandSql): Promise<Contract<null | boolean>> {
     // Looking for a comment and check owner
     // const foundUser = await this.usersRepository.findUser(["_id", new Types.ObjectId(command.userId)])
     // if (foundUser === null)

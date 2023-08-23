@@ -37,6 +37,8 @@ export class CreatePostSql implements ICommandHandler<CreatePostCommandSql> {
         content: command.content,
         blogName: foundBlog.name,
         blogId: command.blogId,
+        likesCount: 0,
+        dislikesCount: 0,
       }
     )
     return new Contract(newPostId, null)

@@ -56,11 +56,11 @@ export class BloggerController {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryPostsComments: GetPostsCommentsQueryInputModel,
   ) {
-    const postsComments = await this.blogsQueryRepository.findPostsComments(
+    const blogComments = await this.blogsQueryRepository.findPostsComments(
       queryPostsComments,
       deviceSession.userId,
     )
-    return postsComments
+    return blogComments
   }
 
 

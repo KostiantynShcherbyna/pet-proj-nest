@@ -32,6 +32,7 @@ export class BlogsQueryRepositorySql {
   ) {
   }
 
+
   async findBlogs(query: GetBlogsQueryInputModel, userId?: string): Promise<null | BlogsOutputModel> {
 
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT

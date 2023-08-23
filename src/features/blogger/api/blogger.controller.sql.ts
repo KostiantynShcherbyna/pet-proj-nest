@@ -45,6 +45,7 @@ import { UpdatePostCommandSql } from "../application/use-cases/sql/update-post.u
 import { BanUserBodyInputModelSql } from "./models/input/ban-user.body.input-model.sql"
 import { BanUserBloggerCommandSql } from "../application/use-cases/sql/ban-user-blogger.use-case.sql"
 import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-comments.query.input-model"
+import { CommentsQueryRepositorySql } from "../../comments/repository/sql/comments.query.repository.sql"
 
 
 @Controller("blogger")
@@ -53,22 +54,23 @@ export class BloggerControllerSql {
     private commandBus: CommandBus,
     protected blogsQueryRepositorySql: BlogsQueryRepositorySql,
     protected postsQueryRepositorySql: PostsQueryRepositorySql,
+    protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
   ) {
   }
 
 
-  // @UseGuards(AccessGuard)
-  // @Get("blogs/comments")
-  // async getPostsComments(
-  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
-  //   @Query() queryPostsComments: GetPostsCommentsQueryInputModel,
-  // ) {
-  //   const postsComments = await this.blogsQueryRepositorySql.findPostsComments(
-  //     queryPostsComments,
-  //     deviceSession.userId,
-  //   )
-  //   return postsComments
-  // }
+  @UseGuards(AccessGuard)
+  @Get("blogs/comments")
+  async getPostsComments(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Query() queryPostsComments: GetPostsCommentsQueryInputModel,
+  ) {
+    const postsComments = await this.commentsQueryRepositorySql.findAllBlogComments(
+      queryPostsComments,
+      deviceSession.userId,
+    )
+    return postsComments
+  }
 
 
   @UseGuards(AccessGuard)

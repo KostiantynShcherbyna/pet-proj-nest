@@ -14,6 +14,7 @@ import {
 } from "../../../../infrastructure/utils/constants"
 import { dtoManager } from "../../../../infrastructure/adapters/output-model.adapter"
 import { GetCommentsQueryInputModel } from "../../api/models/input/get-comments.query.input-model"
+import { PostsCommentsDocument } from "../../../posts/application/entites/mongoose/posts-comments.schema"
 
 
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
@@ -144,5 +145,6 @@ export class CommentsQueryRepository {
     }, null)
 
   }
+
 
 }

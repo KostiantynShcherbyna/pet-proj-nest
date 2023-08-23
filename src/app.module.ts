@@ -45,9 +45,9 @@ import { BlogsRepository } from "./features/blogs/repository/mongoose/blogs.repo
 import { CommentsController } from "./features/comments/api/comments.controller"
 import { Comments, CommentsSchema } from "./features/comments/application/entities/mongoose/comments.schema"
 import { PostsComments, PostsCommentsSchema } from "./features/posts/application/entites/mongoose/posts-comments.schema"
-import { DeleteComment } from "./features/comments/application/use-cases/delete-comment.use-case"
-import { UpdateCommentLike } from "./features/comments/application/use-cases/update-comment-like.use-case"
-import { UpdateComment } from "./features/comments/application/use-cases/update-comment.use-case"
+import { DeleteComment } from "./features/comments/application/use-cases/mongoose/delete-comment.use-case"
+import { UpdateCommentLike } from "./features/comments/application/use-cases/mongoose/update-comment-like.use-case"
+import { UpdateComment } from "./features/comments/application/use-cases/mongoose/update-comment.use-case"
 import { CommentsQueryRepository } from "./features/comments/repository/mongoose/comments.query.repository"
 import { CommentsRepository } from "./features/comments/repository/mongoose/comments.repository"
 import { DevicesController } from "./features/devices/api/devices.controller"
@@ -55,8 +55,8 @@ import { DeleteOtherDevices } from "./features/devices/application/use-cases/mon
 import { DeleteSpecialDevice } from "./features/devices/application/use-cases/mongoose/delete-special-device.use-case"
 import { DevicesRepository } from "./features/devices/repository/mongoose/devices.repository"
 import { PostsController } from "./features/posts/api/posts.controller"
-import { CreateComment } from "./features/posts/application/use-cases/create-comment.use-case"
-import { UpdatePostLike } from "./features/posts/application/use-cases/update-post-like.use-case"
+import { CreateComment } from "./features/posts/application/use-cases/mongoose/create-comment.use-case"
+import { UpdatePostLike } from "./features/posts/application/use-cases/mongoose/update-post-like.use-case"
 import { PostsQueryRepository } from "./features/posts/repository/mongoose/posts.query.repository"
 import { PostsRepository } from "./features/posts/repository/mongoose/posts.repository"
 import { SAController } from "./features/sa/api/sa.controller"
@@ -119,6 +119,14 @@ import { UpdatePost } from "./features/blogger/application/use-cases/mongoose/up
 import { UpdatePostSql } from "./features/blogger/application/use-cases/sql/update-post.use-case.sql"
 import { BanUserBloggerSql } from "./features/blogger/application/use-cases/sql/ban-user-blogger.use-case.sql"
 import { BlogIdIsExistSql } from "./infrastructure/decorators/blogId.decorator.sql"
+import { CommentsControllerSql } from "./features/comments/api/comments.controller.sql"
+import { DeleteCommentSql } from "./features/comments/application/use-cases/sql/delete-comment.use-case.sql"
+import { UpdateCommentSql } from "./features/comments/application/use-cases/sql/update-comment.use-case.sql"
+import { UpdateCommentLikeSql } from "./features/comments/application/use-cases/sql/update-comment-like.use-case.sql"
+import { CommentsQueryRepositorySql } from "./features/comments/repository/sql/comments.query.repository.sql"
+import { CommentsRepositorySql } from "./features/comments/repository/sql/comments.repository.sql"
+import { CreateCommentSql } from "./features/posts/application/use-cases/sql/create-comment.use-case.sql"
+import { UpdatePostLikeSql } from "./features/posts/application/use-cases/sql/update-post-like.use-case.sql"
 
 
 const useCases = [
@@ -168,11 +176,17 @@ const useCases = [
   DeleteOtherDevicesSql,
   DeleteSpecialDeviceSql,
   CreatePostSql,
+  CreateBlogBloggerSql,
   UpdateBlogSql,
   DeleteBlogSql,
   DeletePostSql,
   UpdatePostSql,
   BanUserBloggerSql,
+  DeleteCommentSql,
+  UpdateCommentSql,
+  UpdateCommentLikeSql,
+  CreateCommentSql,
+  UpdatePostLikeSql,
 ]
 const services = [
   AppService,
@@ -202,8 +216,9 @@ const repository = [
   BlogsQueryRepositorySql,
   PostsQueryRepositorySql,
   BlogsRepositorySql,
-  CreateBlogBloggerSql,
   PostsRepositorySql,
+  CommentsQueryRepositorySql,
+  CommentsRepositorySql,
 ]
 const otherProviders = [
   throttler,
@@ -274,6 +289,7 @@ const otherProviders = [
     BlogsControllerSql,
     PostsControllerSql,
     BloggerControllerSql,
+    CommentsControllerSql,
   ],
   providers: [
     ...otherProviders,

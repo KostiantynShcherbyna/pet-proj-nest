@@ -29,10 +29,13 @@ import { DeviceSessionOptional } from "../../../infrastructure/decorators/device
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
 import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/update-comment.body.input-model"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
-import { CreateCommentCommand } from "../application/use-cases/create-comment.use-case"
-import { UpdatePostLikeCommand } from "../application/use-cases/update-post-like.use-case"
+import { CreateCommentCommand } from "../application/use-cases/mongoose/create-comment.use-case"
+import { UpdatePostLikeCommand } from "../application/use-cases/mongoose/update-post-like.use-case"
 import { PostsQueryRepositorySql } from "../repository/sql/posts.query.repository.sql"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
+import { CreateCommentCommandSql } from "../application/use-cases/sql/create-comment.use-case.sql"
+import { GetCommentsParamInputModelSql } from "./models/input/get-comments.param.input-model.sql"
+import { CommentsQueryRepositorySql } from "../../comments/repository/sql/comments.query.repository.sql"
 
 @Controller("posts")
 export class PostsControllerSql {
@@ -40,6 +43,7 @@ export class PostsControllerSql {
     private commandBus: CommandBus,
     protected postsSqlQueryRepository: PostsQueryRepositorySql,
     protected commentsQueryRepository: CommentsQueryRepository,
+    protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
   ) {
   }
 
@@ -71,13 +75,15 @@ export class PostsControllerSql {
   @Get(":postId/comments")
   async getComments(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
-    @Param() param: GetCommentsParamInputModel,
+    @Param() param: GetCommentsParamInputModelSql,
     @Query() queryComment: GetCommentsQueryInputModel,
   ) {
-    const commentsContract = await this.commentsQueryRepository.findComments(
-      param.postId,
-      queryComment,
-      deviceSession?.userId
+    const commentsContract = await this.commentsQueryRepositorySql.findComments(
+      {
+        postId: param.postId,
+        query: queryComment,
+        userId: deviceSession?.userId
+      }
     )
     if (commentsContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
@@ -89,26 +95,22 @@ export class PostsControllerSql {
   @Post(":postId/comments")
   async createComment(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
-    @Param() param: GetCommentsParamInputModel,
+    @Param() param: GetCommentsParamInputModelSql,
     @Body() bodyComment: UpdateCommentBodyInputModel,
   ) {
     const commentContract = await this.commandBus.execute(
-      new CreateCommentCommand(
-        deviceSession?.userId,
-        param.postId,
-        bodyComment.content
-      )
+      new CreateCommentCommandSql(deviceSession?.userId, param.postId, bodyComment.content)
     )
-    if (commentContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId")
-    )
-    if (commentContract.error === ErrorEnums.USER_IS_BANNED) throw new ForbiddenException()
+    if (commentContract.error === ErrorEnums.USER_NOT_FOUND)
+      throw new NotFoundException(callErrorMessage(ErrorEnums.USER_NOT_FOUND, "userId"))
+    if (commentContract.error === ErrorEnums.USER_IS_BANNED)
+      throw new ForbiddenException()
+    if (commentContract.error === ErrorEnums.POST_NOT_FOUND)
+      throw new NotFoundException(callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId"))
 
-    if (commentContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
-    )
-    if (commentContract.error === ErrorEnums.COMMENT_NOT_FOUND) throw new InternalServerErrorException()
-    return commentContract.data
+    const comment = await this.commentsQueryRepositorySql.findComment(commentContract.data)
+    if (!comment) throw new NotFoundException()
+    return comment
   }
 
   @UseGuards(AccessGuard)

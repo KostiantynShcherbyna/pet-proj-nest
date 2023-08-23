@@ -30,8 +30,8 @@ import { DeviceSessionOptional } from "../../../infrastructure/decorators/device
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
 import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/update-comment.body.input-model"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
-import { CreateCommentCommand } from "../application/use-cases/create-comment.use-case"
-import { UpdatePostLikeCommand } from "../application/use-cases/update-post-like.use-case"
+import { CreateCommentCommand } from "../application/use-cases/mongoose/create-comment.use-case"
+import { UpdatePostLikeCommand } from "../application/use-cases/mongoose/update-post-like.use-case"
 
 @Controller("pposts")
 export class PostsController {

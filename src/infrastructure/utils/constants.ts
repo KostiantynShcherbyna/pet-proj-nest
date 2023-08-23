@@ -29,8 +29,8 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const ACCESS_EXPIRES_TIME = "1000s"
-export const REFRESH_EXPIRES_TIME = "2000s"
+export const ACCESS_EXPIRES_TIME = "100000000s"
+export const REFRESH_EXPIRES_TIME = "200000000s"
 export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 
@@ -51,6 +51,7 @@ export enum BanStatus {
   Banned = "banned",
   NotBanned = "notBanned",
 }
+
 export enum SortDirection {
   Asc = "asc",
   Desc = "desc",
@@ -78,8 +79,8 @@ export enum BasicToken {
 }
 
 export enum StrategyNames {
-  loginLocalStrategy = 'login-local-strategy',
-  loginSqlLocalStrategy = 'login-sql-local-strategy'
+  loginLocalStrategy = "login-local-strategy",
+  loginSqlLocalStrategy = "login-sql-local-strategy"
 }
 
 export enum Secrets {

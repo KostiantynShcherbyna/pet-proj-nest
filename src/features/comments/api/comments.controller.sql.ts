@@ -29,9 +29,11 @@ import { DeviceSession } from "../../../infrastructure/decorators/device-session
 import { UpdateCommentCommand } from "../application/use-cases/mongoose/update-comment.use-case"
 import { DeleteCommentCommand } from "../application/use-cases/mongoose/delete-comment.use-case"
 import { UpdateCommentLikeCommand } from "../application/use-cases/mongoose/update-comment-like.use-case"
+import { UpdateCommentLikeCommandSql } from "../application/use-cases/sql/update-comment-like.use-case.sql"
+import { UpdateCommentParamInputModelSql } from "./models/input/update-comment.param.input-model.sql"
 
-@Controller("ccomments")
-export class CommentsController {
+@Controller("comments")
+export class CommentsControllerSql {
   constructor(
     private commandBus: CommandBus,
     protected commentsQueryRepository: CommentsQueryRepository,
@@ -108,21 +110,19 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
-    @Param() param: UpdateCommentParamInputModel,
+    @Param() param: UpdateCommentParamInputModelSql,
     @Body() bodyLike: LikeStatusBodyInputModel
   ) {
     const comment = await this.commandBus.execute(
-      new UpdateCommentLikeCommand(
+      new UpdateCommentLikeCommandSql(
         deviceSession.userId,
         param.commentId,
         bodyLike.likeStatus,
       )
     )
-    if (comment.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
-    if (comment.error === ErrorEnums.USER_IS_BANNED) throw new UnauthorizedException()
-    if (comment.error === ErrorEnums.COMMENT_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId")
-    )
+    if (comment.error === ErrorEnums.COMMENT_NOT_FOUND)
+      throw new NotFoundException(callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId"))
+    if (comment.error === ErrorEnums.LIKE_NOT_UPDATED) throw new NotFoundException()
     return
   }
 }
