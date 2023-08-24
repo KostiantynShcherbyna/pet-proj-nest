@@ -31,12 +31,14 @@ import { DeleteCommentCommand } from "../application/use-cases/mongoose/delete-c
 import { UpdateCommentLikeCommand } from "../application/use-cases/mongoose/update-comment-like.use-case"
 import { UpdateCommentLikeCommandSql } from "../application/use-cases/sql/update-comment-like.use-case.sql"
 import { UpdateCommentParamInputModelSql } from "./models/input/update-comment.param.input-model.sql"
+import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
+import { CommentsQueryRepositorySql } from "../repository/sql/comments.query.repository.sql"
 
 @Controller("comments")
 export class CommentsControllerSql {
   constructor(
     private commandBus: CommandBus,
-    protected commentsQueryRepository: CommentsQueryRepository,
+    protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
   ) {
   }
 
@@ -44,9 +46,11 @@ export class CommentsControllerSql {
   @Get(":id")
   async getComment(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
-    @Param() param: IdParamInputModel
+    @Param() param: IdParamInputModelSql
   ) {
-    const commentContract = await this.commentsQueryRepository.findComment(param.id, deviceSession?.userId)
+    const commentContract = await this.commentsQueryRepositorySql.findComment({
+      commentId: param.id, userId: deviceSession?.userId
+    })
     if (commentContract.error === ErrorEnums.USER_IS_BANNED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_IS_BANNED, "id")
     )

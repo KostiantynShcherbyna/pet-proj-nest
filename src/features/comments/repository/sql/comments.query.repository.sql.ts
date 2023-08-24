@@ -86,7 +86,7 @@ export class CommentsQueryRepositorySql {
     }
   }
 
-  async findComment(commentId: string) {
+  async findComment({ commentId, userId }) {
     const queryForm = `
     select "PostId" as "postId", "Content" as "content", "CreatedAt" as "createdAt",
            "CommentId" as "commentId", "UserId" as "userId", "UserLogin" as "userLogin",
@@ -94,8 +94,18 @@ export class CommentsQueryRepositorySql {
     from comments."Comments"
     where "CommentId" = $1
     `
-    const result = await this.dataSource.query(queryForm, [commentId])
-    return result.length ? this.changeCommentView(result[0]) : null
+    const commentResult = await this.dataSource.query(queryForm, [commentId])
+
+    const queryForm1 = `
+    select "IsBanned" as "isBanned", "BanReason" as "banReason", "UserId" as "UserId", "BanDate" as "banDate"
+    from users."BanInfo"
+    where "UserId" = $1
+    `
+    const banInfoResult = await this.dataSource.query(queryForm1, [commentResult[0].userId])
+    if (banInfoResult[0].isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
+    return commentResult.length
+      ? new Contract(this.changeCommentView(commentResult[0]), null)
+      : new Contract(null, null)
   }
 
   async findComments({ postId, query, userId }) {

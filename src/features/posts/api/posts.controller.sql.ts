@@ -108,9 +108,12 @@ export class PostsControllerSql {
     if (commentContract.error === ErrorEnums.POST_NOT_FOUND)
       throw new NotFoundException(callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId"))
 
-    const comment = await this.commentsQueryRepositorySql.findComment(commentContract.data)
-    if (!comment) throw new NotFoundException()
-    return comment
+    const newCommentContract = await this.commentsQueryRepositorySql.findComment({
+      commentId: commentContract.data,
+      userId: deviceSession.userId
+    })
+    if (!newCommentContract) throw new NotFoundException()
+    return newCommentContract.data
   }
 
   @UseGuards(AccessGuard)

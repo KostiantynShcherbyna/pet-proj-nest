@@ -43,34 +43,39 @@ export class UpdateCommentLikeSql implements ICommandHandler<UpdateCommentLikeCo
     if (like && like.myStatus === command.newLikeStatus) return new Contract(true, null)
 
     // Create a new Like if there is no Like before or update Like if there is one
-    const queryData = { commentId: command.commentId, userId: command.userId }
+    const queryData = { status: command.newLikeStatus, commentId: command.commentId, userId: command.userId }
     const queryRunner = this.dataSource.createQueryRunner()
     try {
       await queryRunner.startTransaction()
-      !like
-        ? await this.commentsRepositorySql.createLike({
-          status: command.newLikeStatus,
-          commentId: command.commentId,
-          userId: command.userId
-        }, queryRunner)
-        : await this.commentsRepositorySql.updateLike({
-          status: command.newLikeStatus,
-          commentId: command.commentId,
-          userId: command.userId
-        }, queryRunner)
-
-      if (like.status === LikeStatus.None && command.newLikeStatus === LikeStatus.Like)
-        await this.commentsRepositorySql.setNoneToLike(queryData, queryRunner)
-      else if (like.status === LikeStatus.None && command.newLikeStatus === LikeStatus.Dislike)
-        await this.commentsRepositorySql.setNoneToDislike(queryData, queryRunner)
-      else if (like.status === LikeStatus.Like && command.newLikeStatus === LikeStatus.None)
-        await this.commentsRepositorySql.setLikeToNone(queryData, queryRunner)
-      else if (like.status === LikeStatus.Like && command.newLikeStatus === LikeStatus.Dislike)
-        await this.commentsRepositorySql.setLikeToDislike(queryData, queryRunner)
-      else if (like.status === LikeStatus.Dislike && command.newLikeStatus === LikeStatus.None)
-        await this.commentsRepositorySql.setDislikeToNone(queryData, queryRunner)
-      else if (like.status === LikeStatus.Dislike && command.newLikeStatus === LikeStatus.Like)
-        await this.commentsRepositorySql.setDislikeToLike(queryData, queryRunner)
+      if (!like) {
+        await this.commentsRepositorySql.createLike(queryData, queryRunner)
+        if (command.newLikeStatus === LikeStatus.Like)
+          await this.commentsRepositorySql.setNoneToLike(command.commentId, queryRunner)
+        else if (command.newLikeStatus === LikeStatus.Dislike)
+          await this.commentsRepositorySql.setNoneToDislike(command.commentId, queryRunner)
+        else if (command.newLikeStatus === LikeStatus.None)
+          await this.commentsRepositorySql.setLikeToNone(command.commentId, queryRunner)
+        else if (command.newLikeStatus === LikeStatus.Dislike)
+          await this.commentsRepositorySql.setLikeToDislike(command.commentId, queryRunner)
+        else if (command.newLikeStatus === LikeStatus.None)
+          await this.commentsRepositorySql.setDislikeToNone(command.commentId, queryRunner)
+        else if (command.newLikeStatus === LikeStatus.Like)
+          await this.commentsRepositorySql.setDislikeToLike(command.commentId, queryRunner)
+      } else {
+        await this.commentsRepositorySql.updateLike(queryData, queryRunner)
+        if (like.myStatus === LikeStatus.None && command.newLikeStatus === LikeStatus.Like)
+          await this.commentsRepositorySql.setNoneToLike(command.commentId, queryRunner)
+        else if (like.myStatus === LikeStatus.None && command.newLikeStatus === LikeStatus.Dislike)
+          await this.commentsRepositorySql.setNoneToDislike(command.commentId, queryRunner)
+        else if (like.myStatus === LikeStatus.Like && command.newLikeStatus === LikeStatus.None)
+          await this.commentsRepositorySql.setLikeToNone(command.commentId, queryRunner)
+        else if (like.myStatus === LikeStatus.Like && command.newLikeStatus === LikeStatus.Dislike)
+          await this.commentsRepositorySql.setLikeToDislike(command.commentId, queryRunner)
+        else if (like.myStatus === LikeStatus.Dislike && command.newLikeStatus === LikeStatus.None)
+          await this.commentsRepositorySql.setDislikeToNone(command.commentId, queryRunner)
+        else if (like.myStatus === LikeStatus.Dislike && command.newLikeStatus === LikeStatus.Like)
+          await this.commentsRepositorySql.setDislikeToLike(command.commentId, queryRunner)
+      }
 
       await queryRunner.commitTransaction()
       return new Contract(true, null)

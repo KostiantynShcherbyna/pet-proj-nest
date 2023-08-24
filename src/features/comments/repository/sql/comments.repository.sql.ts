@@ -18,7 +18,7 @@ export class CommentsRepositorySql {
   async findComment(commentId: string) {
     const result = await this.dataSource.query(`
     select "CommentId" as "commentId", "PostId" as "postId", "Content" as "content",
-           "UserId" as "userId", "UserLogin" as "userLogin", "LikesCount" as 'likesCount',
+           "UserId" as "userId", "UserLogin" as "userLogin", "LikesCount" as "likesCount",
            "DislikesCount" as "dislikesCount", "CreatedAt" as "createdAt"
     from comments."Comments"
     where "CommentId" = $1
@@ -64,74 +64,80 @@ export class CommentsRepositorySql {
     return result.length ? result[1] : null
   }
 
-  async setNoneToLike({ commentId, userId }, queryRunner: QueryRunner) {
+  async setNoneToLike(commentId, queryRunner: QueryRunner) {
     const queryForm = `
       update comments."Comments"
       set "LikesCount" = "LikesCount" + 1
       where "CommentId" = $1
-      and "UserId" = $2
+      returning "LikesCount"
     `
-    const result = await queryRunner.query(queryForm, [commentId, userId])
+    const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
 
   }
 
-  async setNoneToDislike({ commentId, userId }, queryRunner: QueryRunner) {
+  async setNoneToDislike(commentId, queryRunner: QueryRunner) {
     const queryForm = `
       update comments."Comments"
       set "DislikesCount" = "DislikesCount" + 1
       where "CommentId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [commentId, userId])
+    const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
 
   }
 
-  async setLikeToNone({ commentId, userId }, queryRunner: QueryRunner) {
+  async setLikeToNone(commentId, queryRunner: QueryRunner) {
     const queryForm = `
       update comments."Comments"
-      set "LikesCount" = "LikesCount" - 1
+      set "LikesCount" = case when "LikesCount" > 0
+      then "LikesCount" - 1
+      else "LikesCount" end
       where "CommentId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [commentId, userId])
+    const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
 
   }
 
-  async setLikeToDislike({ commentId, userId }, queryRunner: QueryRunner) {
+  async setLikeToDislike(commentId, queryRunner: QueryRunner) {
     const queryForm = `
       update comments."Comments"
-      set "LikesCount" = "LikesCount" - 1, "DislikesCount" = "DislikesCount" + 1
+      set "LikesCount" = case when "LikesCount" > 0
+      then "LikesCount" - 1
+      else "LikesCount" end,
+       "DislikesCount" = "DislikesCount" + 1
       where "CommentId" = $1
-      and "UserId" = $2
+      returning "DislikesCount"
     `
-    const result = await queryRunner.query(queryForm, [commentId, userId])
+    const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
 
   }
 
-  async setDislikeToNone({ commentId, userId }, queryRunner: QueryRunner) {
+  async setDislikeToNone(commentId, queryRunner: QueryRunner) {
     const queryForm = `
       update comments."Comments"
-      set "DislikesCount" = "DislikesCount" - 1
+      set "DislikesCount" = case when "DislikesCount" > 0
+      then "DislikesCount" - 1 
+      else "DislikesCount" end
       where "CommentId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [commentId, userId])
+    const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
 
   }
 
-  async setDislikeToLike({ commentId, userId }, queryRunner: QueryRunner) {
+  async setDislikeToLike(commentId, queryRunner: QueryRunner) {
     const queryForm = `
       update comments."Comments"
-      set "DislikesCount" = "DislikesCount" - 1, "LikesCount" = "LikesCount" + 1
+      set "DislikesCount" = case when "DislikesCount" > 0 
+      then "DislikesCount" - 1
+      else "DislikesCount" end,
+        "LikesCount" = "LikesCount" + 1
       where "CommentId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [commentId, userId])
+    const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
 
   }
