@@ -43,6 +43,7 @@ export class DeletePostSql implements ICommandHandler<DeletePostCommandSql> {
     const queryRunner = this.dataSource.createQueryRunner()
     try {
       await queryRunner.startTransaction()
+      await this.postsRepositorySql.deleteLikes(command.postId, queryRunner)
       await this.postsRepositorySql.deletePost(command.postId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (e) {

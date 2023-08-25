@@ -7,6 +7,10 @@ import { UsersRepository } from "../../../../sa/repository/mongoose/users.reposi
 import { CommentsRepository } from "../../../repository/mongoose/comments.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
+import { InjectDataSource } from "@nestjs/typeorm"
+import { DataSource } from "typeorm"
+import { CommentsRepositorySql } from "../../../repository/sql/comments.repository.sql"
+import { LikeStatus } from "../../../../../infrastructure/utils/constants"
 
 
 export class DeleteCommentCommandSql {
@@ -21,8 +25,8 @@ export class DeleteCommentCommandSql {
 @CommandHandler(DeleteCommentCommandSql)
 export class DeleteCommentSql implements ICommandHandler<DeleteCommentCommandSql> {
   constructor(
-    @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
-    @InjectModel(PostsComments.name) protected PostsCommentsModel: PostsCommentsModel,
+    @InjectDataSource() protected dataSource: DataSource,
+    protected commentsRepositorySql: CommentsRepositorySql,
     protected postsCommentsRepository: PostsCommentsRepository,
     protected commentsRepository: CommentsRepository,
     protected usersRepository: UsersRepository,
@@ -38,22 +42,25 @@ export class DeleteCommentSql implements ICommandHandler<DeleteCommentCommandSql
     //   return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
 
-    const comment = await this.commentsRepository.findComment(command.commentId)
+    const comment = await this.commentsRepositorySql.findComment(command.commentId)
     if (comment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
-    if (comment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT)
+    if (comment.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT)
 
-    const postComment = await this.postsCommentsRepository.findPostComment(command.commentId)
-    if (postComment === null) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
-    if (postComment.commentatorInfo.userId !== command.userId) return new Contract(null, ErrorEnums.FOREIGN_COMMENT)
+    const queryRunner = this.dataSource.createQueryRunner()
+    try {
+      await queryRunner.startTransaction()
+      await this.commentsRepositorySql.deleteLike(command.commentId, queryRunner)
+      await this.commentsRepositorySql.deleteComment(command.commentId, queryRunner)
+      await queryRunner.commitTransaction()
+      return new Contract(true, null)
+    } catch (err) {
+      console.log("DeleteCommentSql", err)
+      await queryRunner.rollbackTransaction()
+      return new Contract(null, ErrorEnums.COMMENT_NOT_DELETE)
+    } finally {
+      await queryRunner.release()
+    }
 
-
-    const deleteCommentContract = await Comments.deleteComment(command.commentId, this.CommentsModel)
-    if (deleteCommentContract.data === 0) return new Contract(null, ErrorEnums.COMMENT_NOT_DELETE)
-
-    const deletePostCommentResult = await PostsComments.deletePostComments(command.commentId, this.PostsCommentsModel)
-    if (deletePostCommentResult === 0) return new Contract(null, ErrorEnums.POST_COMMENT_NOT_DELETE)
-
-    return new Contract(true, null)
   }
 
 

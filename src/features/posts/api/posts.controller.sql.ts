@@ -36,6 +36,7 @@ import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CreateCommentCommandSql } from "../application/use-cases/sql/create-comment.use-case.sql"
 import { GetCommentsParamInputModelSql } from "./models/input/get-comments.param.input-model.sql"
 import { CommentsQueryRepositorySql } from "../../comments/repository/sql/comments.query.repository.sql"
+import { UpdatePostLikeCommandSql } from "../application/use-cases/sql/update-post-like.use-case.sql"
 
 @Controller("posts")
 export class PostsControllerSql {
@@ -121,11 +122,11 @@ export class PostsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   async likeStatus(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalReqInputModel,
-    @Param() postId: GetCommentsParamInputModel,
+    @Param() postId: GetCommentsParamInputModelSql,
     @Body() bodyLike: LikeStatusBodyInputModel,
   ) {
     const commentContract = await this.commandBus.execute(
-      new UpdatePostLikeCommand(
+      new UpdatePostLikeCommandSql(
         deviceSession.userId,
         postId.postId,
         bodyLike.likeStatus

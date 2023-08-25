@@ -40,7 +40,7 @@ export class UpdateCommentSql implements ICommandHandler<UpdateCommentCommandSql
       await queryRunner.startTransaction()
       await this.commentsRepositorySql.updateComment({
         commentId: command.commentId,
-        content: command.content,
+        content: command.content
       }, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {

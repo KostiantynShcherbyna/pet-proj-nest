@@ -86,31 +86,6 @@ export class CommentsQueryRepositorySql {
     }
   }
 
-  async findComment({ commentId, userId }) {
-    const queryForm = `
-    select "PostId" as "postId", "Content" as "content", "CreatedAt" as "createdAt",
-           a."CommentId" as "commentId", a."UserId" as "userId", "UserLogin" as "userLogin",
-           "LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
-         b."Status" as "myStatus"
-    from comments."Comments" a
-    left join comments."Likes" b on b."CommentId" = a."CommentId"
-    where a."CommentId" = $1
-    and b."UserId" = $2
-    `
-    const commentResult = await this.dataSource.query(queryForm, [commentId, userId])
-
-    const queryForm1 = `
-    select "IsBanned" as "isBanned", "BanReason" as "banReason", "UserId" as "UserId", "BanDate" as "banDate"
-    from users."BanInfo"
-    where "UserId" = $1
-    `
-    const banInfoResult = await this.dataSource.query(queryForm1, [commentResult[0].userId])
-    if (banInfoResult[0].isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
-    return commentResult.length
-      ? new Contract(this.changeCommentView(commentResult[0]), null)
-      : new Contract(null, null)
-  }
-
   async findComments({ postId, query, userId }) {
 
     const foundPost = await this.postsQueryRepositorySql.findPost(postId, userId)
@@ -126,24 +101,25 @@ export class CommentsQueryRepositorySql {
     select count (*)
     from comments."Comments" a
     where a."PostId" = $1
-    `[postId])
+    `, [postId])
 
     const pagesCount = Math.ceil(totalCount[0].count / pageSize)
 
     const queryForm = `
-    select "PostId" as "postId", "Content" as "content", "CreatedAt" as "createdAt",
-           "CommentId" as "commentId", "UserId" as "userId", "UserLogin" as "userLogin",
-           "LikesCount" as "likesCount", "DislikesCount" as "dislikesCount"
-    from comments."Comments"
-    where "PostId" = $1
+     select a."PostId" as "postId", a."Content" as "content", a."CreatedAt" as "createdAt",
+            a."CommentId" as "commentId", a."UserId" as "userId", a."UserLogin" as "userLogin",
+            a."LikesCount" as "likesCount", a."DislikesCount" as "dislikesCount",
+            (select "Status" from comments."Likes" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus"
+    from comments."Comments" a
+    where a."PostId" = $1
     order by "${sortBy}" ${
-        sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
-    limit $2
-    offset $3
+    limit $3
+    offset $4
     `
 
-    const comments = await this.dataSource.query(queryForm, [postId, pageSize, offset])
+    const comments = await this.dataSource.query(queryForm, [postId, userId, pageSize, offset])
     const commentsView = this.postCommentsView(comments)
 
     return new Contract({
@@ -153,6 +129,29 @@ export class CommentsQueryRepositorySql {
       totalCount: Number(totalCount[0].count),
       items: commentsView
     }, null)
+  }
+
+  async findComment({ commentId, userId }) {
+    const queryForm = `
+    select "PostId" as "postId", "Content" as "content", "CreatedAt" as "createdAt",
+           a."CommentId" as "commentId", a."UserId" as "userId", "UserLogin" as "userLogin",
+           "LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
+           (select "Status" from comments."Likes" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus"
+    from comments."Comments" a
+    where a."CommentId" = $1
+    `
+    const commentResult = await this.dataSource.query(queryForm, [commentId, userId])
+
+    const queryForm1 = `
+    select "IsBanned" as "isBanned", "BanReason" as "banReason", "UserId" as "UserId", "BanDate" as "banDate"
+    from users."BanInfo"
+    where "UserId" = $1
+    `
+    if (!commentResult.length) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
+    const banInfoResult = await this.dataSource.query(queryForm1, [commentResult[0].userId])
+    if (banInfoResult[0].isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
+
+    return new Contract(this.changeCommentView(commentResult[0]), null)
   }
 
 
@@ -170,7 +169,7 @@ export class CommentsQueryRepositorySql {
         likesInfo: {
           likesCount: comment.likesCount,
           dislikesCount: comment.dislikesCount,
-          myStatus: comment.myStatus,
+          myStatus: comment.myStatus || LikeStatus.None,
         },
         postInfo: {
           id: comment.postId,

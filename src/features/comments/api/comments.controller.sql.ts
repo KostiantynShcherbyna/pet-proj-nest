@@ -33,6 +33,8 @@ import { UpdateCommentLikeCommandSql } from "../application/use-cases/sql/update
 import { UpdateCommentParamInputModelSql } from "./models/input/update-comment.param.input-model.sql"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CommentsQueryRepositorySql } from "../repository/sql/comments.query.repository.sql"
+import { UpdateCommentCommandSql } from "../application/use-cases/sql/update-comment.use-case.sql"
+import { DeleteCommentCommandSql } from "../application/use-cases/sql/delete-comment.use-case.sql"
 
 @Controller("comments")
 export class CommentsControllerSql {
@@ -65,11 +67,11 @@ export class CommentsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateComment(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
-    @Param() param: UpdateCommentParamInputModel,
+    @Param() param: UpdateCommentParamInputModelSql,
     @Body() bodyComment: UpdateCommentBodyInputModel
   ) {
     const comment = await this.commandBus.execute(
-      new UpdateCommentCommand(
+      new UpdateCommentCommandSql(
         deviceSession.userId,
         param.commentId,
         bodyComment.content
@@ -89,10 +91,10 @@ export class CommentsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
-    @Param() param: UpdateCommentParamInputModel
+    @Param() param: UpdateCommentParamInputModelSql
   ) {
     const comment = await this.commandBus.execute(
-      new DeleteCommentCommand(
+      new DeleteCommentCommandSql(
         deviceSession.userId,
         param.commentId,
       )

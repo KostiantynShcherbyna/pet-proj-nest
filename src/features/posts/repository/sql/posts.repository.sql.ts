@@ -61,6 +61,14 @@ export class PostsRepositorySql {
     return deletePostResult.length ? deletePostResult[1] : null
   }
 
+  async deleteLikes(postId: string, queryRunner: QueryRunner): Promise<string> {
+    const result = await queryRunner.query(`
+    delete from posts."Likes"
+    where "PostId" = $1
+    `, [postId])
+    return result.length ? result[1] : null
+  }
+
 
   async createComment({ postId, content, date, userId, userLogin, likesCount, dislikesCount }): Promise<string> {
 
@@ -84,11 +92,12 @@ export class PostsRepositorySql {
     return result.length ? result[0] : null
   }
 
-  async createLike({ status, postId, userId }, queryRunner: QueryRunner): Promise<string> {
+  async createLike({ status, userId, userLogin, postId, addedAt }, queryRunner: QueryRunner): Promise<string> {
     const result = await queryRunner.query(`
-    insert into posts."Likes"("Status", "PostId", "UserId")
-    values($1, $2, $3)
-    `, [status, postId, userId])
+    insert into posts."Likes"("Status", "UserId", "UserLogin", "PostId", "AddedAt")
+    values($1, $2, $3, $4, $5)
+    returning "Status"
+    `, [status, userId, userLogin, postId, addedAt])
     return result.length ? result[1] : null
   }
 
@@ -98,79 +107,84 @@ export class PostsRepositorySql {
     set "Status" = $1
     where "PostId" = $2
     and "UserId" = $3
+    returning "Status"
     `
     const result = await queryRunner.query(queryForm, [status, postId, userId])
     return result.length ? result[1] : null
   }
 
-  async setNoneToLike({ postId, userId }, queryRunner: QueryRunner) {
+  async setNoneToLike(postId: string, queryRunner: QueryRunner) {
     const queryForm = `
       update posts."Posts"
       set "LikesCount" = "LikesCount" + 1
       where "PostId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [postId, userId])
+    const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null
 
   }
 
-  async setNoneToDislike({ postId, userId }, queryRunner: QueryRunner) {
+  async setNoneToDislike(postId: string, queryRunner: QueryRunner) {
     const queryForm = `
       update posts."Posts"
       set "DislikesCount" = "DislikesCount" + 1
       where "PostId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [postId, userId])
+    const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null
 
   }
 
-  async setLikeToNone({ postId, userId }, queryRunner: QueryRunner) {
+  async setLikeToNone(postId: string, queryRunner: QueryRunner) {
     const queryForm = `
       update posts."Posts"
-      set "LikesCount" = "LikesCount" - 1
+      set "LikesCount" = case when "LikesCount" > 0
+      then "LikesCount" - 1
+      else "LikesCount" end
       where "PostId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [postId, userId])
+    const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null
 
   }
 
-  async setLikeToDislike({ postId, userId }, queryRunner: QueryRunner) {
+  async setLikeToDislike(postId: string, queryRunner: QueryRunner) {
     const queryForm = `
       update posts."Posts"
-      set "LikesCount" = "LikesCount" - 1, "DislikesCount" = "DislikesCount" + 1
+      set "LikesCount" = case when "LikesCount" > 0
+      then "LikesCount" - 1
+      else "LikesCount" end,
+       "DislikesCount" = "DislikesCount" + 1
       where "PostId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [postId, userId])
+    const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null
 
   }
 
-  async setDislikeToNone({ postId, userId }, queryRunner: QueryRunner) {
+  async setDislikeToNone(postId: string, queryRunner: QueryRunner) {
     const queryForm = `
       update posts."Posts"
-      set "DislikesCount" = "DislikesCount" - 1
+      set "DislikesCount" = case when "DislikesCount" > 0
+      then "DislikesCount" - 1 
+      else "DislikesCount" end
       where "PostId" = $1
-      and "UserId" = $2
     `
-    const result = await queryRunner.query(queryForm, [postId, userId])
+    const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null
-
   }
 
-  async setDislikeToLike({ postId, userId }, queryRunner: QueryRunner) {
+  async setDislikeToLike(postId: string, queryRunner: QueryRunner) {
     const queryForm = `
       update posts."Posts"
-      set "DislikesCount" = "DislikesCount" - 1, "LikesCount" = "LikesCount" + 1
+      set "DislikesCount" = case when "DislikesCount" > 0 
+      then "DislikesCount" - 1
+      else "DislikesCount" end,
+        "LikesCount" = "LikesCount" + 1
       where "PostId" = $1
-      and "UserId" = $2
+      returning "DislikesCount" and "LikesCount"
     `
-    const result = await queryRunner.query(queryForm, [postId, userId])
+    const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null
 
   }

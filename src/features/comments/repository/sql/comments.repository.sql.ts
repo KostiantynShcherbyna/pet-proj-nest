@@ -69,7 +69,6 @@ export class CommentsRepositorySql {
       update comments."Comments"
       set "LikesCount" = "LikesCount" + 1
       where "CommentId" = $1
-      returning "LikesCount"
     `
     const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
@@ -108,7 +107,6 @@ export class CommentsRepositorySql {
       else "LikesCount" end,
        "DislikesCount" = "DislikesCount" + 1
       where "CommentId" = $1
-      returning "DislikesCount"
     `
     const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
@@ -139,7 +137,22 @@ export class CommentsRepositorySql {
     `
     const result = await queryRunner.query(queryForm, [commentId])
     return result.length ? result[1] : null
+  }
 
+  async deleteComment(commentId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from comments."Comments"
+    where "CommentId" = $1
+    `, [commentId])
+    return result[1]
+  }
+
+  async deleteLike(commentId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.query(`
+    delete from comments."Likes"
+    where "CommentId" = $1
+    `, [commentId])
+    return result[1]
   }
 
 }
