@@ -153,7 +153,7 @@ export class BloggerControllerSql {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryBlog: GetBlogsQueryInputModel
   ) {
-    const blogs = await this.blogsQueryRepositorySql.findBloggerBlogs(
+    const blogs = await this.blogsQueryRepositorySql.findBlogs(
       queryBlog,
       deviceSession.userId,
     )
@@ -167,12 +167,16 @@ export class BloggerControllerSql {
     @Query() queryBlog: GetBlogsQueryInputModel,
     @Param() param: BlogIdParamInputModelSql,
   ) {
-    const postsView = await this.postsQueryRepositorySql.findPostsOfBlog(
-      param.blogId,
+    const postsContract = await this.blogsQueryRepositorySql.findBlogPosts(
       queryBlog,
+      param.blogId,
       deviceSession.userId,
     )
-    return postsView
+    if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
+    )
+    if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
+    return postsContract.data
   }
 
 

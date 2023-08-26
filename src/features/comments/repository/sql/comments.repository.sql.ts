@@ -18,8 +18,23 @@ export class CommentsRepositorySql {
   async findComment(commentId: string) {
     const result = await this.dataSource.query(`
     select "CommentId" as "commentId", "PostId" as "postId", "Content" as "content",
-           "UserId" as "userId", "UserLogin" as "userLogin", "LikesCount" as "likesCount",
-           "DislikesCount" as "dislikesCount", "CreatedAt" as "createdAt"
+           "UserId" as "userId", "UserLogin" as "userLogin", "CreatedAt" as "createdAt",
+           (
+           select count(*)
+           from comments."Likes" a
+           left join users."BanInfo" b on b."UserId" = a."UserId"
+           where "CommentId" = $1
+           and "Status" = 'Like'
+           and b."IsBanned" = 'false'
+           ) as "likesCount", 
+           (
+           select count(*)
+           from comments."Likes" a
+           left join users."BanInfo" b on b."UserId" = a."UserId"
+           where "CommentId" = $1
+           and "Status" = 'Dislike'
+           and b."IsBanned" = 'false'
+           ) as "dislikesCount"
     from comments."Comments"
     where "CommentId" = $1
     `, [commentId])

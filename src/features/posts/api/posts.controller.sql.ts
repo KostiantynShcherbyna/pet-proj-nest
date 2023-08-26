@@ -43,7 +43,6 @@ export class PostsControllerSql {
   constructor(
     private commandBus: CommandBus,
     protected postsSqlQueryRepository: PostsQueryRepositorySql,
-    protected commentsQueryRepository: CommentsQueryRepository,
     protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
   ) {
   }

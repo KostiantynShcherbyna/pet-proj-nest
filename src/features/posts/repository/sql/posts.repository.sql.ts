@@ -182,7 +182,6 @@ export class PostsRepositorySql {
       else "DislikesCount" end,
         "LikesCount" = "LikesCount" + 1
       where "PostId" = $1
-      returning "DislikesCount" and "LikesCount"
     `
     const result = await queryRunner.query(queryForm, [postId])
     return result.length ? result[1] : null

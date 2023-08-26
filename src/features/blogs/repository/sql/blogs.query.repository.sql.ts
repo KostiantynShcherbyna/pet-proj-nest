@@ -33,6 +33,55 @@ export class BlogsQueryRepositorySql {
   }
 
 
+  // async findBlogs(query: GetBlogsQueryInputModel, userId?: string): Promise<null | BlogsOutputModel> {
+  //
+  //   const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
+  //   const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
+  //   const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
+  //   const sortDirection = query.sortDirection || SortDirection.Desc
+  //   const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
+  //   const offset = (pageNumber - 1) * pageSize
+  //
+  //   const blogsTotalCount = await this.dataSource.query(`
+  //   select count(*)
+  //   from blogs."Blogs" a
+  //   where a."Name" ilike $1
+  //   and "IsBanned" = 'false'
+  //   `, [`%${searchNameTerm}%`])
+  //
+  //   const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
+  //
+  //   const queryForm = `
+  //   select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
+  //            "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
+  //   from blogs."Blogs" a
+  //   where a."Name" ilike $1
+  //   and "IsBanned" = 'false'
+  //   order by "${sortBy}" ${
+  //     sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+  //   } ${sortDirection}
+  //   limit $2
+  //   offset $3
+  //   `
+  //
+  //   const blogs = await this.dataSource.query(
+  //     queryForm, [
+  //       `%${searchNameTerm}%`, // 1
+  //       pageSize, // 2
+  //       offset, // 3
+  //     ])
+  //   const mappedBlogs = this.changeBlogsView(blogs)
+  //
+  //   return {
+  //     pagesCount: pagesCount,
+  //     page: pageNumber,
+  //     pageSize: pageSize,
+  //     totalCount: Number(blogsTotalCount[0].count),
+  //     items: mappedBlogs
+  //   }
+  // }
+
+
   async findBlogs(query: GetBlogsQueryInputModel, userId?: string): Promise<null | BlogsOutputModel> {
 
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
@@ -46,55 +95,7 @@ export class BlogsQueryRepositorySql {
     select count(*)
     from blogs."Blogs" a
     where a."Name" ilike $1
-    and "IsBanned" = 'false'
-    `, [`%${searchNameTerm}%`])
-
-    const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
-
-    const queryForm = `
-    select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
-             "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
-    from blogs."Blogs" a
-    where a."Name" ilike $1
-    and "IsBanned" = 'false'
-    order by "${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $2
-    offset $3
-    `
-
-    const blogs = await this.dataSource.query(
-      queryForm, [
-        `%${searchNameTerm}%`, // 1
-        pageSize, // 2
-        offset, // 3
-      ])
-    const mappedBlogs = this.changeBlogsView(blogs)
-
-    return {
-      pagesCount: pagesCount,
-      page: pageNumber,
-      pageSize: pageSize,
-      totalCount: Number(blogsTotalCount[0].count),
-      items: mappedBlogs
-    }
-  }
-
-  async findBloggerBlogs(query: GetBlogsQueryInputModel, userId: string): Promise<null | BlogsOutputModel> {
-
-    const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
-    const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
-    const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortDirection = query.sortDirection || SortDirection.Desc
-    const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
-    const offset = (pageNumber - 1) * pageSize
-
-    const blogsTotalCount = await this.dataSource.query(`
-    select count(*)
-    from blogs."Blogs" a
-    where a."Name" ilike $1
-    and a."UserId" = $2
+    and (a."UserId" = $2 or $2 is Null)
     `, [`%${searchNameTerm}%`, userId])
 
     const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
@@ -104,7 +105,7 @@ export class BlogsQueryRepositorySql {
              "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
     from blogs."Blogs" a
     where a."Name" ilike $1
-    and a."UserId" = $2
+    and (a."UserId" = $2 or $2 is Null)
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
@@ -155,30 +156,76 @@ export class BlogsQueryRepositorySql {
     const pagesCount = Math.ceil(totalCount[0].count / pageSize)
 
     const queryForm = `
-    select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
-             "BlogName" as "blogName", "BlogId" as "blogId", "CreatedAt" as "createdAt",
-           b."LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
-           c."Status" as "myStatus",
-           d."AddedAt" as "addedAt", d."UserId" as "userId", "Login" as "login"
+     select a."PostId" as "id", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
+              "BlogName" as "blogName", a."BlogId" as "blogId", a."CreatedAt" as "createdAt",
+            (select "Status" from posts."Likes" where "PostId" = a."PostId" and "UserId" = $1) as "myStatus",
+           (
+             select count(*)
+             from posts."Likes" e
+             left join blogs."Blogs" c on c."BlogId" = b."BlogId"
+             left join users."BanInfo" d on d."UserId" = e."UserId"
+             where e."Status" = 'Like'
+             and c."BlogId" = $2
+             and d."IsBanned" = 'false'
+             and e."PostId" = a."PostId"
+           ) as "likesCount", 
+           (
+            select count(*)
+            from posts."Likes" e
+            left join blogs."Blogs" c on c."BlogId" = b."BlogId"
+            left join users."BanInfo" d on d."UserId" = e."UserId"
+            where e."Status" = 'Dislike'
+            and c."BlogId" = $2
+            and d."IsBanned" = 'false'
+            and e."PostId" = a."PostId"
+           ) as "dislikesCount"
     from posts."Posts" a
-    left join posts."ExtendedLikesInfo" b on b."PostId" = a."PostId"
-    left join posts."Likes" c on c."PostId" = a."PostId"
-    left join posts."NewestLikes" d on d."PostId" = a."PostId"
-    where a."BlogId" = $1
+    left join blogs."Blogs" b on b."BlogId" = a."BlogId" 
+    where a."BlogId" = $2
+    and b."IsBanned" = 'false'
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
-    limit $2
-    offset $3
+    limit $3
+    offset $4
     `
 
-    const foundPosts = await this.dataSource.query(queryForm, [
-      blogId, // 1
-      pageSize, // 2
-      offset, // 3
-    ])
+    const newestLikesQueryForm = `
+    select a."UserId" as "userId", a."UserLogin" as "userLogin", a."AddedAt" as "addedAt", a."PostId" as "postId"
+    from posts."Likes" a
+    left join posts."Posts" b on b."PostId" = a."PostId"
+    left join blogs."Blogs" c on c."BlogId" = b."BlogId"
+    where a."Status" = 'Like'
+    and b."BlogId" = $1
+    and c."IsBanned" = 'false'
+    order by "AddedAt" ${sortDirection}
+    `
+    // const queryForm = `
+    // select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
+    //          "BlogName" as "blogName", "BlogId" as "blogId", "CreatedAt" as "createdAt",
+    //        b."LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
+    //        c."Status" as "myStatus",
+    //        d."AddedAt" as "addedAt", d."UserId" as "userId", "Login" as "login"
+    // from posts."Posts" a
+    // left join posts."ExtendedLikesInfo" b on b."PostId" = a."PostId"
+    // left join posts."Likes" c on c."PostId" = a."PostId"
+    // left join posts."NewestLikes" d on d."PostId" = a."PostId"
+    // where a."BlogId" = $1
+    // order by "${sortBy}" ${
+    //   sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
+    // } ${sortDirection}
+    // limit $2
+    // offset $3
+    // `
 
-    const mappedPosts = this.changePostsView(foundPosts, userId)
+    const foundPosts = await this.dataSource.query(queryForm, [
+      userId, // 1
+      blogId, // 2
+      pageSize, // 3
+      offset, // 4
+    ])
+    const foundNewestLikes = await this.dataSource.query(newestLikesQueryForm, [blogId])
+    const mappedPosts = this.changePostsView(foundPosts, foundNewestLikes)
 
     const postsView = {
       pagesCount: pagesCount,
@@ -358,13 +405,21 @@ export class BlogsQueryRepositorySql {
   }
 
 
-  private changePostsView(posts: any[], userId?: string) {
+  private changePostsView(posts: any[], foundNewestLikes: any[]) {
     // const myStatus = (post: PostsDocument) => post.extendedLikesInfo.like.find(like => like.userId === userId)?.status
     //   || LikeStatus.None
 
     return posts.map(post => {
+      const newestLikes = foundNewestLikes.filter(newestLike => newestLike.postId === post.id)
+      const mappedNewestLikes = newestLikes.map(newestLike => {
+        return {
+          addedAt: newestLike.addedAt,
+          userId: newestLike.userId,
+          login: newestLike.userLogin
+        }
+      })
       return {
-        id: post.postId,
+        id: post.id,
         title: post.title,
         shortDescription: post.shortDescription,
         content: post.content,
@@ -372,10 +427,10 @@ export class BlogsQueryRepositorySql {
         blogName: post.blogName,
         createdAt: post.createdAt,
         extendedLikesInfo: {
-          likesCount: post.likesCount,
-          dislikesCount: post.dislikesCount,
+          likesCount: Number(post.likesCount),
+          dislikesCount: Number(post.dislikesCount),
           myStatus: post.myStatus || LikeStatus.None,
-          newestLikes: [],
+          newestLikes: mappedNewestLikes.slice(0, 3),
         },
       }
     })

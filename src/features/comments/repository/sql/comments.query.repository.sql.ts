@@ -41,34 +41,53 @@ export class CommentsQueryRepositorySql {
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
 
-    const blogsTotalCount = await this.dataSource.query(`
+    const commentsTotalCount = await this.dataSource.query(`
     select count(*)
-    from comments."Comments" a on a."PostId" = b."PostId"
-    left join posts."Posts" b on b."BlogId" = c."BlogId"
-    left join blogs."Blogs" c
+    from comments."Comments" a
+    left join posts."Posts" b on b."PostId" = a."PostId"
+    left join blogs."Blogs" c on c."BlogId" = b."BlogId"
     where c."UserId" = $1
     `, [userId])
 
-    const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
+    const pagesCount = Math.ceil(commentsTotalCount[0].count / pageSize)
 
     const queryForm = `
-    select a."CommentId" as "commentId", a."Content" as "content", a."CreatedAt" as "createdAt",
+    select a."CommentId" as "id", a."Content" as "content", a."CreatedAt" as "createdAt",
            a."UserId" as "userId", a."UserLogin" as "userLogin",
-           a."LikesCount" as "likesCount", a."DislikesCount" as "dislikesCount",
-           b."Status" as "myStatus",
-           c."PostId" as "postId", c."Title" as "title", c."BlogId" as "blogId", c."BlogName" as "blogName"
-    from comments."Comments" a on a."PostId" = b."PostId"
-    left join comments."Likes" b on b."CommentId" = a."CommentId"
-    left join posts."Posts" c on c."BlogId" = d."BlogId"
-    left join blogs."Blogs" d
-    where d."UserId" = $1
-    order by "${sortBy}" ${
+           b."PostId" as "postId", b."Title" as "title", b."BlogId" as "blogId", b."BlogName" as "blogName",
+           (select "Status" from comments."Likes" where "CommentId" = a."CommentId" and "UserId" = $1) as "myStatus",
+           (
+            select count(*)
+            from comments."Likes" a
+            left join comments."Comments" b on b."CommentId" = a."CommentId"
+            left join posts."Posts" c on c."PostId" = b."PostId"
+            left join users."BanInfo" d on d."UserId" = a."UserId"
+            left join blogs."Blogs" e on e."BlogId" = c."BlogId"
+            where a."Status" = 'Like'
+            and d."IsBanned" = 'false'
+            and e."UserId" = $1
+           ) as "likesCount", 
+           (
+            select count(*)
+            from comments."Likes" a
+            left join comments."Comments" b on b."CommentId" = a."CommentId"
+            left join posts."Posts" c on c."PostId" = b."PostId"
+            left join users."BanInfo" d on d."UserId" = a."UserId"
+            left join blogs."Blogs" e on e."BlogId" = c."BlogId"
+            where a."Status" = 'Dislike'
+            and d."IsBanned" = 'false'
+            and e."UserId" = $1
+           ) as "dislikesCount"
+    from comments."Comments" a
+    left join posts."Posts" b on b."PostId" = a."PostId"
+    left join blogs."Blogs" c on c."BlogId" = b."BlogId"
+    where c."UserId" = $1
+    order by a."${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
     limit $2
     offset $3
     `
-
     const comments = await this.dataSource.query(
       queryForm, [
         userId, // 1
@@ -81,10 +100,21 @@ export class CommentsQueryRepositorySql {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(blogsTotalCount[0].count),
+      totalCount: Number(commentsTotalCount[0].count),
       items: blogCommentsView
     }
   }
+
+// (
+//   select count(*)
+//   from comments."Likes" a
+//   left join comments."Comments" b on b."CommentId" = a."CommentId"
+//   left join posts."Posts" c on c."PostId" = b."PostId"
+//   left join users."BanInfo" d on d."UserId" = a."UserId"
+//   where c."PostId" = $1
+//   and a."Status" = 'Dislike'
+//   and d."IsBanned" = 'false'
+// ) as "dislikesCount"
 
   async findComments({ postId, query, userId }) {
 
@@ -107,9 +137,25 @@ export class CommentsQueryRepositorySql {
 
     const queryForm = `
      select a."PostId" as "postId", a."Content" as "content", a."CreatedAt" as "createdAt",
-            a."CommentId" as "commentId", a."UserId" as "userId", a."UserLogin" as "userLogin",
-            a."LikesCount" as "likesCount", a."DislikesCount" as "dislikesCount",
-            (select "Status" from comments."Likes" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus"
+            a."CommentId" as "commentId", a."UserId" as "userId", a."UserLogin" as "userLogin", 
+            (select "Status" from comments."Likes" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus",
+            (
+            select count(*)
+            from comments."Likes" u
+            left join users."BanInfo" d on d."UserId" = u."UserId"
+            where u."Status" = 'Like'
+            and d."IsBanned" = 'false'
+            and a."CommentId" = u."CommentId"
+            ) as "likesCount", 
+            (
+            select count(*)
+            from comments."Likes" u
+            left join users."BanInfo" d on d."UserId" = u."UserId"
+            where u."Status" = 'Dislike'
+            and d."IsBanned" = 'false'
+            and a."CommentId" = u."CommentId"
+            ) as "dislikesCount"
+           
     from comments."Comments" a
     where a."PostId" = $1
     order by "${sortBy}" ${
@@ -132,11 +178,32 @@ export class CommentsQueryRepositorySql {
   }
 
   async findComment({ commentId, userId }) {
+
     const queryForm = `
     select "PostId" as "postId", "Content" as "content", "CreatedAt" as "createdAt",
            a."CommentId" as "commentId", a."UserId" as "userId", "UserLogin" as "userLogin",
-           "LikesCount" as "likesCount", "DislikesCount" as "dislikesCount",
-           (select "Status" from comments."Likes" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus"
+           (
+           select "Status"
+           from comments."Likes"
+           where "CommentId" = a."CommentId"
+           and "UserId" = $2
+           ) as "myStatus",
+           (
+           select count(*)
+           from comments."Likes" a
+           left join users."BanInfo" b on b."UserId" = a."UserId"
+           where "CommentId" = $1
+           and "Status" = 'Like'
+           and b."IsBanned" = 'false'
+           ) as "likesCount", 
+           (
+           select count(*)
+           from comments."Likes" a
+           left join users."BanInfo" b on b."UserId" = a."UserId"
+           where "CommentId" = $1
+           and "Status" = 'Dislike'
+           and b."IsBanned" = 'false'
+           ) as "dislikesCount"
     from comments."Comments" a
     where a."CommentId" = $1
     `
@@ -159,7 +226,7 @@ export class CommentsQueryRepositorySql {
 
     return comments.map(comment => {
       return {
-        id: comment.commentId,
+        id: comment.id,
         content: comment.content,
         commentatorInfo: {
           userId: comment.userId,
@@ -167,8 +234,8 @@ export class CommentsQueryRepositorySql {
         },
         createdAt: comment.createdAt,
         likesInfo: {
-          likesCount: comment.likesCount,
-          dislikesCount: comment.dislikesCount,
+          likesCount: Number(comment.likesCount),
+          dislikesCount: Number(comment.dislikesCount),
           myStatus: comment.myStatus || LikeStatus.None,
         },
         postInfo: {
@@ -194,8 +261,8 @@ export class CommentsQueryRepositorySql {
         },
         createdAt: comment.createdAt,
         likesInfo: {
-          likesCount: comment.likesCount,
-          dislikesCount: comment.dislikesCount,
+          likesCount: Number(comment.likesCount),
+          dislikesCount: Number(comment.dislikesCount),
           myStatus: comment.myStatus || LikeStatus.None,
         },
       }
@@ -212,8 +279,8 @@ export class CommentsQueryRepositorySql {
       },
       createdAt: comment.createdAt,
       likesInfo: {
-        likesCount: comment.likesCount,
-        dislikesCount: comment.dislikesCount,
+        likesCount: Number(comment.likesCount),
+        dislikesCount: Number(comment.dislikesCount),
         myStatus: comment.myStatus || LikeStatus.None,
       },
     }

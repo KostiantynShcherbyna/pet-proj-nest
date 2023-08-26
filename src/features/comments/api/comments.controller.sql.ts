@@ -129,6 +129,7 @@ export class CommentsControllerSql {
     if (comment.error === ErrorEnums.COMMENT_NOT_FOUND)
       throw new NotFoundException(callErrorMessage(ErrorEnums.COMMENT_NOT_FOUND, "commentId"))
     if (comment.error === ErrorEnums.LIKE_NOT_UPDATED) throw new NotFoundException()
+    if (comment.error === ErrorEnums.USER_NOT_FOUND) throw new ForbiddenException()
     return
   }
 }

@@ -107,6 +107,15 @@ export class UsersRepositorySql {
     return user.length ? user[0] : null
   }
 
+  async findBanInfoByUserId(userId: string) {
+    const user = await this.dataSource.query(`
+    select b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason", "UserId" as "userId"
+    from users."BanInfo"
+    where a."UserId" = $1
+    `, [userId])
+    return user.length ? user[0] : null
+  }
+
   async findUserByConfirmCode(value) {
     const user = await this.dataSource.query(`
     select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
