@@ -1,10 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import {
-  RecoveryCodes,
-  RecoveryCodesDocument,
-  RecoveryCodesModel
-} from "../../application/entities/mongoose/recovery-code.schema"
+import { RecoveryCodes, RecoveryCodesModel } from "../../application/entities/mongoose/recovery-code.schema"
 import { DataSource } from "typeorm"
 import { InjectDataSource } from "@nestjs/typeorm"
 
@@ -18,7 +14,7 @@ export class AuthSqlRepository {
 
   async findLastRecoveryCodeByEmail(email: string) {
     const recoveryCodes = await this.dataSource.query(`
-    select "Id" as "id",
+    select "RecoveryCodeId" as "recoveryCodeId",
      "Email" as "email",
      "RecoveryCode" as "recoveryCode",
      "Active" as "active"
@@ -32,26 +28,18 @@ export class AuthSqlRepository {
     const newRecoveryCode = await this.dataSource.query(`
     insert into auth."RecoveryCodes"("Email", "RecoveryCode", "Active")
     values($1, $2, $3)
-    returning "Id", "Email", "RecoveryCode"
+    returning "RecoveryCodeId", "Email", "RecoveryCode"
     `, [email, recoveryCode, active])
     return newRecoveryCode.length ? newRecoveryCode[0] : null
   }
 
-  async deactivatePasswordRecoveryCode(id: number) {
+  async deactivatePasswordRecoveryCode(recoveryCodeId: number) {
     const deactivateResult = await this.dataSource.query(`
     update auth."RecoveryCodes"
     set "Active" = false
-    where "Id" = $1
-    `, [id])
+    where "RecoveryCodeId" = $1
+    `, [recoveryCodeId])
     return deactivateResult.length ? deactivateResult[0] : null
-  }
-
-  async deletePasswordRecoveryCode(id: number) {
-    const deleteResult = await this.dataSource.query(`
-    delete from auth."RecoveryCodes"
-    where "Id" = $1, 
-    `, [id])
-    return deleteResult.length ? deleteResult[1] : null
   }
 
 }

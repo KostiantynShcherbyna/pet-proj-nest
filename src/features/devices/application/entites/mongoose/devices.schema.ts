@@ -237,7 +237,7 @@ export const DevicesSchema = SchemaFactory.createForClass(Devices)
 DevicesSchema.statics.createDevice = Devices.createDevice
 DevicesSchema.statics.deleteDevice = Devices.deleteDevice
 DevicesSchema.statics.deleteOtherDevices = Devices.deleteOtherDevices
-// DevicesSchema.statics.deleteAllDevices = Devices.deleteAllDevices
+// DevicesEntity.statics.deleteAllDevices = Devices.deleteAllDevices
 DevicesSchema.methods.refreshDevice = Devices.prototype.refreshDevice
 DevicesSchema.methods.checkOwner = Devices.prototype.checkOwner
 

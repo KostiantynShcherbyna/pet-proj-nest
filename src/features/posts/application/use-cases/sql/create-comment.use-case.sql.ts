@@ -41,9 +41,7 @@ export class CreateCommentSql implements ICommandHandler<CreateCommentCommandSql
         content: command.content,
         date: new Date(Date.now()).toISOString(),
         userId: user.userId,
-        userLogin: user.login,
-        likesCount: 0,
-        dislikesCount: 0
+        userLogin: user.login
       }
     )
     return new Contract(newCommentId, null)

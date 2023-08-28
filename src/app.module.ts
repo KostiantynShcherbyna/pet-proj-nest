@@ -127,6 +127,19 @@ import { CommentsQueryRepositorySql } from "./features/comments/repository/sql/c
 import { CommentsRepositorySql } from "./features/comments/repository/sql/comments.repository.sql"
 import { CreateCommentSql } from "./features/posts/application/use-cases/sql/create-comment.use-case.sql"
 import { UpdatePostLikeSql } from "./features/posts/application/use-cases/sql/update-post-like.use-case.sql"
+import { RecoveryCodeEntity } from "./features/auth/application/entities/sql/recovery-code.entity"
+import { BanBlogUserEntity } from "./features/blogs/application/entities/sql/ban-blog-user.entity"
+import { BlogEntity } from "./features/blogs/application/entities/sql/blog.entity"
+import { CommentEntity } from "./features/comments/application/entities/sql/comment.entity"
+import { LikeEntity } from "./features/comments/application/entities/sql/like.entity"
+import { DeviceEntity } from "./features/devices/application/entites/sql/device.entity"
+import { PostEntity } from "./features/posts/application/entites/sql/post.entity"
+import { AccountEntity } from "./features/sa/application/entities/sql/account.entity"
+import { BanInfoEntity } from "./features/sa/application/entities/sql/ban-info.entity"
+import { EmailConfirmationEntity } from "./features/sa/application/entities/sql/email-confirmation.entity"
+import {
+  SentConfirmationCodeDateEntity
+} from "./features/sa/application/entities/sql/sent-confirmation-code-date.entity"
 
 
 const useCases = [
@@ -233,6 +246,33 @@ const otherProviders = [
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: "localhost",
+      port: 5432,
+      username: "nestjsk",
+      password: "nestjsk",
+      database: "pet-proj-nest-orm-db",
+      // entities: [],
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    TypeOrmModule.forFeature([
+      RecoveryCodeEntity,
+      BanBlogUserEntity,
+      BlogEntity,
+      CommentEntity,
+      LikeEntity,
+      DeviceEntity,
+      LikeEntity,
+      PostEntity,
+      AccountEntity,
+      BanInfoEntity,
+      EmailConfirmationEntity,
+      SentConfirmationCodeDateEntity,
+    ]),
+
+
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
@@ -241,17 +281,6 @@ const otherProviders = [
     MongooseModule.forRoot(
       configuration().MONGOOSE_URI
     ),
-    TypeOrmModule.forRoot({
-      type: "postgres",
-      host: "localhost",
-      port: 5432,
-      username: "nestjsk",
-      password: "nestjsk",
-      database: "pet-proj-nest-db",
-      // entities: [],
-      autoLoadEntities: false,
-      synchronize: false,
-    }),
     ThrottlerModule.forRoot(),
     MongooseModule.forFeature([
       { name: Blogs.name, schema: BlogsSchema },

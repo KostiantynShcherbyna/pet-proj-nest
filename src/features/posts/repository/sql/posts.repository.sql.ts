@@ -9,18 +9,18 @@ export class PostsRepositorySql {
   ) {
   }
 
-  async createPost({ title, shortDescription, content, blogName, blogId, likesCount, dislikesCount }): Promise<string> {
+  async createPost({ title, shortDescription, content, blogName, blogId}): Promise<string> {
     const queryForm = `
     insert into posts."Posts"(
      "Title", "ShortDescription", "Content", "BlogName",
-     "BlogId", "CreatedAt", "LikesCount", "DislikesCount"
+     "BlogId", "CreatedAt"
      )
-    values($1, $2, $3, $4, $5, $6, $7, $8)
+    values($1, $2, $3, $4, $5, $6)
     returning "PostId" as "postId"
     `
     const date = new Date(Date.now()).toISOString()
     const createPostResult = await this.dataSource.query(
-      queryForm, [title, shortDescription, content, blogName, blogId, date, likesCount, dislikesCount]
+      queryForm, [title, shortDescription, content, blogName, blogId, date]
     )
     return createPostResult[0].postId
   }
@@ -70,15 +70,15 @@ export class PostsRepositorySql {
   }
 
 
-  async createComment({ postId, content, date, userId, userLogin, likesCount, dislikesCount }): Promise<string> {
+  async createComment({ postId, content, date, userId, userLogin}): Promise<string> {
 
     const result = await this.dataSource.query(`
     insert into comments."Comments"(
-     "PostId", "Content", "CreatedAt", "UserId", "UserLogin",
-     "LikesCount", "DislikesCount")
-    values($1, $2, $3, $4, $5, $6, $7)
+     "PostId", "Content", "CreatedAt", "UserId", "UserLogin"
+     )
+    values($1, $2, $3, $4, $5)
     returning "CommentId" as "commentId"
-    `, [postId, content, date, userId, userLogin, likesCount, dislikesCount])
+    `, [postId, content, date, userId, userLogin])
     return result[0].commentId
   }
 
@@ -113,79 +113,5 @@ export class PostsRepositorySql {
     return result.length ? result[1] : null
   }
 
-  async setNoneToLike(postId: string, queryRunner: QueryRunner) {
-    const queryForm = `
-      update posts."Posts"
-      set "LikesCount" = "LikesCount" + 1
-      where "PostId" = $1
-    `
-    const result = await queryRunner.query(queryForm, [postId])
-    return result.length ? result[1] : null
-
-  }
-
-  async setNoneToDislike(postId: string, queryRunner: QueryRunner) {
-    const queryForm = `
-      update posts."Posts"
-      set "DislikesCount" = "DislikesCount" + 1
-      where "PostId" = $1
-    `
-    const result = await queryRunner.query(queryForm, [postId])
-    return result.length ? result[1] : null
-
-  }
-
-  async setLikeToNone(postId: string, queryRunner: QueryRunner) {
-    const queryForm = `
-      update posts."Posts"
-      set "LikesCount" = case when "LikesCount" > 0
-      then "LikesCount" - 1
-      else "LikesCount" end
-      where "PostId" = $1
-    `
-    const result = await queryRunner.query(queryForm, [postId])
-    return result.length ? result[1] : null
-
-  }
-
-  async setLikeToDislike(postId: string, queryRunner: QueryRunner) {
-    const queryForm = `
-      update posts."Posts"
-      set "LikesCount" = case when "LikesCount" > 0
-      then "LikesCount" - 1
-      else "LikesCount" end,
-       "DislikesCount" = "DislikesCount" + 1
-      where "PostId" = $1
-    `
-    const result = await queryRunner.query(queryForm, [postId])
-    return result.length ? result[1] : null
-
-  }
-
-  async setDislikeToNone(postId: string, queryRunner: QueryRunner) {
-    const queryForm = `
-      update posts."Posts"
-      set "DislikesCount" = case when "DislikesCount" > 0
-      then "DislikesCount" - 1 
-      else "DislikesCount" end
-      where "PostId" = $1
-    `
-    const result = await queryRunner.query(queryForm, [postId])
-    return result.length ? result[1] : null
-  }
-
-  async setDislikeToLike(postId: string, queryRunner: QueryRunner) {
-    const queryForm = `
-      update posts."Posts"
-      set "DislikesCount" = case when "DislikesCount" > 0 
-      then "DislikesCount" - 1
-      else "DislikesCount" end,
-        "LikesCount" = "LikesCount" + 1
-      where "PostId" = $1
-    `
-    const result = await queryRunner.query(queryForm, [postId])
-    return result.length ? result[1] : null
-
-  }
 
 }

@@ -39,7 +39,7 @@ export class NewPasswordSql implements ICommandHandler<NewPasswordSqlCommand> {
     const newPasswordHash = await generateHashManager(command.newPassword)
     await this.usersSqlRepository.updatePasswordHash(user.userId, newPasswordHash)
 
-    await this.authSqlRepository.deactivatePasswordRecoveryCode(lastRecoveryCodeDto.id)
+    await this.authSqlRepository.deactivatePasswordRecoveryCode(lastRecoveryCodeDto.recoveryCodeId)
 
     return new Contract(true, null)
   }

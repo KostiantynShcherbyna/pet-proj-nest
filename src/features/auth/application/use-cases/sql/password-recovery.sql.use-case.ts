@@ -32,7 +32,7 @@ export class PasswordRecoverySql implements ICommandHandler<PasswordRecoverySqlC
     // const passwordHashExpiresTime = this.configService.get(PASSWORD_HASH_EXPIRES_TIME, { infer: true })
 
     const recoveryCode = await this.authSqlRepository.findLastRecoveryCodeByEmail(command.email)
-    if (recoveryCode !== null) await this.authSqlRepository.deactivatePasswordRecoveryCode(recoveryCode.id)
+    if (recoveryCode !== null) await this.authSqlRepository.deactivatePasswordRecoveryCode(recoveryCode.recoveryCodeId)
 
     const newPasswordRecoveryCode = await this.tokensService.createToken(
       { email: command.email },
