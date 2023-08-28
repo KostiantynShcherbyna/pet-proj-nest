@@ -46,7 +46,7 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
         email: command.email,
         passwordHash: passwordHash,
         date: newDate
-      })
+      }, queryRunner)
       const emailConfirmationDto = {
         userId: newUser.userId,
         confirmationCode: randomUUID(),
@@ -57,8 +57,8 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
         isConfirmed: false
       }
       console.log("confirmationCode", emailConfirmationDto.confirmationCode)
-      await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto)
-      await this.usersSqlRepository.createBanInfo(newUser.userId)
+      await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto, queryRunner)
+      await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {
       console.log("RegistrationSql", err)

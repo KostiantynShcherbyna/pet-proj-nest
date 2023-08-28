@@ -4,10 +4,10 @@ import { AccountEntity } from "./account.entity"
 @Entity()
 export class SentConfirmationCodeDateEntity {
 
-  @PrimaryColumn({ type: "uuid", nullable: false })
+  @PrimaryColumn({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   SentDate: string
 
   @JoinColumn({ name: "UserId" })

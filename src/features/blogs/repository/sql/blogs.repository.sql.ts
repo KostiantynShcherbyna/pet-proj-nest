@@ -14,7 +14,7 @@ export class BlogsRepositorySql {
     const result = await this.dataSource.query(`
     select a."BlogId" as "id", "UserId" as "userId", "UserLogin" as "userLogin", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
            "CreatedAt" as "createdAt", "IsMembership" as "isMembership", "IsBanned" as "isBanned", "BanDate" as "banDate"
-    from blogs."Blogs" a
+    from public."blog_entity" a
     where a."BlogId" = $1
     `, [blogId])
     return result.length ? result[0] : null
@@ -23,7 +23,7 @@ export class BlogsRepositorySql {
   async createBlog(bodyBlog: CreateBlogCommand, login: string): Promise<string> {
     const date = new Date(Date.now()).toISOString()
     const result = await this.dataSource.query(`
-    insert into blogs."Blogs"("Name", "Description", "WebsiteUrl", "IsMembership", "CreatedAt", "UserId", "UserLogin", "IsBanned", "BanDate")
+    insert into public."blog_entity"("Name", "Description", "WebsiteUrl", "IsMembership", "CreatedAt", "UserId", "UserLogin", "IsBanned", "BanDate")
     values($1, $2, $3, $4, $5, $6, $7, $8, $9)
     returning "BlogId" as "blogId"
     `, [bodyBlog.name, bodyBlog.description, bodyBlog.websiteUrl, false, date, bodyBlog.userId, login, false, null])
@@ -32,7 +32,7 @@ export class BlogsRepositorySql {
 
   async updateBlog({ blogId, name, description, websiteUrl }): Promise<string> {
     const result = await this.dataSource.query(`
-    update blogs."Blogs"
+    update public."blog_entity"
     set "Name" = $2, "Description" = $3, "WebsiteUrl" = $4
     where "BlogId" = $1
     `, [blogId, name, description, websiteUrl])
@@ -41,7 +41,7 @@ export class BlogsRepositorySql {
 
   async deleteBlog(blogId: string, queryRunner: QueryRunner): Promise<string> {
     const result = await queryRunner.query(`
-    delete from blogs."Blogs"
+    delete from public."blog_entity"
     where "BlogId" = $1
     `, [blogId])
     return result[1]
@@ -50,7 +50,7 @@ export class BlogsRepositorySql {
   async findBanUsersInfo(blogId: string, userId: string) {
     const result = await this.dataSource.query(`
     select "BlogId" as "id", "UserId" as "userId", "IsBanned" as "isBanned", "BanId" as "banId"
-    from blogs."BanBlogUsers"
+    from public."ban_blog_user_entity"
     where "BlogId" = $1
     and "UserId" = $2
     `, [blogId, userId])
@@ -59,7 +59,7 @@ export class BlogsRepositorySql {
 
   async banUserOfBlog({ blogId, userId, isBanned, banReason, banDate }): Promise<string> {
     const result = await this.dataSource.query(`
-    insert into blogs."BanBlogUsers"("BlogId", "UserId", "IsBanned", "BanReason", "BanDate")
+    insert into public."ban_blog_user_entity"("BlogId", "UserId", "IsBanned", "BanReason", "BanDate")
     values($1, $2, $3, $4, $5)
     returning "BanId" as "banId"
     `, [blogId, userId, isBanned, banReason, banDate])
@@ -68,7 +68,7 @@ export class BlogsRepositorySql {
 
   async unbanUserOfBlog({ blogId, userId }): Promise<number> {
     const result = await this.dataSource.query(`
-    update blogs."BanBlogUsers"
+    update public."ban_blog_user_entity"
     set "IsBanned" = false, "BanReason" = null, "BanDate" = null
     where "BlogId" = $1
     and "UserId" = $2
@@ -78,7 +78,7 @@ export class BlogsRepositorySql {
 
   async setBanBlogBySA({ blogId, isBanned, banDate }): Promise<string> {
     const result = await this.dataSource.query(`
-    update blogs."Blogs"
+    update public."blog_entity"
     set "IsBanned" = $2, "BanDate" = $3
     where "BlogId" = $1
     `, [blogId, isBanned, banDate])
@@ -87,7 +87,7 @@ export class BlogsRepositorySql {
 
   async bindBlog({ blogId, userId }): Promise<string> {
     const result = await this.dataSource.query(`
-    update blogs."Blogs"
+    update public."blog_entity"
     set "UserId" = $2
     where "BlogId" = $1
     `, [blogId, userId])

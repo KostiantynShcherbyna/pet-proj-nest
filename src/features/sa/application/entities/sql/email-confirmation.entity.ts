@@ -4,16 +4,16 @@ import { AccountEntity } from "./account.entity"
 @Entity()
 export class EmailConfirmationEntity {
 
-  @PrimaryColumn({ type: "uuid", nullable: false })
+  @PrimaryColumn({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   IsConfirmed: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid", nullable: true })
   ConfirmationCode: string
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   ExpirationDate: string
 
   @JoinColumn({ name: "UserId" })

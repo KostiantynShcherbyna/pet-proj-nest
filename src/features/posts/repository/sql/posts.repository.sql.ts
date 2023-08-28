@@ -11,7 +11,7 @@ export class PostsRepositorySql {
 
   async createPost({ title, shortDescription, content, blogName, blogId}): Promise<string> {
     const queryForm = `
-    insert into posts."Posts"(
+    insert into public."post_entity"(
      "Title", "ShortDescription", "Content", "BlogName",
      "BlogId", "CreatedAt"
      )
@@ -27,7 +27,7 @@ export class PostsRepositorySql {
 
   async deletePosts(blogId: string, queryRunner: QueryRunner): Promise<string> {
     const deletePostResult = await queryRunner.query(`
-    delete from posts."Posts"
+    delete from public."post_entity"
     where "BlogId" = $1
     `, [blogId])
     return deletePostResult.length ? deletePostResult[1] : null
@@ -37,7 +37,7 @@ export class PostsRepositorySql {
     const findPostResult = await this.dataSource.query(`
     select "PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
            "BlogName" as "blogName", "BlogId" as "blogId", "CreatedAt" as "createdAt"
-    from posts."Posts"
+    from public."post_entity"
     where "PostId" = $1
     `, [postId])
     return findPostResult.length ? findPostResult[0] : null
@@ -45,7 +45,7 @@ export class PostsRepositorySql {
 
   async updatePost({ postId, title, shortDescription, content }, queryRunner: QueryRunner): Promise<string> {
     const updateResult = await queryRunner.query(`
-    update posts."Posts"
+    update public."post_entity"
     set "Title" = $2, "ShortDescription" = $3, "Content" = $4
     where "PostId" = $1
     `, [postId, title, shortDescription, content])
@@ -55,7 +55,7 @@ export class PostsRepositorySql {
 
   async deletePost(postId: string, queryRunner: QueryRunner): Promise<string> {
     const deletePostResult = await queryRunner.query(`
-    delete from posts."Posts"
+    delete from public."post_entity"
     where "PostId" = $1
     `, [postId])
     return deletePostResult.length ? deletePostResult[1] : null
@@ -63,7 +63,7 @@ export class PostsRepositorySql {
 
   async deleteLikes(postId: string, queryRunner: QueryRunner): Promise<string> {
     const result = await queryRunner.query(`
-    delete from posts."Likes"
+    delete from public."post_like_entity"
     where "PostId" = $1
     `, [postId])
     return result.length ? result[1] : null
@@ -73,7 +73,7 @@ export class PostsRepositorySql {
   async createComment({ postId, content, date, userId, userLogin}): Promise<string> {
 
     const result = await this.dataSource.query(`
-    insert into comments."Comments"(
+    insert into public."comment_entity"(
      "PostId", "Content", "CreatedAt", "UserId", "UserLogin"
      )
     values($1, $2, $3, $4, $5)
@@ -85,7 +85,7 @@ export class PostsRepositorySql {
   async findPostLike({ postId, userId }) {
     const result = await this.dataSource.query(`
     select a."Status" as "myStatus", "PostId" as "postId", "LikeId" as "likeId", "UserId" as "userId"
-    from posts."Likes" a
+    from public."post_like_entity" a
     where "PostId" = $1
     and "UserId" = $2
     `, [postId, userId])
@@ -94,7 +94,7 @@ export class PostsRepositorySql {
 
   async createLike({ status, userId, userLogin, postId, addedAt }, queryRunner: QueryRunner): Promise<string> {
     const result = await queryRunner.query(`
-    insert into posts."Likes"("Status", "UserId", "UserLogin", "PostId", "AddedAt")
+    insert into public."post_like_entity"("Status", "UserId", "UserLogin", "PostId", "AddedAt")
     values($1, $2, $3, $4, $5)
     returning "Status"
     `, [status, userId, userLogin, postId, addedAt])
@@ -103,7 +103,7 @@ export class PostsRepositorySql {
 
   async updateLike({ status, postId, userId }, queryRunner: QueryRunner): Promise<string> {
     const queryForm = `
-    update posts."Likes"
+    update public."post_like_entity"
     set "Status" = $1
     where "PostId" = $2
     and "UserId" = $3

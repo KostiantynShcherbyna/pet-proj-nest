@@ -18,7 +18,7 @@ export class AuthSqlRepository {
      "Email" as "email",
      "RecoveryCode" as "recoveryCode",
      "Active" as "active"
-    from auth."RecoveryCodes"
+    from public."recovery_code_entity"
     where "Email" = $1
     `, [email])
     return recoveryCodes.length ? recoveryCodes[recoveryCodes.length - 1] : null
@@ -26,7 +26,7 @@ export class AuthSqlRepository {
 
   async createPasswordRecoveryCode({ email, recoveryCode, active }) {
     const newRecoveryCode = await this.dataSource.query(`
-    insert into auth."RecoveryCodes"("Email", "RecoveryCode", "Active")
+    insert into public."recovery_code_entity"("Email", "RecoveryCode", "Active")
     values($1, $2, $3)
     returning "RecoveryCodeId", "Email", "RecoveryCode"
     `, [email, recoveryCode, active])
@@ -35,7 +35,7 @@ export class AuthSqlRepository {
 
   async deactivatePasswordRecoveryCode(recoveryCodeId: number) {
     const deactivateResult = await this.dataSource.query(`
-    update auth."RecoveryCodes"
+    update public."recovery_code_entity"
     set "Active" = false
     where "RecoveryCodeId" = $1
     `, [recoveryCodeId])

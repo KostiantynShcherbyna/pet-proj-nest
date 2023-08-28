@@ -27,7 +27,7 @@ export class DevicesRepositorySql {
      "LastActiveDate" as "lastActiveDate",
      "UserId" as "userId",
      "ExpireAt" as "expireAt"
-    from devices."Devices"
+    from public."device_entity"
     where "DeviceId" = $1
     `, [id])
 
@@ -36,7 +36,7 @@ export class DevicesRepositorySql {
 
   async createDevice({ deviceId, ip, title, userId, lastActiveDate, expireAt }) {
     const newDeviceResult = await this.dataSource.query(`
-    insert into devices."Devices"("DeviceId", "Ip", "Title", "UserId", "LastActiveDate", "ExpireAt")
+    insert into public."device_entity"("DeviceId", "Ip", "Title", "UserId", "LastActiveDate", "ExpireAt")
     values($1, $2, $3, $4, $5, $6)
     returning "DeviceId"
     `, [deviceId, ip, title, userId, lastActiveDate, expireAt])
@@ -45,7 +45,7 @@ export class DevicesRepositorySql {
 
   async updateActiveDate({ deviceId, lastActiveDate, expireAt }) {
     const updateResult = await this.dataSource.query(`
-    update devices."Devices"
+    update public."device_entity"
     set "LastActiveDate" = $2, "ExpireAt" = $3
     where "DeviceId" = $1
     `, [deviceId, lastActiveDate, expireAt])
@@ -54,7 +54,7 @@ export class DevicesRepositorySql {
 
   async deleteDevice(deviceId: string) {
     const deleteResult = await this.dataSource.query(`
-    delete from devices."Devices"
+    delete from public."device_entity"
     where "DeviceId" = $1
     `, [deviceId])
     return deleteResult.length ? deleteResult[1] : null
@@ -62,7 +62,7 @@ export class DevicesRepositorySql {
 
   async deleteOtherDevices({ userId, deviceId }) {
     const deleteResult = await this.dataSource.query(`
-    delete from devices."Devices"
+    delete from public."device_entity"
     where "UserId" = $1
     and "DeviceId" != $2
     `, [userId, deviceId])

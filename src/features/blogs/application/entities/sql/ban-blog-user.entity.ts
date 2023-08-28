@@ -7,19 +7,19 @@ export class BanBlogUserEntity {
   @PrimaryGeneratedColumn("uuid")
   BanId: boolean
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   BlogId: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   IsBanned: boolean
 
-  @Column()
+  @Column({ nullable: true })
   BanReason: string
 
-  @Column()
+  @Column({ nullable: true })
   BanDate: string
 
   @JoinColumn({ name: "BlogId" })

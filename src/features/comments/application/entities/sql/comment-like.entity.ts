@@ -2,18 +2,18 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 import { CommentEntity } from "./comment.entity"
 
 @Entity()
-export class LikeEntity {
+export class CommentLikeEntity {
 
   @PrimaryGeneratedColumn("uuid")
   LikeId: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   CommentId: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   Status: string
 
   @JoinColumn({ name: "CommentId" })

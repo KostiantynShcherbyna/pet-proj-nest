@@ -6,31 +6,31 @@ export class BlogEntity {
   @PrimaryGeneratedColumn("uuid")
   BlogId: string
 
-  @Column({ nullable: false })
+  @Column()
   Name: string
 
-  @Column({ nullable: false })
+  @Column()
   Description: string
 
-  @Column({ nullable: false })
+  @Column()
   WebsiteUrl: string
 
-  @Column({ nullable: false })
+  @Column()
   IsMembership: boolean
 
-  @Column({ nullable: false })
+  @Column()
   CreatedAt: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   UserLogin: string
 
   @Column()
   IsBanned: boolean
 
-  @Column()
+  @Column({ nullable: true })
   BanDate: string
 
 }

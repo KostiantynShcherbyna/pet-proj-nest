@@ -131,7 +131,7 @@ import { RecoveryCodeEntity } from "./features/auth/application/entities/sql/rec
 import { BanBlogUserEntity } from "./features/blogs/application/entities/sql/ban-blog-user.entity"
 import { BlogEntity } from "./features/blogs/application/entities/sql/blog.entity"
 import { CommentEntity } from "./features/comments/application/entities/sql/comment.entity"
-import { LikeEntity } from "./features/comments/application/entities/sql/like.entity"
+import { CommentLikeEntity } from "./features/comments/application/entities/sql/comment-like.entity"
 import { DeviceEntity } from "./features/devices/application/entites/sql/device.entity"
 import { PostEntity } from "./features/posts/application/entites/sql/post.entity"
 import { AccountEntity } from "./features/sa/application/entities/sql/account.entity"
@@ -140,6 +140,7 @@ import { EmailConfirmationEntity } from "./features/sa/application/entities/sql/
 import {
   SentConfirmationCodeDateEntity
 } from "./features/sa/application/entities/sql/sent-confirmation-code-date.entity"
+import { PostLikeEntity } from "./features/posts/application/entites/sql/post-like.entity"
 
 
 const useCases = [
@@ -262,9 +263,9 @@ const otherProviders = [
       BanBlogUserEntity,
       BlogEntity,
       CommentEntity,
-      LikeEntity,
+      CommentLikeEntity,
       DeviceEntity,
-      LikeEntity,
+      PostLikeEntity,
       PostEntity,
       AccountEntity,
       BanInfoEntity,

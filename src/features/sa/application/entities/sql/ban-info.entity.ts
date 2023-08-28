@@ -4,16 +4,16 @@ import { AccountEntity } from "./account.entity"
 @Entity()
 export class BanInfoEntity {
 
-  @PrimaryColumn({ type: "uuid", nullable: false })
+  @PrimaryColumn({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   IsBanned: string
 
-  @Column()
+  @Column({ nullable: true })
   BanDate: string
 
-  @Column()
+  @Column({ nullable: true })
   BanReason: string
 
   @JoinColumn({ name: "UserId" })

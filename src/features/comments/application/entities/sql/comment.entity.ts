@@ -6,19 +6,19 @@ export class CommentEntity {
   @PrimaryGeneratedColumn("uuid")
   CommentId: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   PostId: string
 
-  @Column({ nullable: false })
+  @Column()
   Content: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   UserLogin: string
 
-  @Column({ nullable: false })
+  @Column()
   CreatedAt: string
 
 }

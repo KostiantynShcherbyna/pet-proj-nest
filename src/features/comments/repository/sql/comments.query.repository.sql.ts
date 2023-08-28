@@ -43,9 +43,9 @@ export class CommentsQueryRepositorySql {
 
     const commentsTotalCount = await this.dataSource.query(`
     select count(*)
-    from comments."Comments" a
-    left join posts."Posts" b on b."PostId" = a."PostId"
-    left join blogs."Blogs" c on c."BlogId" = b."BlogId"
+    from public."comment_entity" a
+    left join public."post_entity" b on b."PostId" = a."PostId"
+    left join public."blog_entity" c on c."BlogId" = b."BlogId"
     where c."UserId" = $1
     `, [userId])
 
@@ -55,32 +55,32 @@ export class CommentsQueryRepositorySql {
     select a."CommentId" as "id", a."Content" as "content", a."CreatedAt" as "createdAt",
            a."UserId" as "userId", a."UserLogin" as "userLogin",
            b."PostId" as "postId", b."Title" as "title", b."BlogId" as "blogId", b."BlogName" as "blogName",
-           (select "Status" from comments."Likes" where "CommentId" = a."CommentId" and "UserId" = $1) as "myStatus",
+           (select "Status" from public."comment_like_entity" where "CommentId" = a."CommentId" and "UserId" = $1) as "myStatus",
            (
             select count(*)
-            from comments."Likes" a
-            left join comments."Comments" b on b."CommentId" = a."CommentId"
-            left join posts."Posts" c on c."PostId" = b."PostId"
-            left join users."BanInfo" d on d."UserId" = a."UserId"
-            left join blogs."Blogs" e on e."BlogId" = c."BlogId"
+            from public."comment_like_entity" a
+            left join public."comment_entity" b on b."CommentId" = a."CommentId"
+            left join public."post_entity" c on c."PostId" = b."PostId"
+            left join public."ban_info_entity" d on d."UserId" = a."UserId"
+            left join public."blog_entity" e on e."BlogId" = c."BlogId"
             where a."Status" = 'Like'
             and d."IsBanned" = 'false'
             and e."UserId" = $1
            ) as "likesCount", 
            (
             select count(*)
-            from comments."Likes" a
-            left join comments."Comments" b on b."CommentId" = a."CommentId"
-            left join posts."Posts" c on c."PostId" = b."PostId"
-            left join users."BanInfo" d on d."UserId" = a."UserId"
-            left join blogs."Blogs" e on e."BlogId" = c."BlogId"
+            from public."comment_like_entity" a
+            left join public."comment_entity" b on b."CommentId" = a."CommentId"
+            left join public."post_entity" c on c."PostId" = b."PostId"
+            left join public."ban_info_entity" d on d."UserId" = a."UserId"
+            left join public."blog_entity" e on e."BlogId" = c."BlogId"
             where a."Status" = 'Dislike'
             and d."IsBanned" = 'false'
             and e."UserId" = $1
            ) as "dislikesCount"
-    from comments."Comments" a
-    left join posts."Posts" b on b."PostId" = a."PostId"
-    left join blogs."Blogs" c on c."BlogId" = b."BlogId"
+    from public."comment_entity" a
+    left join public."post_entity" b on b."PostId" = a."PostId"
+    left join public."blog_entity" c on c."BlogId" = b."BlogId"
     where c."UserId" = $1
     order by a."${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
@@ -119,7 +119,7 @@ export class CommentsQueryRepositorySql {
 
     const totalCount = await this.dataSource.query(`
     select count (*)
-    from comments."Comments" a
+    from public."comment_entity" a
     where a."PostId" = $1
     `, [postId])
 
@@ -128,24 +128,24 @@ export class CommentsQueryRepositorySql {
     const queryForm = `
      select a."PostId" as "postId", a."Content" as "content", a."CreatedAt" as "createdAt",
             a."CommentId" as "commentId", a."UserId" as "userId", a."UserLogin" as "userLogin", 
-            (select "Status" from comments."Likes" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus",
+            (select "Status" from public."comment_like_entity" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus",
             (
             select count(*)
-            from comments."Likes" u
-            left join users."BanInfo" d on d."UserId" = u."UserId"
+            from public."comment_like_entity" u
+            left join public."ban_info_entity" d on d."UserId" = u."UserId"
             where u."Status" = 'Like'
             and d."IsBanned" = 'false'
             and a."CommentId" = u."CommentId"
             ) as "likesCount", 
             (
             select count(*)
-            from comments."Likes" u
-            left join users."BanInfo" d on d."UserId" = u."UserId"
+            from public."comment_like_entity" u
+            left join public."ban_info_entity" d on d."UserId" = u."UserId"
             where u."Status" = 'Dislike'
             and d."IsBanned" = 'false'
             and a."CommentId" = u."CommentId"
             ) as "dislikesCount"
-    from comments."Comments" a
+    from public."comment_entity" a
     where a."PostId" = $1
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
@@ -173,34 +173,34 @@ export class CommentsQueryRepositorySql {
            a."CommentId" as "commentId", a."UserId" as "userId", "UserLogin" as "userLogin",
            (
            select "Status"
-           from comments."Likes"
+           from public."comment_like_entity"
            where "CommentId" = a."CommentId"
            and "UserId" = $2
            ) as "myStatus",
            (
            select count(*)
-           from comments."Likes" a
-           left join users."BanInfo" b on b."UserId" = a."UserId"
+           from public."comment_like_entity" a
+           left join public."ban_info_entity" b on b."UserId" = a."UserId"
            where "CommentId" = $1
            and "Status" = 'Like'
            and b."IsBanned" = 'false'
            ) as "likesCount", 
            (
            select count(*)
-           from comments."Likes" a
-           left join users."BanInfo" b on b."UserId" = a."UserId"
+           from public."comment_like_entity" a
+           left join public."ban_info_entity" b on b."UserId" = a."UserId"
            where "CommentId" = $1
            and "Status" = 'Dislike'
            and b."IsBanned" = 'false'
            ) as "dislikesCount"
-    from comments."Comments" a
+    from public."comment_entity" a
     where a."CommentId" = $1
     `
     const commentResult = await this.dataSource.query(queryForm, [commentId, userId])
 
     const queryFormBanInfo = `
     select "IsBanned" as "isBanned", "BanReason" as "banReason", "UserId" as "UserId", "BanDate" as "banDate"
-    from users."BanInfo"
+    from public."ban_info_entity"
     where "UserId" = $1
     `
     if (!commentResult.length) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)

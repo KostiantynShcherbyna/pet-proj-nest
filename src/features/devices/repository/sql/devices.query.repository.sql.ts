@@ -25,7 +25,7 @@ export class DevicesQueryRepositorySql {
      "Ip" as "ip",
      "Title" as "title",
      "LastActiveDate" as "lastActiveDate"
-    from devices."Devices"
+    from public."device_entity"
     where "UserId" = $1
     `, [userId])
 

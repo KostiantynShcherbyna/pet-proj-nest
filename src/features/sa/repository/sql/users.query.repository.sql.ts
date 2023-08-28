@@ -23,24 +23,24 @@ export class UsersQueryRepositorySql {
   async findMe(value) {
     const user = await this.dataSource.query(`
     select a."UserId" as "userId", "Login" as "login", "Email" as "email"
-    from users."AccountData" a
+    from public."account_entity" a
     where a."UserId" = $1
     `, [value])
     return user.length ? user[0] : null
   }
 
-  async findUsersByEmail(value) {
-    const user = await this.dataSource.query(`
-    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
-           b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
-           c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
-    from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId" 
-    left join users."EmailConfirmation" c on c."UserId" = a."UserId"
-    where "Email" = $1
-    `, [value])
-    return user.length ? user[0] : null
-  }
+  // async findUsersByEmail(value) {
+  //   const user = await this.dataSource.query(`
+  //   select a."UserId" as "userId", "Login" as "login", "Email" as "email", "PasswordHash" as "passwordHash", "CreatedAt" as "createdAt",
+  //          b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
+  //          c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
+  //   from public."account_entity a
+  //   left join public."ban_info_entity b on b."UserId" = a."UserId"
+  //   left join public."email_confirmation_entity" c on c."UserId" = a."UserId"
+  //   where "Email" = $1
+  //   `, [value])
+  //   return user.length ? user[0] : null
+  // }
 
 
   async findUsers(query: QueryUserSAInputModel) {
@@ -57,8 +57,8 @@ export class UsersQueryRepositorySql {
 
     const usersTotalCount = await this.dataSource.query(`
     select count(*)
-    from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId"
+    from public."account_entity" a
+    left join public."ban_info_entity" b on b."UserId" = a."UserId"
     where (a."Login" ilike $2 or a."Email" ilike $3)
     and (b."IsBanned" = $1 OR $1 IS NULL)
     `, [isBanned, `%${searchLoginTerm}%`, `%${searchEmailTerm}%`,])
@@ -68,8 +68,8 @@ export class UsersQueryRepositorySql {
     const queryForm = `
     select a."UserId" as "id", "Login" as "login", "Email" as "email", "CreatedAt" as "createdAt",
            b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason"
-    from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId"
+    from public."account_entity" a
+    left join public."ban_info_entity" b on b."UserId" = a."UserId"
     where (a."Login" ilike $2 or a."Email" ilike $3)
     and (b."IsBanned" = $1 or $1 IS NULL)
     order by "${sortBy}" ${
@@ -103,9 +103,9 @@ export class UsersQueryRepositorySql {
     select a."UserId" as "userId", "Login" as "login", "Email" as "email", "CreatedAt" as "createdAt",
            b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
            c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
-    from users."AccountData" a
-    left join users."BanInfo" b on b."UserId" = a."UserId" 
-    left join users."EmailConfirmation" c on c."UserId" = a."UserId"
+    from public."account_entity" a
+    left join public."ban_info_entity" b on b."UserId" = a."UserId" 
+    left join public."email_confirmation_entity" c on c."UserId" = a."UserId"
     where a."UserId" = $1
     `, [userId])
     if (!userResult.length) return null

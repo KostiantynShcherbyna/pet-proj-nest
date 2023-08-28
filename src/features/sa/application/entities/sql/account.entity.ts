@@ -6,16 +6,16 @@ export class AccountEntity {
   @PrimaryGeneratedColumn("uuid")
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   Login: string
 
-  @Column({ nullable: false })
+  @Column()
   Email: string
 
-  @Column({ nullable: false })
+  @Column()
   PasswordHash: string
 
-  @Column({ nullable: false })
+  @Column()
   CreatedAt: string
 
 }

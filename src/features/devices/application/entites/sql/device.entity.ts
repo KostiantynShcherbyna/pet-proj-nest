@@ -8,19 +8,19 @@ export class DeviceEntity {
   @PrimaryGeneratedColumn("uuid")
   DeviceId: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   Ip: string
 
-  @Column({ nullable: false })
+  @Column()
   Title: string
 
-  @Column({ nullable: false })
+  @Column()
   LastActiveDate: string
 
-  @Column({ nullable: false })
+  @Column()
   ExpireAt: string
 
   @JoinColumn({ name: "UserId" })

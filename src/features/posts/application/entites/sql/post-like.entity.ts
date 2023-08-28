@@ -2,24 +2,24 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 import { PostEntity } from "./post.entity"
 
 @Entity()
-export class LikeEntity {
+export class PostLikeEntity {
 
   @PrimaryGeneratedColumn("uuid")
   LikeId: string
 
-  @Column({ nullable: false })
+  @Column()
   Status: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   PostId: string
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid" })
   UserId: string
 
-  @Column({ nullable: false })
+  @Column()
   UserLogin: string
 
-  @Column({ nullable: false })
+  @Column()
   AddedAt: string
 
   @JoinColumn({ name: "PostId" })
