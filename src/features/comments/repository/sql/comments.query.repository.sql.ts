@@ -1,25 +1,17 @@
 import { Injectable } from "@nestjs/common"
-import { InjectModel } from "@nestjs/mongoose"
-import { PostsQueryRepository } from "../../../posts/repository/mongoose/posts.query.repository"
-import { UsersRepository } from "../../../sa/repository/mongoose/users.repository"
-import { Comments, CommentsDocument, CommentsModel, ILike } from "../../application/entities/mongoose/comments.schema"
 import { Contract } from "../../../../infrastructure/utils/contract"
-import { CommentsView, GetCommentsOutputModel } from "../../api/models/output/get-comments.output-model"
+import { GetCommentsOutputModel } from "../../api/models/output/get-comments.output-model"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 import {
   LikeStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
-  SORT_BY_DEFAULT, SORT_BY_DEFAULT_SQL, SortDirection
+  SORT_BY_DEFAULT_SQL,
+  SortDirection
 } from "../../../../infrastructure/utils/constants"
-import { dtoManager } from "../../../../infrastructure/adapters/output-model.adapter"
-import { GetCommentsQueryInputModel } from "../../api/models/input/get-comments.query.input-model"
-import { PostsCommentsDocument } from "../../../posts/application/entites/mongoose/posts-comments.schema"
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
-import { BlogsOutputModel } from "../../../blogger/api/models/output/create-blogger-blog.output-model"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { BlogsRepositorySql } from "../../../blogs/repository/sql/blogs.repository.sql"
 import { UsersRepositorySql } from "../../../sa/repository/sql/users.repository.sql"
 import { PostsQueryRepositorySql } from "../../../posts/repository/sql/posts.query.repository.sql"
 
@@ -113,7 +105,7 @@ export class CommentsQueryRepositorySql {
 
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortBy = query.sortBy || SORT_BY_DEFAULT_SQL
+    const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const sortDirection = query.sortDirection || SortDirection.Desc
     const offset = (pageNumber - 1) * pageSize
 

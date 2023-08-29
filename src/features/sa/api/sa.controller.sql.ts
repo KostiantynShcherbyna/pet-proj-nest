@@ -163,6 +163,9 @@ export class SaControllerSql {
     const resultContract = await this.commandBus.execute(
       new DeleteUserCommandSql(param.id)
     )
+    if (resultContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
+    )
     if (resultContract.error === ErrorEnums.USER_NOT_DELETED) throw new NotFoundException(
       callErrorMessage(ErrorEnums.USER_NOT_DELETED, "id")
     )

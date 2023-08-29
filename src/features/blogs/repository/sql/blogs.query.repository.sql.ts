@@ -57,6 +57,7 @@ export class BlogsQueryRepositorySql {
     from public."blog_entity" a
     where a."Name" ilike $1
     and (a."UserId" = $2 or $2 is Null)
+    and a."IsBanned" = 'false'
     order by "${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
@@ -91,7 +92,7 @@ export class BlogsQueryRepositorySql {
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortBy = queryPost.sortBy || SORT_BY_DEFAULT_SQL
+    const sortBy = queryPost.sortBy.charAt(0).toUpperCase() + queryPost.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const sortDirection = queryPost.sortDirection || SortDirection.Desc
     const offset = (pageNumber - 1) * pageSize
 
@@ -109,10 +110,10 @@ export class BlogsQueryRepositorySql {
     const queryForm = `
      select a."PostId" as "id", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
               "BlogName" as "blogName", a."BlogId" as "blogId", a."CreatedAt" as "createdAt",
-            (select "Status" from public."like_entity" where "PostId" = a."PostId" and "UserId" = $1) as "myStatus",
+            (select "Status" from public."post_like_entity" where "PostId" = a."PostId" and "UserId" = $1) as "myStatus",
            (
              select count(*)
-             from public."like_entity" e
+             from public."post_like_entity" e
              left join public."blog_entity" c on c."BlogId" = b."BlogId"
              left join public."ban_info_entity" d on d."UserId" = e."UserId"
              where e."Status" = 'Like'
@@ -122,7 +123,7 @@ export class BlogsQueryRepositorySql {
            ) as "likesCount", 
            (
             select count(*)
-            from public."like_entity" e
+            from public."post_like_entity" e
             left join public."blog_entity" c on c."BlogId" = b."BlogId"
             left join public."ban_info_entity" d on d."UserId" = e."UserId"
             where e."Status" = 'Dislike'
@@ -131,10 +132,10 @@ export class BlogsQueryRepositorySql {
             and e."PostId" = a."PostId"
            ) as "dislikesCount"
     from public."post_entity" a
-    left join public."Blogs" b on b."BlogId" = a."BlogId" 
+    left join public."blog_entity" b on b."BlogId" = a."BlogId" 
     where a."BlogId" = $2
     and b."IsBanned" = 'false'
-    order by "${sortBy}" ${
+    order by a."${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
     limit $3
@@ -143,7 +144,7 @@ export class BlogsQueryRepositorySql {
 
     const newestLikesQueryForm = `
     select a."UserId" as "userId", a."UserLogin" as "userLogin", a."AddedAt" as "addedAt", a."PostId" as "postId"
-    from public."like_entity" a
+    from public."post_like_entity" a
     left join public."post_entity" b on b."PostId" = a."PostId"
     left join public."blog_entity" c on c."BlogId" = b."BlogId"
     where a."Status" = 'Like'

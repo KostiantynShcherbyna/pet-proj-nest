@@ -27,7 +27,7 @@ export class PostsQueryRepositorySql {
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortBy = queryPost.sortBy || SORT_BY_DEFAULT_SQL
+    const sortBy = queryPost.sortBy.charAt(0).toUpperCase() + queryPost.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const sortDirection = queryPost.sortDirection || SortDirection.Desc
     const offset = (pageNumber - 1) * pageSize
 
@@ -65,7 +65,7 @@ export class PostsQueryRepositorySql {
     from public."post_entity" a
     left join public."blog_entity" b on b."BlogId" = a."BlogId" 
     where b."IsBanned" = 'false'
-    order by "${sortBy}" ${
+    order by a."${sortBy}" ${
       sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
     } ${sortDirection}
     limit $1

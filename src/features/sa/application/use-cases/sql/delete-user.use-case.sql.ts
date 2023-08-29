@@ -30,6 +30,9 @@ export class DeleteUserSql {
 
     // const deleteUserResult = await this.UsersModel.deleteOne({ _id: new Types.ObjectId(command.id) })
 
+    const user = await this.usersRepositorySql.findUserByUserId(command.id)
+    if(!user) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+
     const queryRunner = this.dataSource.createQueryRunner()
     try {
       await queryRunner.startTransaction()

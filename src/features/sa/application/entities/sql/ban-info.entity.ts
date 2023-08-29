@@ -8,7 +8,7 @@ export class BanInfoEntity {
   UserId: string
 
   @Column()
-  IsBanned: string
+  IsBanned: boolean
 
   @Column({ nullable: true })
   BanDate: string
