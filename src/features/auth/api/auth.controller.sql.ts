@@ -39,9 +39,10 @@ import { PasswordRecoverySqlCommand } from "../application/use-cases/sql/passwor
 import { NewPasswordSqlCommand } from "../application/use-cases/sql/new-password.sql.use-case"
 import { Throttle } from "@nestjs/throttler"
 import { UsersQueryRepositorySql } from "../../sa/repository/sql/users.query.repository.sql"
+import { ConfirmationBodyInputModelSql } from "./models/input/confirmation.body.input-model.sql"
 
 @Controller("auth")
-export class AuthSqlController {
+export class AuthControllerSql {
   constructor(
     protected usersQueryRepositorySql: UsersQueryRepositorySql,
     protected commandBus: CommandBus
@@ -49,7 +50,7 @@ export class AuthSqlController {
   }
 
   @Post("login")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @UseGuards(AuthGuard(StrategyNames.loginSqlLocalStrategy))
   @HttpCode(HttpStatus.OK)
   async login(
@@ -127,7 +128,7 @@ export class AuthSqlController {
 
 
   @Post("registration")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(
     @Body() bodyRegistration: RegistrationBodyInputModel
@@ -153,10 +154,10 @@ export class AuthSqlController {
 
 
   @Post("registration-confirmation")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmation(
-    @Body() bodyConfirmation: ConfirmationBodyInputModel
+    @Body() bodyConfirmation: ConfirmationBodyInputModelSql
   ) {
     const confirmationContract = await this.commandBus.execute(
       new ConfirmationSqlCommand(bodyConfirmation.code)
@@ -176,7 +177,7 @@ export class AuthSqlController {
 
 
   @Post("registration-email-resending")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmationResend(
     @Body() bodyConfirmationResend: BodyConfirmationResendInputModel
@@ -209,7 +210,7 @@ export class AuthSqlController {
 
 
   @Post("password-recovery")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(
     @Body() bodyPasswordRecovery: PasswordRecoveryBodyInputModel
@@ -224,7 +225,7 @@ export class AuthSqlController {
 
 
   @Post("new-password")
-  // @Throttle(5, 10)
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(
     @Body() bodyNewPassword: NewPasswordBodyInputModel

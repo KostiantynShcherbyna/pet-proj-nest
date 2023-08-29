@@ -45,12 +45,12 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
         login: command.login,
         email: command.email,
         passwordHash: passwordHash,
-        date: newDate
+        createdAt: newDate
       }, queryRunner)
       const emailConfirmationDto = {
         userId: newUser.userId,
         confirmationCode: randomUUID(),
-        expirationDate: add(new Date(), {
+        expirationDate: add(new Date(Date.now()), {
           hours: 1,
           minutes: 3,
         }).toISOString(),

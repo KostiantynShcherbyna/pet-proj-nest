@@ -1,14 +1,26 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm"
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn
+} from "typeorm"
 import { AccountEntity } from "./account.entity"
 
 @Entity()
 export class EmailConfirmationEntity {
 
-  @PrimaryColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
+  EmailConfirmationId: string
+
+  @Column({ type: "uuid" })
   UserId: string
 
   @Column()
-  IsConfirmed: string
+  IsConfirmed: boolean
 
   @Column({ type: "uuid", nullable: true })
   ConfirmationCode: string
@@ -17,7 +29,7 @@ export class EmailConfirmationEntity {
   ExpirationDate: string
 
   @JoinColumn({ name: "UserId" })
-  @OneToOne(() => AccountEntity)
+  @ManyToOne(() => AccountEntity)
   AccountEntity: AccountEntity
 
 }

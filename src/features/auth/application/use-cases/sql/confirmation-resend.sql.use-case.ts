@@ -32,6 +32,7 @@ export class ConfirmationResendSql implements ICommandHandler<ConfirmationResend
         hours: 1,
         minutes: 3,
       }).toISOString(),
+      isConfirmed: false
     }
 
     await this.usersSqlRepository.createConfirmationCode(updatedEmailConfirmationDto)

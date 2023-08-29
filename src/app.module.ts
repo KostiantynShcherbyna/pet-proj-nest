@@ -90,7 +90,7 @@ import { PasswordRecoverySql } from "./features/auth/application/use-cases/sql/p
 import { RefreshTokenSql } from "./features/auth/application/use-cases/sql/refresh-token.sql.use-case"
 import { RegistrationSql } from "./features/auth/application/use-cases/sql/registration.sql.use-case"
 import { TypeOrmModule } from "@nestjs/typeorm"
-import { AuthSqlController } from "./features/auth/api/auth.sql.controller"
+import { AuthControllerSql } from "./features/auth/api/auth.controller.sql"
 import { LoginSqlLocalStrategy } from "./infrastructure/strategy/login.sql.local.strategy"
 import { BanBlogSql } from "./features/sa/application/use-cases/sql/ban-blog.use-case.sql"
 import { BanUserSql } from "./features/sa/application/use-cases/sql/ban-user.use-case.sql"
@@ -313,7 +313,7 @@ const otherProviders = [
     AppController,
     DevicesController,
 
-    AuthSqlController,
+    AuthControllerSql,
     SaControllerSql,
     DevicesControllerSql,
     BlogsControllerSql,

@@ -1,17 +1,20 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm"
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm"
 import { AccountEntity } from "./account.entity"
 
 @Entity()
 export class SentConfirmationCodeDateEntity {
 
-  @PrimaryColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
+  SentConfirmationCodeDateId: string
+
+  @Column({ type: "uuid" })
   UserId: string
 
   @Column()
   SentDate: string
 
   @JoinColumn({ name: "UserId" })
-  @OneToOne(() => AccountEntity)
+  @ManyToOne(() => AccountEntity)
   AccountEntity: AccountEntity
 
 }

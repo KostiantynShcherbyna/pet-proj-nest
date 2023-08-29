@@ -8,6 +8,13 @@ import {
 import { DataSource, QueryRunner } from "typeorm"
 import { InjectDataSource } from "@nestjs/typeorm"
 
+interface ICreateConfirmationCodeDto {
+  userId: number,
+  confirmationCode: string,
+  expirationDate: string,
+  isConfirmed: boolean
+}
+
 @Injectable()
 export class UsersRepositorySql {
   constructor(
@@ -53,15 +60,26 @@ export class UsersRepositorySql {
   }
 
   async createConfirmationCode(
-    { userId, confirmationCode, expirationDate }: { userId: number, confirmationCode: string, expirationDate: string }
+    { userId, confirmationCode, expirationDate, isConfirmed }: ICreateConfirmationCodeDto
   ) {
     console.log("newConfirmationCode", confirmationCode)
     const createResult = await this.dataSource.query(`
-    insert into public."email_confirmation_entity"("UserId", "ConfirmationCode", "ExpirationDate")
-    values($1, $2, $3)
-    `, [userId, confirmationCode, expirationDate])
+    insert into public."email_confirmation_entity"("UserId", "ConfirmationCode", "ExpirationDate", "IsConfirmed")
+    values($1, $2, $3, $4)
+    `, [userId, confirmationCode, expirationDate, isConfirmed])
     return createResult[0]
   }
+
+  // async createConfirmationCode(
+  //   { userId, confirmationCode, expirationDate, isConfirmed }: ICreateConfirmationCodeDto
+  // ) {
+  //   console.log("newConfirmationCode", confirmationCode)
+  //   const createResult = await this.dataSource.query(`
+  //   insert into public."email_confirmation_entity"("UserId", "ConfirmationCode", "ExpirationDate", "IsConfirmed")
+  //   values($1, $2, $3, $4)
+  //   `, [userId, confirmationCode, expirationDate, isConfirmed])
+  //   return createResult[0]
+  // }
 
   async createSentConfirmCodeDate(userId: string, sentDate: string) {
     await this.dataSource.query(`

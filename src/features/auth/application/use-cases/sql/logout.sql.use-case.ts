@@ -33,7 +33,7 @@ export class LogoutSql implements ICommandHandler<LogoutSqlCommand> {
     const device = await this.devicesSqlRepository.findDeviceByDeviceId(command.deviceId)
     if (device === null)
       return new Contract(null, ErrorEnums.DEVICE_NOT_FOUND)
-    if (command.lastActiveDate !== device.lastActiveDate.toISOString())
+    if (command.lastActiveDate !== device.lastActiveDate)
       return new Contract(null, ErrorEnums.TOKEN_NOT_VERIFY)
 
     const deleteResult = await this.devicesSqlRepository.deleteDevice(command.deviceId)
