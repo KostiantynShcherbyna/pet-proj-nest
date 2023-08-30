@@ -5,6 +5,7 @@ import {
   CreateUserOutputModel,
   UsersView
 } from "../../../src/features/sa/api/models/output/create-user.output-model"
+import { CreateUserBodyInputModel } from "../../../src/features/sa/api/models/input/create-user.body.input-model"
 
 export const superUser = {
   login: "admin",
@@ -31,8 +32,12 @@ export class SaTestingHelper {
   constructor(private readonly server: any) {
   }
 
-  async createUsers(usersCount: number): Promise<{ status: number, body: CreateUserOutputModel }[]> {
-    const usersDto: { status: number, body: CreateUserOutputModel }[] = []
+  async createUsers(usersCount: number): Promise<{
+    status: number,
+    body: CreateUserOutputModel,
+    inputUserData: CreateUserBodyInputModel
+  }[]> {
+    const usersDto: { status: number, body: CreateUserOutputModel, inputUserData: CreateUserBodyInputModel }[] = []
     for (let i = 0; i < usersCount; i++) {
       const inputUserData = {
         login: `user${i}`,
@@ -44,7 +49,7 @@ export class SaTestingHelper {
         .auth(superUser.login, superUser.password, { type: "basic" })
         .send(inputUserData)
 
-      usersDto.push({ status: response.status, body: response.body })
+      usersDto.push({ status: response.status, body: response.body, inputUserData })
     }
     return usersDto
   }
