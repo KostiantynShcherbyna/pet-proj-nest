@@ -1,14 +1,11 @@
 import { HttpStatus, INestApplication } from "@nestjs/common"
-import { MongoMemoryServer } from "mongodb-memory-server"
 import { Test, TestingModule } from "@nestjs/testing"
 import { AppModule } from "../../src/app.module"
 import { appSettings } from "../../src/app.settings"
 import { PublicTestingHelper } from "./helpers/public-testing.helper"
 import { TestingRepository } from "../../src/infrastructure/testing/infrastructure/testing.repository"
-import { RegistrationBodyInputModel } from "../../src/features/auth/api/models/input/registration.body.input-model"
 import { AuthRepository } from "../../src/features/auth/repository/mongoose/auth.repository"
 import { faker } from "@faker-js/faker"
-import { RecoveryCodesDocument } from "../../src/features/auth/application/entities/mongoose/recovery-code.schema"
 import { BloggerTestingHelper } from "./helpers/blogger-testing.helper"
 import {
   CreateBloggerBlogOutputModel
@@ -20,28 +17,12 @@ import {
 import { EmailAdapter } from "../../src/infrastructure/adapters/email.adapter"
 import { EmailAdapterMock } from "../../src/infrastructure/testing/infrastructure/email-adapter.mock"
 import request from "supertest"
-import { MeOutputModel } from "../../src/features/auth/api/models/output/me-output.model"
 import { SaTestingHelper, superUser } from "./helpers/sa-testing.helper"
 import { CreateUserOutputModel } from "../../src/features/sa/api/models/output/create-user.output-model"
-import { UsersDocument } from "../../src/features/sa/application/entities/mongoose/users.schema"
-import { TypeOrmModule } from "@nestjs/typeorm"
-import { RecoveryCodeEntity } from "../../src/features/auth/application/entities/sql/recovery-code.entity"
-import { BanBlogUserEntity } from "../../src/features/blogs/application/entities/sql/ban-blog-user.entity"
-import { BlogEntity } from "../../src/features/blogs/application/entities/sql/blog.entity"
-import { CommentEntity } from "../../src/features/comments/application/entities/sql/comment.entity"
-import { CommentLikeEntity } from "../../src/features/comments/application/entities/sql/comment-like.entity"
-import { DeviceEntity } from "../../src/features/devices/application/entites/sql/device.entity"
-import { PostLikeEntity } from "../../src/features/posts/application/entites/sql/post-like.entity"
-import { PostEntity } from "../../src/features/posts/application/entites/sql/post.entity"
-import { AccountEntity } from "../../src/features/sa/application/entities/sql/account.entity"
-import { BanInfoEntity } from "../../src/features/sa/application/entities/sql/ban-info.entity"
-import { EmailConfirmationEntity } from "../../src/features/sa/application/entities/sql/email-confirmation.entity"
-import {
-  SentConfirmationCodeDateEntity
-} from "../../src/features/sa/application/entities/sql/sent-confirmation-code-date.entity"
 import { CreateUserBodyInputModel } from "../../src/features/sa/api/models/input/create-user.body.input-model"
 import { endpoints } from "./helpers/routing.helper"
-import { LoginBodyInputModel } from "../../src/features/auth/api/models/input/login.body.input-model"
+import { configuration } from "../../src/infrastructure/settings/configuration"
+import { DataSource } from "typeorm"
 
 describe
 ("pet-proj-nest-orm", () => {
@@ -53,41 +34,16 @@ describe
   let app
   let server: INestApplication
   let testingRepository: TestingRepository
-  let publicTestingHelper: PublicTestingHelper
-  let saTestingHelper: SaTestingHelper
+  let publicHelper: PublicTestingHelper
+  let bloggerHelper: BloggerTestingHelper
+  let saHelper: SaTestingHelper
+
   let authRepository: AuthRepository
 
   beforeAll
   (async () => {
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AppModule,
-        // TypeOrmModule.forRoot({
-        //   type: "postgres",
-        //   host: "localhost",
-        //   port: 5432,
-        //   username: "nestjsk",
-        //   password: "nestjsk",
-        //   database: "pet-proj-nest-orm-db-tests",
-        //   entities: [
-        //     RecoveryCodeEntity,
-        //     BanBlogUserEntity,
-        //     BlogEntity,
-        //     CommentEntity,
-        //     CommentLikeEntity,
-        //     DeviceEntity,
-        //     PostLikeEntity,
-        //     PostEntity,
-        //     AccountEntity,
-        //     BanInfoEntity,
-        //     EmailConfirmationEntity,
-        //     SentConfirmationCodeDateEntity,
-        //   ],
-        //   autoLoadEntities: true,
-        //   synchronize: true,
-        // })
-      ],
+      imports: [AppModule]
     })
       .overrideProvider(EmailAdapter)
       .useClass(EmailAdapterMock)
@@ -99,9 +55,25 @@ describe
     server = app.getHttpServer()
 
     testingRepository = app.get(TestingRepository)
-    publicTestingHelper = new PublicTestingHelper(server)
-    saTestingHelper = new SaTestingHelper(server)
+    publicHelper = new PublicTestingHelper(server)
+    saHelper = new SaTestingHelper(server)
+    bloggerHelper = new BloggerTestingHelper(server)
     authRepository = app.get(AuthRepository)
+
+    const dataSource = await app.resolve(DataSource)
+    await dataSource.query(`
+    CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
+    DECLARE
+    statements CURSOR FOR
+        SELECT tablename FROM pg_tables
+        WHERE tableowner = username AND schemaname = 'public';
+    BEGIN
+    FOR stmt IN statements LOOP
+        EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
+    END LOOP;
+    END;
+    $$ LANGUAGE plpgsql;
+    `)
 
     await request(server).delete(`/testing/all-data`)
   })
@@ -117,7 +89,7 @@ describe
   (`AUTH`, () => {
 
     let inputDataUser0: CreateUserBodyInputModel
-    it(`+ registration`, async () => {
+    it(`+ registration user0`, async () => {
       inputDataUser0 = {
         login: faker.person.firstName(),
         email: faker.internet.email(),
@@ -130,7 +102,7 @@ describe
       expect(response.status).toEqual(HttpStatus.NO_CONTENT)
     })
 
-
+    let user0: CreateUserOutputModel
     it("+ get users ", async () => {
       const response = await request(server)
         .get(endpoints.saController.getUsers())
@@ -153,8 +125,8 @@ describe
           }
         }]
       }
-
       expect(response.body).toEqual(usersView)
+      user0 = response.body.items[0]
     })
 
 
@@ -188,9 +160,9 @@ describe
     })
 
     let saUserViews: CreateUserOutputModel[] = []
-    let saUsersData: CreateUserBodyInputModel[] = []
+    let saUsersInputModel: CreateUserBodyInputModel[] = []
     it("+ create User or Users by SA", async () => {
-      const createSaUsersResult = await saTestingHelper.createUsers(4)
+      const createSaUsersResult = await saHelper.createUsers(4)
 
       expect(createSaUsersResult).toHaveLength(4)
       createSaUsersResult.forEach(saUserResult => {
@@ -203,7 +175,7 @@ describe
         expect(saUserResult.body.banInfo.banDate).toBeNull()
         expect(saUserResult.body.banInfo.banReason).toBeNull()
         saUserViews.push(saUserResult.body)
-        saUsersData.push(saUserResult.inputUserData)
+        saUsersInputModel.push(saUserResult.inputUserData)
       })
 
     })
@@ -212,13 +184,13 @@ describe
     it(`+ login`, async () => {
       const LoginBodyInputModels = [
         { loginOrEmail: inputDataUser0.login, password: inputDataUser0.password },
-        { loginOrEmail: saUserViews[0].login, password: saUsersData[0].password },
-        { loginOrEmail: saUserViews[1].login, password: saUsersData[1].password },
-        { loginOrEmail: saUserViews[2].login, password: saUsersData[2].password },
-        { loginOrEmail: saUserViews[3].login, password: saUsersData[3].password },
+        { loginOrEmail: saUserViews[0].login, password: saUsersInputModel[0].password },
+        { loginOrEmail: saUserViews[1].login, password: saUsersInputModel[1].password },
+        { loginOrEmail: saUserViews[2].login, password: saUsersInputModel[2].password },
+        { loginOrEmail: saUserViews[3].login, password: saUsersInputModel[3].password },
       ]
 
-      const loginUserResults = await publicTestingHelper.loginUsers(LoginBodyInputModels)
+      const loginUserResults = await publicHelper.loginUsers(LoginBodyInputModels)
       loginUserResults.forEach(result => {
         expect(result.status).toEqual(HttpStatus.OK)
         expect(result.accessToken).toEqual(expect.any(String))
@@ -229,10 +201,64 @@ describe
           refreshToken: result.refreshToken
         })
       })
-
-
     })
 
+
+    let blog0ofUser0: CreateBloggerBlogOutputModel
+    it("+ create blog0 of user0", async () => {
+      const createBlogByUser0Result = await bloggerHelper.createBlog(loginResults[0].accessToken)
+      expect(createBlogByUser0Result.status).toEqual(HttpStatus.CREATED)
+      expect(createBlogByUser0Result.body).toEqual({
+        ...createBlogByUser0Result.inputBlogData,
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        isMembership: expect.any(Boolean),
+      })
+      blog0ofUser0 = createBlogByUser0Result.body
+    })
+
+    let post0ofBlog0ofUser0: CreateBloggerBlogOutputModel
+    it("+ create post0 of blog0 of user0", async () => {
+      const createPost0ofBlog0ofUser0Result = await bloggerHelper.createPost(loginResults[0].accessToken, blog0ofUser0.id)
+      expect(createPost0ofBlog0ofUser0Result.status).toEqual(HttpStatus.CREATED)
+      expect(createPost0ofBlog0ofUser0Result.body).toEqual({
+        ...createPost0ofBlog0ofUser0Result.inputPostData,
+        id: expect.any(String),
+        blogId: blog0ofUser0.id,
+        blogName: expect.any(String),
+        createdAt: expect.any(String),
+        extendedLikesInfo: {
+          likesCount: expect.any(Number),
+          dislikesCount: expect.any(Number),
+          myStatus: LikeStatus.None,
+          newestLikes: []
+        }
+      })
+      post0ofBlog0ofUser0 = createPost0ofBlog0ofUser0Result.body
+    })
+
+    let comment0ofPost0ofBlog0ofUser0: CreateBloggerPostOutputModel
+    it("+ create comment0 of post0 of blog0 of user0", async () => {
+      const comment0ofPost0ofBlog0ofUser0Result = await publicHelper.createComment(loginResults[0].accessToken, post0ofBlog0ofUser0.id)
+      expect(comment0ofPost0ofBlog0ofUser0Result.status).toBe(HttpStatus.CREATED)
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.id).toEqual(expect.any(String))
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.content).toEqual(expect.any(String))
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.commentatorInfo.userId).toEqual(user0.id)
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.commentatorInfo.userLogin).toEqual(user0.login)
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.createdAt).toBeDefined()
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.likesInfo.likesCount).toEqual(0)
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.likesInfo.dislikesCount).toEqual(0)
+      expect(comment0ofPost0ofBlog0ofUser0Result.body.likesInfo.myStatus).toEqual(LikeStatus.None)
+
+      comment0ofPost0ofBlog0ofUser0 = comment0ofPost0ofBlog0ofUser0Result.body
+    })
+
+
+    it("+ get comment0 of post0 of blog0 of user0", async () => {
+      const comment0ofPost0ofBlog0ofUser0Result = await publicHelper.getComment(loginResults[0].accessToken, comment0ofPost0ofBlog0ofUser0.id)
+      expect(comment0ofPost0ofBlog0ofUser0Result.status).toBe(HttpStatus.OK)
+      expect(comment0ofPost0ofBlog0ofUser0Result.body).toEqual(comment0ofPost0ofBlog0ofUser0)
+    })
 
   })
 

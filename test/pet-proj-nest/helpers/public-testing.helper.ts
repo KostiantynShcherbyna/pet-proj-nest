@@ -237,11 +237,30 @@ export class PublicTestingHelper {
     return commentsDto
   }
 
+  async createComment(accessToken: string, postId: string) {
+    const inputCommentData = this.createCommentInputData()
+    const response = await request(this.server)
+      .post(endpoints.postsController.postComment(postId))
+      .auth(accessToken, { type: "bearer" })
+      .send(inputCommentData)
+
+    return { status: response.status, body: response.body, postId: postId }
+  }
+
 
 //    BLOGS ↓↓↓
   async getBlog(accessToken: string, blogId: string) {
     const response = await request(this.server)
       .get(endpoints.blogsController.getBlog(blogId))
+      .auth(accessToken, { type: "bearer" })
+
+    return { status: response.status, body: response.body }
+  }
+
+  //    COMMENTS ↓↓↓
+  async getComment(accessToken: string, commentId: string) {
+    const response = await request(this.server)
+      .get(endpoints.commentsController.getComment(commentId))
       .auth(accessToken, { type: "bearer" })
 
     return { status: response.status, body: response.body }

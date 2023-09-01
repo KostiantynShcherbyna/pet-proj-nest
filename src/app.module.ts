@@ -141,6 +141,7 @@ import {
   SentConfirmationCodeDateEntity
 } from "./features/sa/application/entities/sql/sent-confirmation-code-date.entity"
 import { PostLikeEntity } from "./features/posts/application/entites/sql/post-like.entity"
+import * as process from "process"
 
 
 const useCases = [
@@ -271,22 +272,6 @@ const otherProviders = [
       autoLoadEntities: true,
       synchronize: true,
     }),
-    // TypeOrmModule.forFeature([
-    //   RecoveryCodeEntity,
-    //   BanBlogUserEntity,
-    //   BlogEntity,
-    //   CommentEntity,
-    //   CommentLikeEntity,
-    //   DeviceEntity,
-    //   PostLikeEntity,
-    //   PostEntity,
-    //   AccountEntity,
-    //   BanInfoEntity,
-    //   EmailConfirmationEntity,
-    //   SentConfirmationCodeDateEntity,
-    // ]),
-
-
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",

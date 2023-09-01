@@ -70,18 +70,6 @@ export class TestingController {
           await this.RecoveryCodesModel.deleteMany({}),
           await this.BannedBlogUsersModel.deleteMany({}),
           await this.PostsCommentsModel.deleteMany({}),
-          await this.dataSource.query(`delete from public."comment_like_entity"`),
-          await this.dataSource.query(`delete from public."comment_entity"`),
-          await this.dataSource.query(`delete from public."post_like_entity"`),
-          await this.dataSource.query(`delete from public."post_entity"`),
-          await this.dataSource.query(`delete from public."ban_blog_user_entity"`),
-          await this.dataSource.query(`delete from public."blog_entity"`),
-          await this.dataSource.query(`delete from public."recovery_code_entity"`),
-          await this.dataSource.query(`delete from public."device_entity"`),
-          await this.dataSource.query(`delete from public."sent_confirmation_code_date_entity"`),
-          await this.dataSource.query(`delete from public."ban_info_entity"`),
-          await this.dataSource.query(`delete from public."email_confirmation_entity"`),
-          await this.dataSource.query(`delete from public."account_entity"`),
           // await this.dataSource.query(`ALTER SEQUENCE users RESTART WITH 1`),
         ]
       )
@@ -96,29 +84,7 @@ export class TestingController {
   @Delete("all-data")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllData() {
-    try {
-      await Promise.all(
-        [
-          await this.dataSource.query(`delete from public."comment_like_entity"`),
-          await this.dataSource.query(`delete from public."comment_entity"`),
-          await this.dataSource.query(`delete from public."post_like_entity"`),
-          await this.dataSource.query(`delete from public."post_entity"`),
-          await this.dataSource.query(`delete from public."ban_blog_user_entity"`),
-          await this.dataSource.query(`delete from public."blog_entity"`),
-          await this.dataSource.query(`delete from public."recovery_code_entity"`),
-          await this.dataSource.query(`delete from public."device_entity"`),
-          await this.dataSource.query(`delete from public."sent_confirmation_code_date_entity"`),
-          await this.dataSource.query(`delete from public."ban_info_entity"`),
-          await this.dataSource.query(`delete from public."email_confirmation_entity"`),
-          await this.dataSource.query(`delete from public."account_entity"`),
-          // await this.dataSource.query(`ALTER SEQUENCE users RESTART WITH 1`),
-        ]
-      )
-      return
-    } catch (err) {
-      console.log(err)
-      throw new ServiceUnavailableException()
-    }
+    return await this.dataSource.query(`SELECT truncate_tables('postgres');`)
   }
 
 

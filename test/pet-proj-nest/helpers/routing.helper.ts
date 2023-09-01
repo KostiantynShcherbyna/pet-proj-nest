@@ -50,6 +50,14 @@ export const endpoints = {
     getBlog(blogId: string) {
       return `${blogsController}/${blogId}`
     },
+
+  },
+
+  commentsController: {
+    getComment(commentId: string) {
+      return `${commentsController}/${commentId}`
+    },
+
   },
 
 
