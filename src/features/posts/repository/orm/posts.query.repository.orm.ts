@@ -10,7 +10,7 @@ import {
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT_SQL,
-  SortDirection
+  SortDirection, SortDirectionOrm
 } from "../../../../infrastructure/utils/constants"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
@@ -107,9 +107,9 @@ export class PostsQueryRepositoryOrm {
 
   async findPost(postId: string, userId?: string): Promise<null | CreateBloggerPostOutputModel> {
 
-    const sortDirection = SortDirection.Desc
+    const sortDirection = SortDirectionOrm.Desc
 
-    const p = await this.dataSource.createQueryBuilder(PostEntity, "p")
+    const post = await this.dataSource.createQueryBuilder(PostEntity, "p")
       .select([
         `p.PostId as "postId"`,
         `p.Content as "content"`,
@@ -122,92 +122,38 @@ export class PostsQueryRepositoryOrm {
         `pl.UserId as "userId"`,
         `pl.UserLogin as "userLogin"`
       ])
-      // .addSelect(`pl.count(*)`, `likesCount`)
-      // .addSelect(`cpl.count(*)`, `dislikesCount`)
       .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
-      .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId and pl.UserId = :userId`, { postId, userId })
-      // .leftJoin(PostLikeEntity, "pll", `pll.PostId = :postId and pll.Status = :likeStatus`, { postId, likeStatus: "Like" })
-      // .leftJoin(PostLikeEntity, "pldl", `pldl.PostId = :postId and pldl.Status = :likeStatus`, { postId, likeStatus: "Dislike" })
+      .leftJoin(PostLikeEntity, "pl", `pl.PostId = p.PostId and pl.UserId = :userId`, { userId })
       .where(`p.PostId = :postId`, { postId })
       .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
       .getRawOne()
-
-    const p2 = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
+    const likesCount = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = p.UserId`)
+      .where(`p.PostId = :postId`, { postId })
+      .andWhere(`p.Status = :likeStatus`, { likeStatus: "Like" })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+      .getCount()
+    const dislikesCount = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = p.UserId`)
+      .where(`p.PostId = :postId`, { postId })
+      .andWhere(`p.Status = :likeStatus`, { likeStatus: "Dislike" })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+      .getCount()
+    const newestLikes = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
       .select([
-        `p.count(*) as likesCount`,
-        `p.count(*) as dislikesCount`
+        `p.UserId as "userId"`,
+        `p.UserLogin as "login"`,
+        `p.AddedAt as "addedAt"`
       ])
       .leftJoin(BanInfoEntity, "b", `b.UserId = p.UserId`)
-      // .leftJoin(PostLikeEntity, "pll", `pll.PostId = :postId and pll.Status = :likeStatus`, { postId, likeStatus: "Like" })
-      // .leftJoin(PostLikeEntity, "pldl", `pldl.PostId = :postId and pldl.Status = :likeStatus`, { postId, likeStatus: "Dislike" })
       .where(`p.PostId = :postId`, { postId })
+      .andWhere(`p.Status = :likeStatus`, { likeStatus: "Like" })
       .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
-      .getRawOne()
+      .orderBy(`p."AddedAt"`, sortDirection)
+      .limit(3)
+      .getRawMany()
 
-    // const p = await this.dataSource.createQueryBuilder(PostEntity, "p")
-    //   .select([
-    //     `p.PostId as "postId"`,
-    //     `p.Content as "content"`,
-    //     `p.Title as "title"`,
-    //     `p.ShortDescription as "shortDescription"`,
-    //     `p.BlogId as "blogId"`,
-    //     `p.BlogName as "blogName"`,
-    //     `p.CreatedAt as "createdAt"`,
-    //     `pl.Status as "myStatus"`,
-    //     `pl.UserId as "userId"`,
-    //     `pl.UserLogin as "userLogin"`,
-    //   ])
-    //   .addSelect(`pl.count(*)`, `likesCount`)
-    //   .addSelect(`cpl.count(*)`, `dislikesCount`)
-    //   .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
-    //   .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId and pl.UserId = :userId`, { postId, userId })
-    //   .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId`, { postId })
-    //   .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId`, { postId })
-    //   .where(`p.PostId = :postId`, { postId })
-    //   .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
-    //   .getRawOne()
-
-    const postQueryForm = `
-    select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",
-             "BlogName" as "blogName", a."BlogId" as "blogId", a."CreatedAt" as "createdAt",
-           (select "Status" from public."post_like_entity" where "PostId" = a."PostId" and "UserId" = $2) as "myStatus",
-           (select "UserId" from public."post_like_entity" where "PostId" = a."PostId" and "UserId" = $2) as "userId",
-           (select "UserLogin" from public."post_like_entity" where "PostId" = a."PostId" and "UserId" = $2) as "userLogin",
-           (
-           select count(*)
-           from public."post_like_entity" a
-           left join public."ban_info_entity" b on b."UserId" = a."UserId"
-           where "PostId" = $1
-           and "Status" = 'Like'
-           and b."IsBanned" = 'false'
-           ) as "likesCount", 
-           (
-           select count(*)
-           from public."post_like_entity" a
-           left join public."ban_info_entity" b on b."UserId" = a."UserId"
-           where "PostId" = $1
-           and "Status" = 'Dislike'
-           and b."IsBanned" = 'false'
-           ) as "dislikesCount"
-    from public."post_entity" a
-    left join public."blog_entity" b on b."BlogId" = a."BlogId" 
-    where a."PostId" = $1
-    and b."IsBanned" = 'false'
-    `
-    const newestLikesQueryForm = `
-    select a."UserId" as "userId", a."UserLogin" as "login", a."AddedAt" as "addedAt"
-    from public."post_like_entity" a
-    left join public."ban_info_entity" b on b."UserId" = a."UserId"
-    where a."PostId" = $1
-    and a."Status" = 'Like'
-    and b."IsBanned" = 'false'
-    order by a."AddedAt" ${sortDirection}
-    limit $2
-    `
-
-    const foundPost = await this.dataSource.query(postQueryForm, [postId, userId])
-    const newestLikes = await this.dataSource.query(newestLikesQueryForm, [postId, 3])
-    return foundPost.length ? this.changePostView(foundPost[0], newestLikes) : null
+    return post ? this.changePostView({ ...post, likesCount, dislikesCount }, newestLikes) : null
   }
 
   private changePostsView(posts: any[], foundNewestLikes: any[]) {
@@ -231,8 +177,8 @@ export class PostsQueryRepositoryOrm {
         blogName: post.blogName,
         createdAt: post.createdAt,
         extendedLikesInfo: {
-          likesCount: Number(post.likesCount),
-          dislikesCount: Number(post.dislikesCount),
+          likesCount: Number(post.likesCount) || 0,
+          dislikesCount: Number(post.dislikesCount) || 0,
           myStatus: post.myStatus || LikeStatus.None,
           newestLikes: mappedNewestLikes.slice(0, 3),
         },
@@ -250,8 +196,8 @@ export class PostsQueryRepositoryOrm {
       blogName: post.blogName,
       createdAt: post.createdAt,
       extendedLikesInfo: {
-        likesCount: Number(post.likesCount),
-        dislikesCount: Number(post.dislikesCount),
+        likesCount: Number(post.likesCount) || 0,
+        dislikesCount: Number(post.dislikesCount) || 0,
         myStatus: post.myStatus || LikeStatus.None,
         newestLikes: newestLikes,
       },
