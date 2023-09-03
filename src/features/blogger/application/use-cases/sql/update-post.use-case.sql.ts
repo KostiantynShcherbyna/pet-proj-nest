@@ -2,8 +2,8 @@ import { UpdatePostBodyInputModel } from "../../../api/models/input/update-post.
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { PostsRepositorySql } from "../../../../posts/repository/sql/posts.repository.sql"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { PostsRepositoryOrm } from "../../../../posts/repository/orm/posts.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 
@@ -21,8 +21,8 @@ export class UpdatePostCommandSql {
 export class UpdatePostSql implements ICommandHandler<UpdatePostCommandSql> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected postsRepositorySql: PostsRepositorySql,
-    protected blogsRepositorySql: BlogsRepositorySql,
+    protected postsRepositorySql: PostsRepositoryOrm,
+    protected blogsRepositorySql: BlogsRepositoryOrm,
   ) {
   }
 

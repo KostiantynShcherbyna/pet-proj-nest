@@ -29,8 +29,8 @@ export const LOGIN_REGEX = /^[a-zA-Z0-9_-]*$/
 
 
 // TOKENS EXPIRES TIME
-export const ACCESS_EXPIRES_TIME = "10s"
-export const REFRESH_EXPIRES_TIME = "20s"
+export const ACCESS_EXPIRES_TIME = "100000000000s"
+export const REFRESH_EXPIRES_TIME = "20000000000s"
 export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 
@@ -55,6 +55,11 @@ export enum BanStatus {
 export enum SortDirection {
   Asc = "asc",
   Desc = "desc",
+}
+
+export enum SortDirectionOrm {
+  Asc = "ASC",
+  Desc = "DESC",
 }
 
 // export enum SortDirection {

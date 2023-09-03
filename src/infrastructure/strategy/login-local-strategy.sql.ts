@@ -10,7 +10,7 @@ import { compareHashManager } from "../services/compare-hash.service"
 
 
 @Injectable()
-export class LoginSqlLocalStrategy extends PassportStrategy(Strategy, StrategyNames.loginSqlLocalStrategy) {
+export class LoginLocalStrategySql extends PassportStrategy(Strategy, StrategyNames.loginSqlLocalStrategy) {
   constructor(
     protected usersSqlRepository: UsersRepositorySql,
   ) {

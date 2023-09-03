@@ -14,7 +14,6 @@ import { EXPIRE_AT_ACCESS } from "../../../../infrastructure/utils/constants"
 @Injectable()
 export class DevicesRepositorySql {
   constructor(
-    @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
     @InjectDataSource() protected dataSource: DataSource
   ) {
   }

@@ -7,8 +7,8 @@ import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
-import { PostsRepositorySql } from "../../../../posts/repository/sql/posts.repository.sql"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
+import { PostsRepositoryOrm } from "../../../../posts/repository/orm/posts.repository.orm"
 
 
 export class DeleteUserCommandSql {

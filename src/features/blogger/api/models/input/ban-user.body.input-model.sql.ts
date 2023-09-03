@@ -1,20 +1,7 @@
-import { Transform, TransformFnParams } from "class-transformer";
-import {
-  IsBoolean,
-  IsEmail,
-  IsMongoId,
-  IsNotEmpty,
-  IsString,
-  Length,
-  Matches,
-  MinLength,
-  Validate,
-  matches,
-  IsUUID
-} from "class-validator"
+import { Transform } from "class-transformer"
+import { IsBoolean, IsNotEmpty, IsString, IsUUID, MinLength, Validate } from "class-validator"
 import { trimValue } from "../../../../../infrastructure/decorators/trim.decorator"
 import { BAN_REASON_MIN_LENGTH } from "../../../../../infrastructure/utils/constants"
-import { BlogIdIsExist } from "../../../../../infrastructure/decorators/blogId.decorator"
 import { BlogIdIsExistSql } from "../../../../../infrastructure/decorators/blogId.decorator.sql"
 
 

@@ -2,7 +2,7 @@ import { ConfigService } from "@nestjs/config"
 import { ConfigType } from "src/infrastructure/settings/configuration"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { PASSWORD_HASH_EXPIRES_TIME, Secrets } from "../../../../../infrastructure/utils/constants"
-import { AuthSqlRepository } from "../../../repository/sql/auth.sql.repository"
+import { AuthRepositoryOrm } from "../../../repository/orm/auth-repository.orm"
 import { TokensService } from "../../../../../infrastructure/services/tokens.service"
 import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapter"
 import { Contract } from "../../../../../infrastructure/utils/contract"
@@ -20,7 +20,7 @@ export class PasswordRecoverySql implements ICommandHandler<PasswordRecoverySqlC
     protected tokensService: TokensService,
     protected emailAdapter: EmailAdapter,
     protected configService: ConfigService<ConfigType, true>,
-    protected authSqlRepository: AuthSqlRepository,
+    protected authSqlRepository: AuthRepositoryOrm,
   ) {
   }
 

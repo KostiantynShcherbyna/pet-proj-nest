@@ -1,7 +1,4 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Devices, DevicesModel } from "../../entites/mongoose/devices.schema"
-import { DevicesRepository } from "../../../repository/mongoose/devices.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { DevicesRepositorySql } from "../../../repository/sql/devices.repository.sql"
@@ -19,7 +16,6 @@ export class DeleteOtherDevicesCommandSql {
 @CommandHandler(DeleteOtherDevicesCommandSql)
 export class DeleteOtherDevicesSql implements ICommandHandler<DeleteOtherDevicesCommandSql> {
   constructor(
-    @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
     protected devicesSqlRepository: DevicesRepositorySql,
   ) {
   }

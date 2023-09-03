@@ -35,7 +35,7 @@ import { DeleteUserCommandSql } from "../application/use-cases/sql/delete-user.u
 import { IdSqlParamInputModel } from "./models/input/id.sql.param.input-model"
 import { BanBlogCommandSql } from "../application/use-cases/sql/ban-blog.use-case.sql"
 import { BindBlogCommandSql } from "../application/use-cases/sql/bind-blog.use-case.sql"
-import { BlogsQueryRepositorySql } from "../../blogs/repository/sql/blogs.query.repository.sql"
+import { BlogsQueryRepositoryOrm } from "../../blogs/repository/orm/blogs.query.repository.orm"
 import { BanBlogParamInputModelSql } from "./models/input/ban-blog.param.input-model.sql"
 
 @Controller("sa")
@@ -43,7 +43,7 @@ export class SaControllerSql {
   constructor(
     private commandBus: CommandBus,
     protected usersSqlQueryRepository: UsersQueryRepositorySql,
-    protected blogsQueryRepositorySql: BlogsQueryRepositorySql,
+    protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
   ) {
   }
 

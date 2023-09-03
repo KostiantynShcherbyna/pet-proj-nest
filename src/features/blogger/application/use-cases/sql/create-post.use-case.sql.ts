@@ -2,8 +2,8 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { LikeStatus } from "../../../../../infrastructure/utils/constants"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
-import { PostsRepositorySql } from "../../../../posts/repository/sql/posts.repository.sql"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
+import { PostsRepositoryOrm } from "../../../../posts/repository/orm/posts.repository.orm"
 
 export class CreatePostCommandSql {
   constructor(
@@ -19,8 +19,8 @@ export class CreatePostCommandSql {
 @CommandHandler(CreatePostCommandSql)
 export class CreatePostSql implements ICommandHandler<CreatePostCommandSql> {
   constructor(
-    protected blogsRepositorySql: BlogsRepositorySql,
-    protected postsRepositorySql: PostsRepositorySql,
+    protected blogsRepositorySql: BlogsRepositoryOrm,
+    protected postsRepositorySql: PostsRepositoryOrm,
   ) {
   }
 

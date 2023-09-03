@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
 
 export class CreateBlogCommandSql {
   constructor(
@@ -18,12 +18,13 @@ export class CreateBlogCommandSql {
 @CommandHandler(CreateBlogCommandSql)
 export class CreateBlogBloggerSql implements ICommandHandler<CreateBlogCommandSql> {
   constructor(
-    protected blogsRepositorySql: BlogsRepositorySql,
+    protected blogsRepositorySql: BlogsRepositoryOrm,
     protected usersRepositorySql: UsersRepositorySql,
   ) {
   }
 
-  async execute(command: CreateBlogCommandSql): Promise<Contract<null | string>> {
+  //  : Promise<Contract<null | string>>
+  async execute(command: CreateBlogCommandSql) {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
 
     const foundUser = await this.usersRepositorySql.findUserByUserId(command.userId)

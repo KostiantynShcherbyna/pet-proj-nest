@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, QueryRunner } from "typeorm"
 import { CreateBlogCommand } from "../../../blogger/application/use-cases/mongoose/create-blog.use-case"
+import { BlogEntity } from "../../application/entities/sql/blog.entity"
 
 @Injectable()
 export class BlogsRepositorySql {
@@ -9,6 +10,7 @@ export class BlogsRepositorySql {
     @InjectDataSource() protected dataSource: DataSource
   ) {
   }
+
 
   async findBlog(blogId: string) {
     const result = await this.dataSource.query(`

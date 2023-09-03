@@ -4,14 +4,14 @@ import {
   ValidatorConstraintInterface,
 } from "class-validator"
 import { BlogsRepository } from "../../features/blogs/repository/mongoose/blogs.repository"
-import { BlogsRepositorySql } from "../../features/blogs/repository/sql/blogs.repository.sql"
+import { BlogsRepositoryOrm } from "../../features/blogs/repository/orm/blogs.repository.orm"
 
 
 @ValidatorConstraint({ name: "BlogIdIsExistSql", async: true })
 @Injectable()
 export class BlogIdIsExistSql implements ValidatorConstraintInterface {
   constructor(
-    protected readonly blogsRepositorySql: BlogsRepositorySql,
+    protected readonly blogsRepositorySql: BlogsRepositoryOrm,
   ) {
   }
 

@@ -1,9 +1,4 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Types } from "mongoose"
-import { Users, UsersModel } from "../../entities/mongoose/users.schema"
-import { Devices, DevicesModel } from "../../../../devices/application/entites/mongoose/devices.schema"
-import { UsersRepository } from "../../../repository/mongoose/users.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
@@ -21,8 +16,6 @@ export class BanUserCommandSql {
 @CommandHandler(BanUserCommandSql)
 export class BanUserSql implements ICommandHandler<BanUserCommandSql> {
   constructor(
-    @InjectModel(Users.name) protected UsersModel: UsersModel,
-    @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
     protected usersSqlRepository: UsersRepositorySql,
   ) {
   }

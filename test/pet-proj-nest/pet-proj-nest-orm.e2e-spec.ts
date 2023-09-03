@@ -60,20 +60,7 @@ describe
     bloggerHelper = new BloggerTestingHelper(server)
     authRepository = app.get(AuthRepository)
 
-    const dataSource = await app.resolve(DataSource)
-    await dataSource.query(`
-    CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
-    DECLARE
-    statements CURSOR FOR
-        SELECT tablename FROM pg_tables
-        WHERE tableowner = username AND schemaname = 'public';
-    BEGIN
-    FOR stmt IN statements LOOP
-        EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
-    END LOOP;
-    END;
-    $$ LANGUAGE plpgsql;
-    `)
+    // const dataSource = await app.resolve(DataSource)
 
     await request(server).delete(`/testing/all-data`)
   })

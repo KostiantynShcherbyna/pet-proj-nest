@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { PostsRepositorySql } from "../../../repository/sql/posts.repository.sql"
+import { PostsRepositoryOrm } from "../../../repository/orm/posts.repository.orm"
 import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 import { LikeStatus } from "../../../../../infrastructure/utils/constants"
 import { InjectDataSource } from "@nestjs/typeorm"
@@ -21,7 +21,7 @@ export class UpdatePostLikeCommandSql {
 export class UpdatePostLikeSql implements ICommandHandler<UpdatePostLikeCommandSql> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected postsRepositorySql: PostsRepositorySql,
+    protected postsRepositorySql: PostsRepositoryOrm,
     protected usersRepositorySql: UsersRepositorySql,
   ) {
   }

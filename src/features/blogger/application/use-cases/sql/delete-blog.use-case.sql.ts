@@ -5,10 +5,10 @@ import { InjectModel } from "@nestjs/mongoose"
 import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { PostsRepositorySql } from "../../../../posts/repository/sql/posts.repository.sql"
+import { PostsRepositoryOrm } from "../../../../posts/repository/orm/posts.repository.orm"
 
 export class DeleteBlogCommandSql {
   constructor(
@@ -22,8 +22,8 @@ export class DeleteBlogCommandSql {
 export class DeleteBlogSql implements ICommandHandler<DeleteBlogCommandSql> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected blogsRepositorySql: BlogsRepositorySql,
-    protected postsRepositorySql: PostsRepositorySql,
+    protected blogsRepositorySql: BlogsRepositoryOrm,
+    protected postsRepositorySql: PostsRepositoryOrm,
   ) {
   }
 

@@ -27,9 +27,6 @@ export class DeleteCommentSql implements ICommandHandler<DeleteCommentCommandSql
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
     protected commentsRepositorySql: CommentsRepositorySql,
-    protected postsCommentsRepository: PostsCommentsRepository,
-    protected commentsRepository: CommentsRepository,
-    protected usersRepository: UsersRepository,
   ) {
   }
 

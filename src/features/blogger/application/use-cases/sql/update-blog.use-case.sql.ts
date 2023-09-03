@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
 
 
 export class UpdateBlogCommandSql {
@@ -19,7 +19,7 @@ export class UpdateBlogCommandSql {
 @CommandHandler(UpdateBlogCommandSql)
 export class UpdateBlogSql implements ICommandHandler<UpdateBlogCommandSql> {
   constructor(
-    protected blogsRepositorySql: BlogsRepositorySql,
+    protected blogsRepositorySql: BlogsRepositoryOrm,
   ) {
   }
 

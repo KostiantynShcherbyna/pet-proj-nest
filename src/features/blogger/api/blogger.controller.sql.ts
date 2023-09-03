@@ -31,9 +31,9 @@ import { UpdatePostBodyInputModel } from "./models/input/update-post.body.input-
 import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
 import { BanUserBloggerCommand } from "../application/use-cases/mongoose/ban-user-blogger.use-case"
 import { CreateBlogBodyInputModel } from "./models/input/create-blog.body.input-model"
-import { BlogsQueryRepositorySql } from "../../blogs/repository/sql/blogs.query.repository.sql"
+import { BlogsQueryRepositoryOrm } from "../../blogs/repository/orm/blogs.query.repository.orm"
 import { CreateBlogCommandSql } from "../application/use-cases/sql/create-blog.use-case.sql"
-import { PostsQueryRepositorySql } from "../../posts/repository/sql/posts.query.repository.sql"
+import { PostsQueryRepositoryOrm } from "../../posts/repository/orm/posts.query.repository.orm"
 import { CreatePostCommandSql } from "../application/use-cases/sql/create-post.use-case.sql"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { UpdateBlogCommandSql } from "../application/use-cases/sql/update-blog.use-case.sql"
@@ -52,8 +52,8 @@ import { CommentsQueryRepositorySql } from "../../comments/repository/sql/commen
 export class BloggerControllerSql {
   constructor(
     private commandBus: CommandBus,
-    protected blogsQueryRepositorySql: BlogsQueryRepositorySql,
-    protected postsQueryRepositorySql: PostsQueryRepositorySql,
+    protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
+    protected postsQueryRepositorySql: PostsQueryRepositoryOrm,
     protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
   ) {
   }

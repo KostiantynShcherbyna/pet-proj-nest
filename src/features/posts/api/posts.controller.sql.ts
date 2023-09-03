@@ -31,7 +31,7 @@ import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/upd
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { CreateCommentCommand } from "../application/use-cases/mongoose/create-comment.use-case"
 import { UpdatePostLikeCommand } from "../application/use-cases/mongoose/update-post-like.use-case"
-import { PostsQueryRepositorySql } from "../repository/sql/posts.query.repository.sql"
+import { PostsQueryRepositoryOrm } from "../repository/orm/posts.query.repository.orm"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CreateCommentCommandSql } from "../application/use-cases/sql/create-comment.use-case.sql"
 import { GetCommentsParamInputModelSql } from "./models/input/get-comments.param.input-model.sql"
@@ -42,7 +42,7 @@ import { UpdatePostLikeCommandSql } from "../application/use-cases/sql/update-po
 export class PostsControllerSql {
   constructor(
     private commandBus: CommandBus,
-    protected postsSqlQueryRepository: PostsQueryRepositorySql,
+    protected postsSqlQueryRepository: PostsQueryRepositoryOrm,
     protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
   ) {
   }

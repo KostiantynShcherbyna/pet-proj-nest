@@ -1,15 +1,9 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose"
-import { PostsComments, PostsCommentsModel } from "../../../../posts/application/entites/mongoose/posts-comments.schema"
-import { PostsCommentsRepository } from "../../../../blogger/repository/mongoose/posts-comments.repository"
-import { CommentsRepository } from "../../../repository/mongoose/comments.repository"
-import { UsersRepository } from "../../../../sa/repository/mongoose/users.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { CommentsRepositorySql } from "../../../repository/sql/comments.repository.sql"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { LikeStatus } from "../../../../../infrastructure/utils/constants"
 import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
 
 

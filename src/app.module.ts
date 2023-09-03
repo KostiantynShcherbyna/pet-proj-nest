@@ -73,14 +73,14 @@ import { throttler } from "./infrastructure/guards/throttler.guard"
 import { CreateToken } from "./infrastructure/services/tokens/create-token.use-case"
 import { VerifyToken } from "./infrastructure/services/tokens/verify-token.use-case"
 import { configuration } from "./infrastructure/settings/configuration"
-import { LoginLocalStrategy } from "./infrastructure/strategy/login.local.strategy"
+import { LoginLocalStrategy } from "./infrastructure/strategy/login-local-strategy"
 import { TestingController } from "./infrastructure/testing/api/testing.controller"
 import { TokensService } from "./infrastructure/services/tokens.service"
 import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
 import { UsersRepositorySql } from "./features/sa/repository/sql/users.repository.sql"
 import { DevicesRepositorySql } from "./features/devices/repository/sql/devices.repository.sql"
-import { AuthSqlRepository } from "./features/auth/repository/sql/auth.sql.repository"
+import { AuthRepositoryOrm } from "./features/auth/repository/orm/auth-repository.orm"
 import { ConfirmationSql } from "./features/auth/application/use-cases/sql/confirmation.sql.use-case"
 import { ConfirmationResendSql } from "./features/auth/application/use-cases/sql/confirmation-resend.sql.use-case"
 import { LoginSql } from "./features/auth/application/use-cases/sql/login.sql.use-case"
@@ -91,7 +91,7 @@ import { RefreshTokenSql } from "./features/auth/application/use-cases/sql/refre
 import { RegistrationSql } from "./features/auth/application/use-cases/sql/registration.sql.use-case"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { AuthControllerSql } from "./features/auth/api/auth.controller.sql"
-import { LoginSqlLocalStrategy } from "./infrastructure/strategy/login.sql.local.strategy"
+import { LoginLocalStrategySql } from "./infrastructure/strategy/login-local-strategy.sql"
 import { BanBlogSql } from "./features/sa/application/use-cases/sql/ban-blog.use-case.sql"
 import { BanUserSql } from "./features/sa/application/use-cases/sql/ban-user.use-case.sql"
 import { BindBlogSql } from "./features/sa/application/use-cases/sql/bind-blog.use-case.sql"
@@ -105,13 +105,13 @@ import { UsersQueryRepositorySql } from "./features/sa/repository/sql/users.quer
 import { DevicesControllerSql } from "./features/devices/api/devices.controller.sql"
 import { BlogsControllerSql } from "./features/blogs/api/blogs.controller.sql"
 import { PostsControllerSql } from "./features/posts/api/posts.controller.sql"
-import { BlogsQueryRepositorySql } from "./features/blogs/repository/sql/blogs.query.repository.sql"
-import { PostsQueryRepositorySql } from "./features/posts/repository/sql/posts.query.repository.sql"
-import { BlogsRepositorySql } from "./features/blogs/repository/sql/blogs.repository.sql"
+import { BlogsQueryRepositoryOrm } from "./features/blogs/repository/orm/blogs.query.repository.orm"
+import { PostsQueryRepositoryOrm } from "./features/posts/repository/orm/posts.query.repository.orm"
+import { BlogsRepositoryOrm } from "./features/blogs/repository/orm/blogs.repository.orm"
 import { BloggerControllerSql } from "./features/blogger/api/blogger.controller.sql"
 import { CreateBlogBloggerSql } from "./features/blogger/application/use-cases/sql/create-blog.use-case.sql"
 import { CreatePostSql } from "./features/blogger/application/use-cases/sql/create-post.use-case.sql"
-import { PostsRepositorySql } from "./features/posts/repository/sql/posts.repository.sql"
+import { PostsRepositoryOrm } from "./features/posts/repository/orm/posts.repository.orm"
 import { UpdateBlogSql } from "./features/blogger/application/use-cases/sql/update-blog.use-case.sql"
 import { DeleteBlogSql } from "./features/blogger/application/use-cases/sql/delete-blog.use-case.sql"
 import { DeletePostSql } from "./features/blogger/application/use-cases/sql/delete-post.use-case.sql"
@@ -145,35 +145,35 @@ import * as process from "process"
 
 
 const useCases = [
-  BindBlogBlogger,
-  CreateBlogBlogger,
-  UpdateBlogBlogger,
-  DeleteBlogBlogger,
-  ConfirmationResend,
-  Confirmation,
-  Login,
-  Logout,
-  NewPassword,
-  PasswordRecovery,
-  RefreshToken,
-  Registration,
-  DeleteComment,
-  UpdateCommentLike,
-  UpdateComment,
-  DeleteOtherDevices,
-  DeleteSpecialDevice,
-  CreateComment,
-  CreatePostBlogger,
-  DeletePostBlogger,
-  UpdatePostLike,
-  UpdatePost,
-  CreateToken,
-  VerifyToken,
-  CreateUser,
-  DeleteUser,
-  BanUser,
-  BanBlog,
-  BanUserBlogger,
+  // BindBlogBlogger,
+  // CreateBlogBlogger,
+  // UpdateBlogBlogger,
+  // DeleteBlogBlogger,
+  // ConfirmationResend,
+  // Confirmation,
+  // Login,
+  // Logout,
+  // NewPassword,
+  // PasswordRecovery,
+  // RefreshToken,
+  // Registration,
+  // DeleteComment,
+  // UpdateCommentLike,
+  // UpdateComment,
+  // DeleteOtherDevices,
+  // DeleteSpecialDevice,
+  // CreateComment,
+  // CreatePostBlogger,
+  // DeletePostBlogger,
+  // UpdatePostLike,
+  // UpdatePost,
+  // CreateToken,
+  // VerifyToken,
+  // CreateUser,
+  // DeleteUser,
+  // BanUser,
+  // BanBlog,
+  // BanUserBlogger,
 
   ConfirmationSql,
   ConfirmationResendSql,
@@ -208,39 +208,39 @@ const services = [
   TokensService,
 ]
 const repository = [
-  BlogsRepository,
-  BlogsQueryRepository,
-  PostsRepository,
-  PostsQueryRepository,
-  UsersRepository,
-  UsersQueryRepository,
-  CommentsRepository,
-  CommentsQueryRepository,
-  AuthQueryRepository,
-  AuthRepository,
-  DevicesRepository,
-  BannedBlogUsersRepository,
-  PostsCommentsRepository,
-  TestingRepository,
+  // BlogsRepository,
+  // BlogsQueryRepository,
+  // PostsRepository,
+  // PostsQueryRepository,
+  // UsersRepository,
+  // UsersQueryRepository,
+  // CommentsRepository,
+  // CommentsQueryRepository,
+  // AuthQueryRepository,
+  // AuthRepository,
+  // DevicesRepository,
+  // BannedBlogUsersRepository,
+  // PostsCommentsRepository,
+  // TestingRepository,
 
-  AuthSqlRepository,
+  AuthRepositoryOrm,
   DevicesRepositorySql,
   DevicesQueryRepositorySql,
   UsersRepositorySql,
   UsersQueryRepositorySql,
-  BlogsQueryRepositorySql,
-  PostsQueryRepositorySql,
-  BlogsRepositorySql,
-  PostsRepositorySql,
+  BlogsQueryRepositoryOrm,
+  PostsQueryRepositoryOrm,
+  BlogsRepositoryOrm,
+  PostsRepositoryOrm,
   CommentsQueryRepositorySql,
   CommentsRepositorySql,
 ]
 const otherProviders = [
   throttler,
   JwtService,
-  LoginLocalStrategy,
-  LoginSqlLocalStrategy,
-  BlogIdIsExist,
+  // LoginLocalStrategy,
+  LoginLocalStrategySql,
+  // BlogIdIsExist,
   BlogIdIsExistSql,
   EmailAdapter,
 ]
@@ -272,26 +272,26 @@ const otherProviders = [
       autoLoadEntities: true,
       synchronize: true,
     }),
+    ThrottlerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
       load: [configuration]
     }),
-    MongooseModule.forRoot(
-      configuration().MONGOOSE_URI
-    ),
-    ThrottlerModule.forRoot(),
-    MongooseModule.forFeature([
-      { name: Blogs.name, schema: BlogsSchema },
-      { name: Posts.name, schema: PostsSchema },
-      { name: Comments.name, schema: CommentsSchema },
-      { name: Users.name, schema: UsersSchema },
-      { name: Devices.name, schema: DevicesSchema },
-      { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
-      { name: RequestAttempts.name, schema: RequestAttemptsSchema },
-      { name: BannedBlogUsers.name, schema: BannedBlogUsersSchema },
-      { name: PostsComments.name, schema: PostsCommentsSchema },
-    ]),
+    // MongooseModule.forRoot(
+    //   configuration().MONGOOSE_URI
+    // ),
+    // MongooseModule.forFeature([
+    //   { name: Blogs.name, schema: BlogsSchema },
+    //   { name: Posts.name, schema: PostsSchema },
+    //   { name: Comments.name, schema: CommentsSchema },
+    //   { name: Users.name, schema: UsersSchema },
+    //   { name: Devices.name, schema: DevicesSchema },
+    //   { name: RecoveryCodes.name, schema: RecoveryCodesSchema },
+    //   { name: RequestAttempts.name, schema: RequestAttemptsSchema },
+    //   { name: BannedBlogUsers.name, schema: BannedBlogUsersSchema },
+    //   { name: PostsComments.name, schema: PostsCommentsSchema },
+    // ]),
     PassportModule,
     CqrsModule,
     // JwtModule.register({
@@ -300,16 +300,17 @@ const otherProviders = [
     // }),
   ],
   controllers: [
-    BlogsController,
-    PostsController,
-    SAController,
-    // UsersController,
-    BloggerController,
-    CommentsController,
     TestingController,
-    AuthController,
-    AppController,
-    DevicesController,
+
+    // BlogsController,
+    // PostsController,
+    // SAController,
+    // UsersController,
+    // BloggerController,
+    // CommentsController,
+    // AuthController,
+    // AppController,
+    // DevicesController,
 
     AuthControllerSql,
     SaControllerSql,

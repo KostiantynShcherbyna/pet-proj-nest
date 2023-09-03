@@ -186,11 +186,7 @@ describe
 
     it
     (`+ registration-confirmation`, async () => {
-      const { inputDataUser0, publicTestingHelper, testingRepository }: {
-        inputDataUser0: RegistrationBodyInputModel,
-        publicTestingHelper: PublicTestingHelper,
-        testingRepository: TestingRepository,
-      } = expect.getState() as any
+      const { inputDataUser0, publicTestingHelper, testingRepository } = expect.getState()
 
       const user0 = await testingRepository.getUser({ loginOrEmail: inputDataUser0.login })
       expect(user0).not.toBeNull()

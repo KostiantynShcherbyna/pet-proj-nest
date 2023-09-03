@@ -1,10 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { InjectModel } from "@nestjs/mongoose/dist/common"
-import { Blogs, BlogsModel } from "../../../../blogs/application/entities/mongoose/blogs.schema"
-import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { Contract } from "../../../../../infrastructure/utils/contract"
-import { BlogsRepositorySql } from "../../../../blogs/repository/sql/blogs.repository.sql"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
 
 
 export class BanBlogCommandSql {
@@ -18,8 +15,7 @@ export class BanBlogCommandSql {
 @CommandHandler(BanBlogCommandSql)
 export class BanBlogSql implements ICommandHandler<BanBlogCommandSql> {
   constructor(
-    @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
-    protected blogsRepositorySql: BlogsRepositorySql,
+    protected blogsRepositorySql: BlogsRepositoryOrm,
   ) {
   }
 

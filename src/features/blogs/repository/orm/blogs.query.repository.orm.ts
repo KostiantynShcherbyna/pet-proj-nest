@@ -1,7 +1,7 @@
 // import { Posts, PostsModel } from "src/schemas/posts.schema"
 
 import { Injectable } from "@nestjs/common"
-import { BlogsRepositorySql } from "./blogs.repository.sql"
+import { BlogsRepositoryOrm } from "./blogs.repository.orm"
 import { BlogsOutputModel } from "../../../blogger/api/models/output/create-blogger-blog.output-model"
 import { GetBlogsQueryInputModel } from "../../api/models/input/get-blogs.query.input-model"
 import {
@@ -10,7 +10,7 @@ import {
   PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT,
   SEARCH_NAME_TERM_DEFAULT,
   SORT_BY_DEFAULT_SQL,
-  SortDirection
+  SortDirection, SortDirectionOrm
 } from "../../../../infrastructure/utils/constants"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
@@ -23,68 +23,73 @@ import { BannedBlogUsersView } from "../../../blogger/api/models/output/get-bann
 import { GetPostsCommentsQueryInputModel } from "../../api/models/input/get-posts-comments.query.input-model"
 import { BannedBlogUsersDocument } from "../../application/entities/mongoose/banned-blog-users.schema"
 import { BlogEntity } from "../../application/entities/sql/blog.entity"
+import { PostEntity } from "../../../posts/application/entites/sql/post.entity"
+import { BanBlogUserEntity } from "../../application/entities/sql/ban-blog-user.entity"
+import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 
 @Injectable()
-export class BlogsQueryRepositorySql {
+export class BlogsQueryRepositoryOrm {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected blogsSqlRepository: BlogsRepositorySql,
-    // protected blogsSqlRepository2: Repository<BlogEntity>,
+    protected blogsSqlRepository: BlogsRepositoryOrm,
+    // protected blogsSqlRepositoryOrm: Repository<BlogEntity>,
     protected usersSqlRepository: UsersRepositorySql,
   ) {
   }
 
+
+  async findPublicBlog(blogId: string) {
+    const blogBuilder = this.dataSource.createQueryBuilder(BlogEntity, "b")
+      .select([
+        "b.BlogId as id",
+        "b.Name as name",
+        "b.Description as description",
+        "b.WebsiteUrl as websiteUrl",
+        "b.CreatedAt as createdAt",
+        "b.IsMembership as isMembership",
+      ])
+      .where("b.BlogId = :blogId", { blogId })
+    const blog = await blogBuilder.getRawOne()
+    return blog ? blog : null
+  }
 
   async findBlogs(query: GetBlogsQueryInputModel, userId?: string): Promise<null | BlogsOutputModel> {
 
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
 
-    const blogsTotalCount = await this.dataSource.query(`
-    select count(*)
-    from public."blog_entity" a
-    where a."Name" ilike $1
-    and (a."UserId" = $2 or $2 is Null)
-    `, [`%${searchNameTerm}%`, userId])
-
-    const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
-
-    const queryForm = `
-    select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
-             "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
-    from public."blog_entity" a
-    where a."Name" ilike $1
-    and (a."UserId" = $2 or $2 is Null)
-    and a."IsBanned" = 'false'
-    order by "${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $3
-    offset $4
-    `
-
-    const blogs = await this.dataSource.query(
-      queryForm, [
-        `%${searchNameTerm}%`, // 1
-        userId, // 2
-        pageSize, // 3
-        offset, // 4
+    const [blogs, totalCount] = await this.dataSource.createQueryBuilder(BlogEntity, "a")
+      .select([
+        `a.BlogId AS id`,
+        `a.Name AS name`,
+        `a.Description AS description`,
+        `a.WebsiteUrl AS websiteUrl`,
+        `a.CreatedAt AS createdAt`,
+        `a.IsMembership AS isMembership`,
       ])
-    const mappedBlogs = this.changeBlogsView(blogs)
+      .where(`a."Name" ilike :name`, { name: `%${searchNameTerm}%` })
+      .andWhere(`(a."UserId" = :userId or a."UserId" = :userId is Null)`, { userId })
+      .andWhere(`a."IsBanned" = :isBanned`, { isBanned: false })
+      .orderBy(`a."${sortBy}"`, sortDirection)
+      .limit(pageSize)
+      .offset(offset)
+      .getManyAndCount()
+
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
     return {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(blogsTotalCount[0].count),
-      items: mappedBlogs
+      totalCount: Number(totalCount),
+      // @ts-ignore
+      items: blogs
     }
   }
-
 
   async findBlogPosts(queryPost: GetPostsQueryInputModel, blogId: string, userId?: string): Promise<Contract<null | PostsView>> {
 
@@ -175,42 +180,20 @@ export class BlogsQueryRepositorySql {
     return new Contract(postsView, null)
   }
 
-
-  async findPublicBlog(blogId: string) {
-    const blog2 = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+  async findNewBlog(blogId: string) {
+    const resultBuilder = this.dataSource.createQueryBuilder(BlogEntity, "b")
       .select([
-        "b.BlogId as id",
-        "b.Name as name",
-        "b.Description as description",
-        "b.WebsiteUrl as websiteUrl",
-        "b.CreatedAt as createdAt",
-        "b.IsMembership as isMembership",
+        `b.BlogId as "id"`,
+        `b.Name as "name"`,
+        `b.Description as "description"`,
+        `b.WebsiteUrl as "websiteUrl"`,
+        `b.CreatedAt as "createdAt"`,
+        `b.IsMembership as "isMembership"`
       ])
       .where("b.BlogId = :blogId", { blogId })
-      .getRawOne()
-
-    return blog2
-
-    const foundBlogResult = await this.dataSource.query(`
-    select "BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
-           "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
-    from public."blog_entity"
-    where "BlogId" = $1
-    and "IsBanned" = 'false'
-    `, [blogId])
-    return foundBlogResult.length ? foundBlogResult[0] : null
+    const result = await resultBuilder.execute()
+    return result ? result : null
   }
-
-  async findNewBlog(blogId: string) {
-    const foundNewBlogResult = await this.dataSource.query(`
-    select "BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
-           "CreatedAt" as "createdAt", "IsMembership" as "isMembership"
-    from public."blog_entity"
-    where "BlogId" = $1
-    `, [blogId])
-    return foundNewBlogResult.length ? foundNewBlogResult[0] : null
-  }
-
 
   async findBanBlogUsers(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
 
@@ -223,51 +206,28 @@ export class BlogsQueryRepositorySql {
     const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
 
-    const totalCount = await this.dataSource.query(`
-    select count(*)
-    from public."ban_blog_user_entity" a
-    left join public."account_entity" b on b."UserId" = a."UserId"
-    where a."BlogId" = $1
-    and a."IsBanned" = $2
-    and b."Login" ilike $3
-    `, [blogId, isBanned, `%${searchLoginTerm}%`])
+    const [banInfos, totalCount] = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
+      .leftJoin(AccountEntity, "a")
+      .where(`b.BlogId = :blogId`, { blogId })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned })
+      .andWhere(`a.Login ilike :login`, { login: `%${searchLoginTerm}%` })
+      .orderBy(`b."${sortBy}"`, sortDirection)
+      .limit(pageSize)
+      .offset(offset)
+      .getManyAndCount()
 
-    const pagesCount = Math.ceil(totalCount[0].count / pageSize)
-
-    const queryForm = `
-    select a."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
-           b."Login" as "login", b."UserId" as "id"
-    from public."ban_blog_user_entity" a
-    left join public."account_entity" b on b."UserId" = a."UserId"
-    where a."BlogId" = $1
-    and a."IsBanned" = $2
-    and b."Login" ilike $3
-    order by "${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $4
-    offset $5
-    `
-
-    const banInfos = await this.dataSource.query(
-      queryForm, [
-        blogId, // 1
-        isBanned, // 2
-        `%${searchLoginTerm}%`, // 3
-        pageSize, // 4
-        offset, // 5
-      ])
     const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
-    ""
+    const pagesCount = Math.ceil(totalCount / pageSize)
+
     return new Contract({
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(totalCount[0].count),
+      totalCount: Number(totalCount),
       items: banInfoViews
     }, null)
   }
@@ -277,48 +237,28 @@ export class BlogsQueryRepositorySql {
     const searchNameTerm = query.searchNameTerm || SEARCH_NAME_TERM_DEFAULT
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
 
-    const blogsTotalCount = await this.dataSource.query(`
-    select count(*)
-    from public."blog_entity" a
-    where a."Name" ilike $1
-    `, [`%${searchNameTerm}%`])
+    const [blogs, totalCount] = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+      .where(`b.Name ilike :name`, { name: `%${searchNameTerm}%` })
+      .orderBy(`b."${sortBy}"`, sortDirection)
+      .limit(pageSize)
+      .offset(offset)
+      .getManyAndCount()
 
-    const pagesCount = Math.ceil(blogsTotalCount[0].count / pageSize)
-
-    const queryForm = `
-    select a."BlogId" as "id", "Name" as "name", "Description" as "description", "WebsiteUrl" as "websiteUrl",
-             "CreatedAt" as "createdAt", "IsMembership" as "isMembership", "UserId" as "userId", "UserLogin" as "userLogin",
-             "IsBanned" as "isBanned", "BanDate" as "banDate"
-    from public."blog_entity" a
-    where a."Name" ilike $1
-    order by "${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $2
-    offset $3
-    `
-
-    const blogs = await this.dataSource.query(
-      queryForm, [
-        `%${searchNameTerm}%`, // 1
-        pageSize, // 2
-        offset, // 3
-      ])
     const blogsView = this.changeBlogsSAView(blogs)
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
     return {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(blogsTotalCount[0].count),
+      totalCount: Number(totalCount),
       items: blogsView
     }
   }
-
 
   private changeBlogsView(blogs: any[]) {
     return blogs.map(blog => {

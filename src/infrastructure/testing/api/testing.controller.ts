@@ -41,16 +41,16 @@ import { DataSource } from "typeorm"
 @Controller("testing")
 export class TestingController {
   constructor(
-    @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
-    @InjectModel(Posts.name) protected PostsModel: PostsModel,
-    @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
-    @InjectModel(Users.name) protected UsersModel: UsersModel,
-    @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
-    @InjectModel(RequestAttempts.name) protected AttemptRequestsModel: RequestAttemptsModel,
-    @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
-    @InjectModel(BannedBlogUsers.name) protected BannedBlogUsersModel: BannedBlogUsersModel,
-    @InjectModel(PostsComments.name) protected PostsCommentsModel: PostsCommentsModel,
-    protected testingRepository: TestingRepository,
+    // @InjectModel(Blogs.name) protected BlogsModel: BlogsModel,
+    // @InjectModel(Posts.name) protected PostsModel: PostsModel,
+    // @InjectModel(Comments.name) protected CommentsModel: CommentsModel,
+    // @InjectModel(Users.name) protected UsersModel: UsersModel,
+    // @InjectModel(Devices.name) protected DevicesModel: DevicesModel,
+    // @InjectModel(RequestAttempts.name) protected AttemptRequestsModel: RequestAttemptsModel,
+    // @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
+    // @InjectModel(BannedBlogUsers.name) protected BannedBlogUsersModel: BannedBlogUsersModel,
+    // @InjectModel(PostsComments.name) protected PostsCommentsModel: PostsCommentsModel,
+    // protected testingRepository: TestingRepository,
     @InjectDataSource() protected dataSource: DataSource,
   ) {
   }
@@ -61,15 +61,28 @@ export class TestingController {
     try {
       await Promise.all(
         [
-          await this.BlogsModel.deleteMany({}),
-          await this.PostsModel.deleteMany({}),
-          await this.CommentsModel.deleteMany({}),
-          await this.UsersModel.deleteMany({}),
-          await this.DevicesModel.deleteMany({}),
-          await this.AttemptRequestsModel.deleteMany({}),
-          await this.RecoveryCodesModel.deleteMany({}),
-          await this.BannedBlogUsersModel.deleteMany({}),
-          await this.PostsCommentsModel.deleteMany({}),
+          // await this.BlogsModel.deleteMany({}),
+          // await this.PostsModel.deleteMany({}),
+          // await this.CommentsModel.deleteMany({}),
+          // await this.UsersModel.deleteMany({}),
+          // await this.DevicesModel.deleteMany({}),
+          // await this.AttemptRequestsModel.deleteMany({}),
+          // await this.RecoveryCodesModel.deleteMany({}),
+          // await this.BannedBlogUsersModel.deleteMany({}),
+          // await this.PostsCommentsModel.deleteMany({}),
+
+          // await this.dataSource.query(`delete from public."comment_like_entity"`),
+          // await this.dataSource.query(`delete from public."comment_entity"`),
+          // await this.dataSource.query(`delete from public."post_like_entity"`),
+          // await this.dataSource.query(`delete from public."post_entity"`),
+          // await this.dataSource.query(`delete from public."ban_blog_user_entity"`),
+          // await this.dataSource.query(`delete from public."blog_entity"`),
+          // await this.dataSource.query(`delete from public."recovery_code_entity"`),
+          // await this.dataSource.query(`delete from public."device_entity"`),
+          // await this.dataSource.query(`delete from public."sent_confirmation_code_date_entity"`),
+          // await this.dataSource.query(`delete from public."ban_info_entity"`),
+          // await this.dataSource.query(`delete from public."email_confirmation_entity"`),
+          // await this.dataSource.query(`delete from public."account_entity"`),
           // await this.dataSource.query(`ALTER SEQUENCE users RESTART WITH 1`),
         ]
       )
@@ -84,18 +97,18 @@ export class TestingController {
   @Delete("all-data")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllData() {
-    return await this.dataSource.query(`SELECT truncate_tables('postgres');`)
+    return await this.dataSource.query(`SELECT truncate_tables('nestjsk');`)
   }
 
 
-  @Get("user")
-  async getUser(
-    @Body() bodyUser: UserBodyInputModel,
-  ) {
-    const user = await this.testingRepository.getUser(bodyUser)
-    if (user === null) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
-    )
-    return user
-  }
+  // @Get("user")
+  // async getUser(
+  //   @Body() bodyUser: UserBodyInputModel,
+  // ) {
+  //   const user = await this.testingRepository.getUser(bodyUser)
+  //   if (user === null) throw new NotFoundException(
+  //     callErrorMessage(ErrorEnums.USER_NOT_FOUND, "loginOrEmail")
+  //   )
+  //   return user
+  // }
 }

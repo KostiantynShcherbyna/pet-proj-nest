@@ -5,9 +5,8 @@ import { DataSource } from "typeorm"
 import { InjectDataSource } from "@nestjs/typeorm"
 
 @Injectable()
-export class AuthSqlRepository {
+export class AuthRepositorySql {
   constructor(
-    @InjectModel(RecoveryCodes.name) protected RecoveryCodesModel: RecoveryCodesModel,
     @InjectDataSource() protected dataSource: DataSource
   ) {
   }

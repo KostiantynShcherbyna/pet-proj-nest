@@ -13,7 +13,7 @@ import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 import { UsersRepositorySql } from "../../../sa/repository/sql/users.repository.sql"
-import { PostsQueryRepositorySql } from "../../../posts/repository/sql/posts.query.repository.sql"
+import { PostsQueryRepositoryOrm } from "../../../posts/repository/orm/posts.query.repository.orm"
 
 
 @Injectable()
@@ -21,7 +21,7 @@ export class CommentsQueryRepositorySql {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
     protected usersSqlRepository: UsersRepositorySql,
-    protected postsQueryRepositorySql: PostsQueryRepositorySql,
+    protected postsQueryRepositorySql: PostsQueryRepositoryOrm,
   ) {
   }
 
