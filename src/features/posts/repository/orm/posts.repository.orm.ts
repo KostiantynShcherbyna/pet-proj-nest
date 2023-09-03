@@ -16,7 +16,6 @@ export class PostsRepositoryOrm {
     const date = new Date(Date.now()).toISOString()
     const result = await this.dataSource.createQueryBuilder(PostEntity, "p")
       .insert()
-      .into(PostEntity)
       .values({
         Title: title,
         ShortDescription: shortDescription,
@@ -26,65 +25,64 @@ export class PostsRepositoryOrm {
         CreatedAt: date,
       })
       .execute()
-    return result.identifiers[0].PostId
+    return  result.identifiers[0].PostId
   }
 
   async deletePosts(blogId: string, queryRunner: QueryRunner): Promise<number | null> {
-    const deleteBuilder = queryRunner.manager.createQueryBuilder()
+    const deleteBuilder = queryRunner.manager.createQueryBuilder(PostEntity, "p")
       .delete()
-      .from(PostEntity)
       .where("BlogId = :blogId", { blogId })
     const result = await deleteBuilder.execute()
     return result.affected ? result.affected : null
   }
 
   async findPost(postId: string) {
-    const builderResult = this.dataSource.createQueryBuilder(PostEntity, "p")
+    const post = await this.dataSource.createQueryBuilder(PostEntity, "p")
       .select([
-        `p.PostId as postId`,
-        `p.Title as title`,
-        `p.ShortDescription as shortDescription`,
-        `p.Content as content`,
-        `p.BlogName as blogName`,
-        `p.BlogId as blogId`,
-        `p.CreatedAt as createdAt`
+        `p.PostId as "postId"`,
+        `p.Title as "title"`,
+        `p.ShortDescription as "shortDescription"`,
+        `p.Content as "content"`,
+        `p.BlogName as "blogName"`,
+        `p.BlogId as "blogId"`,
+        `p.CreatedAt as "createdAt"`
       ])
       .where(`p.PostId = :postId`, { postId })
-    const post = await builderResult.execute()
+      .getRawOne()
     return post ? post : null
   }
 
-  async updatePost({ postId, title, shortDescription, content }, queryRunner: QueryRunner): Promise<string | null> {
-    const builderResult = queryRunner.manager.createQueryBuilder(PostEntity, "p")
-      .update()
+  async updatePost({ postId, title, shortDescription, content }, queryRunner: QueryRunner): Promise<number | null> {
+    const result = await queryRunner.manager.createQueryBuilder()
+      .update(PostEntity)
       .set({
         Title: title,
         ShortDescription: shortDescription,
         Content: content
       })
-      .where(`p.PostId = :postId`, { postId })
-    const result = await builderResult.execute()
-    return result.raw ? result.raw[0] : null
+      .where(`PostId = :postId`, { postId })
+      .execute()
+    return result.affected ? result.affected : null
   }
 
-  async deletePost(postId: string, queryRunner: QueryRunner): Promise<string> {
+  async deletePost(postId: string, queryRunner: QueryRunner): Promise<number | null> {
     const builderResult = queryRunner.manager.createQueryBuilder(PostEntity, "p")
       .delete()
       .where(`p.PostId = :postId`, { postId })
     const result = await builderResult.execute()
-    return result.raw ? result.raw[0] : null
+    return result.affected ? result.affected : null
   }
 
-  async deleteLikes(postId: string, queryRunner: QueryRunner): Promise<string> {
+  async deleteLikes(postId: string, queryRunner: QueryRunner): Promise<number | null> {
     const builderResult = queryRunner.manager.createQueryBuilder(PostLikeEntity, "p")
       .delete()
       .where(`p.PostId = :postId`, { postId })
     const result = await builderResult.execute()
-    return result.raw ? result.raw[0] : null
+    return result.affected ? result.affected : null
   }
 
   async createComment({ postId, content, date, userId, userLogin }): Promise<string> {
-    const builderResult = this.dataSource.createQueryBuilder(CommentEntity, "c")
+    const result = await this.dataSource.createQueryBuilder(CommentEntity, "c")
       .insert()
       .values({
         PostId: postId,
@@ -93,25 +91,26 @@ export class PostsRepositoryOrm {
         UserId: userId,
         UserLogin: userLogin
       })
-    const result = await builderResult.execute()
-    return result.raw ? result.raw[0] : null
+      .execute()
+    return result.identifiers[0].CommentId
   }
 
   async findPostLike({ postId, userId }) {
-    const builderResult = this.dataSource.createQueryBuilder(PostLikeEntity, "p")
+    const result = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
       .select([
-        `p.Status as myStatus`,
-        `p.PostId as postId`,
-        `p.LikeId as likeId`,
-        `p.UserId as userId`
+        `p.Status as "myStatus"`,
+        `p.PostId as "postId"`,
+        `p.LikeId as "likeId"`,
+        `p.UserId as "userId"`
       ])
       .where(`p.PostId = :postId`, { postId })
       .andWhere(`p.UserId = :userId`, { userId })
-    return await builderResult.execute()
+      .getRawOne()
+    return result
   }
 
   async createLike({ status, userId, userLogin, postId, addedAt }, queryRunner: QueryRunner): Promise<string> {
-    const builderResult = queryRunner.manager.createQueryBuilder(PostLikeEntity, "p")
+    const result = await queryRunner.manager.createQueryBuilder(PostLikeEntity, "p")
       .insert()
       .values({
         Status: status,
@@ -120,18 +119,18 @@ export class PostsRepositoryOrm {
         PostId: postId,
         AddedAt: addedAt
       })
-    const result = await builderResult.execute()
-    return result.raw ? result.raw[0] : null
+      .execute()
+    return result.identifiers[0].LikeId
   }
 
   async updateLike({ status, postId, userId }, queryRunner: QueryRunner): Promise<number | null> {
-    const builderResult = queryRunner.manager.createQueryBuilder(PostLikeEntity, "p")
-      .update()
+    const builderResult = queryRunner.manager.createQueryBuilder()
+      .update(PostLikeEntity)
       .set({ Status: status })
-      .where(`p.PostId = :postId`, { postId })
-      .andWhere(`p.UserId = :userId`, { userId })
+      .where(`PostId = :postId`, { postId })
+      .andWhere(`UserId = :userId`, { userId })
     const result = await builderResult.execute()
     return result.affected ? result.affected : null
   }
-  
+
 }

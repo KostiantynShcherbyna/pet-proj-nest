@@ -14,6 +14,10 @@ import {
 } from "../../../../infrastructure/utils/constants"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
+import { PostEntity } from "../../application/entites/sql/post.entity"
+import { BlogEntity } from "../../../blogs/application/entities/sql/blog.entity"
+import { PostLikeEntity } from "../../application/entites/sql/post-like.entity"
+import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
 
 
 @Injectable()
@@ -104,6 +108,64 @@ export class PostsQueryRepositoryOrm {
   async findPost(postId: string, userId?: string): Promise<null | CreateBloggerPostOutputModel> {
 
     const sortDirection = SortDirection.Desc
+
+    const p = await this.dataSource.createQueryBuilder(PostEntity, "p")
+      .select([
+        `p.PostId as "postId"`,
+        `p.Content as "content"`,
+        `p.Title as "title"`,
+        `p.ShortDescription as "shortDescription"`,
+        `p.BlogId as "blogId"`,
+        `p.BlogName as "blogName"`,
+        `p.CreatedAt as "createdAt"`,
+        `pl.Status as "myStatus"`,
+        `pl.UserId as "userId"`,
+        `pl.UserLogin as "userLogin"`
+      ])
+      // .addSelect(`pl.count(*)`, `likesCount`)
+      // .addSelect(`cpl.count(*)`, `dislikesCount`)
+      .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
+      .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId and pl.UserId = :userId`, { postId, userId })
+      // .leftJoin(PostLikeEntity, "pll", `pll.PostId = :postId and pll.Status = :likeStatus`, { postId, likeStatus: "Like" })
+      // .leftJoin(PostLikeEntity, "pldl", `pldl.PostId = :postId and pldl.Status = :likeStatus`, { postId, likeStatus: "Dislike" })
+      .where(`p.PostId = :postId`, { postId })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+      .getRawOne()
+
+    const p2 = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
+      .select([
+        `p.count(*) as likesCount`,
+        `p.count(*) as dislikesCount`
+      ])
+      .leftJoin(BanInfoEntity, "b", `b.UserId = p.UserId`)
+      // .leftJoin(PostLikeEntity, "pll", `pll.PostId = :postId and pll.Status = :likeStatus`, { postId, likeStatus: "Like" })
+      // .leftJoin(PostLikeEntity, "pldl", `pldl.PostId = :postId and pldl.Status = :likeStatus`, { postId, likeStatus: "Dislike" })
+      .where(`p.PostId = :postId`, { postId })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+      .getRawOne()
+
+    // const p = await this.dataSource.createQueryBuilder(PostEntity, "p")
+    //   .select([
+    //     `p.PostId as "postId"`,
+    //     `p.Content as "content"`,
+    //     `p.Title as "title"`,
+    //     `p.ShortDescription as "shortDescription"`,
+    //     `p.BlogId as "blogId"`,
+    //     `p.BlogName as "blogName"`,
+    //     `p.CreatedAt as "createdAt"`,
+    //     `pl.Status as "myStatus"`,
+    //     `pl.UserId as "userId"`,
+    //     `pl.UserLogin as "userLogin"`,
+    //   ])
+    //   .addSelect(`pl.count(*)`, `likesCount`)
+    //   .addSelect(`cpl.count(*)`, `dislikesCount`)
+    //   .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
+    //   .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId and pl.UserId = :userId`, { postId, userId })
+    //   .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId`, { postId })
+    //   .leftJoin(PostLikeEntity, "pl", `pl.PostId = :postId`, { postId })
+    //   .where(`p.PostId = :postId`, { postId })
+    //   .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+    //   .getRawOne()
 
     const postQueryForm = `
     select a."PostId" as "postId", "Title" as "title", "ShortDescription" as "shortDescription", "Content" as "content",

@@ -26,6 +26,7 @@ import { BlogEntity } from "../../application/entities/sql/blog.entity"
 import { PostEntity } from "../../../posts/application/entites/sql/post.entity"
 import { BanBlogUserEntity } from "../../application/entities/sql/ban-blog-user.entity"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
+import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
 
 @Injectable()
 export class BlogsQueryRepositoryOrm {
@@ -38,18 +39,18 @@ export class BlogsQueryRepositoryOrm {
   }
 
 
-  async findPublicBlog(blogId: string) {
-    const blogBuilder = this.dataSource.createQueryBuilder(BlogEntity, "b")
+  async findBlog(blogId: string) {
+    const blog = await this.dataSource.createQueryBuilder(BlogEntity, "b")
       .select([
-        "b.BlogId as id",
-        "b.Name as name",
-        "b.Description as description",
-        "b.WebsiteUrl as websiteUrl",
-        "b.CreatedAt as createdAt",
-        "b.IsMembership as isMembership",
+        `b.BlogId as "id"`,
+        `b.Name as "name"`,
+        `b.Description as "description"`,
+        `b.WebsiteUrl as "websiteUrl"`,
+        `b.CreatedAt as "createdAt"`,
+        `b.IsMembership as "isMembership"`,
       ])
       .where("b.BlogId = :blogId", { blogId })
-    const blog = await blogBuilder.getRawOne()
+      .getRawOne()
     return blog ? blog : null
   }
 
@@ -63,22 +64,15 @@ export class BlogsQueryRepositoryOrm {
     const offset = (pageNumber - 1) * pageSize
 
     const [blogs, totalCount] = await this.dataSource.createQueryBuilder(BlogEntity, "a")
-      .select([
-        `a.BlogId AS id`,
-        `a.Name AS name`,
-        `a.Description AS description`,
-        `a.WebsiteUrl AS websiteUrl`,
-        `a.CreatedAt AS createdAt`,
-        `a.IsMembership AS isMembership`,
-      ])
-      .where(`a."Name" ilike :name`, { name: `%${searchNameTerm}%` })
-      .andWhere(`(a."UserId" = :userId or a."UserId" = :userId is Null)`, { userId })
-      .andWhere(`a."IsBanned" = :isBanned`, { isBanned: false })
+      .where(`a.Name ilike :name`, { name: `%${searchNameTerm}%` })
+      .andWhere(`(a.UserId = :userId or a.UserId = :userId is Null)`, { userId })
+      .andWhere(`a.IsBanned = :isBanned`, { isBanned: false })
       .orderBy(`a."${sortBy}"`, sortDirection)
       .limit(pageSize)
       .offset(offset)
       .getManyAndCount()
 
+    const mappedBlogs = this.changeBlogsView(blogs)
     const pagesCount = Math.ceil(totalCount / pageSize)
 
     return {
@@ -86,8 +80,7 @@ export class BlogsQueryRepositoryOrm {
       page: pageNumber,
       pageSize: pageSize,
       totalCount: Number(totalCount),
-      // @ts-ignore
-      items: blogs
+      items: mappedBlogs
     }
   }
 
@@ -181,7 +174,7 @@ export class BlogsQueryRepositoryOrm {
   }
 
   async findNewBlog(blogId: string) {
-    const resultBuilder = this.dataSource.createQueryBuilder(BlogEntity, "b")
+    const newBlog = await this.dataSource.createQueryBuilder(BlogEntity, "b")
       .select([
         `b.BlogId as "id"`,
         `b.Name as "name"`,
@@ -191,8 +184,8 @@ export class BlogsQueryRepositoryOrm {
         `b.IsMembership as "isMembership"`
       ])
       .where("b.BlogId = :blogId", { blogId })
-    const result = await resultBuilder.execute()
-    return result ? result : null
+      .getRawOne()
+    return newBlog ? newBlog : null
   }
 
   async findBanBlogUsers(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
@@ -210,24 +203,30 @@ export class BlogsQueryRepositoryOrm {
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
 
-    const [banInfos, totalCount] = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
-      .leftJoin(AccountEntity, "a")
+    const banInfos = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
+      .select([
+        `b.IsBanned as "isBanned"`,
+        `b.BanDate as "banDate"`,
+        `b.BanReason as "banReason"`,
+        `b.UserId as "id"`,
+        `a.Login as "login"`
+      ])
+      .leftJoin(AccountEntity, "a", `a.UserId = b.UserId`, { login: `%${searchLoginTerm}%` })
       .where(`b.BlogId = :blogId`, { blogId })
       .andWhere(`b.IsBanned = :isBanned`, { isBanned })
-      .andWhere(`a.Login ilike :login`, { login: `%${searchLoginTerm}%` })
-      .orderBy(`b."${sortBy}"`, sortDirection)
+      .orderBy(`a."${sortBy}"`, sortDirection)
       .limit(pageSize)
       .offset(offset)
-      .getManyAndCount()
+      .getRawMany()
 
     const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
-    const pagesCount = Math.ceil(totalCount / pageSize)
+    const pagesCount = Math.ceil(1 / pageSize)
 
     return new Contract({
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(totalCount),
+      totalCount: Number(1),
       items: banInfoViews
     }, null)
   }
@@ -260,15 +259,15 @@ export class BlogsQueryRepositoryOrm {
     }
   }
 
-  private changeBlogsView(blogs: any[]) {
+  private changeBlogsView(blogs: BlogEntity[]) {
     return blogs.map(blog => {
       return {
-        id: blog.id,
-        name: blog.name,
-        description: blog.description,
-        websiteUrl: blog.websiteUrl,
-        createdAt: blog.createdAt,
-        isMembership: blog.isMembership,
+        id: blog.BlogId,
+        name: blog.Name,
+        description: blog.Description,
+        websiteUrl: blog.WebsiteUrl,
+        createdAt: blog.CreatedAt,
+        isMembership: blog.IsMembership,
       }
     })
 

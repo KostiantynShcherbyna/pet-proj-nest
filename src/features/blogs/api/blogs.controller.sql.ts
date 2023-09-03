@@ -49,7 +49,7 @@ export class BlogsControllerSql {
   async getBlog(
     @Param() param: IdParamInputModelSql,
   ) {
-    const foundBlogView = await this.blogsQueryRepositorySql.findPublicBlog(param.id)
+    const foundBlogView = await this.blogsQueryRepositorySql.findBlog(param.id)
 
     if (foundBlogView === null) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
