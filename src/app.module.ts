@@ -78,7 +78,7 @@ import { TestingController } from "./infrastructure/testing/api/testing.controll
 import { TokensService } from "./infrastructure/services/tokens.service"
 import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
-import { UsersRepositorySql } from "./features/sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "./features/sa/repository/orm/users.repository.orm"
 import { DevicesRepositorySql } from "./features/devices/repository/sql/devices.repository.sql"
 import { AuthRepositoryOrm } from "./features/auth/repository/orm/auth-repository.orm"
 import { ConfirmationSql } from "./features/auth/application/use-cases/sql/confirmation.sql.use-case"
@@ -101,7 +101,7 @@ import { SaControllerSql } from "./features/sa/api/sa.controller.sql"
 import { DevicesQueryRepositorySql } from "./features/devices/repository/sql/devices.query.repository.sql"
 import { DeleteOtherDevicesSql } from "./features/devices/application/use-cases/sql/delete-other-devices.use-case.sql"
 import { DeleteSpecialDeviceSql } from "./features/devices/application/use-cases/sql/delete-special-device.use-case.sql"
-import { UsersQueryRepositorySql } from "./features/sa/repository/sql/users.query.repository.sql"
+import { UsersQueryRepositoryOrm } from "./features/sa/repository/orm/users.query.repository.orm"
 import { DevicesControllerSql } from "./features/devices/api/devices.controller.sql"
 import { BlogsControllerSql } from "./features/blogs/api/blogs.controller.sql"
 import { PostsControllerSql } from "./features/posts/api/posts.controller.sql"
@@ -123,8 +123,8 @@ import { CommentsControllerSql } from "./features/comments/api/comments.controll
 import { DeleteCommentSql } from "./features/comments/application/use-cases/sql/delete-comment.use-case.sql"
 import { UpdateCommentSql } from "./features/comments/application/use-cases/sql/update-comment.use-case.sql"
 import { UpdateCommentLikeSql } from "./features/comments/application/use-cases/sql/update-comment-like.use-case.sql"
-import { CommentsQueryRepositorySql } from "./features/comments/repository/sql/comments.query.repository.sql"
-import { CommentsRepositorySql } from "./features/comments/repository/sql/comments.repository.sql"
+import { CommentsQueryRepositoryOrm } from "./features/comments/repository/orm/comments.query.repository.orm"
+import { CommentsRepositoryOrm } from "./features/comments/repository/orm/comments.repository.orm"
 import { CreateCommentSql } from "./features/posts/application/use-cases/sql/create-comment.use-case.sql"
 import { UpdatePostLikeSql } from "./features/posts/application/use-cases/sql/update-post-like.use-case.sql"
 import { RecoveryCodeEntity } from "./features/auth/application/entities/sql/recovery-code.entity"
@@ -226,14 +226,14 @@ const repository = [
   AuthRepositoryOrm,
   DevicesRepositorySql,
   DevicesQueryRepositorySql,
-  UsersRepositorySql,
-  UsersQueryRepositorySql,
+  UsersRepositoryOrm,
+  UsersQueryRepositoryOrm,
   BlogsQueryRepositoryOrm,
   PostsQueryRepositoryOrm,
   BlogsRepositoryOrm,
   PostsRepositoryOrm,
-  CommentsQueryRepositorySql,
-  CommentsRepositorySql,
+  CommentsQueryRepositoryOrm,
+  CommentsRepositoryOrm,
 ]
 const otherProviders = [
   throttler,
@@ -254,7 +254,7 @@ const otherProviders = [
       port: 5432,
       username: "nestjsk",
       password: "nestjsk",
-      database: "pet-proj-nest-orm-db",
+      database: "pet-proj-nest-sql-db",
       entities: [
         RecoveryCodeEntity,
         BanBlogUserEntity,

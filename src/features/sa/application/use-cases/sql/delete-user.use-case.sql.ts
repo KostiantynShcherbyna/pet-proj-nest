@@ -4,7 +4,7 @@ import { Users, UsersModel } from "../../entities/mongoose/users.schema"
 import { UsersRepository } from "../../../repository/mongoose/users.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../repository/orm/users.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
@@ -22,7 +22,7 @@ export class DeleteUserCommandSql {
 export class DeleteUserSql {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected usersRepositorySql: UsersRepositorySql,
+    protected usersRepositorySql: UsersRepositoryOrm,
   ) {
   }
 

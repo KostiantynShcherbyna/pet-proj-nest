@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { DevicesRepositorySql } from "../../../../devices/repository/sql/devices.repository.sql"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 
@@ -20,7 +20,7 @@ export class LogoutSqlCommand {
 export class LogoutSql implements ICommandHandler<LogoutSqlCommand> {
   constructor(
     protected devicesSqlRepository: DevicesRepositorySql,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
   }
 

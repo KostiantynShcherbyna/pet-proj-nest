@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 
@@ -11,7 +11,7 @@ export class ConfirmationSqlCommand {
 @CommandHandler(ConfirmationSqlCommand)
 export class ConfirmationSql implements ICommandHandler<ConfirmationSqlCommand> {
   constructor(
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
   }
   async execute(command: ConfirmationSqlCommand): Promise<Contract<null | boolean>> {

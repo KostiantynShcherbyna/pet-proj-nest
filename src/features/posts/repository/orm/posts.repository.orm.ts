@@ -25,7 +25,7 @@ export class PostsRepositoryOrm {
         CreatedAt: date,
       })
       .execute()
-    return  result.identifiers[0].PostId
+    return result.identifiers[0].PostId
   }
 
   async deletePosts(blogId: string, queryRunner: QueryRunner): Promise<number | null> {

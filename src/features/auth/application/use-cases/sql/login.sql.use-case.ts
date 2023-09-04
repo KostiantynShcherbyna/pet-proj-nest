@@ -5,7 +5,7 @@ import { ConfigType } from "src/infrastructure/settings/configuration"
 import { LoginBodyInputModel } from "../../../api/models/input/login.body.input-model"
 import { Devices, DevicesModel } from "../../../../devices/application/entites/mongoose/devices.schema"
 import { RecoveryCodes, RecoveryCodesModel } from "../../entities/mongoose/recovery-code.schema"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { compareHashManager } from "../../../../../infrastructure/services/compare-hash.service"
 import { addSeconds } from "date-fns"
 import {
@@ -34,7 +34,7 @@ export class LoginSql implements ICommandHandler<LoginSqlCommand> {
   constructor(
     protected configService: ConfigService<ConfigType, true>,
     protected devicesSqlRepository: DevicesRepositorySql,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
     protected tokensService: TokensService,
   ) {
   }

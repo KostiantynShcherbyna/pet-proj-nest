@@ -9,7 +9,7 @@ import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { CommentsRepositorySql } from "../../../repository/sql/comments.repository.sql"
+import { CommentsRepositoryOrm } from "../../../repository/orm/comments.repository.orm"
 import { LikeStatus } from "../../../../../infrastructure/utils/constants"
 
 
@@ -26,7 +26,7 @@ export class DeleteCommentCommandSql {
 export class DeleteCommentSql implements ICommandHandler<DeleteCommentCommandSql> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected commentsRepositorySql: CommentsRepositorySql,
+    protected commentsRepositorySql: CommentsRepositoryOrm,
   ) {
   }
 

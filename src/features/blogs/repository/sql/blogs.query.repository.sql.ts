@@ -18,7 +18,7 @@ import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, Repository } from "typeorm"
 import { GetPostsQueryInputModel } from "../../../posts/api/models/input/get-posts.query.input-model"
 import { PostsView } from "../../../blogger/api/models/output/create-blogger-post.output-model"
-import { UsersRepositorySql } from "../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../sa/repository/orm/users.repository.orm"
 import { BannedBlogUsersView } from "../../../blogger/api/models/output/get-banned-blog-users.output-model"
 import { GetPostsCommentsQueryInputModel } from "../../api/models/input/get-posts-comments.query.input-model"
 import { BannedBlogUsersDocument } from "../../application/entities/mongoose/banned-blog-users.schema"
@@ -30,7 +30,7 @@ export class BlogsQueryRepositorySql {
     @InjectDataSource() protected dataSource: DataSource,
     protected blogsSqlRepository: BlogsRepositorySql,
     // protected blogsSqlRepository2: Repository<BlogEntity>,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
   }
 

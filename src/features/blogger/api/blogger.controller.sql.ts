@@ -45,7 +45,7 @@ import { UpdatePostCommandSql } from "../application/use-cases/sql/update-post.u
 import { BanUserBodyInputModelSql } from "./models/input/ban-user.body.input-model.sql"
 import { BanUserBloggerCommandSql } from "../application/use-cases/sql/ban-user-blogger.use-case.sql"
 import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-comments.query.input-model"
-import { CommentsQueryRepositorySql } from "../../comments/repository/sql/comments.query.repository.sql"
+import { CommentsQueryRepositoryOrm } from "../../comments/repository/orm/comments.query.repository.orm"
 
 
 @Controller("blogger")
@@ -54,7 +54,7 @@ export class BloggerControllerSql {
     private commandBus: CommandBus,
     protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
     protected postsQueryRepositorySql: PostsQueryRepositoryOrm,
-    protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
+    protected commentsQueryRepositorySql: CommentsQueryRepositoryOrm,
   ) {
   }
 

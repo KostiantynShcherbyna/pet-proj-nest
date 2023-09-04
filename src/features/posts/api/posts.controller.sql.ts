@@ -35,7 +35,7 @@ import { PostsQueryRepositoryOrm } from "../repository/orm/posts.query.repositor
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CreateCommentCommandSql } from "../application/use-cases/sql/create-comment.use-case.sql"
 import { GetCommentsParamInputModelSql } from "./models/input/get-comments.param.input-model.sql"
-import { CommentsQueryRepositorySql } from "../../comments/repository/sql/comments.query.repository.sql"
+import { CommentsQueryRepositoryOrm } from "../../comments/repository/orm/comments.query.repository.orm"
 import { UpdatePostLikeCommandSql } from "../application/use-cases/sql/update-post-like.use-case.sql"
 
 @Controller("posts")
@@ -43,7 +43,7 @@ export class PostsControllerSql {
   constructor(
     private commandBus: CommandBus,
     protected postsSqlQueryRepository: PostsQueryRepositoryOrm,
-    protected commentsQueryRepositorySql: CommentsQueryRepositorySql,
+    protected commentsQueryRepositorySql: CommentsQueryRepositoryOrm,
   ) {
   }
 

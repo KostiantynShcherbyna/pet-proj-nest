@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { randomUUID } from "crypto"
 import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapter"
 import { Contract } from "../../../../../infrastructure/utils/contract"
@@ -14,7 +14,7 @@ export class ConfirmationResendSqlCommand {
 @CommandHandler(ConfirmationResendSqlCommand)
 export class ConfirmationResendSql implements ICommandHandler<ConfirmationResendSqlCommand> {
   constructor(
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
     protected emailAdapter: EmailAdapter,
   ) {
   }

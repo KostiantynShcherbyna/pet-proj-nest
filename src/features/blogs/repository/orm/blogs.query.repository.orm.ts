@@ -18,7 +18,7 @@ import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, Repository } from "typeorm"
 import { GetPostsQueryInputModel } from "../../../posts/api/models/input/get-posts.query.input-model"
 import { PostsView } from "../../../blogger/api/models/output/create-blogger-post.output-model"
-import { UsersRepositorySql } from "../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../sa/repository/orm/users.repository.orm"
 import { BannedBlogUsersView } from "../../../blogger/api/models/output/get-banned-blog-users.output-model"
 import { GetPostsCommentsQueryInputModel } from "../../api/models/input/get-posts-comments.query.input-model"
 import { BannedBlogUsersDocument } from "../../application/entities/mongoose/banned-blog-users.schema"
@@ -34,7 +34,7 @@ export class BlogsQueryRepositoryOrm {
     @InjectDataSource() protected dataSource: DataSource,
     protected blogsSqlRepository: BlogsRepositoryOrm,
     // protected blogsSqlRepositoryOrm: Repository<BlogEntity>,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
   }
 
@@ -276,19 +276,19 @@ export class BlogsQueryRepositoryOrm {
   private changeBlogsSAView(blogs: any[]) {
     return blogs.map(blog => {
       return {
-        id: blog.id,
-        name: blog.name,
-        description: blog.description,
-        websiteUrl: blog.websiteUrl,
-        createdAt: blog.createdAt,
-        isMembership: false,
+        id: blog.BlogId,
+        name: blog.Name,
+        description: blog.Description,
+        websiteUrl: blog.WebsiteUrl,
+        createdAt: blog.CreatedAt,
+        isMembership: blog.IsMembership,
         blogOwnerInfo: {
-          userId: blog.userId,
-          userLogin: blog.userLogin
+          userId: blog.UserId,
+          userLogin: blog.UserLogin
         },
         banInfo: {
-          isBanned: blog.isBanned,
-          banDate: blog.banDate
+          isBanned: blog.IsBanned,
+          banDate: blog.BanDate || null
         }
       }
     })

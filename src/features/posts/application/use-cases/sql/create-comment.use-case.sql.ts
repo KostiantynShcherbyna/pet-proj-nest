@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { PostsRepositoryOrm } from "../../../repository/orm/posts.repository.orm"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
 
 
@@ -20,7 +20,7 @@ export class CreateCommentSql implements ICommandHandler<CreateCommentCommandSql
   constructor(
     protected postsRepositorySql: PostsRepositoryOrm,
     protected blogsRepositorySql: BlogsRepositoryOrm,
-    protected usersRepositorySql: UsersRepositorySql,
+    protected usersRepositorySql: UsersRepositoryOrm,
   ) {
   }
 

@@ -38,13 +38,13 @@ import { ConfirmationResendSqlCommand } from "../application/use-cases/sql/confi
 import { PasswordRecoverySqlCommand } from "../application/use-cases/sql/password-recovery.sql.use-case"
 import { NewPasswordSqlCommand } from "../application/use-cases/sql/new-password.sql.use-case"
 import { Throttle } from "@nestjs/throttler"
-import { UsersQueryRepositorySql } from "../../sa/repository/sql/users.query.repository.sql"
+import { UsersQueryRepositoryOrm } from "../../sa/repository/orm/users.query.repository.orm"
 import { ConfirmationBodyInputModelSql } from "./models/input/confirmation.body.input-model.sql"
 
 @Controller("auth")
 export class AuthControllerSql {
   constructor(
-    protected usersQueryRepositorySql: UsersQueryRepositorySql,
+    protected usersQueryRepositorySql: UsersQueryRepositoryOrm,
     protected commandBus: CommandBus
   ) {
   }

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { CommentsRepositorySql } from "../../../repository/sql/comments.repository.sql"
+import { CommentsRepositoryOrm } from "../../../repository/orm/comments.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 
@@ -20,7 +20,7 @@ export class UpdateCommentCommandSql {
 export class UpdateCommentSql implements ICommandHandler<UpdateCommentCommandSql> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected commentsRepositorySql: CommentsRepositorySql,
+    protected commentsRepositorySql: CommentsRepositoryOrm,
   ) {
   }
 

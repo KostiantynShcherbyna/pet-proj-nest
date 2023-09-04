@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { CommentsRepositorySql } from "../../../repository/sql/comments.repository.sql"
+import { CommentsRepositoryOrm } from "../../../repository/orm/comments.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 
 
 export class UpdateCommentLikeCommandSql {
@@ -21,8 +21,8 @@ export class UpdateCommentLikeCommandSql {
 export class UpdateCommentLikeSql implements ICommandHandler<UpdateCommentLikeCommandSql> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected commentsRepositorySql: CommentsRepositorySql,
-    protected usersRepositorySql: UsersRepositorySql,
+    protected commentsRepositorySql: CommentsRepositoryOrm,
+    protected usersRepositorySql: UsersRepositoryOrm,
   ) {
   }
 

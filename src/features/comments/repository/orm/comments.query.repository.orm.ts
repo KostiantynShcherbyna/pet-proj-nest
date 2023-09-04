@@ -11,13 +11,17 @@ import {
 } from "../../../../infrastructure/utils/constants"
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
 import { InjectDataSource } from "@nestjs/typeorm"
-import { DataSource } from "typeorm"
+import { DataSource, SelectQueryBuilder } from "typeorm"
 import { UsersRepositoryOrm } from "../../../sa/repository/orm/users.repository.orm"
 import { PostsQueryRepositoryOrm } from "../../../posts/repository/orm/posts.query.repository.orm"
+import { CommentEntity } from "../../application/entities/sql/comment.entity"
+import { CommentLikeEntity } from "../../application/entities/sql/comment-like.entity"
+import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
+import { PostLikeEntity } from "../../../posts/application/entites/sql/post-like.entity"
 
 
 @Injectable()
-export class CommentsQueryRepositorySql {
+export class CommentsQueryRepositoryOrm {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
     protected usersSqlRepository: UsersRepositoryOrm,
@@ -147,6 +151,28 @@ export class CommentsQueryRepositorySql {
     `
 
     const comments = await this.dataSource.query(queryForm, [postId, userId, pageSize, offset])
+
+
+    // const comment = await this.dataSource.createQueryBuilder(CommentEntity, "q")
+    //   .select([
+    //     `q.CommentId as "commentId"`,
+    //     `q.PostId as "postId"`,
+    //     `q.Content as "content"`,
+    //     `q.UserId as "userId"`,
+    //     `q.UserLogin as "userLogin"`,
+    //     `q.CreatedAt as "createdAt"`,
+    //     `le.Status as "myStatus`
+    //   ])
+    //   .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
+    //   .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
+    //   .leftJoin(CommentLikeEntity, "le")
+    //   .where(`q.CommentId = :commentId`, { commentId })
+    //   .andWhere(`le.CommentId = q.CommentId and le.UserId = :userId`, { userId })
+    //   .getRawOne()
+    //
+
+
+
     const commentsView = this.postCommentsView(comments)
 
     return new Contract({
@@ -265,6 +291,27 @@ export class CommentsQueryRepositorySql {
         myStatus: comment.myStatus || LikeStatus.None,
       },
     }
+  }
+
+
+  private likesCountBuilder1(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`count(*)`)
+      .from(CommentLikeEntity, "le1")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = le1.UserId`)
+      .where(`le1.LikeId = q.CommentId`)
+      .andWhere(`le1.Status = 'Like'`)
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+  }
+
+  private likesCountBuilder2(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`count(*)`)
+      .from(CommentLikeEntity, "le2")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = le2.UserId`)
+      .where(`le2.PostId = q.CommentId`)
+      .andWhere(`le2.Status = 'Dislike'`)
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
 

@@ -30,7 +30,7 @@ import { QueryUserSAInputModel } from "./models/input/get-users.query.input-mode
 import { CreateUserBodyInputModel } from "./models/input/create-user.body.input-model"
 import { BanUserCommandSql } from "../application/use-cases/sql/ban-user.use-case.sql"
 import { CreateUserSqlCommand } from "../application/use-cases/sql/create-user.use-case.sql"
-import { UsersQueryRepositorySql } from "../repository/sql/users.query.repository.sql"
+import { UsersQueryRepositoryOrm } from "../repository/orm/users.query.repository.orm"
 import { DeleteUserCommandSql } from "../application/use-cases/sql/delete-user.use-case.sql"
 import { IdSqlParamInputModel } from "./models/input/id.sql.param.input-model"
 import { BanBlogCommandSql } from "../application/use-cases/sql/ban-blog.use-case.sql"
@@ -42,7 +42,7 @@ import { BanBlogParamInputModelSql } from "./models/input/ban-blog.param.input-m
 export class SaControllerSql {
   constructor(
     private commandBus: CommandBus,
-    protected usersSqlQueryRepository: UsersQueryRepositorySql,
+    protected usersSqlQueryRepository: UsersQueryRepositoryOrm,
     protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
   ) {
   }

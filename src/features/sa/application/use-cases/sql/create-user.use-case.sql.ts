@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { generateHashManager } from "../../../../../infrastructure/services/generate-hash.service"
-import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../repository/orm/users.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 
@@ -20,7 +20,7 @@ export class CreateUserSqlCommand {
 export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
   }
 
@@ -50,7 +50,7 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
         expirationDate: null,
         isConfirmed: true
       }
-      await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto, queryRunner)
+      await this.usersSqlRepository.createEmailConfirmation({emailConfirmationDto : emailConfirmationDto, queryRunner : queryRunner})
       await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapter"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
@@ -23,7 +23,7 @@ export class RegistrationSqlCommand {
 export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
     protected emailAdapter: EmailAdapter,
   ) {
   }
@@ -47,6 +47,7 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
         passwordHash: passwordHash,
         createdAt: newDate
       }, queryRunner)
+
       const emailConfirmationDto = {
         userId: newUser.userId,
         confirmationCode: randomUUID(),
@@ -57,7 +58,7 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
         isConfirmed: false
       }
       console.log("confirmationCode", emailConfirmationDto.confirmationCode)
-      await this.usersSqlRepository.createEmailConfirmation(emailConfirmationDto, queryRunner)
+      await this.usersSqlRepository.createEmailConfirmation({ emailConfirmationDto, queryRunner })
       await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {

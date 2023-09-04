@@ -2,7 +2,7 @@ import { DeviceSessionReqInputModel } from "../../../api/models/input/device-ses
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ConfigService, ConfigType } from "@nestjs/config"
 import { RefreshTokenOutputModel } from "../../../api/models/output/refresh-token.output-model"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 import { addSeconds } from "date-fns"
 import {
   ACCESS_EXPIRES_TIME,
@@ -27,7 +27,7 @@ export class RefreshTokenSql implements ICommandHandler<RefreshTokenSqlCommand> 
   constructor(
     protected configService: ConfigService<ConfigType<any>, true>,
     protected devicesSqlRepository: DevicesRepositorySql,
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
     protected tokensService: TokensService,
   ) {
   }

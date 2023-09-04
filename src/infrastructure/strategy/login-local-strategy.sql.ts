@@ -4,7 +4,7 @@ import { Strategy } from "passport-local"
 import { StrategyNames } from "../utils/constants"
 import { UsersRepository } from "../../features/sa/repository/mongoose/users.repository"
 import { ErrorEnums } from "../utils/error-enums"
-import { UsersRepositorySql } from "../../features/sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../features/sa/repository/orm/users.repository.orm"
 import { Contract } from "../utils/contract"
 import { compareHashManager } from "../services/compare-hash.service"
 
@@ -12,7 +12,7 @@ import { compareHashManager } from "../services/compare-hash.service"
 @Injectable()
 export class LoginLocalStrategySql extends PassportStrategy(Strategy, StrategyNames.loginSqlLocalStrategy) {
   constructor(
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
     super({ usernameField: "loginOrEmail" })
   }

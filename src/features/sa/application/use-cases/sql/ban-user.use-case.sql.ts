@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { UsersRepositorySql } from "../../../repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../repository/orm/users.repository.orm"
 
 
 export class BanUserCommandSql {
@@ -16,7 +16,7 @@ export class BanUserCommandSql {
 @CommandHandler(BanUserCommandSql)
 export class BanUserSql implements ICommandHandler<BanUserCommandSql> {
   constructor(
-    protected usersSqlRepository: UsersRepositorySql,
+    protected usersSqlRepository: UsersRepositoryOrm,
   ) {
   }
 

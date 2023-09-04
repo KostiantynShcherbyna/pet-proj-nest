@@ -3,7 +3,7 @@ import { BanUserBodyInputModel } from "../../../api/models/input/ban-user.body.i
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
-import { UsersRepositorySql } from "../../../../sa/repository/sql/users.repository.sql"
+import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
 
 export class BanUserBloggerCommandSql {
   constructor(
@@ -18,7 +18,7 @@ export class BanUserBloggerCommandSql {
 export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandSql> {
   constructor(
     protected blogsRepositorySql: BlogsRepositoryOrm,
-    protected usersRepositorySql: UsersRepositorySql,
+    protected usersRepositorySql: UsersRepositoryOrm,
   ) {
   }
 
