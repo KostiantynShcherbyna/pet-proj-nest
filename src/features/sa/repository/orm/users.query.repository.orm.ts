@@ -9,9 +9,11 @@ import {
   SEARCH_EMAIL_TERM_DEFAULT,
   SEARCH_LOGIN_TERM_DEFAULT,
   SORT_BY_DEFAULT_SQL,
-  SortDirection,
+  SortDirection, SortDirectionOrm,
 } from "../../../../infrastructure/utils/constants"
 import { dtoManager } from "../../../../infrastructure/adapters/output-model.adapter"
+import { AccountEntity } from "../../application/entities/sql/account.entity"
+import { EmailConfirmationEntity } from "../../application/entities/sql/email-confirmation.entity"
 
 @Injectable()
 export class UsersQueryRepositoryOrm {
@@ -20,97 +22,72 @@ export class UsersQueryRepositoryOrm {
   ) {
   }
 
-  async findMe(value) {
-    const user = await this.dataSource.query(`
-    select a."UserId" as "userId", "Login" as "login", "Email" as "email"
-    from public."account_entity" a
-    where a."UserId" = $1
-    `, [value])
-    return user.length ? user[0] : null
+  async findMe(userId) {
+    const user = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+      .select([
+        `a.UserId as "userId"`,
+        `a.Login as "login"`,
+        `a.Email as "email"`
+      ])
+      .where(`a.UserId = :userId`, { userId })
+      .getRawOne()
+    return user ? user : null
   }
 
 
   async findUsers(query: QueryUserSAInputModel) {
-    let isBanned: boolean | null = null
-    if (query.banStatus === BanStatus.Banned) isBanned = true
-    if (query.banStatus === BanStatus.NotBanned) isBanned = false
     const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
     const searchEmailTerm = query.searchEmailTerm || SEARCH_EMAIL_TERM_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
-    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const offset = (pageNumber - 1) * pageSize
 
-    const usersTotalCount = await this.dataSource.query(`
-    select count(*)
-    from public."account_entity" a
-    left join public."ban_info_entity" b on b."UserId" = a."UserId"
-    where (a."Login" ilike $2 or a."Email" ilike $3)
-    and (b."IsBanned" = $1 OR $1 IS NULL)
-    `, [isBanned, `%${searchLoginTerm}%`, `%${searchEmailTerm}%`,])
+    const [users, totalCount] = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+      .where(`a.Login ilike :login`, { login: `%${searchLoginTerm}%` })
+      .orWhere(`a.Email ilike :email`, { email: `%${searchEmailTerm}%` })
+      .orderBy(`a."${sortBy}"`, sortDirection)
+      .limit(pageSize)
+      .offset(offset)
+      .getManyAndCount()
 
-    const pagesCount = Math.ceil(usersTotalCount[0].count / pageSize)
+    const mappedUsers = this.createUsersView(users)
 
-    const queryForm = `
-    select a."UserId" as "id", "Login" as "login", "Email" as "email", "CreatedAt" as "createdAt",
-           b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason"
-    from public."account_entity" a
-    left join public."ban_info_entity" b on b."UserId" = a."UserId"
-    where (a."Login" ilike $2 or a."Email" ilike $3)
-    and (b."IsBanned" = $1 or $1 IS NULL)
-    order by "${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $4
-    offset $5
-    `
-
-    const users = await this.dataSource.query(
-      queryForm, [
-        isBanned, // 1
-        `%${searchLoginTerm}%`, // 2
-        `%${searchEmailTerm}%`, // 3
-        pageSize, // 4
-        offset, // 5
-      ])
-    const mappedUsers = dtoManager.changeUsersSqlView(users)
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
     return {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(usersTotalCount[0].count),
+      totalCount: Number(totalCount),
       items: mappedUsers
     }
   }
 
-  async findUsersByUserId(userId: number) {
-    const userResult = await this.dataSource.query(`
-    select a."UserId" as "userId", "Login" as "login", "Email" as "email", "CreatedAt" as "createdAt",
-           b."IsBanned" as "isBanned", "BanDate" as "banDate", "BanReason" as "banReason",
-           c."ConfirmationCode" as "confirmationCode", "ExpirationDate" as "expirationDate", "IsConfirmed" as "isConfirmed"
-    from public."account_entity" a
-    left join public."ban_info_entity" b on b."UserId" = a."UserId" 
-    left join public."email_confirmation_entity" c on c."UserId" = a."UserId"
-    where a."UserId" = $1
-    `, [userId])
-    if (!userResult.length) return null
-    return this.createUserView(userResult[0])
+  async findUserByUserId(userId: number) {
+    const user = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+      .select([
+        `a.UserId as "id"`,
+        `a.Login as "login"`,
+        `a.Email as "email"`,
+        `a.CreatedAt as "createdAt"`
+      ])
+      .where(`a.UserId = :userId`, { userId })
+      .getRawOne()
+    return user ? user : null
   }
 
-  private createUserView(user: any) {
-    return {
-      id: user.userId.toString(),
-      login: user.login,
-      email: user.email,
-      createdAt: user.createdAt,
-      banInfo: {
-        banDate: user.banDate,
-        banReason: user.banReason,
-        isBanned: user.isBanned,
+  private createUsersView(users: AccountEntity[]) {
+    return users.map(user => {
+      return {
+        id: user.UserId,
+        login: user.Login,
+        email: user.Email,
+        createdAt: user.CreatedAt
       }
-    }
+    })
   }
+
 
 }

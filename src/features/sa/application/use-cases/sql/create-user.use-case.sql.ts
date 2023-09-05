@@ -51,7 +51,7 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
         isConfirmed: true
       }
       await this.usersSqlRepository.createEmailConfirmation({emailConfirmationDto : emailConfirmationDto, queryRunner : queryRunner})
-      await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
+      // await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {
       console.log("CreateUserSql", err)

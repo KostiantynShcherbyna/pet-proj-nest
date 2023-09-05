@@ -11,7 +11,7 @@ import {
   Secrets
 } from "../../../../../infrastructure/utils/constants"
 import { JwtService } from "@nestjs/jwt"
-import { DevicesRepositorySql } from "../../../../devices/repository/sql/devices.repository.sql"
+import { DevicesRepositoryOrm } from "../../../../devices/repository/orm/devices.repository.orm"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { TokensService } from "../../../../../infrastructure/services/tokens.service"
@@ -26,7 +26,7 @@ export class RefreshTokenSqlCommand {
 export class RefreshTokenSql implements ICommandHandler<RefreshTokenSqlCommand> {
   constructor(
     protected configService: ConfigService<ConfigType<any>, true>,
-    protected devicesSqlRepository: DevicesRepositorySql,
+    protected devicesSqlRepository: DevicesRepositoryOrm,
     protected usersSqlRepository: UsersRepositoryOrm,
     protected tokensService: TokensService,
   ) {

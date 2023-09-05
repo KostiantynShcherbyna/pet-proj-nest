@@ -79,7 +79,7 @@ import { TokensService } from "./infrastructure/services/tokens.service"
 import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TestingRepository } from "./infrastructure/testing/infrastructure/testing.repository"
 import { UsersRepositoryOrm } from "./features/sa/repository/orm/users.repository.orm"
-import { DevicesRepositorySql } from "./features/devices/repository/sql/devices.repository.sql"
+import { DevicesRepositoryOrm } from "./features/devices/repository/orm/devices.repository.orm"
 import { AuthRepositoryOrm } from "./features/auth/repository/orm/auth-repository.orm"
 import { ConfirmationSql } from "./features/auth/application/use-cases/sql/confirmation.sql.use-case"
 import { ConfirmationResendSql } from "./features/auth/application/use-cases/sql/confirmation-resend.sql.use-case"
@@ -98,7 +98,7 @@ import { BindBlogSql } from "./features/sa/application/use-cases/sql/bind-blog.u
 import { CreateUserSql } from "./features/sa/application/use-cases/sql/create-user.use-case.sql"
 import { DeleteUserSql } from "./features/sa/application/use-cases/sql/delete-user.use-case.sql"
 import { SaControllerSql } from "./features/sa/api/sa.controller.sql"
-import { DevicesQueryRepositorySql } from "./features/devices/repository/sql/devices.query.repository.sql"
+import { DevicesQueryRepositoryOrm } from "./features/devices/repository/orm/devices.query.repository.orm"
 import { DeleteOtherDevicesSql } from "./features/devices/application/use-cases/sql/delete-other-devices.use-case.sql"
 import { DeleteSpecialDeviceSql } from "./features/devices/application/use-cases/sql/delete-special-device.use-case.sql"
 import { UsersQueryRepositoryOrm } from "./features/sa/repository/orm/users.query.repository.orm"
@@ -224,8 +224,8 @@ const repository = [
   // TestingRepository,
 
   AuthRepositoryOrm,
-  DevicesRepositorySql,
-  DevicesQueryRepositorySql,
+  DevicesRepositoryOrm,
+  DevicesQueryRepositoryOrm,
   UsersRepositoryOrm,
   UsersQueryRepositoryOrm,
   BlogsQueryRepositoryOrm,
@@ -254,7 +254,7 @@ const otherProviders = [
       port: 5432,
       username: "nestjsk",
       password: "nestjsk",
-      database: "pet-proj-nest-sql-db",
+      database: "pet-proj-nest-orm-db",
       entities: [
         RecoveryCodeEntity,
         BanBlogUserEntity,

@@ -15,7 +15,7 @@ import {
 } from "../../../../../infrastructure/utils/constants"
 import { randomUUID } from "crypto"
 import { TokensService } from "../../../../../infrastructure/services/tokens.service"
-import { DevicesRepositorySql } from "../../../../devices/repository/sql/devices.repository.sql"
+import { DevicesRepositoryOrm } from "../../../../devices/repository/orm/devices.repository.orm"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { LoginOutputModel } from "../../../api/models/output/login.output-model"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
@@ -33,7 +33,7 @@ export class LoginSqlCommand {
 export class LoginSql implements ICommandHandler<LoginSqlCommand> {
   constructor(
     protected configService: ConfigService<ConfigType, true>,
-    protected devicesSqlRepository: DevicesRepositorySql,
+    protected devicesSqlRepository: DevicesRepositoryOrm,
     protected usersSqlRepository: UsersRepositoryOrm,
     protected tokensService: TokensService,
   ) {

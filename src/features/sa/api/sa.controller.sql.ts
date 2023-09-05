@@ -148,7 +148,7 @@ export class SaControllerSql {
     if (createResult.error === ErrorEnums.USER_LOGIN_EXIST) throw new BadRequestException(
       callErrorMessage(ErrorEnums.USER_LOGIN_EXIST, bodyUser.login)
     )
-    const userView = await this.usersSqlQueryRepository.findUsersByUserId(createResult.data)
+    const userView = await this.usersSqlQueryRepository.findUserByUserId(createResult.data)
     if (userView === null) throw new NotFoundException()
     return userView
   }

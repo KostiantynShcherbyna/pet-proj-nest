@@ -37,7 +37,7 @@ export class DeleteUserSql {
     try {
       await queryRunner.startTransaction()
       await this.usersRepositorySql.deleteEmailConfirmation(command.id, queryRunner)
-      await this.usersRepositorySql.deleteBanInfo(command.id, queryRunner)
+      // await this.usersRepositorySql.deleteBanInfo(command.id, queryRunner)
       await this.usersRepositorySql.deleteSentConfirmationCodeDates(command.id, queryRunner)
       await this.usersRepositorySql.deleteDevices(command.id, queryRunner)
       await this.usersRepositorySql.deleteAccountData(command.id, queryRunner)

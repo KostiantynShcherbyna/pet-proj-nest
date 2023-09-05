@@ -51,6 +51,7 @@ export class UsersRepositoryOrm {
   }
 
   async createEmailConfirmation({ emailConfirmationDto, queryRunner }: IEmailConfirmationDto) {
+    console.log("confirmationCode", emailConfirmationDto.confirmationCode)
     await queryRunner.manager.createQueryBuilder(EmailConfirmationEntity, "e")
       .insert()
       .values({
@@ -74,19 +75,19 @@ export class UsersRepositoryOrm {
   //     .execute()
   // }
 
-  async createConfirmationCode(confirmationCodeDto: ICreateConfirmationCodeDto) {
-    console.log("newConfirmationCode", confirmationCodeDto.confirmationCode)
-    const createResult = await this.dataSource.createQueryBuilder(EmailConfirmationEntity, "e")
-      .insert()
-      .values({
-        UserId: confirmationCodeDto.userId,
-        ConfirmationCode: confirmationCodeDto.confirmationCode,
-        ExpirationDate: confirmationCodeDto.expirationDate,
-        IsConfirmed: confirmationCodeDto.isConfirmed
-      })
-      .execute()
-    return createResult ? createResult : null
-  }
+  // async createNewEmailConfirmation(confirmationCodeDto: ICreateConfirmationCodeDto) {
+  //   console.log("newConfirmationCode", confirmationCodeDto.confirmationCode)
+  //   const createResult = await this.dataSource.createQueryBuilder(EmailConfirmationEntity, "e")
+  //     .insert()
+  //     .values({
+  //       UserId: confirmationCodeDto.userId,
+  //       ConfirmationCode: confirmationCodeDto.confirmationCode,
+  //       ExpirationDate: confirmationCodeDto.expirationDate,
+  //       IsConfirmed: confirmationCodeDto.isConfirmed
+  //     })
+  //     .execute()
+  //   return createResult ? createResult : null
+  // }
 
   async createSentConfirmCodeDate(userId: string, sentDate: string) {
     await this.dataSource.createQueryBuilder(SentConfirmationCodeDateEntity, "s")

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { DevicesRepositorySql } from "../../../repository/sql/devices.repository.sql"
+import { DevicesRepositoryOrm } from "../../../repository/orm/devices.repository.orm"
 
 
 export class DeleteSpecialDeviceCommandSql {
@@ -16,7 +16,7 @@ export class DeleteSpecialDeviceCommandSql {
 @CommandHandler(DeleteSpecialDeviceCommandSql)
 export class DeleteSpecialDeviceSql implements ICommandHandler<DeleteSpecialDeviceCommandSql> {
   constructor(
-    protected devicesSqlRepository: DevicesRepositorySql,
+    protected devicesSqlRepository: DevicesRepositoryOrm,
   ) {
   }
 

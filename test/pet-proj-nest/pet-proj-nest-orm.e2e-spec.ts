@@ -25,7 +25,7 @@ import { configuration } from "../../src/infrastructure/settings/configuration"
 import { DataSource } from "typeorm"
 
 describe
-("pet-proj-nest-sql", () => {
+("pet-proj-nest-orm", () => {
   const second = 1000
   const minute = 60 * second
 

@@ -28,17 +28,17 @@ export class BanUserSql implements ICommandHandler<BanUserCommandSql> {
     if (user.isBanned === command.isBanned)
       return new Contract(true, null)
 
-    const result = command.isBanned
-      ? await this.usersSqlRepository.updateUserBan(
-        command.userId,
-        command.isBanned,
-        command.banReason,
-        new Date(Date.now()).toISOString()
-      )
-      : await this.usersSqlRepository.updateUserBan(
-        command.userId,
-        command.isBanned,
-      )
+    // const result = command.isBanned
+    //   ? await this.usersSqlRepository.updateUserBan(
+    //     command.userId,
+    //     command.isBanned,
+    //     command.banReason,
+    //     new Date(Date.now()).toISOString()
+    //   )
+    //   : await this.usersSqlRepository.updateUserBan(
+    //     command.userId,
+    //     command.isBanned,
+    //   )
 
     return new Contract(true, null)
   }

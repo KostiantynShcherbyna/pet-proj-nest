@@ -59,7 +59,7 @@ export class RegistrationSql implements ICommandHandler<RegistrationSqlCommand> 
       }
       console.log("confirmationCode", emailConfirmationDto.confirmationCode)
       await this.usersSqlRepository.createEmailConfirmation({ emailConfirmationDto, queryRunner })
-      await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
+      // await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {
       console.log("RegistrationSql", err)
