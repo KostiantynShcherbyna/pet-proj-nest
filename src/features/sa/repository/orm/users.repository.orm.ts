@@ -38,8 +38,9 @@ export class UsersRepositoryOrm {
   }
 
   async createUser({ login, email, passwordHash, createdAt }: any, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(AccountEntity, "a")
+    const result = await queryRunner.manager.createQueryBuilder()
       .insert()
+      .into(AccountEntity)
       .values({
         Login: login,
         Email: email,
@@ -52,8 +53,9 @@ export class UsersRepositoryOrm {
 
   async createEmailConfirmation({ emailConfirmationDto, queryRunner }: IEmailConfirmationDto) {
     console.log("confirmationCode", emailConfirmationDto.confirmationCode)
-    await queryRunner.manager.createQueryBuilder(EmailConfirmationEntity, "e")
+    await queryRunner.manager.createQueryBuilder()
       .insert()
+      .into(EmailConfirmationEntity)
       .values({
         UserId: emailConfirmationDto.userId,
         ConfirmationCode: emailConfirmationDto.confirmationCode || "",
@@ -90,8 +92,9 @@ export class UsersRepositoryOrm {
   // }
 
   async createSentConfirmCodeDate(userId: string, sentDate: string) {
-    await this.dataSource.createQueryBuilder(SentConfirmationCodeDateEntity, "s")
+    await this.dataSource.createQueryBuilder()
       .insert()
+      .into(SentConfirmationCodeDateEntity)
       .values({
         UserId: userId,
         SentDate: sentDate
@@ -100,7 +103,7 @@ export class UsersRepositoryOrm {
   }
 
   async findUserByUserId(userId: string) {
-    const user = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+    const user = await this.dataSource.createQueryBuilder()
       .select([
         `a.UserId as "userId"`,
         `a.Login as "login"`,
@@ -114,6 +117,7 @@ export class UsersRepositoryOrm {
         `c.ExpirationDate as "expirationDate"`,
         `c.IsConfirmed as "isConfirmed"`
       ])
+      .from(AccountEntity, "a")
       .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
       .leftJoin(EmailConfirmationEntity, "c", `c.UserId = a.UserId`)
       .where(`a.UserId = :userId`, { userId })
@@ -122,7 +126,7 @@ export class UsersRepositoryOrm {
   }
 
   async findUserByConfirmCode(confirmationCode: string) {
-    const user = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+    const user = await this.dataSource.createQueryBuilder()
       .select([
         `a.UserId as "userId"`,
         `a.Login as "login"`,
@@ -136,6 +140,7 @@ export class UsersRepositoryOrm {
         `e.ExpirationDate as "expirationDate"`,
         `e.IsConfirmed as "isConfirmed"`
       ])
+      .from(AccountEntity, "a")
       .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
       .leftJoin(EmailConfirmationEntity, "e", `e.UserId = a.UserId`)
       .where(`a.ConfirmationCode = :confirmationCode`, { confirmationCode })
@@ -144,7 +149,7 @@ export class UsersRepositoryOrm {
   }
 
   async findUserByEmail(email: string) {
-    const user = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+    const user = await this.dataSource.createQueryBuilder()
       .select([
         `a.UserId as "userId"`,
         `a.Login as "login"`,
@@ -158,6 +163,7 @@ export class UsersRepositoryOrm {
         `e.ExpirationDate as "expirationDate"`,
         `e.IsConfirmed as "isConfirmed"`
       ])
+      .from(AccountEntity, "a")
       .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
       .leftJoin(EmailConfirmationEntity, "e", `e.UserId = a.UserId`)
       .where(`a.Email = :email`, { email })
@@ -166,7 +172,7 @@ export class UsersRepositoryOrm {
   }
 
   async findUserByLoginOrEmail(userAuthData: { login: string, email: string }) {
-    const foundUser = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+    const foundUser = await this.dataSource.createQueryBuilder()
       .select([
         `a.UserId as "userId"`,
         `a.Login as "login"`,
@@ -177,6 +183,7 @@ export class UsersRepositoryOrm {
         `e.ExpirationDate as "expirationDate"`,
         `e.IsConfirmed as "isConfirmed"`
       ])
+      .from(AccountEntity, "a")
       .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
       .leftJoin(EmailConfirmationEntity, "e", `e.UserId = a.UserId`)
       .where(`a.Login = :login`, { login: userAuthData.login })
@@ -186,9 +193,10 @@ export class UsersRepositoryOrm {
   }
 
   async deleteEmailConfirmation(userId: string, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(EmailConfirmationEntity, "e")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
-      .where(`e.UserId = :userId`, { userId })
+      .from(EmailConfirmationEntity)
+      .where(`UserId = :userId`, { userId })
       .execute()
     return result.affected ? result.affected : null
   }
@@ -202,25 +210,28 @@ export class UsersRepositoryOrm {
   // }
 
   async deleteSentConfirmationCodeDates(userId: string, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(SentConfirmationCodeDateEntity, "s")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
-      .where(`s.UserId = :userId`, { userId })
+      .from(SentConfirmationCodeDateEntity)
+      .where(`UserId = :userId`, { userId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async deleteDevices(userId: string, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(DeviceEntity, "d")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
-      .where(`d.UserId = :userId`, { userId })
+      .from(DeviceEntity)
+      .where(`UserId = :userId`, { userId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async deleteAccountData(userId: string, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(AccountEntity, "a")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
-      .where(`a.UserId = :userId`, { userId })
+      .from(AccountEntity)
+      .where(`UserId = :userId`, { userId })
       .execute()
     return result.affected ? result.affected : null
   }
@@ -241,19 +252,19 @@ export class UsersRepositoryOrm {
   // }
 
   async updatePasswordHash(userId: string, passwordHash: string) {
-    const result = await this.dataSource.createQueryBuilder(AccountEntity, "a")
-      .update()
+    const result = await this.dataSource.createQueryBuilder()
+      .update(AccountEntity)
       .set({ PasswordHash: passwordHash })
-      .where(`a.UserId = :userId`, { userId })
+      .where(`UserId = :userId`, { userId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async updateConfirmation(props: { userId: string, isConfirm: boolean }) {
-    await this.dataSource.createQueryBuilder(EmailConfirmationEntity, "e")
-      .update()
+    await this.dataSource.createQueryBuilder()
+      .update(EmailConfirmationEntity)
       .set({ IsConfirmed: props.isConfirm })
-      .where(`e.UserId = :userId`, { userId: props.userId })
+      .where(`UserId = :userId`, { userId: props.userId })
       .execute()
   }
 

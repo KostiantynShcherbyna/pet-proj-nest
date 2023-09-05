@@ -39,12 +39,8 @@ export class PostsQueryRepositoryOrm {
     const sortDirection = queryPost.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const offset = (pageNumber - 1) * pageSize
 
-    const totalCount = await this.dataSource.query(`
-    select count (*)
-    from public."post_entity" a
-    left join public."blog_entity" b on b."BlogId" = a."BlogId"
-    where b."IsBanned" = 'false'
-    `)
+    const totalCount = await this.dataSource.createQueryBuilder(PostEntity, "p")
+      .getCount()
 
     const posts = await this.dataSource.createQueryBuilder(PostEntity, "p")
       .select([
@@ -84,13 +80,13 @@ export class PostsQueryRepositoryOrm {
     //   .getManyAndCount()
 
     const mappedPosts = this.changePostsView(posts)
-    const pagesCount = Math.ceil(totalCount[0].count / pageSize)
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
     const postsView = {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(totalCount[0].count),
+      totalCount: Number(totalCount),
       items: mappedPosts
     }
 
@@ -151,12 +147,10 @@ export class PostsQueryRepositoryOrm {
     const sortDirection = queryPost.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const offset = (pageNumber - 1) * pageSize
 
-    const totalCount = await this.dataSource.query(`
-    select count (*)
-    from public."post_entity" a
-    left join public."blog_entity" b on b."BlogId" = a."BlogId"
-    where b."IsBanned" = 'false'
-    `)
+
+    const totalCount = await this.dataSource.createQueryBuilder(PostEntity, "p")
+      .where(`p.BlogId = :blogId`, { blogId })
+      .getCount()
 
     const posts = await this.dataSource.createQueryBuilder(PostEntity, "p")
       .select([

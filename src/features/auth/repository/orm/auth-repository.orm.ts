@@ -13,13 +13,14 @@ export class AuthRepositoryOrm {
   }
 
   async findLastRecoveryCodeByEmail(email: string) {
-    const builderResult = this.dataSource.createQueryBuilder(RecoveryCodeEntity, "r")
+    const builderResult = this.dataSource.createQueryBuilder()
       .select([
         `r.RecoveryCodeId as recoveryCodeId`,
         `r.Email as email`,
         `r.RecoveryCode as recoveryCode`,
         `r.Active as active`
       ])
+      .from(RecoveryCodeEntity, "r")
       .where("r.Email = :email", { email })
     const result = await builderResult.getRawMany()
     return result.length ? result[result.length - 1] : null
@@ -27,8 +28,9 @@ export class AuthRepositoryOrm {
   }
 
   async createPasswordRecoveryCode({ email, recoveryCode, active }) {
-    const result = await this.dataSource.createQueryBuilder(RecoveryCodeEntity, "r")
+    const result = await this.dataSource.createQueryBuilder()
       .insert()
+      .into(RecoveryCodeEntity)
       .values({
         Email: email,
         RecoveryCode: recoveryCode,
@@ -39,12 +41,10 @@ export class AuthRepositoryOrm {
   }
 
   async deactivatePasswordRecoveryCode(recoveryCodeId: number) {
-    const result = await this.dataSource.createQueryBuilder(RecoveryCodeEntity, "r")
-      .update()
-      .set({
-        Active: false
-      })
-      .where(`r.RecoveryCodeId = :recoveryCodeId`, { recoveryCodeId })
+    const result = await this.dataSource.createQueryBuilder()
+      .update(RecoveryCodeEntity)
+      .set({ Active: false })
+      .where(`RecoveryCodeId = :recoveryCodeId`, { recoveryCodeId })
       .execute()
     return result.raw.length ? result.raw[0] : null
   }

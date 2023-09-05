@@ -281,15 +281,7 @@ export class BlogsQueryRepositoryOrm {
         description: blog.Description,
         websiteUrl: blog.WebsiteUrl,
         createdAt: blog.CreatedAt,
-        isMembership: blog.IsMembership,
-        blogOwnerInfo: {
-          userId: blog.UserId,
-          userLogin: blog.UserLogin
-        },
-        banInfo: {
-          isBanned: blog.IsBanned,
-          banDate: blog.BanDate || null
-        }
+        isMembership: blog.IsMembership
       }
     })
   }

@@ -19,13 +19,14 @@ export class BlogsRepositoryOrm {
   }
 
   async findBlog(blogId: string) {
-    const blog = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+    const blog = await this.dataSource.createQueryBuilder()
       .select([
         `b.BlogId as "id"`, `b.UserId as "userId"`, `b.UserLogin as "userLogin"`,
         `b.Name as "name"`, `b.Description as "description"`, `b.WebsiteUrl as "websiteUrl"`,
         `b.CreatedAt as "createdAt"`, `b.IsMembership as "isMembership"`, `b.IsBanned as "isBanned"`,
         `b.BanDate as "banDate"`
       ])
+      .from(BlogEntity, "b")
       .where("b.BlogId = :blogId", { blogId })
       .getRawOne()
     return blog ? blog : null
@@ -33,8 +34,9 @@ export class BlogsRepositoryOrm {
 
   async createBlog(bodyBlog: CreateBlogCommand, login: string): Promise<string> {
     const date = new Date(Date.now()).toISOString()
-    const result = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+    const result = await this.dataSource.createQueryBuilder()
       .insert()
+      .into(BlogEntity)
       .values({
         Name: bodyBlog.name,
         Description: bodyBlog.description,
@@ -52,8 +54,9 @@ export class BlogsRepositoryOrm {
 
   async createBlogSA({ name, description, websiteUrl }: IcreateBlogSADto): Promise<string> {
     const date = new Date(Date.now()).toISOString()
-    const result = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+    const result = await this.dataSource.createQueryBuilder()
       .insert()
+      .into(BlogEntity)
       .values({
         Name: name,
         Description: description,
@@ -75,21 +78,23 @@ export class BlogsRepositoryOrm {
   }
 
   async deleteBlog(blogId: string, queryRunner: QueryRunner): Promise<number | null> {
-    const result = await queryRunner.manager.createQueryBuilder(BlogEntity, "b")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
+      .from(BlogEntity)
       .where("BlogId = :blogId", { blogId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async findBanUsersInfo(blogId: string, userId: string) {
-    const banUsersInfo = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
+    const banUsersInfo = await this.dataSource.createQueryBuilder()
       .select([
         `b.BlogId as "id"`,
         `b.UserId as "userId"`,
         `b.IsBanned as "isBanned"`,
         `b.BanId as "banId"`
       ])
+      .from(BanBlogUserEntity, "b")
       .where("b.BlogId = :blogId", { blogId })
       .andWhere("b.UserId = :userId", { userId })
       .getRawOne()
@@ -97,8 +102,9 @@ export class BlogsRepositoryOrm {
   }
 
   async banUserOfBlog({ blogId, userId, isBanned, banReason, banDate }): Promise<string> {
-    const result = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
+    const result = await this.dataSource.createQueryBuilder()
       .insert()
+      .into(BanBlogUserEntity)
       .values({
         BlogId: blogId,
         UserId: userId,

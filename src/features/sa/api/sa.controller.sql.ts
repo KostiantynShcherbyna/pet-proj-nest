@@ -204,7 +204,7 @@ export class SaControllerSql {
   }
 
 
-//   BLOGGER
+//  ↓↓↓ BLOGGER
   @UseGuards(BasicGuard)
   // @UseGuards(AccessGuard)
   @Get("blogs/comments")
@@ -373,7 +373,7 @@ export class SaControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
     @Param() param: UpdatePostParamInputModelSql,
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    // @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Body() bodyPost: UpdatePostBodyInputModel,
   ) {
     const updateContract = await this.commandBus.execute(

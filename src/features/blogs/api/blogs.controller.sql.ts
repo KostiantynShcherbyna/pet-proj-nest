@@ -9,12 +9,14 @@ import { callErrorMessage } from "../../../infrastructure/adapters/exception-mes
 import { BlogsQueryRepositoryOrm } from "../repository/orm/blogs.query.repository.orm"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CreatePostParamInputModelSql } from "./models/input/create-post.param.input-model.sql"
+import { PostsQueryRepositoryOrm } from "../../posts/repository/orm/posts.query.repository.orm"
 
 
 @Controller("blogs")
 export class BlogsControllerSql {
   constructor(
     protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
+    protected postsQueryRepositorySql: PostsQueryRepositoryOrm,
   ) {
   }
 
@@ -32,7 +34,7 @@ export class BlogsControllerSql {
     @Param() param: CreatePostParamInputModelSql,
     @Query() queryPost: GetPostsQueryInputModel,
   ) {
-    const postsContract = await this.blogsQueryRepositorySql.findBlogPosts(
+    const postsContract = await this.postsQueryRepositorySql.findBlogPosts(
       queryPost,
       param.blogId,
       deviceSession?.userId,
