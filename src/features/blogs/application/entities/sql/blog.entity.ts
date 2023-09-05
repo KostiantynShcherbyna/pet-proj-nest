@@ -21,13 +21,13 @@ export class BlogEntity {
   @Column()
   CreatedAt: string
 
-  @Column({ type: "uuid" })
+  @Column({ nullable: true, type: "uuid" })
   UserId: string
 
-  @Column()
+  @Column({ nullable: true })
   UserLogin: string
 
-  @Column()
+  @Column({ nullable: true })
   IsBanned: boolean
 
   @Column({ nullable: true })

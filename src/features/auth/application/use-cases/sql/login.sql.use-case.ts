@@ -81,7 +81,7 @@ export class LoginSql implements ICommandHandler<LoginSqlCommand> {
       REFRESH_EXPIRES_TIME
     )
 
-    await this.devicesSqlRepository.createDevice(tokensPayload)
+    await this.devicesSqlRepository.createDevice({ ...tokensPayload, expireAt: tokensPayload.expireAt.toString() })
 
     return new Contract({ accessJwt: { accessToken }, refreshToken }, null)
   }

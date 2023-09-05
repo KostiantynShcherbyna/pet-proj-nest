@@ -22,7 +22,8 @@ export class EmailConfirmationEntity {
   @Column()
   IsConfirmed: boolean
 
-  @Column({ type: "uuid", nullable: true })
+  // @Column({ type: "uuid", nullable: true })
+  @Column({ nullable: true })
   ConfirmationCode: string
 
   @Column({ nullable: true })

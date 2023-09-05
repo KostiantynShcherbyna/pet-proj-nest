@@ -31,7 +31,7 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
     if (user?.email === command.email) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
     if (user?.login === command.login) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
 
-    let newUser
+    let newUserId
     const queryRunner = this.dataSource.createQueryRunner()
     try {
       await queryRunner.startTransaction()
@@ -42,16 +42,16 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
         passwordHash: passwordHash,
         createdAt: new Date(Date.now()).toISOString()
       }
-      newUser = await this.usersSqlRepository.createUser(newUserDataDto, queryRunner)
+      newUserId = await this.usersSqlRepository.createUser(newUserDataDto, queryRunner)
 
       const emailConfirmationDto = {
-        userId: newUser.userId,
+        userId: newUserId,
         confirmationCode: null,
         expirationDate: null,
         isConfirmed: true
       }
       await this.usersSqlRepository.createEmailConfirmation({emailConfirmationDto : emailConfirmationDto, queryRunner : queryRunner})
-      // await this.usersSqlRepository.createBanInfo(newUser.userId, queryRunner)
+      // await this.usersSqlRepository.createBanInfo(newUserId.userId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {
       console.log("CreateUserSql", err)
@@ -60,6 +60,6 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
     } finally {
       await queryRunner.release()
     }
-    return new Contract(newUser.userId, null)
+    return new Contract(newUserId, null)
   }
 }

@@ -68,7 +68,11 @@ export class RefreshTokenSql implements ICommandHandler<RefreshTokenSqlCommand> 
       REFRESH_EXPIRES_TIME
     )
 
-    await this.devicesSqlRepository.updateActiveDate(tokensPayload)
+    await this.devicesSqlRepository.updateActiveDate({
+      deviceId: tokensPayload.deviceId,
+      lastActiveDate: tokensPayload.lastActiveDate,
+      expireAt: tokensPayload.expireAt.toString()
+    })
 
     return new Contract({ accessJwt: { accessToken }, refreshToken }, null)
   }

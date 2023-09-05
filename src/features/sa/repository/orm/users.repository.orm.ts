@@ -173,9 +173,6 @@ export class UsersRepositoryOrm {
         `a.Email as "email"`,
         `a.PasswordHash as "passwordHash"`,
         `a.CreatedAt as "createdAt"`,
-        `b.IsBanned as "isBanned"`,
-        `b.BanDate as "banDate"`,
-        `b.BanReason as "banReason"`,
         `e.ConfirmationCode as "confirmationCode"`,
         `e.ExpirationDate as "expirationDate"`,
         `e.IsConfirmed as "isConfirmed"`
@@ -185,7 +182,7 @@ export class UsersRepositoryOrm {
       .where(`a.Login = :login`, { login: userAuthData.login })
       .orWhere(`a.Email = :email`, { email: userAuthData.email })
       .getRawOne()
-    return foundUser.length ? foundUser[0] : null
+    return foundUser ? foundUser : null
   }
 
   async deleteEmailConfirmation(userId: string, queryRunner: QueryRunner) {

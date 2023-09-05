@@ -167,7 +167,7 @@ export class BloggerControllerSql {
     @Query() queryBlog: GetBlogsQueryInputModel,
     @Param() param: BlogIdParamInputModelSql,
   ) {
-    const postsContract = await this.blogsQueryRepositorySql.findBlogPosts(
+    const postsContract = await this.postsQueryRepositorySql.findBlogPosts(
       queryBlog,
       param.blogId,
       deviceSession.userId,

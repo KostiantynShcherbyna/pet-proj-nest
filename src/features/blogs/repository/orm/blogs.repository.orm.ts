@@ -5,6 +5,12 @@ import { CreateBlogCommand } from "../../../blogger/application/use-cases/mongoo
 import { BlogEntity } from "../../application/entities/sql/blog.entity"
 import { BanBlogUserEntity } from "../../application/entities/sql/ban-blog-user.entity"
 
+interface IcreateBlogSADto {
+  name: string
+  description: string
+  websiteUrl: string
+}
+
 @Injectable()
 export class BlogsRepositoryOrm {
   constructor(
@@ -39,6 +45,21 @@ export class BlogsRepositoryOrm {
         UserLogin: login,
         IsBanned: false,
         BanDate: "",
+      })
+      .execute()
+    return result.identifiers[0].BlogId
+  }
+
+  async createBlogSA({ name, description, websiteUrl }: IcreateBlogSADto): Promise<string> {
+    const date = new Date(Date.now()).toISOString()
+    const result = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+      .insert()
+      .values({
+        Name: name,
+        Description: description,
+        WebsiteUrl: websiteUrl,
+        IsMembership: false,
+        CreatedAt: date
       })
       .execute()
     return result.identifiers[0].BlogId

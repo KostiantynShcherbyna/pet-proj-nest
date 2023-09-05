@@ -142,6 +142,12 @@ import {
 } from "./features/sa/application/entities/sql/sent-confirmation-code-date.entity"
 import { PostLikeEntity } from "./features/posts/application/entites/sql/post-like.entity"
 import * as process from "process"
+import { CreateBlogSASql } from "./features/sa/application/use-cases/sql/create-blog.use-case.sql"
+import { UpdateBlogSASql } from "./features/sa/application/use-cases/sql/update-blog.use-case.sql"
+import { UpdatePostSASql } from "./features/sa/application/use-cases/sql/update-post.use-case.sql"
+import { DeletePostSASql } from "./features/sa/application/use-cases/sql/delete-post.use-case.sql"
+import { DeleteBlogSASql } from "./features/sa/application/use-cases/sql/delete-blog.use-case.sql"
+import { CreatePostSASql } from "./features/sa/application/use-cases/sql/create-post.use-case.sql"
 
 
 const useCases = [
@@ -202,6 +208,12 @@ const useCases = [
   UpdateCommentLikeSql,
   CreateCommentSql,
   UpdatePostLikeSql,
+  CreateBlogSASql,
+  UpdateBlogSASql,
+  UpdatePostSASql,
+  DeletePostSASql,
+  DeleteBlogSASql,
+  CreatePostSASql,
 ]
 const services = [
   AppService,

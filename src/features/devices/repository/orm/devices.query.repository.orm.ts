@@ -10,19 +10,6 @@ export class DevicesQueryRepositoryOrm {
   ) {
   }
 
-  async findDevicesByUserId2(userId: string) {
-    const devices = await this.dataSource.query(`
-    select "DeviceId" as "deviceId",
-     "Ip" as "ip",
-     "Title" as "title",
-     "LastActiveDate" as "lastActiveDate"
-    from public."device_entity"
-    where "UserId" = $1
-    `, [userId])
-
-    return devices.length ? devices : null
-  }
-
   async findDevicesByUserId(userId: string) {
     const devices = await this.dataSource.createQueryBuilder(DeviceEntity, "d")
       .select([

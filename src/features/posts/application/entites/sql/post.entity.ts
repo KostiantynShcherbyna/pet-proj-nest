@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { PostLikeEntity } from "./post-like.entity"
 
 @Entity()
 export class PostEntity {
@@ -23,5 +24,9 @@ export class PostEntity {
 
   @Column({ nullable: false })
   CreatedAt: string
+
+  @JoinColumn({ name: "PostId" })
+  @OneToMany(() => PostLikeEntity, pl => pl.PostId)
+  PostLikeEntity: PostLikeEntity
 
 }
