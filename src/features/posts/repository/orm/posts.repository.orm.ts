@@ -86,21 +86,6 @@ export class PostsRepositoryOrm {
     return result.affected ? result.affected : null
   }
 
-  async createComment({ postId, content, date, userId, userLogin }): Promise<string> {
-    const result = await this.dataSource.createQueryBuilder()
-      .insert()
-      .into(CommentEntity)
-      .values({
-        PostId: postId,
-        Content: content,
-        CreatedAt: date,
-        UserId: userId,
-        UserLogin: userLogin
-      })
-      .execute()
-    return result.identifiers[0].CommentId
-  }
-
   async findPostLike({ postId, userId }) {
     const result = await this.dataSource.createQueryBuilder()
       .select([

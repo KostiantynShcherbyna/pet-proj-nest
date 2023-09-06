@@ -22,7 +22,7 @@ export class CommentsRepositoryOrm {
   }
 
   async findComment(commentId: string) {
-    const comment = await this.dataSource.createQueryBuilder(CommentEntity, "q")
+    const comment = await this.dataSource.createQueryBuilder()
       .select([
         `q.CommentId as "commentId"`,
         `q.PostId as "postId"`,
@@ -31,6 +31,7 @@ export class CommentsRepositoryOrm {
         `q.UserLogin as "userLogin"`,
         `q.CreatedAt as "createdAt"`
       ])
+      .from(CommentEntity, "q")
       .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
       .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
       .where(`q.CommentId = :commentId`, { commentId })
@@ -39,25 +40,42 @@ export class CommentsRepositoryOrm {
   }
 
   async findCommentLike({ commentId, userId }) {
-    const commentLike = await this.dataSource.createQueryBuilder(CommentLikeEntity, "q")
+    const commentLike = await this.dataSource.createQueryBuilder()
+      .from(CommentLikeEntity, "q")
       .where(`q.CommentId = :commentId`, { commentId })
       .andWhere(`q.UserId = :userId`, { userId })
       .getRawOne()
     return commentLike ? commentLike : null
   }
 
+  async createComment({ postId, content, date, userId, userLogin }): Promise<string> {
+    const result = await this.dataSource.createQueryBuilder()
+      .insert()
+      .into(CommentEntity)
+      .values({
+        PostId: postId,
+        Content: content,
+        CreatedAt: date,
+        UserId: userId,
+        UserLogin: userLogin
+      })
+      .execute()
+    return result.identifiers[0].CommentId
+  }
+
   async updateComment({ commentId, content }, queryRunner: QueryRunner): Promise<number | null> {
-    const result = await queryRunner.manager.createQueryBuilder(CommentEntity, "q")
-      .update()
+    const result = await queryRunner.manager.createQueryBuilder()
+      .update(CommentEntity)
       .set({ Content: content })
-      .where(`q.CommentId = :commentId`, { commentId })
+      .where(`CommentId = :commentId`, { commentId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async createLike({ status, commentId, userId }, queryRunner: QueryRunner): Promise<string> {
-    const result = await queryRunner.manager.createQueryBuilder(CommentLikeEntity, "q")
+    const result = await queryRunner.manager.createQueryBuilder()
       .insert()
+      .into(CommentLikeEntity)
       .values({
         Status: status,
         CommentId: commentId,
@@ -68,27 +86,29 @@ export class CommentsRepositoryOrm {
   }
 
   async updateLike({ status, commentId, userId }, queryRunner: QueryRunner): Promise<number | null> {
-    const result = await queryRunner.manager.createQueryBuilder(CommentLikeEntity, "q")
-      .update()
+    const result = await queryRunner.manager.createQueryBuilder()
+      .update(CommentLikeEntity)
       .set({ Status: status })
-      .where(`q.CommentId = :commentId`, { commentId })
-      .andWhere(`q.UserId = :userId`, { userId })
+      .where(`CommentId = :commentId`, { commentId })
+      .andWhere(`UserId = :userId`, { userId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async deleteComment(commentId: string, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(CommentEntity, "q")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
-      .where(`q.CommentId = :commentId`, { commentId })
+      .from(CommentEntity)
+      .where(`CommentId = :commentId`, { commentId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async deleteLike(commentId: string, queryRunner: QueryRunner) {
-    const result = await queryRunner.manager.createQueryBuilder(CommentLikeEntity, "q")
+    const result = await queryRunner.manager.createQueryBuilder()
       .delete()
-      .where(`q.CommentId = :commentId`, { commentId })
+      .from(CommentLikeEntity)
+      .where(`CommentId = :commentId`, { commentId })
       .execute()
     return result[1]
   }
@@ -97,20 +117,16 @@ export class CommentsRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le1")
-      .leftJoin(BanInfoEntity, "b", `b.UserId = le1.UserId`)
       .where(`le1.LikeId = q.CommentId`)
       .andWhere(`le1.Status = 'Like'`)
-      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
   private likesCountBuilder2(qb: SelectQueryBuilder<any>) {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le2")
-      .leftJoin(BanInfoEntity, "b", `b.UserId = le2.UserId`)
-      .where(`le2.PostId = q.CommentId`)
+      .where(`le2.LikeId = q.CommentId`)
       .andWhere(`le2.Status = 'Dislike'`)
-      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
 }

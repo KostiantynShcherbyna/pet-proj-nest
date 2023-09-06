@@ -7,7 +7,7 @@ import {
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT_SQL,
-  SortDirection
+  SortDirection, SortDirectionOrm
 } from "../../../../infrastructure/utils/constants"
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
 import { InjectDataSource } from "@nestjs/typeorm"
@@ -18,6 +18,7 @@ import { CommentEntity } from "../../application/entities/sql/comment.entity"
 import { CommentLikeEntity } from "../../application/entities/sql/comment-like.entity"
 import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
 import { PostLikeEntity } from "../../../posts/application/entites/sql/post-like.entity"
+import { PostEntity } from "../../../posts/application/entites/sql/post.entity"
 
 
 @Injectable()
@@ -110,122 +111,65 @@ export class CommentsQueryRepositoryOrm {
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
-    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const offset = (pageNumber - 1) * pageSize
 
-    const totalCount = await this.dataSource.query(`
-    select count (*)
-    from public."comment_entity" a
-    where a."PostId" = $1
-    `, [postId])
+    const totalCount = await this.dataSource.createQueryBuilder()
+      .from(CommentEntity, "a")
+      .where(`a.PostId = :postId`, { postId })
+      .getCount()
 
-    const pagesCount = Math.ceil(totalCount[0].count / pageSize)
-
-    const queryForm = `
-     select a."PostId" as "postId", a."Content" as "content", a."CreatedAt" as "createdAt",
-            a."CommentId" as "commentId", a."UserId" as "userId", a."UserLogin" as "userLogin", 
-            (select "Status" from public."comment_like_entity" where"CommentId" = a."CommentId" and "UserId" = $2) as "myStatus",
-            (
-            select count(*)
-            from public."comment_like_entity" u
-            left join public."ban_info_entity" d on d."UserId" = u."UserId"
-            where u."Status" = 'Like'
-            and d."IsBanned" = 'false'
-            and a."CommentId" = u."CommentId"
-            ) as "likesCount", 
-            (
-            select count(*)
-            from public."comment_like_entity" u
-            left join public."ban_info_entity" d on d."UserId" = u."UserId"
-            where u."Status" = 'Dislike'
-            and d."IsBanned" = 'false'
-            and a."CommentId" = u."CommentId"
-            ) as "dislikesCount"
-    from public."comment_entity" a
-    where a."PostId" = $1
-    order by "${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $3
-    offset $4
-    `
-
-    const comments = await this.dataSource.query(queryForm, [postId, userId, pageSize, offset])
-
-
-    // const comment = await this.dataSource.createQueryBuilder(CommentEntity, "q")
-    //   .select([
-    //     `q.CommentId as "commentId"`,
-    //     `q.PostId as "postId"`,
-    //     `q.Content as "content"`,
-    //     `q.UserId as "userId"`,
-    //     `q.UserLogin as "userLogin"`,
-    //     `q.CreatedAt as "createdAt"`,
-    //     `le.Status as "myStatus`
-    //   ])
-    //   .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
-    //   .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
-    //   .leftJoin(CommentLikeEntity, "le")
-    //   .where(`q.CommentId = :commentId`, { commentId })
-    //   .andWhere(`le.CommentId = q.CommentId and le.UserId = :userId`, { userId })
-    //   .getRawOne()
-    //
-
-
+    const comments = await this.dataSource.createQueryBuilder()
+      .select([
+        `a."PostId" as "postId"`,
+        `a."Content" as "content"`,
+        `a."CreatedAt" as "createdAt"`,
+        `a."CommentId" as "commentId"`,
+        `a."UserId" as "userId"`,
+        `a."UserLogin" as "userLogin"`
+      ])
+      .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
+      .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
+      .leftJoin(CommentLikeEntity, "pl", `pl.CommentId = a.CommentId and pl.UserId = :userId`, { userId })
+      .from(CommentEntity, "a")
+      .where(`a.PostId = :postId`, { postId })
+      .orderBy(`a."${sortBy}"`, sortDirection)
+      .limit(pageSize)
+      .offset(offset)
+      .getRawMany()
 
     const commentsView = this.postCommentsView(comments)
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
     return new Contract({
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(totalCount[0].count),
+      totalCount: Number(totalCount),
       items: commentsView
     }, null)
   }
 
   async findComment({ commentId, userId }) {
+    const comment = await this.dataSource.createQueryBuilder()
+      .select([
+        `a."PostId" as "postId"`,
+        `a."Content" as "content"`,
+        `a."CreatedAt" as "createdAt"`,
+        `a."CommentId" as "commentId"`,
+        `a."UserId" as "userId"`,
+        `a."UserLogin" as "userLogin"`
+      ])
+      .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
+      .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
+      .leftJoin(CommentLikeEntity, "pl", `pl.CommentId = a.CommentId and pl.UserId = :userId`, { userId })
+      .from(CommentEntity, "a")
+      .where(`a.CommentId = :commentId`, { commentId })
+      .getRawOne()
 
-    const queryForm = `
-    select "PostId" as "postId", "Content" as "content", "CreatedAt" as "createdAt",
-           a."CommentId" as "commentId", a."UserId" as "userId", "UserLogin" as "userLogin",
-           (
-           select "Status"
-           from public."comment_like_entity"
-           where "CommentId" = a."CommentId"
-           and "UserId" = $2
-           ) as "myStatus",
-           (
-           select count(*)
-           from public."comment_like_entity" a
-           left join public."ban_info_entity" b on b."UserId" = a."UserId"
-           where "CommentId" = $1
-           and "Status" = 'Like'
-           and b."IsBanned" = 'false'
-           ) as "likesCount", 
-           (
-           select count(*)
-           from public."comment_like_entity" a
-           left join public."ban_info_entity" b on b."UserId" = a."UserId"
-           where "CommentId" = $1
-           and "Status" = 'Dislike'
-           and b."IsBanned" = 'false'
-           ) as "dislikesCount"
-    from public."comment_entity" a
-    where a."CommentId" = $1
-    `
-    const commentResult = await this.dataSource.query(queryForm, [commentId, userId])
-
-    const queryFormBanInfo = `
-    select "IsBanned" as "isBanned", "BanReason" as "banReason", "UserId" as "UserId", "BanDate" as "banDate"
-    from public."ban_info_entity"
-    where "UserId" = $1
-    `
-    if (!commentResult.length) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
-    const banInfoResult = await this.dataSource.query(queryFormBanInfo, [commentResult[0].userId])
-    if (banInfoResult[0].isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
-
-    return new Contract(this.changeCommentView(commentResult[0]), null)
+    return comment
+      ? new Contract(this.changeCommentView(comment), null)
+      : new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
   }
 
 
@@ -298,20 +242,16 @@ export class CommentsQueryRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le1")
-      .leftJoin(BanInfoEntity, "b", `b.UserId = le1.UserId`)
-      .where(`le1.LikeId = q.CommentId`)
+      .where(`le1.LikeId = a.CommentId`)
       .andWhere(`le1.Status = 'Like'`)
-      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
   private likesCountBuilder2(qb: SelectQueryBuilder<any>) {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le2")
-      .leftJoin(BanInfoEntity, "b", `b.UserId = le2.UserId`)
-      .where(`le2.PostId = q.CommentId`)
+      .where(`le2.LikeId = a.CommentId`)
       .andWhere(`le2.Status = 'Dislike'`)
-      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
 
