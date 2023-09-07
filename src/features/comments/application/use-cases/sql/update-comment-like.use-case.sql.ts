@@ -38,7 +38,7 @@ export class UpdateCommentLikeSql implements ICommandHandler<UpdateCommentLikeCo
       commentId: command.commentId,
       userId: command.userId
     })
-    if (like && like.myStatus === command.newLikeStatus) return new Contract(true, null)
+    if (like && like.Status === command.newLikeStatus) return new Contract(true, null)
 
     // Create a new Like if there is no Like before or update Like if there is one
     const queryData = { status: command.newLikeStatus, commentId: command.commentId, userId: command.userId }

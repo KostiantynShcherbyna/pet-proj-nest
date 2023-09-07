@@ -126,11 +126,12 @@ export class CommentsQueryRepositoryOrm {
         `a."CreatedAt" as "createdAt"`,
         `a."CommentId" as "commentId"`,
         `a."UserId" as "userId"`,
-        `a."UserLogin" as "userLogin"`
+        `a."UserLogin" as "userLogin"`,
+        `le.Status as "myStatus"`
       ])
       .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
       .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
-      .leftJoin(CommentLikeEntity, "pl", `pl.CommentId = a.CommentId and pl.UserId = :userId`, { userId })
+      .leftJoin(CommentLikeEntity, "le", `le.CommentId = a.CommentId and le.UserId = :userId`, { userId })
       .from(CommentEntity, "a")
       .where(`a.PostId = :postId`, { postId })
       .orderBy(`a."${sortBy}"`, sortDirection)
@@ -158,11 +159,12 @@ export class CommentsQueryRepositoryOrm {
         `a."CreatedAt" as "createdAt"`,
         `a."CommentId" as "commentId"`,
         `a."UserId" as "userId"`,
-        `a."UserLogin" as "userLogin"`
+        `a."UserLogin" as "userLogin"`,
+        `le.Status as "myStatus"`
       ])
       .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
       .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
-      .leftJoin(CommentLikeEntity, "pl", `pl.CommentId = a.CommentId and pl.UserId = :userId`, { userId })
+      .leftJoin(CommentLikeEntity, "le", `le.CommentId = a.CommentId and le.UserId = :userId`, { userId })
       .from(CommentEntity, "a")
       .where(`a.CommentId = :commentId`, { commentId })
       .getRawOne()
@@ -242,7 +244,7 @@ export class CommentsQueryRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le1")
-      .where(`le1.LikeId = a.CommentId`)
+      .where(`le1.CommentId = a.CommentId`)
       .andWhere(`le1.Status = 'Like'`)
   }
 
@@ -250,7 +252,7 @@ export class CommentsQueryRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le2")
-      .where(`le2.LikeId = a.CommentId`)
+      .where(`le2.CommentId = a.CommentId`)
       .andWhere(`le2.Status = 'Dislike'`)
   }
 
