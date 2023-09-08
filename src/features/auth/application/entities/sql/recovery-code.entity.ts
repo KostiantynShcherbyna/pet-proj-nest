@@ -16,6 +16,9 @@ export class RecoveryCodeEntity {
   @Column({ nullable: false })
   Active: boolean
 
+  @Column({ nullable: false })
+  Active1: boolean
+
   @JoinColumn({name: "Email"})
   @OneToOne(() => AccountEntity)
   AccountEntity: AccountEntity

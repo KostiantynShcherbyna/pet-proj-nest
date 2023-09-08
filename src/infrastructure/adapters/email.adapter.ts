@@ -1,5 +1,5 @@
 import { UsersDocument } from "src/features/sa/application/entities/mongoose/users.schema"
-import { emailService } from "../services/emailService"
+import { emailService } from "../services/email.service"
 
 export class EmailAdapter {
   async sendConfirmationCode(user: any) {
