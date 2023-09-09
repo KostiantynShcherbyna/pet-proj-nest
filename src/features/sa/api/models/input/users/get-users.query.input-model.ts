@@ -5,7 +5,7 @@ import {
   PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT,
   SortDirection
-} from "../../../../../infrastructure/utils/constants"
+} from "../../../../../../infrastructure/utils/constants"
 
 
 export class QueryUserSAInputModel {

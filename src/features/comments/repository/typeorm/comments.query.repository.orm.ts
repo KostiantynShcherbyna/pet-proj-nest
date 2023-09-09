@@ -12,13 +12,13 @@ import {
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, SelectQueryBuilder } from "typeorm"
-import { UsersRepositoryOrm } from "../../../sa/repository/orm/users.repository.orm"
-import { PostsQueryRepositoryOrm } from "../../../posts/repository/orm/posts.query.repository.orm"
+import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
+import { PostsQueryRepositoryOrm } from "../../../posts/repository/typeorm/posts.query.repository.orm"
 import { CommentEntity } from "../../application/entities/sql/comment.entity"
 import { CommentLikeEntity } from "../../application/entities/sql/comment-like.entity"
 import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
-import { PostLikeEntity } from "../../../posts/application/entites/sql/post-like.entity"
-import { PostEntity } from "../../../posts/application/entites/sql/post.entity"
+import { PostLikeEntity } from "../../../posts/application/entites/typeorm/post-like.entity"
+import { PostEntity } from "../../../posts/application/entites/typeorm/post.entity"
 
 
 @Injectable()

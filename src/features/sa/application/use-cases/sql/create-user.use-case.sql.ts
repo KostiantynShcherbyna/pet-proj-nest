@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { generateHashManager } from "../../../../../infrastructure/services/generate-hash.service"
-import { UsersRepositoryOrm } from "../../../repository/orm/users.repository.orm"
+import { UsersRepositoryOrm } from "../../../repository/typeorm/users.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 

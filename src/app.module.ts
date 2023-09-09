@@ -14,8 +14,8 @@ import { EmailAdapter } from "./infrastructure/adapters/email.adapter"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { LoginLocalStrategySql } from "./infrastructure/strategy/login-local-strategy.sql"
 import { BlogIdIsExistSql } from "./infrastructure/decorators/blogId.decorator.sql"
-import { typeOrmConfig } from "./db/orm/type-orm.config"
-import { typeOrmControllers, typeOrmProviders } from "./db/orm/type-orm.service"
+import { typeormConfig } from "./db/typeorm/typeorm.config"
+import { typeOrmControllers, typeOrmProviders } from "./db/typeorm/typeorm.service"
 import { mongooseConfig } from "./db/mongoose/mongoose.config"
 
 
@@ -34,7 +34,7 @@ const services = [
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env", load: [configuration] }),
-    TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRoot(typeormConfig),
     // MongooseModule.forRoot(mongooseConfig.connection),
     // MongooseModule.forFeature(mongooseConfig.features),
     ThrottlerModule.forRoot(),

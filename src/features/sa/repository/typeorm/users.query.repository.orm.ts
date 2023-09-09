@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { DataSource } from "typeorm"
 import { InjectDataSource } from "@nestjs/typeorm"
-import { QueryUserSAInputModel } from "../../api/models/input/get-users.query.input-model"
+import { QueryUserSAInputModel } from "../../api/models/input/users/get-users.query.input-model"
 import {
   BanStatus,
   PAGE_NUMBER_DEFAULT,

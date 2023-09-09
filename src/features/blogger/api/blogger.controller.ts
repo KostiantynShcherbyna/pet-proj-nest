@@ -284,7 +284,7 @@ export class BloggerController {
   }
 
   @UseGuards(AccessGuard)
-  @Get("users/blog/:id")
+  @Get("users/blogs/:id")
   async getBannedBlogUsers(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdParamInputModel,

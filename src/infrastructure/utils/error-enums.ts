@@ -60,7 +60,7 @@ export enum ErrorEnums {
 //             .send({
 //                 errorsMessages: [
 //                     {
-//                         message: `blog with id: '${id}' does't exist`,
+//                         message: `blogs with id: '${id}' does't exist`,
 //                         field: `id`
 //                     }
 //                 ]
@@ -72,7 +72,7 @@ export enum ErrorEnums {
 //         return {
 //             errorsMessages: [
 //                 {
-//                     message: `new blog didn't create`,
+//                     message: `new blogs didn't create`,
 //                 }
 //             ]
 //         }

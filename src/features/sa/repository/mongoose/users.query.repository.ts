@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { UsersView } from "src/features/sa/api/models/output/create-user.output-model"
 import { MeOutputModel } from "src/features/auth/api/models/output/me-output.model"
-import { QueryUserSAInputModel } from "src/features/sa/api/models/input/get-users.query.input-model"
+import { QueryUserSAInputModel } from "src/features/sa/api/models/input/users/get-users.query.input-model"
 import { dtoManager } from "../../../../infrastructure/adapters/output-model.adapter"
 import { Users, UsersModel } from "../../application/entities/mongoose/users.schema"
 import {

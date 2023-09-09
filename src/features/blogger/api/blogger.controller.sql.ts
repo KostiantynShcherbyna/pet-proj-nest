@@ -31,9 +31,9 @@ import { UpdatePostBodyInputModel } from "./models/input/update-post.body.input-
 import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
 import { BanUserBloggerCommand } from "../application/use-cases/mongoose/ban-user-blogger.use-case"
 import { CreateBlogBodyInputModel } from "./models/input/create-blog.body.input-model"
-import { BlogsQueryRepositoryOrm } from "../../blogs/repository/orm/blogs.query.repository.orm"
+import { BlogsQueryRepositoryOrm } from "../../blogs/repository/typeorm/blogs.query.repository.orm"
 import { CreateBlogCommandSql } from "../application/use-cases/sql/create-blog.use-case.sql"
-import { PostsQueryRepositoryOrm } from "../../posts/repository/orm/posts.query.repository.orm"
+import { PostsQueryRepositoryOrm } from "../../posts/repository/typeorm/posts.query.repository.orm"
 import { CreatePostCommandSql } from "../application/use-cases/sql/create-post.use-case.sql"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { UpdateBlogCommandSql } from "../application/use-cases/sql/update-blog.use-case.sql"
@@ -45,7 +45,7 @@ import { UpdatePostCommandSql } from "../application/use-cases/sql/update-post.u
 import { BanUserBodyInputModelSql } from "./models/input/ban-user.body.input-model.sql"
 import { BanUserBloggerCommandSql } from "../application/use-cases/sql/ban-user-blogger.use-case.sql"
 import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-comments.query.input-model"
-import { CommentsQueryRepositoryOrm } from "../../comments/repository/orm/comments.query.repository.orm"
+import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/comments.query.repository.orm"
 
 
 @Controller("blogger")
@@ -319,7 +319,7 @@ export class BloggerControllerSql {
   }
 
   @UseGuards(AccessGuard)
-  @Get("users/blog/:id")
+  @Get("users/blogs/:id")
   async getBannedUsersOfBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdParamInputModelSql,

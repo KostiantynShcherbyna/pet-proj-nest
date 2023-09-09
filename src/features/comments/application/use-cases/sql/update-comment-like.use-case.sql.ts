@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { CommentsRepositoryOrm } from "../../../repository/orm/comments.repository.orm"
+import { CommentsRepositoryOrm } from "../../../repository/typeorm/comments.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
+import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repository.orm"
 
 
 export class UpdateCommentLikeCommandSql {

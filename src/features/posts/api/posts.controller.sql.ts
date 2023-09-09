@@ -31,11 +31,11 @@ import { UpdateCommentBodyInputModel } from "../../comments/api/models/input/upd
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { CreateCommentCommand } from "../application/use-cases/mongoose/create-comment.use-case"
 import { UpdatePostLikeCommand } from "../application/use-cases/mongoose/update-post-like.use-case"
-import { PostsQueryRepositoryOrm } from "../repository/orm/posts.query.repository.orm"
+import { PostsQueryRepositoryOrm } from "../repository/typeorm/posts.query.repository.orm"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CreateCommentCommandSql } from "../application/use-cases/sql/create-comment.use-case.sql"
 import { GetCommentsParamInputModelSql } from "./models/input/get-comments.param.input-model.sql"
-import { CommentsQueryRepositoryOrm } from "../../comments/repository/orm/comments.query.repository.orm"
+import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/comments.query.repository.orm"
 import { UpdatePostLikeCommandSql } from "../application/use-cases/sql/update-post-like.use-case.sql"
 
 @Controller("posts")

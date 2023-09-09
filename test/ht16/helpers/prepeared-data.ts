@@ -1,10 +1,10 @@
-// import { Blog } from '../../src/modules/blog/models/blog.schema';
+// import { Blog } from '../../src/modules/blogs/models/blogs.schema';
 // import { CreatePostWithBlogIdDto } from '../../src/modules/post/dto/create-post.dto';
 // import request from 'supertest';
 // import { CreateUserDto } from '../../src/modules/user/dto/create-user.dto';
 // import { endpoints } from './routing';
-// import { CreateBlogDto } from '../../src/modules/blog/dto/create-blog.dto';
-// import { BlogViewModel } from '../../src/modules/blog/models/blog-view-model';
+// import { CreateBlogDto } from '../../src/modules/blogs/dto/create-blogs.dto';
+// import { BlogViewModel } from '../../src/modules/blogs/models/blogs-view-model';
 // import { PostViewModel } from '../../src/modules/post/models/post-view-model';
 // import { LoginDto } from '../../src/modules/auth/dto/login.dto';
 // import { faker } from '@faker-js/faker';
@@ -52,16 +52,16 @@
 //   },
 //   defaultPostsCount: 5,
 //
-//   generatePostInputData(blog: Blog): CreatePostWithBlogIdDto {
+//   generatePostInputData(blogs: Blog): CreatePostWithBlogIdDto {
 //     return {
 //       ...preparedPost.valid,
-//       blogId: blog.id,
+//       blogId: blogs.id,
 //     };
 //   },
-//   generateNewPostInputData(blog: Blog): CreatePostWithBlogIdDto {
+//   generateNewPostInputData(blogs: Blog): CreatePostWithBlogIdDto {
 //     return {
 //       ...preparedPost.newValid,
-//       blogId: blog.id,
+//       blogId: blogs.id,
 //     };
 //   },
 // };
@@ -166,8 +166,8 @@
 //
 //   async createOneBlog(accessToken: string) {
 //     const inputBlogData: CreateBlogDto = {
-//       name: 'blog name',
-//       description: 'blog description',
+//       name: 'blogs name',
+//       description: 'blogs description',
 //       websiteUrl: 'websiteUrl.com',
 //     };
 //     const response = await request(this.server).post(endpoints.bloggerController).auth(accessToken, { type: 'bearer' }).send(inputBlogData);
@@ -198,23 +198,23 @@
 //   private testingBlog = new TestingBlog(this.server);
 //
 //   // async createBlogAndPosts(countOfPosts: number): Promise<PostViewModel[]> {
-//   //   const blog = await this.testingBlog.createOneBlog(this.server);
-//   //   return await this.createPostsForBlog(countOfPosts, blog);
+//   //   const blogs = await this.testingBlog.createOneBlog(this.server);
+//   //   return await this.createPostsForBlog(countOfPosts, blogs);
 //   // }
 //   //
 //   // async createBlogAndOnePost(): Promise<PostViewModel> {
-//   //   const blog = await this.testingBlog.createOneBlog(this.server);
-//   //   return await this.createOnePostForBlog(blog);
+//   //   const blogs = await this.testingBlog.createOneBlog(this.server);
+//   //   return await this.createOnePostForBlog(blogs);
 //   // }
 //
-//   async createPostsForBlog(countOfPosts: number, blog: BlogViewModel): Promise<PostViewModel[]> {
+//   async createPostsForBlog(countOfPosts: number, blogs: BlogViewModel): Promise<PostViewModel[]> {
 //     const posts = [];
 //     for (let i = 0; i < countOfPosts; i++) {
 //       const inputPostData: CreatePostWithBlogIdDto = {
 //         title: `title${i}`,
 //         shortDescription: `shortDescription${i}`,
 //         content: `content${i}`,
-//         blogId: blog.id,
+//         blogId: blogs.id,
 //       };
 //       const response = await request(this.server)
 //         .post(endpoints.postController)
@@ -225,15 +225,15 @@
 //     return posts;
 //   }
 //
-//   async createOnePostForBlog(accessToken: string, blog: BlogViewModel): Promise<PostViewModel> {
+//   async createOnePostForBlog(accessToken: string, blogs: BlogViewModel): Promise<PostViewModel> {
 //     const inputPostData: CreatePostWithBlogIdDto = {
 //       title: faker.lorem.words(2),
 //       shortDescription: faker.lorem.words(3),
 //       content: faker.lorem.words(5),
-//       blogId: blog.id,
+//       blogId: blogs.id,
 //     };
 //     const response = await request(this.server)
-//       .post(`${endpoints.bloggerController}/${blog.id}/posts`)
+//       .post(`${endpoints.bloggerController}/${blogs.id}/posts`)
 //       .auth(accessToken, { type: 'bearer' })
 //       .send(inputPostData);
 //     return response.body;

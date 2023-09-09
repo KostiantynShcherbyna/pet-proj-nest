@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { PostsRepositoryOrm } from "../../../repository/orm/posts.repository.orm"
-import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
-import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
-import { CommentsRepositoryOrm } from "../../../../comments/repository/orm/comments.repository.orm"
+import { PostsRepositoryOrm } from "../../../repository/typeorm/posts.repository.orm"
+import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
+import { CommentsRepositoryOrm } from "../../../../comments/repository/typeorm/comments.repository.orm"
 
 
 export class CreateCommentCommandSql {

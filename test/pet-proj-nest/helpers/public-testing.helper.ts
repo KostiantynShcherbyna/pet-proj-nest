@@ -41,16 +41,16 @@ export const preparedPost = {
   },
   defaultPostsCount: 5,
 
-  // generatePostInputData(blog: Blog): CreatePostWithBlogIdDto {
+  // generatePostInputData(blogs: Blog): CreatePostWithBlogIdDto {
   //   return {
   //     ...preparedPost.valid,
-  //     blogId: blog.id,
+  //     blogId: blogs.id,
   //   };
   // },
-  // generateNewPostInputData(blog: Blog): CreatePostWithBlogIdDto {
+  // generateNewPostInputData(blogs: Blog): CreatePostWithBlogIdDto {
   //   return {
   //     ...preparedPost.newValid,
-  //     blogId: blog.id,
+  //     blogId: blogs.id,
   //   };
   // },
 }

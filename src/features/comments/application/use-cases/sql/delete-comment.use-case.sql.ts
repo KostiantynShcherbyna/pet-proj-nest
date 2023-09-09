@@ -9,7 +9,7 @@ import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { CommentsRepositoryOrm } from "../../../repository/orm/comments.repository.orm"
+import { CommentsRepositoryOrm } from "../../../repository/typeorm/comments.repository.orm"
 import { LikeStatus } from "../../../../../infrastructure/utils/constants"
 
 

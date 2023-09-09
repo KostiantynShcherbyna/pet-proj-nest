@@ -6,8 +6,8 @@ import { BlogEntity } from "../../features/blogs/application/entities/sql/blog.e
 import { CommentEntity } from "../../features/comments/application/entities/sql/comment.entity"
 import { CommentLikeEntity } from "../../features/comments/application/entities/sql/comment-like.entity"
 import { DeviceEntity } from "../../features/devices/application/entites/sql/device.entity"
-import { PostLikeEntity } from "../../features/posts/application/entites/sql/post-like.entity"
-import { PostEntity } from "../../features/posts/application/entites/sql/post.entity"
+import { PostLikeEntity } from "../../features/posts/application/entites/typeorm/post-like.entity"
+import { PostEntity } from "../../features/posts/application/entites/typeorm/post.entity"
 import { AccountEntity } from "../../features/sa/application/entities/sql/account.entity"
 import { BanInfoEntity } from "../../features/sa/application/entities/sql/ban-info.entity"
 import { EmailConfirmationEntity } from "../../features/sa/application/entities/sql/email-confirmation.entity"
@@ -15,13 +15,13 @@ import {
   SentConfirmationCodeDateEntity
 } from "../../features/sa/application/entities/sql/sent-confirmation-code-date.entity"
 
-export const typeOrmConfig: PostgresConnectionOptions = {
+export const typeormConfig: PostgresConnectionOptions = {
   type: "postgres",
   host: "localhost",
   port: 5432,
   username: "nestjsk",
   password: "nestjsk",
-  database: "pet-proj-nest-orm-db",
+  database: "pet-proj-nest-typeorm-db",
   entities: [
     RecoveryCodeEntity,
     BanBlogUserEntity,
@@ -39,4 +39,4 @@ export const typeOrmConfig: PostgresConnectionOptions = {
   migrations: [__dirname + `/migrations/**/*{.ts,.js}`],
   synchronize: false,
 }
-export default new DataSource(typeOrmConfig)
+export default new DataSource(typeormConfig)

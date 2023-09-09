@@ -38,7 +38,7 @@ import { ConfirmationResendSqlCommand } from "../application/use-cases/sql/confi
 import { PasswordRecoverySqlCommand } from "../application/use-cases/sql/password-recovery.sql.use-case"
 import { NewPasswordSqlCommand } from "../application/use-cases/sql/new-password.sql.use-case"
 import { Throttle } from "@nestjs/throttler"
-import { UsersQueryRepositoryOrm } from "../../sa/repository/orm/users.query.repository.orm"
+import { UsersQueryRepositoryOrm } from "../../sa/repository/typeorm/users.query.repository.orm"
 import { ConfirmationBodyInputModelSql } from "./models/input/confirmation.body.input-model.sql"
 
 @Controller("auth")

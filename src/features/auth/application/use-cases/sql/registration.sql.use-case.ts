@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
+import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repository.orm"
 import { EmailAdapter } from "../../../../../infrastructure/adapters/email.adapter"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"

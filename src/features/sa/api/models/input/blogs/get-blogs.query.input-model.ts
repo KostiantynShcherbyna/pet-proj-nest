@@ -14,7 +14,7 @@ import {
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT,
   SortDirection
-} from "../../../../../infrastructure/utils/constants"
+} from "../../../../../../infrastructure/utils/constants"
 import { Type } from "class-transformer"
 
 export class GetBlogsQueryInputModel {

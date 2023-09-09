@@ -4,7 +4,7 @@ import { Strategy } from "passport-local"
 import { StrategyNames } from "../utils/constants"
 import { UsersRepository } from "../../features/sa/repository/mongoose/users.repository"
 import { ErrorEnums } from "../utils/error-enums"
-import { UsersRepositoryOrm } from "../../features/sa/repository/orm/users.repository.orm"
+import { UsersRepositoryOrm } from "../../features/sa/repository/typeorm/users.repository.orm"
 import { Contract } from "../utils/contract"
 import { compareHashManager } from "../services/compare-hash.service"
 

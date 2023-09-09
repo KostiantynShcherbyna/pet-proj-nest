@@ -2,8 +2,8 @@ import { Contract } from "../../../../../infrastructure/utils/contract"
 import { BanUserBodyInputModel } from "../../../api/models/input/ban-user.body.input-model"
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
-import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
+import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repository.orm"
 
 export class BanUserBloggerCommandSql {
   constructor(

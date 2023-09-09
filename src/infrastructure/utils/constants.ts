@@ -62,6 +62,12 @@ export enum SortDirectionOrm {
   Desc = "DESC",
 }
 
+export enum PublishedStatus {
+  All = "all",
+  Published = "published",
+  NotPublished = "notPublished",
+}
+
 // export enum SortDirection {
 //   Asc = "asc",
 //   Desc = "desc",

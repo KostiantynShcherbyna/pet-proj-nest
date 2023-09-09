@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { Contract } from "../../../../../infrastructure/utils/contract"
-import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
 
 
 export class BanBlogCommandSql {

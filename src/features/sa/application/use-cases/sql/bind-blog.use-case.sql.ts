@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { BlogsRepository } from "../../../../blogs/repository/mongoose/blogs.repository"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
 
 
 export class BindBlogCommandSql {

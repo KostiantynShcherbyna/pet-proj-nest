@@ -3,7 +3,7 @@ import { randomUUID } from "crypto"
 import { add } from "date-fns"
 import { HydratedDocument, Model, Types } from "mongoose"
 import { CheckEmailAndLoginDto } from "src/features/sa/utils/check-email-and-login.dto"
-import { CreateUserBodyInputModel } from "src/features/sa/api/models/input/create-user.body.input-model"
+import { CreateUserBodyInputModel } from "src/features/sa/api/models/input/users/create-user.body.input-model"
 import {
   EMAIL_REGISTRATION_REGEX,
   LOGIN_MAX_LENGTH,

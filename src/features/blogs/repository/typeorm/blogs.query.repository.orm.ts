@@ -18,12 +18,12 @@ import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, Repository } from "typeorm"
 import { GetPostsQueryInputModel } from "../../../posts/api/models/input/get-posts.query.input-model"
 import { PostsView } from "../../../blogger/api/models/output/create-blogger-post.output-model"
-import { UsersRepositoryOrm } from "../../../sa/repository/orm/users.repository.orm"
+import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
 import { BannedBlogUsersView } from "../../../blogger/api/models/output/get-banned-blog-users.output-model"
 import { GetPostsCommentsQueryInputModel } from "../../api/models/input/get-posts-comments.query.input-model"
 import { BannedBlogUsersDocument } from "../../application/entities/mongoose/banned-blog-users.schema"
 import { BlogEntity } from "../../application/entities/sql/blog.entity"
-import { PostEntity } from "../../../posts/application/entites/sql/post.entity"
+import { PostEntity } from "../../../posts/application/entites/typeorm/post.entity"
 import { BanBlogUserEntity } from "../../application/entities/sql/ban-blog-user.entity"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
@@ -88,7 +88,7 @@ export class BlogsQueryRepositoryOrm {
 
     const blog = await this.blogsSqlRepository.findBlog(blogId)
     if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    // if (blog.isBanned === true) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    // if (blogs.isBanned === true) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
 
     const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT

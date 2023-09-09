@@ -12,8 +12,8 @@ import {
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
-import { UsersRepositoryOrm } from "../../../sa/repository/orm/users.repository.orm"
-import { PostsQueryRepositoryOrm } from "../../../posts/repository/orm/posts.query.repository.orm"
+import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
+import { PostsQueryRepositoryOrm } from "../../../posts/repository/typeorm/posts.query.repository.orm"
 
 
 @Injectable()

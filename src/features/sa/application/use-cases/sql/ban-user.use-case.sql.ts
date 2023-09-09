@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { UsersRepositoryOrm } from "../../../repository/orm/users.repository.orm"
+import { UsersRepositoryOrm } from "../../../repository/typeorm/users.repository.orm"
 
 
 export class BanUserCommandSql {

@@ -5,7 +5,7 @@ import {
   CreateUserOutputModel,
   UsersView
 } from "../../../src/features/sa/api/models/output/create-user.output-model"
-import { CreateUserBodyInputModel } from "../../../src/features/sa/api/models/input/create-user.body.input-model"
+import { CreateUserBodyInputModel } from "../../../src/features/sa/api/models/input/users/create-user.body.input-model"
 
 export const superUser = {
   login: "admin",

@@ -4,7 +4,7 @@ import {
   ValidatorConstraintInterface,
 } from "class-validator"
 import { BlogsRepository } from "../../features/blogs/repository/mongoose/blogs.repository"
-import { BlogsRepositoryOrm } from "../../features/blogs/repository/orm/blogs.repository.orm"
+import { BlogsRepositoryOrm } from "../../features/blogs/repository/typeorm/blogs.repository.orm"
 
 
 @ValidatorConstraint({ name: "BlogIdIsExistSql", async: true })

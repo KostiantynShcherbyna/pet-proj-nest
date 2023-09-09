@@ -2,7 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Delete, ForbiddenException,
+  Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -11,61 +12,49 @@ import {
   Param,
   Post,
   Put,
-  Query, UnauthorizedException,
+  Query,
+  UnauthorizedException,
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
-import { GetBlogsQueryInputModel } from "./models/input/get-blogs.query.input-model"
-import { BlogsQueryRepository } from "../../blogs/repository/mongoose/blogs.query.repository"
+import { GetBlogsQueryInputModel } from "./models/input/blogs/get-blogs.query.input-model"
 import { BasicGuard } from "../../../infrastructure/guards/basic.guard"
-import { BanBlogParamInputModel } from "./models/input/ban-blog.param.input-model"
-import { BanBlogBodyInputModel } from "./models/input/ban-blog.body.input-model"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
-import { BanBlogCommand } from "../application/use-cases/mongoose/ban-blog.use-case"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
-import { BindInputModel } from "./models/input/bind-blog.param.input-model"
-import { BindBlogCommand } from "../application/use-cases/mongoose/bind-blog.use-case"
-import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
-import { QueryUserSAInputModel } from "./models/input/get-users.query.input-model"
-import { CreateUserBodyInputModel } from "./models/input/create-user.body.input-model"
-import { BanUserCommandSql } from "../application/use-cases/sql/ban-user.use-case.sql"
+import { BindInputModel } from "./models/input/blogs/bind-blog.param.input-model"
+import { QueryUserSAInputModel } from "./models/input/users/get-users.query.input-model"
+import { CreateUserBodyInputModel } from "./models/input/users/create-user.body.input-model"
 import { CreateUserSqlCommand } from "../application/use-cases/sql/create-user.use-case.sql"
-import { UsersQueryRepositoryOrm } from "../repository/orm/users.query.repository.orm"
+import { UsersQueryRepositoryOrm } from "../repository/typeorm/users.query.repository.orm"
 import { DeleteUserCommandSql } from "../application/use-cases/sql/delete-user.use-case.sql"
-import { IdSqlParamInputModel } from "./models/input/id.sql.param.input-model"
-import { BanBlogCommandSql } from "../application/use-cases/sql/ban-blog.use-case.sql"
+import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { BindBlogCommandSql } from "../application/use-cases/sql/bind-blog.use-case.sql"
-import { BlogsQueryRepositoryOrm } from "../../blogs/repository/orm/blogs.query.repository.orm"
-import { BanBlogParamInputModelSql } from "./models/input/ban-blog.param.input-model.sql"
+import { BlogsQueryRepositoryOrm } from "../../blogs/repository/typeorm/blogs.query.repository.orm"
 import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { DeviceSessionInputModel } from "../../blogger/api/models/input/device-session.input-model"
 import { GetPostsCommentsQueryInputModel } from "../../blogger/api/models/input/get-posts-comments.query.input-model"
-import { IdParamInputModelSql } from "../../blogger/api/models/input/id.param.input-model.sql"
 import { UpdateBlogBodyInputModel } from "../../blogger/api/models/input/update-blog.body.input-model"
-import { UpdateBlogCommandSql } from "../../blogger/application/use-cases/sql/update-blog.use-case.sql"
-import { DeleteBlogCommandSql } from "../../blogger/application/use-cases/sql/delete-blog.use-case.sql"
 import { CreateBlogBodyInputModel } from "../../blogger/api/models/input/create-blog.body.input-model"
-import { CreateBlogCommandSql } from "../../blogger/application/use-cases/sql/create-blog.use-case.sql"
 import { BlogIdParamInputModelSql } from "../../blogger/api/models/input/blogId.param.input-model.sql"
-import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
-import { DeviceSessionOptionalInputModel } from "../../blogger/api/models/input/device-session-optional.input-model"
 import { CreatePostBodyInputModel } from "../../blogger/api/models/input/create-post.body.input-model"
-import { CreatePostCommandSql } from "../../blogger/application/use-cases/sql/create-post.use-case.sql"
 import { UpdatePostParamInputModelSql } from "../../blogger/api/models/input/update-post.param.input-model.sql"
 import { UpdatePostBodyInputModel } from "../../blogger/api/models/input/update-post.body.input-model"
-import { UpdatePostCommandSql } from "../../blogger/application/use-cases/sql/update-post.use-case.sql"
-import { DeletePostCommandSql } from "../../blogger/application/use-cases/sql/delete-post.use-case.sql"
 import { BanUserBodyInputModelSql } from "../../blogger/api/models/input/ban-user.body.input-model.sql"
 import { BanUserBloggerCommandSql } from "../../blogger/application/use-cases/sql/ban-user-blogger.use-case.sql"
-import { PostsQueryRepositoryOrm } from "../../posts/repository/orm/posts.query.repository.orm"
-import { CommentsQueryRepositoryOrm } from "../../comments/repository/orm/comments.query.repository.orm"
+import { PostsQueryRepositoryOrm } from "../../posts/repository/typeorm/posts.query.repository.orm"
+import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/comments.query.repository.orm"
 import { CreateBlogSACommandSql } from "../application/use-cases/sql/create-blog.use-case.sql"
 import { UpdateBlogSACommandSql } from "../application/use-cases/sql/update-blog.use-case.sql"
 import { DeleteBlogSACommandSql } from "../application/use-cases/sql/delete-blog.use-case.sql"
 import { CreatePostSACommandSql } from "../application/use-cases/sql/create-post.use-case.sql"
 import { UpdatePostSACommandSql } from "../application/use-cases/sql/update-post.use-case.sql"
 import { DeletePostSACommandSql } from "../application/use-cases/sql/delete-post.use-case.sql"
+import { GetQuestionsQueryInputModel } from "./models/input/quiz/get-questions.query.input-model"
+import { QuizQueryRepositoryOrm } from "../../quiz/repository/typeorm/quiz.query.repository.orm"
+import { QuestionBodyInputModelSql } from "./models/input/quiz/question.body.input-model.sql"
+import { QuizRepositoryOrm } from "../../quiz/repository/typeorm/quiz.repository.orm"
+import { IdParamInputModelSql } from "./models/input/quiz/id.param.input-model.sql"
 
 @Controller("sa")
 export class SaControllerSql {
@@ -75,6 +64,8 @@ export class SaControllerSql {
     protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
     protected postsQueryRepositorySql: PostsQueryRepositoryOrm,
     protected commentsQueryRepositorySql: CommentsQueryRepositoryOrm,
+    protected quizQueryRepositoryOrm: QuizQueryRepositoryOrm,
+    protected quizRepositoryOrm: QuizRepositoryOrm,
   ) {
   }
 
@@ -135,7 +126,7 @@ export class SaControllerSql {
   // @Put("users/:id/ban")
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async banUser(
-  //   @Param() param: IdSqlParamInputModel,
+  //   @Param() param: IdParamInputModelSql,
   //   @Body() bodyUserBan: BanUserBodyInputModel
   // ) {
   //   const banContract = await this.commandBus.execute(
@@ -189,7 +180,7 @@ export class SaControllerSql {
   @Delete("users/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
-    @Param() param: IdSqlParamInputModel
+    @Param() param: IdParamInputModelSql
   ) {
     const resultContract = await this.commandBus.execute(
       new DeleteUserCommandSql(param.id)
@@ -461,7 +452,7 @@ export class SaControllerSql {
   }
 
   @UseGuards(AccessGuard)
-  @Get("users/blog/:id")
+  @Get("users/blogs/:id")
   async getBannedUsersOfBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdParamInputModelSql,
@@ -481,5 +472,58 @@ export class SaControllerSql {
     )
     return bannedBlogUsersContract.data
   }
+
+
+  // ↓↓↓ QUIZ QUESTIONS
+  @UseGuards(AccessGuard)
+  @Get("quiz/questions")
+  async getQuestions(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Query() query: GetQuestionsQueryInputModel
+  ) {
+    const contract = await this.quizQueryRepositoryOrm.getQuestions(query, deviceSession.userId)
+
+  }
+
+  @UseGuards(AccessGuard)
+  @Post("quiz/questions")
+  async createQuestion(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Body() body: QuestionBodyInputModelSql,
+  ) {
+    const contract = await this.quizRepositoryOrm.createQuestion(body, deviceSession.userId)
+  }
+
+  @UseGuards(AccessGuard)
+  @Delete("quiz/questions/:id")
+  async deleteQuestion(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Param() params: IdParamInputModelSql,
+  ) {
+    const contract = await this.quizRepositoryOrm.deleteQuestion(params.id, deviceSession.userId)
+
+  }
+
+  @UseGuards(AccessGuard)
+  @Put("quiz/questions")
+  async updateQuestion(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Param() params: IdParamInputModelSql,
+    @Body() body: QuestionBodyInputModelSql,
+  ) {
+    const contract = await this.quizRepositoryOrm.updateQuestion(params.id, body, deviceSession.userId)
+
+  }
+
+  @UseGuards(AccessGuard)
+  @Put("quiz/questions/:id/publish")
+  async publishQuestion(
+    @DeviceSession() deviceSession: DeviceSessionInputModel,
+    @Param() params: IdParamInputModelSql,
+  ) {
+    const contract = await this.quizRepositoryOrm.publishQuestion(params.id, deviceSession.userId)
+
+  }
+
 
 }

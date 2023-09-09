@@ -6,10 +6,10 @@ import { GetPostsQueryInputModel } from "./models/input/get-posts.query.input-mo
 import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
-import { BlogsQueryRepositoryOrm } from "../repository/orm/blogs.query.repository.orm"
+import { BlogsQueryRepositoryOrm } from "../repository/typeorm/blogs.query.repository.orm"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
 import { CreatePostParamInputModelSql } from "./models/input/create-post.param.input-model.sql"
-import { PostsQueryRepositoryOrm } from "../../posts/repository/orm/posts.query.repository.orm"
+import { PostsQueryRepositoryOrm } from "../../posts/repository/typeorm/posts.query.repository.orm"
 
 
 @Controller("blogs")

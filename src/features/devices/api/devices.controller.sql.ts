@@ -20,7 +20,7 @@ import { DeleteOtherDevicesCommand } from "../application/use-cases/mongoose/del
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { DeleteSpecialDeviceCommand } from "../application/use-cases/mongoose/delete-special-device.use-case"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
-import { DevicesQueryRepositoryOrm } from "../repository/orm/devices.query.repository.orm"
+import { DevicesQueryRepositoryOrm } from "../repository/typeorm/devices.query.repository.orm"
 import { DeleteOtherDevicesCommandSql } from "../application/use-cases/sql/delete-other-devices.use-case.sql"
 import { DeleteSpecialDeviceCommandSql } from "../application/use-cases/sql/delete-special-device.use-case.sql"
 

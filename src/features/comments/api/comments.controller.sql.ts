@@ -32,7 +32,7 @@ import { UpdateCommentLikeCommand } from "../application/use-cases/mongoose/upda
 import { UpdateCommentLikeCommandSql } from "../application/use-cases/sql/update-comment-like.use-case.sql"
 import { UpdateCommentParamInputModelSql } from "./models/input/update-comment.param.input-model.sql"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model.sql"
-import { CommentsQueryRepositoryOrm } from "../repository/orm/comments.query.repository.orm"
+import { CommentsQueryRepositoryOrm } from "../repository/typeorm/comments.query.repository.orm"
 import { UpdateCommentCommandSql } from "../application/use-cases/sql/update-comment.use-case.sql"
 import { DeleteCommentCommandSql } from "../application/use-cases/sql/delete-comment.use-case.sql"
 

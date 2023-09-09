@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
-import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
+import { UsersRepositoryOrm } from "../../../repository/typeorm/users.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
 
 export class CreateBlogSACommandSql {
   constructor(

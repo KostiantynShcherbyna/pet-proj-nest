@@ -19,13 +19,13 @@ import { EmailAdapterMock } from "../../src/infrastructure/testing/infrastructur
 import request from "supertest"
 import { SaTestingHelper, superUser } from "./helpers/sa-testing.helper"
 import { CreateUserOutputModel } from "../../src/features/sa/api/models/output/create-user.output-model"
-import { CreateUserBodyInputModel } from "../../src/features/sa/api/models/input/create-user.body.input-model"
+import { CreateUserBodyInputModel } from "../../src/features/sa/api/models/input/users/create-user.body.input-model"
 import { endpoints } from "./helpers/routing.helper"
 import { configuration } from "../../src/infrastructure/settings/configuration"
 import { DataSource } from "typeorm"
 
 describe
-("pet-proj-nest-orm", () => {
+("pet-proj-nest-typeorm", () => {
   const second = 1000
   const minute = 60 * second
 

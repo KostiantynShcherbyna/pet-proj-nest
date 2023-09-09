@@ -304,7 +304,7 @@ describe
   (`BLOGGER`, () => {
 
     // it
-    // ("+ Post blog", async () => {
+    // ("+ Post blogs", async () => {
     //   const { bloggerTestingHelper, accessTokenUser0 }: {
     //     bloggerTestingHelper: BloggerTestingHelper,
     //     accessTokenUser0: string,
@@ -323,7 +323,7 @@ describe
     // })
 
     it
-    ("+ Create blog or blogs", async () => {
+    ("+ Create blogs or blogs", async () => {
       const { bloggerTestingHelper, accessTokenUser0 }: {
         bloggerTestingHelper: BloggerTestingHelper,
         accessTokenUser0: string,
@@ -401,7 +401,7 @@ describe
     })
 
     it
-    ("+ Update blog", async () => {
+    ("+ Update blogs", async () => {
       const { bloggerTestingHelper, accessTokenUser0, blogsOfUser0 }: {
         bloggerTestingHelper: BloggerTestingHelper,
         accessTokenUser0: string,
@@ -553,7 +553,7 @@ describe
     })
 
     it
-    ("+ Get all banned users of blog", async () => {
+    ("+ Get all banned users of blogs", async () => {
       const { bloggerTestingHelper, accessTokenUser0, postsOfBlog, user0OutputView }: {
         bloggerTestingHelper: BloggerTestingHelper
         accessTokenUser0: string
@@ -662,7 +662,7 @@ describe
       expect(deletedUser).not.toBeDefined()
     })
 
-    it("+ Ban blog ", async () => {
+    it("+ Ban blogs ", async () => {
       const { saTestingHelper, saUserViews, blogsOfUser0, accessTokenUser0, publicTestingHelper }: {
         saTestingHelper: SaTestingHelper
         saUserViews: CreateUserOutputModel[]
@@ -684,7 +684,7 @@ describe
 
     })
 
-    it("+ Bind blog ", async () => {
+    it("+ Bind blogs ", async () => {
       const { saTestingHelper, saUserViews, blogsOfUser0 }: {
         saTestingHelper: SaTestingHelper
         saUserViews: CreateUserOutputModel[]

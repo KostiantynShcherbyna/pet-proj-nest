@@ -1,7 +1,7 @@
 import { Transform, TransformFnParams } from "class-transformer";
 import { IsBoolean, IsEmail, IsNotEmpty, IsString, Length, Matches, MinLength, matches } from "class-validator";
-import { trimValue } from "../../../../../infrastructure/decorators/trim.decorator"
-import { BAN_REASON_MIN_LENGTH } from "../../../../../infrastructure/utils/constants"
+import { trimValue } from "../../../../../../infrastructure/decorators/trim.decorator"
+import { BAN_REASON_MIN_LENGTH } from "../../../../../../infrastructure/utils/constants"
 
 
 export class BanUserBodyInputModel {

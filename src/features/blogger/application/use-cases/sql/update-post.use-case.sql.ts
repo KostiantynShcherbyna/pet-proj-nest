@@ -2,8 +2,8 @@ import { UpdatePostBodyInputModel } from "../../../api/models/input/update-post.
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
-import { PostsRepositoryOrm } from "../../../../posts/repository/orm/posts.repository.orm"
-import { BlogsRepositoryOrm } from "../../../../blogs/repository/orm/blogs.repository.orm"
+import { PostsRepositoryOrm } from "../../../../posts/repository/typeorm/posts.repository.orm"
+import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
 

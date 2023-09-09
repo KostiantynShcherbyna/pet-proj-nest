@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { DevicesRepositoryOrm } from "../../../../devices/repository/orm/devices.repository.orm"
-import { UsersRepositoryOrm } from "../../../../sa/repository/orm/users.repository.orm"
+import { DevicesRepositoryOrm } from "../../../../devices/repository/typeorm/devices.repository.orm"
+import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repository.orm"
 import { Contract } from "../../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 

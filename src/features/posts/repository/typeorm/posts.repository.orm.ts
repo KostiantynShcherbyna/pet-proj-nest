@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, QueryRunner } from "typeorm"
-import { PostEntity } from "../../application/entites/sql/post.entity"
-import { PostLikeEntity } from "../../application/entites/sql/post-like.entity"
+import { PostEntity } from "../../application/entites/typeorm/post.entity"
+import { PostLikeEntity } from "../../application/entites/typeorm/post-like.entity"
 import { CommentEntity } from "../../../comments/application/entities/sql/comment.entity"
 
 @Injectable()

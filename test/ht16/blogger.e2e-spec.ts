@@ -2,9 +2,9 @@
 // import { CommentViewModel } from '../../src/modules/comment/models/comment-view-model';
 // import { endpoints } from '../helpers/routing';
 // import request from 'supertest';
-// import { UpdateBlogDto } from '../../src/modules/blog/dto/update-blog.dto';
+// import { UpdateBlogDto } from '../../src/modules/blogs/dto/update-blogs.dto';
 // import { faker } from '@faker-js/faker';
-// import { CreateBlogDto } from '../../src/modules/blog/dto/create-blog.dto';
+// import { CreateBlogDto } from '../../src/modules/blogs/dto/create-blogs.dto';
 // import { isUUID } from '@nestjs/common/utils/is-uuid';
 // import { INestApplication } from '@nestjs/common';
 // import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -57,13 +57,13 @@
 //     it('should wipe all data for describe', async () => {
 //       await wipeAllData(server);
 //     });
-//     it('prepare data for describe (user, blog, post, comments)', async () => {
+//     it('prepare data for describe (user, blogs, post, comments)', async () => {
 //       const user = await testingUser.createAndLoginOneUser();
-//       const blog = await testingBlog.createOneBlog(user.accessToken);
-//       const post = await testingPost.createOnePostForBlog(user.accessToken, blog);
+//       const blogs = await testingBlog.createOneBlog(user.accessToken);
+//       const post = await testingPost.createOnePostForBlog(user.accessToken, blogs);
 //       const comments = await testingComment.createCommentsForPost(user.accessToken, post, countOfComments);
-//       expect(user && blog && post && comments).toBeDefined();
-//       expect.setState({ user, blog, post, comments });
+//       expect(user && blogs && post && comments).toBeDefined();
+//       expect.setState({ user, blogs, post, comments });
 //     });
 //     it('should return all comments for all posts inside all current user blogs', async () => {
 //       const { user, post, comments } = expect.getState();
@@ -103,12 +103,12 @@
 //     it('should wipe all data for describe', async () => {
 //       await wipeAllData(server);
 //     });
-//     it('prepare data for describe (users, blog)', async () => {
+//     it('prepare data for describe (users, blogs)', async () => {
 //       const [user, user1] = await testingUser.createAndLoginUsers(2);
-//       const blog = await testingBlog.createOneBlog(user.accessToken);
+//       const blogs = await testingBlog.createOneBlog(user.accessToken);
 //
-//       expect(user && blog).toBeDefined();
-//       expect.setState({ user, user1, blog });
+//       expect(user && blogs).toBeDefined();
+//       expect.setState({ user, user1, blogs });
 //     });
 //
 //     it('should return 401 status code because without auth', async () => {
@@ -117,7 +117,7 @@
 //     });
 //
 //     it('should return 400 status code because without auth', async () => {
-//       const { user, blog } = expect.getState();
+//       const { user, blogs } = expect.getState();
 //
 //       const errors = {
 //         errorsMessages: expect.arrayContaining([
@@ -137,7 +137,7 @@
 //       };
 //
 //       const response = await request(server)
-//         .put(`${endpoints.bloggerController}/${blog.id}`)
+//         .put(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user.accessToken, { type: 'bearer' })
 //         .send({});
 //       expect(response.status).toBe(400);
@@ -150,7 +150,7 @@
 //       };
 //
 //       const response1 = await request(server)
-//         .put(`${endpoints.bloggerController}/${blog.id}`)
+//         .put(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user.accessToken, { type: 'bearer' })
 //         .send(emptyUpdateBlogDto);
 //       expect(response1.status).toBe(400);
@@ -163,14 +163,14 @@
 //       };
 //
 //       const response2 = await request(server)
-//         .put(`${endpoints.bloggerController}/${blog.id}`)
+//         .put(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user.accessToken, { type: 'bearer' })
 //         .send(maxLenLimitUpdateBlogDto);
 //       expect(response2.status).toBe(400);
 //       expect(response2.body).toStrictEqual(errors);
 //     });
 //
-//     it('should return 404 status code because blog with id "-1" does not exists', async () => {
+//     it('should return 404 status code because blogs with id "-1" does not exists', async () => {
 //       const { user } = expect.getState();
 //
 //       const updateBlogDto: UpdateBlogDto = {
@@ -186,8 +186,8 @@
 //       expect(response.status).toBe(404);
 //     });
 //
-//     it('should return 403 status code because user try to update blog that doesnt belong to current user', async () => {
-//       const { user1, blog } = expect.getState();
+//     it('should return 403 status code because user try to update blogs that doesnt belong to current user', async () => {
+//       const { user1, blogs } = expect.getState();
 //
 //       const updateBlogDto: UpdateBlogDto = {
 //         name: faker.lorem.word({ length: 10 }),
@@ -196,14 +196,14 @@
 //       };
 //
 //       const response = await request(server)
-//         .put(`${endpoints.bloggerController}/${blog.id}`)
+//         .put(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user1.accessToken, { type: 'bearer' })
 //         .send(updateBlogDto);
 //       expect(response.status).toBe(403);
 //     });
 //
 //     it('should return 204 status code because all is ok', async () => {
-//       const { user, blog } = expect.getState();
+//       const { user, blogs } = expect.getState();
 //
 //       const updateBlogDto: UpdateBlogDto = {
 //         name: faker.lorem.word({ length: 10 }),
@@ -212,7 +212,7 @@
 //       };
 //
 //       const response = await request(server)
-//         .put(`${endpoints.bloggerController}/${blog.id}`)
+//         .put(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user.accessToken, { type: 'bearer' })
 //         .send(updateBlogDto);
 //
@@ -222,27 +222,27 @@
 //
 //       expect(getResponse.status).toBe(200);
 //       expect(getResponse.body.items).toHaveLength(1);
-//       expect(getResponse.body.items[0]).not.toEqual(blog);
+//       expect(getResponse.body.items[0]).not.toEqual(blogs);
 //       expect(getResponse.body.items[0]).toEqual({
-//         id: blog.id,
+//         id: blogs.id,
 //         name: updateBlogDto.name,
 //         description: updateBlogDto.description,
 //         websiteUrl: updateBlogDto.websiteUrl,
-//         createdAt: blog.createdAt,
+//         createdAt: blogs.createdAt,
 //       });
 //     });
 //   });
 //
-//   describe('Delete => /blogger/blogs/:id => Delete blog specified by id', () => {
+//   describe('Delete => /blogger/blogs/:id => Delete blogs specified by id', () => {
 //     it('should wipe all data for describe', async () => {
 //       await wipeAllData(server);
 //     });
-//     it('prepare data for describe (users, blog)', async () => {
+//     it('prepare data for describe (users, blogs)', async () => {
 //       const [user, user1] = await testingUser.createAndLoginUsers(2);
-//       const blog = await testingBlog.createOneBlog(user.accessToken);
+//       const blogs = await testingBlog.createOneBlog(user.accessToken);
 //
-//       expect(user && blog).toBeDefined();
-//       expect.setState({ user, user1, blog });
+//       expect(user && blogs).toBeDefined();
+//       expect.setState({ user, user1, blogs });
 //     });
 //
 //     it('should return 401 status code because without auth', async () => {
@@ -250,31 +250,31 @@
 //       expect(response.status).toBe(401);
 //     });
 //
-//     it('should return 404 status code because blog with id "-1" does not exists', async () => {
+//     it('should return 404 status code because blogs with id "-1" does not exists', async () => {
 //       const { user } = expect.getState();
 //
 //       const response = await request(server).delete(`${endpoints.bloggerController}/-1`).auth(user.accessToken, { type: 'bearer' });
 //       expect(response.status).toBe(404);
 //     });
 //
-//     it('should return 403 status code because user try to update blog that doesnt belong to current user', async () => {
-//       const { user1, blog } = expect.getState();
+//     it('should return 403 status code because user try to update blogs that doesnt belong to current user', async () => {
+//       const { user1, blogs } = expect.getState();
 //
 //       const response = await request(server)
-//         .delete(`${endpoints.bloggerController}/${blog.id}`)
+//         .delete(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user1.accessToken, { type: 'bearer' });
 //       expect(response.status).toBe(403);
 //     });
 //
 //     it('should return 204 status code because all is ok', async () => {
-//       const { user, blog } = expect.getState();
+//       const { user, blogs } = expect.getState();
 //
 //       const getResponseBeforeDelete = await request(server).get(endpoints.bloggerController).auth(user.accessToken, { type: 'bearer' });
 //       expect(getResponseBeforeDelete.status).toBe(200);
 //       expect(getResponseBeforeDelete.body.items).toHaveLength(1);
 //
 //       const deleteResponse = await request(server)
-//         .delete(`${endpoints.bloggerController}/${blog.id}`)
+//         .delete(`${endpoints.bloggerController}/${blogs.id}`)
 //         .auth(user.accessToken, { type: 'bearer' });
 //
 //       expect(deleteResponse.status).toBe(204);
@@ -286,7 +286,7 @@
 //     });
 //   });
 //
-//   describe('POST => /blogger/blogs/ => Create new blog', () => {
+//   describe('POST => /blogger/blogs/ => Create new blogs', () => {
 //     it('should wipe all data for describe', async () => {
 //       await wipeAllData(server);
 //     });
@@ -498,5 +498,5 @@
 //     });
 //   });
 //
-//   describe.skip('POST => /blogger/blogs/:blogId/posts => Create new post for specific blog', () => {});
+//   describe.skip('POST => /blogger/blogs/:blogId/posts => Create new post for specific blogs', () => {});
 // });

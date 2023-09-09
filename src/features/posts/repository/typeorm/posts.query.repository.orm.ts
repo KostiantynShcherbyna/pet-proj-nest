@@ -14,13 +14,13 @@ import {
 } from "../../../../infrastructure/utils/constants"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, SelectQueryBuilder } from "typeorm"
-import { PostEntity } from "../../application/entites/sql/post.entity"
+import { PostEntity } from "../../application/entites/typeorm/post.entity"
 import { BlogEntity } from "../../../blogs/application/entities/sql/blog.entity"
-import { PostLikeEntity } from "../../application/entites/sql/post-like.entity"
+import { PostLikeEntity } from "../../application/entites/typeorm/post-like.entity"
 import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
-import { BlogsRepositoryOrm } from "../../../blogs/repository/orm/blogs.repository.orm"
+import { BlogsRepositoryOrm } from "../../../blogs/repository/typeorm/blogs.repository.orm"
 
 
 @Injectable()
