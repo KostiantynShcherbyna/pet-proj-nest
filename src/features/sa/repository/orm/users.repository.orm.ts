@@ -58,8 +58,8 @@ export class UsersRepositoryOrm {
       .into(EmailConfirmationEntity)
       .values({
         UserId: emailConfirmationDto.userId,
-        ConfirmationCode: emailConfirmationDto.confirmationCode || "",
-        ExpirationDate: emailConfirmationDto.expirationDate || "",
+        ConfirmationCode: emailConfirmationDto.confirmationCode,
+        ExpirationDate: emailConfirmationDto.expirationDate,
         IsConfirmed: emailConfirmationDto.isConfirmed
       })
       .execute()

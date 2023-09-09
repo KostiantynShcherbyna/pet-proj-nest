@@ -68,17 +68,6 @@ export class PostsQueryRepositoryOrm {
       .offset(offset)
       .getRawMany()
 
-    // const [posts, totalCount] = await this.dataSource.createQueryBuilder(PostEntity, "p")
-    //   .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
-    //   .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
-    //   .addSelect(qb => this.newestLikesBuilder(qb), `newestLikes`)
-    //   .leftJoinAndSelect(`p.PostLikeEntity`, "pl",)
-    //   // .leftJoinAndSelect(PostLikeEntity, "pl", `pl.PostId = p.PostId and pl.UserId = :userId`, { userId })
-    //   .orderBy(`p."${sortBy}"`, sortDirection)
-    //   .limit(pageSize)
-    //   .offset(offset)
-    //   .getManyAndCount()
-
     const mappedPosts = this.changePostsView(posts)
     const pagesCount = Math.ceil(totalCount / pageSize)
 
