@@ -41,8 +41,8 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       ? game.firstPlayerAnswerNumber
       : game.secondPlayerAnswerNumber
 
-    // const questions = await this.quizRepository.getQuestionIds(game.id)
-    // if (!questions) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+    const questions = await this.quizRepository.getQuestionIdsForAnswer(game.id, true)
+    if (!questions) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
     const question = questions[answerNumber]
     const answerStatus = question.correctAnswers.includes(command.answer)
@@ -56,19 +56,19 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     const addedAt = new Date(Date.now()).toISOString()
 
     const answer = new AnswerEntity()
-    answer.AnswerId = randomUUID()
     answer.GameId = game.id
     answer.QuestionId = question.questionId
     answer.AnswerStatus = answerStatus
     answer.UserId = command.userId
     answer.AddedAt = addedAt
 
-    await this.dataSource.manager.transaction(async manager => {
-      await manager.save<AnswerEntity>(answer)
+    const newAnswerId = await this.dataSource.manager.transaction(async manager => {
+      const ar = await manager.save<AnswerEntity>(answer)
       await manager.update(GameEntity, { GameId: game.id }, setPlayerAnswerNumber)
+      return ar.AnswerId
     })
 
-    return new Contract(answer.AnswerId, null)
+    return new Contract(newAnswerId, null)
   }
 
 }

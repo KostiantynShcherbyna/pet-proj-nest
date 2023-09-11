@@ -43,7 +43,7 @@ export class QuizQueryRepositoryOrm {
       .addSelect(qb => this.selectPlayerLogin(qb, `g.SecondPlayerId`), `SecondPlayerLogin`)
       .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
-      // .addSelect(qb => this.selectQuestions2(qb, `g.GameId`), `Questions`)
+      .addSelect(qb => this.selectQuestions(qb), `Questions`)
       .from(GameEntity, "g")
       .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
       .getRawOne()
@@ -57,7 +57,7 @@ export class QuizQueryRepositoryOrm {
       .addSelect(qb => this.selectPlayerLogin(qb, `g.SecondPlayerId`), `SecondPlayerLogin`)
       .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
-      // .addSelect(qb => this.selectQuestions(qb, gameId), `Questions`)
+      .addSelect(qb => this.selectQuestions(qb), `Questions`)
       .from(GameEntity, "g")
       .where(`g.GameId = :gameId`, { gameId })
       .getRawOne()
@@ -132,17 +132,14 @@ export class QuizQueryRepositoryOrm {
 
   }
 
-  private selectQuestions(qb: SelectQueryBuilder<any>, gameId: string) {
+  private selectQuestions(qb: SelectQueryBuilder<any>) {
     return qb.select(`json_agg(to_jsonb("questions")) as "questions"`)
       .from(qb => {
         return qb
-          .select([
-            `qu.QuestionId as "id"`,
-            `qu.Body as "body"`
-          ])
-          .from(QuestionEntity, "qu")
-          .where(`qu.GameId = :gameId`, { gameId })
-          .orderBy(`qu."CreatedAt"`, "DESC")
+          .select([`q.QuestionId as "id"`, `q.Body as "body"`])
+          .from(QuestionEntity, "q")
+          .where(`q.QuestionId IN (:...g.QuestionIds)`)
+          .orderBy(`q."CreatedAt"`, 'DESC')
       }, "questions")
   }
 

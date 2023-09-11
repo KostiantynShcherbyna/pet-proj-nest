@@ -67,6 +67,8 @@ export class QuizControllerSql {
       throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "id"))
     if (createContract.error === ErrorEnums.GAME_CREATED_OR_STARTED)
       throw new ForbiddenException(callErrorMessage(ErrorEnums.GAME_CREATED_OR_STARTED, "id"))
+    if (createContract.error === ErrorEnums.FAIL_LOGIC)
+      throw new ServiceUnavailableException()
 
     const newGame = await this.quizQueryRepositorySql.getGameById(createContract.data)
     if (newGame === null) throw new ServiceUnavailableException()

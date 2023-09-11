@@ -22,6 +22,4 @@ export class QuestionEntity {
   @Column({ default: [] })
   CorrectAnswers: string[]
 
-  @Column({ default: [] })
-  GameIds: string[]
 }

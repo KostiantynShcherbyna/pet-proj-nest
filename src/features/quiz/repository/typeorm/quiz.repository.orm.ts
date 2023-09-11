@@ -46,14 +46,14 @@ export class QuizRepositoryOrm {
   //   return result
   // }
 
-  async createGame(userId: string, createdDate: string, questionIds: string[]) {
-    const result = await this.dataSource.createQueryBuilder()
-      .insert()
-      .into(GameEntity)
-      .values({ FirstPlayerId: userId, PairCreatedDate: createdDate, Questions: questionIds })
-      .execute()
-    return result.identifiers[0].GameId
-  }
+  // async createGame(userId: string, createdDate: string, questionIds: string[]) {
+  //   const result = await this.dataSource.createQueryBuilder()
+  //     .insert()
+  //     .into(GameEntity)
+  //     .values({ FirstPlayerId: userId, PairCreatedDate: createdDate, Questions: questionIds })
+  //     .execute()
+  //   return result.identifiers[0].GameId
+  // }
 
   async createAnswers({ questionId, answerStatus, userId, addedAt }: ICreateAnswerDto) {
     const result = await this.dataSource.createQueryBuilder()
@@ -128,19 +128,29 @@ export class QuizRepositoryOrm {
     return result.affected ? result.affected : null
   }
 
-  async getQuestionIds(gameId: string, published: boolean): Promise<string[] | null> {
+  async getQuestionIdsForAnswer2(published: boolean): Promise<string[] | null> {
     const questionIds = await this.dataSource.createQueryBuilder()
       .select(`q.QuestionId as "questionId"`)
+      .leftJoin(GameEntity, "g")
       .from(QuestionEntity, "q")
-      .where(`(q.GameIds) = :gameId`, { gameId })
+      .where(`q.QuestionId in (:...g.QuestionIds)`)
       .andWhere(`q.Published = :published`, { published })
-      .orderBy("RANDOM()")
-      .limit(5)
       .getRawMany()
     return questionIds ? questionIds : null
   }
 
-  async getQuestionEntities(published: boolean): Promise<string[] | null> {
+  async getQuestionIdsForAnswer(questionIds: string[], published: boolean) {
+    const questions = await this.dataSource.createQueryBuilder()
+      .select([`q.QuestionId as "id"`, `q.Body as "body"`])
+      .from(QuestionEntity, "q")
+      .where(`q.QuestionId in (:...questionIds)`, { questionIds })
+      .andWhere(`q.Published = :published`, { published })
+      .getRawMany()
+    return questions ? questions : null
+  }
+
+
+  async getQuestionIdsForConnect(published: boolean): Promise<string[] | null> {
     const questionEntities = await this.dataSource.createQueryBuilder()
       .select(`q.QuestionId as "questionId"`)
       .from(QuestionEntity, "q")
