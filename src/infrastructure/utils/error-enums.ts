@@ -1,5 +1,7 @@
 export enum ErrorEnums {
 
+  FAIL_LOGIC = `Fail logic`,
+
   EMAIL_NOT_SENT = `Email not sent`,
 
   //↓↓↓ AUTH
@@ -48,7 +50,13 @@ export enum ErrorEnums {
 
   // ↓↓↓ LIKES
   LIKE_NOT_UPDATED = `Like not updated`,
+
+  // ↓↓↓ QUIZ
+  GAME_CREATED_OR_STARTED = `You are already participating in active pair`,
+  GAME_NOT_STARTED = `You are not in active pair`,
+
 }
+
 
 
 // export const errorMessages = {

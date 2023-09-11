@@ -19,9 +19,9 @@ export class QuestionEntity {
   @Column({ nullable: true })
   UpdatedAt: string | null
 
-  @Column()
+  @Column({ default: [] })
   CorrectAnswers: string[]
 
-  @Column("uuid")
-  GameId: string
+  @Column({ default: [] })
+  GameIds: string[]
 }

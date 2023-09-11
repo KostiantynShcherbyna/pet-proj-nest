@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource, SelectQueryBuilder } from "typeorm"
 import {
-  LikeStatus,
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT_SQL,
@@ -14,7 +13,6 @@ import { QuestionEntity } from "../../application/entities/typeorm/question.enti
 import { IQuestionsOutputModel } from "../../../sa/api/models/output/get-questions.output-model"
 import { GameEntity } from "../../application/entities/typeorm/game.entity"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
-import { PostLikeEntity } from "../../../posts/application/entites/typeorm/post-like.entity"
 import { AnswerEntity } from "../../application/entities/typeorm/answer.entity"
 
 
@@ -25,22 +23,46 @@ export class QuizQueryRepositoryOrm {
   ) {
   }
 
-  async getMyCurrentGame(userId: string) {
+  async getAnswer(answerId: string) {
+    const result = await this.dataSource.createQueryBuilder()
+      .select([
+        `a.AnswerId as "answerId"`,
+        `a.AnswerStatus as "answerStatus"`,
+        `a.AddedAd as "addedAt"`
+      ])
+      .from(AnswerEntity, "a")
+      .where(`a.AnswerId = :answerId`, { answerId })
+      .getRawOne()
 
+    return result ? result : null
   }
 
-  async getGameById(gameId: string, userId: string) {
+  async getMyCurrentGame(userId: string) {
     const result = await this.dataSource.createQueryBuilder()
       .addSelect(qb => this.selectPlayerLogin(qb, `g.FirstPlayerId`), `FirstPlayerLogin`)
       .addSelect(qb => this.selectPlayerLogin(qb, `g.SecondPlayerId`), `SecondPlayerLogin`)
       .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
-      .addSelect(qb => this.selectQuestions(qb, gameId), `Questions`)
+      // .addSelect(qb => this.selectQuestions2(qb, `g.GameId`), `Questions`)
+      .from(GameEntity, "g")
+      .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
+      .getRawOne()
+
+    return this.createGameOutputModel(result)
+  }
+
+  async getGameById(gameId: string) {
+    const result = await this.dataSource.createQueryBuilder()
+      .addSelect(qb => this.selectPlayerLogin(qb, `g.FirstPlayerId`), `FirstPlayerLogin`)
+      .addSelect(qb => this.selectPlayerLogin(qb, `g.SecondPlayerId`), `SecondPlayerLogin`)
+      .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
+      .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
+      // .addSelect(qb => this.selectQuestions(qb, gameId), `Questions`)
       .from(GameEntity, "g")
       .where(`g.GameId = :gameId`, { gameId })
       .getRawOne()
 
-    return this.createGameOutputModel(result)
+    return result ? this.createGameOutputModel(result) : null
   }
 
   async getQuestions(query: GetQuestionsQueryInputModel, userId: string): Promise<IQuestionsOutputModel> {
@@ -119,13 +141,55 @@ export class QuizQueryRepositoryOrm {
             `qu.Body as "body"`
           ])
           .from(QuestionEntity, "qu")
-          .where(`qu.UserId = :gameId`, { gameId })
+          .where(`qu.GameId = :gameId`, { gameId })
           .orderBy(`qu."CreatedAt"`, "DESC")
       }, "questions")
-
   }
 
+  private selectQuestions2(qb: SelectQueryBuilder<any>, gameId: string) {
+    return qb.select(`json_agg(to_jsonb("questions")) as "questions"`)
+      .from(qb => {
+        return qb
+          .select([
+            `qu.QuestionId as "id"`,
+            `qu.Body as "body"`
+          ])
+          .from(QuestionEntity, "qu")
+          .where(`qu.GameId = ${gameId}`)
+          .orderBy(`qu."CreatedAt"`, "DESC")
+      }, "questions")
+  }
+
+  // private selectQuestions(qb: SelectQueryBuilder<any>, gameId: string) {
+  //   return qb.select(`json_agg(to_jsonb("questions")) as "questions"`)
+  //     .from(qb => {
+  //       return qb
+  //         .select([
+  //           `qu.QuestionId as "id"`,
+  //           `qu.Body as "body"`
+  //         ])
+  //         .from(QuestionEntity, "qu")
+  //         .where(`qu.GameId = :gameId`, { gameId })
+  //         .orderBy(`qu."CreatedAt"`, "DESC")
+  //     }, "questions")
+  // }
+
+  // private selectQuestions2(qb: SelectQueryBuilder<any>, gameId: string) {
+  //   return qb.select(`json_agg(to_jsonb("questions")) as "questions"`)
+  //     .from(qb => {
+  //       return qb
+  //         .select([
+  //           `qu.QuestionId as "id"`,
+  //           `qu.Body as "body"`
+  //         ])
+  //         .from(QuestionEntity, "qu")
+  //         .where(`qu.GameId = ${gameId}`)
+  //         .orderBy(`qu."CreatedAt"`, "DESC")
+  //     }, "questions")
+  // }
+
   private createGameOutputModel(rawGameView: any) {
+    const questions = rawGameView.SecondPlayerId ? rawGameView.Questions : []
     return {
       id: rawGameView.GameId,
       firstPlayerProgress: {
@@ -144,7 +208,7 @@ export class QuizQueryRepositoryOrm {
         },
         score: rawGameView.SecondPlayerScore
       },
-      questions: rawGameView.Questions,
+      questions: questions,
       status: rawGameView.Status,
       pairCreatedDate: rawGameView.PairCreatedDate,
       startGameDate: rawGameView.StartGameDate,

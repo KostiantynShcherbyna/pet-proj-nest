@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
-enum StatusEnum {
+export enum StatusEnum {
   PendingSecondPlayer = "PendingSecondPlayer",
   Active = "Active",
   Finished = "Finished"
@@ -23,6 +23,12 @@ export class GameEntity {
 
   @Column({ default: 0 })
   SecondPlayerScore: number
+
+  @Column({ default: 0 })
+  FirstPlayerAnswerNumber: number
+
+  @Column({ default: 0 })
+  SecondPlayerAnswerNumber: number
 
   @Column({
     type: "enum",

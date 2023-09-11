@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
-enum AnswerStatusEnum { Correct = "Correct", Incorrect = "Incorrect"}
+export enum AnswerStatusEnum { Correct = "Correct", Incorrect = "Incorrect"}
 
 @Entity()
 export class AnswerEntity {

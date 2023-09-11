@@ -1,14 +1,31 @@
-import { Controller, Get, Param, Post, UnauthorizedException, UseGuards } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get, InternalServerErrorException,
+  NotFoundException,
+  Param,
+  Post, ServiceUnavailableException,
+  UnauthorizedException,
+  UseGuards
+} from "@nestjs/common"
 import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { DeviceSessionReqInputModel } from "../../auth/api/models/input/device-session.req.input-model"
 import { QuizQueryRepositoryOrm } from "../repository/typeorm/quiz.query.repository.orm"
 import { QuizRepositoryOrm } from "../repository/typeorm/quiz.repository.orm"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model"
+import { CommandBus } from "@nestjs/cqrs"
+import { ConnectionQuizCommandSql } from "../application/use-cases/connection-quiz.use-case.sql"
+import { CreateAnswersQuizCommandSql } from "../application/use-cases/create-answers-quiz.use-case.sql"
+import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
+import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
+import { AnswerBodyInputModel } from "./models/input/answer.body.input-model"
 
 @Controller(`pair-game-quiz/pairs`)
 export class QuizControllerSql {
   constructor(
+    private commandBus: CommandBus,
     protected quizQueryRepositorySql: QuizQueryRepositoryOrm,
     protected quizRepositorySql: QuizRepositoryOrm,
   ) {
@@ -30,7 +47,7 @@ export class QuizControllerSql {
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
     @Param() params: IdParamInputModelSql,
   ) {
-    const userView = await this.quizQueryRepositorySql.getGameById(params.id, deviceSession.userId)
+    const userView = await this.quizQueryRepositorySql.getGameById(params.id)
     if (userView === null) throw new UnauthorizedException()
     return userView
   }
@@ -40,19 +57,44 @@ export class QuizControllerSql {
   async connection(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    const userView = await this.quizRepositorySql.connection(deviceSession.userId)
-    if (userView === null) throw new UnauthorizedException()
-    return userView
+    const createContract = await this.commandBus.execute(
+      new ConnectionQuizCommandSql(deviceSession.userId)
+    )
+
+    if (createContract.error === ErrorEnums.USER_NOT_FOUND)
+      throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id"))
+    if (createContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
+      throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "id"))
+    if (createContract.error === ErrorEnums.GAME_CREATED_OR_STARTED)
+      throw new ForbiddenException(callErrorMessage(ErrorEnums.GAME_CREATED_OR_STARTED, "id"))
+
+    const newGame = await this.quizQueryRepositorySql.getGameById(createContract.data)
+    if (newGame === null) throw new ServiceUnavailableException()
+    return newGame
   }
 
   @Post(`my-current/answers`)
   @UseGuards(AccessGuard)
   async answers(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
+    @Body() body: AnswerBodyInputModel
   ) {
-    const userView = await this.quizRepositorySql.createAnswers()
-    if (userView === null) throw new UnauthorizedException()
-    return userView
+    const answersContract = await this.commandBus.execute(
+      new CreateAnswersQuizCommandSql(deviceSession.userId, body.answer)
+    )
+
+    if (answersContract.error === ErrorEnums.USER_NOT_FOUND)
+      throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id"))
+    if (answersContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
+      throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "id"))
+    if (answersContract.error === ErrorEnums.GAME_NOT_STARTED)
+      throw new ForbiddenException()
+    if (answersContract.error === ErrorEnums.FAIL_LOGIC)
+      throw new ServiceUnavailableException()
+
+    const newAnswer = await this.quizQueryRepositorySql.getAnswer(answersContract.data)
+    if (newAnswer === null) throw new ServiceUnavailableException()
+    return newAnswer
   }
 
 
