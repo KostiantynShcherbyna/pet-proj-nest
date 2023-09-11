@@ -37,29 +37,71 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
       })
     if (game) return new Contract(null, ErrorEnums.GAME_CREATED_OR_STARTED)
 
+    const randomQuestionIds = await this.quizRepository.getQuestionEntities(true)
+    if (!randomQuestionIds) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+
     const createdDate = new Date(Date.now()).toISOString()
 
     const newGame = new GameEntity()
     newGame.FirstPlayerId = command.userId
     newGame.PairCreatedDate = createdDate
+    newGame.QuestionIds = randomQuestionIds
 
     await this.dataSource.manager.transaction(async manager => {
-      const newG = await manager.save<GameEntity>(newGame)
-      const randomQuestions = await this.quizRepository.getQuestionEntities(newG.GameId, true)
-
-      if (randomQuestions) {
-        for (const randomQuestion of randomQuestions) randomQuestion.GameIds.push(newG.GameId)
-        await manager.save(QuestionEntity, randomQuestions)
-      }
+      const nwGame: GameEntity = await this.quizRepository.saveEntity(newGame, manager)
     })
 
-    const questionIds = await this.quizRepository.getQuestionIds()
-    if (!questionIds) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+    const queryRunner = this.dataSource.createQueryRunner()
+    try {
+      await queryRunner.startTransaction()
+      await this.quizRepository.saveEntity(newGame, queryRunner)
+      await queryRunner.commitTransaction()
+    } catch (err) {
+      console.log("ConnectionQuizSql", err)
+      await queryRunner.rollbackTransaction()
+    } finally {
+      await queryRunner.release()
+    }
+    // try {
+    //   await queryRunner.startTransaction()
+    //   await this.quizRepository.saveEntity(newGame, queryRunner)
+    //   const randomQuestions = await this.quizRepository.getQuestionEntities(newGame.GameId, true)
+    //   if (!randomQuestions) {
+    //     await queryRunner.rollbackTransaction()
+    //     console.log("In ConnectionQuizSql randomQuestions is null")
+    //     return new Contract(null, ErrorEnums.FAIL_LOGIC)
+    //   }
+    //   for (const question of randomQuestions) {
+    //     question.GameIds.push(newGame.GameId)
+    //     await this.quizRepository.saveEntity(question, queryRunner)
+    //   }
+    //   await queryRunner.commitTransaction()
+    // } catch (err) {
+    //   console.log("ConnectionQuizSql", err)
+    //   await queryRunner.rollbackTransaction()
+    // } finally {
+    //   await queryRunner.release()
+    // }
+
+    // try {
+    //   await this.dataSource.manager.transaction(async manager => {
+    //     const newG = await manager.save<GameEntity>(newGame)
+    //     const randomQuestions = await this.quizRepository.getQuestionEntities(newG.GameId, true)
+    //
+    //     if (randomQuestions) {
+    //       for (const randomQuestion of randomQuestions) randomQuestion.GameIds.push(newG.GameId)
+    //       await manager.save(QuestionEntity, randomQuestions)
+    //     } else {
+    //       throw new Error("randomQuestions is null")
+    //     }
+    //   })
+    // } catch (err) {
+    //   console.error("Ошибка в транзакции:", err)
+    //
+    // }
 
 
-    const newGameId = await this.quizRepository.createGame(command.userId, createdDate, questionIds)
-
-    return new Contract(newGameId, null)
+    return new Contract(newGame.GameId, null)
   }
 
 }

@@ -46,6 +46,9 @@ export class GameEntity {
   @Column({ nullable: true, default: null })
   FinishGameDate: string | null
 
+  @Column()
+  QuestionIds: string[]
+
 }
 
 

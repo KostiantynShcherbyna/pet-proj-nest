@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
-import { DataSource, SelectQueryBuilder } from "typeorm"
+import { DataSource, EntityManager, QueryRunner, SelectQueryBuilder } from "typeorm"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { IInsertQuestionOutputModel } from "../../../sa/api/models/output/insert-question.output-model"
 import { QuestionBodyInputModelSql } from "../../../sa/api/models/input/quiz/question.body.input-model.sql"
@@ -36,6 +36,15 @@ export class QuizRepositoryOrm {
     @InjectDataSource() protected dataSource: DataSource,
   ) {
   }
+
+  async saveEntity(entity, manager: EntityManager) {
+    return await manager.save(entity)
+  }
+
+  // async saveEntity(entity, queryRunner: QueryRunner) {
+  //   const result = await queryRunner.manager.save(entity)
+  //   return result
+  // }
 
   async createGame(userId: string, createdDate: string, questionIds: string[]) {
     const result = await this.dataSource.createQueryBuilder()
@@ -131,17 +140,28 @@ export class QuizRepositoryOrm {
     return questionIds ? questionIds : null
   }
 
-  async getQuestionEntities(gameId: string, published: boolean) {
+  async getQuestionEntities(published: boolean): Promise<string[] | null> {
     const questionEntities = await this.dataSource.createQueryBuilder()
       .select(`q.QuestionId as "questionId"`)
       .from(QuestionEntity, "q")
-      .where(`:gameId NOT IN (q."GameIds")`, { gameId })
-      .andWhere(`q.Published = :published`, { published })
+      .where(`q.Published = :published`, { published })
       .orderBy("RANDOM()")
       .limit(5)
-      .getMany()
+      .getRawMany()
     return questionEntities ? questionEntities : null
   }
+
+  // async getQuestionEntities(gameId: string, published: boolean) {
+  //   const questionEntities = await this.dataSource.createQueryBuilder()
+  //     .select(`q.QuestionId as "questionId"`)
+  //     .from(QuestionEntity, "q")
+  //     .where(`:gameId NOT IN (q."GameIds")`, { gameId })
+  //     .andWhere(`q.Published = :published`, { published })
+  //     .orderBy("RANDOM()")
+  //     .limit(5)
+  //     .getMany()
+  //   return questionEntities ? questionEntities : null
+  // }
 
   // async isCorrectAnswer(gameId: string, answer: string)
   //   : Promise<string[] | null> {
