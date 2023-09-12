@@ -1,5 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
-import { QuestionEntity } from "./question.entity"
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Question } from "./question"
 
 export enum StatusEnum {
   PendingSecondPlayer = "PendingSecondPlayer",
@@ -8,7 +8,7 @@ export enum StatusEnum {
 }
 
 @Entity()
-export class GameEntity {
+export class Game {
 
   @PrimaryGeneratedColumn("uuid")
   GameId: string
@@ -41,18 +41,15 @@ export class GameEntity {
   @Column()
   PairCreatedDate: string
 
-  @Column({ nullable: true, default: null })
+  @Column({ nullable: true, default: null, type: "character varying" })
   StartGameDate: string | null
 
-  @Column({ nullable: true, default: null })
+  @Column({ nullable: true, default: null, type: "character varying" })
   FinishGameDate: string | null
 
-  // @Column()
-  // QuestionIds: string[]
-
-  @Column()
-  @ManyToMany(() => QuestionEntity, quest => quest.QuestionId)
-  Questions: QuestionEntity[]
+  @ManyToMany(() => Question, quest => quest.QuestionId)
+  @JoinTable()
+  Questions: Question[]
 
 }
 

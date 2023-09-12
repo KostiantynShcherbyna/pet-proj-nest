@@ -3,11 +3,11 @@ import { QuizRepositoryOrm } from "../../repository/typeorm/quiz.repository.orm"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
-import { GameEntity, StatusEnum } from "../entities/typeorm/game.entity"
-import { AnswerEntity } from "../entities/typeorm/answer.entity"
+import { Game, StatusEnum } from "../entities/typeorm/game"
+import { Answer } from "../entities/typeorm/answer"
 import { randomUUID } from "crypto"
 import { DataSource } from "typeorm"
-import { QuestionEntity } from "../entities/typeorm/question.entity"
+import { Question } from "../entities/typeorm/question"
 
 export class ConnectionQuizCommandSql {
   constructor(
@@ -42,7 +42,7 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
 
     const createdDate = new Date(Date.now()).toISOString()
 
-    const newGame = new GameEntity()
+    const newGame = new Game()
     newGame.FirstPlayerId = command.userId
     newGame.PairCreatedDate = createdDate
     newGame.Questions = randomQuestionIds

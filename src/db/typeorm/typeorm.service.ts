@@ -56,6 +56,10 @@ import { PostsControllerSql } from "../../features/posts/api/posts.controller.sq
 import { BloggerControllerSql } from "../../features/blogger/api/blogger.controller.sql"
 import { CommentsControllerSql } from "../../features/comments/api/comments.controller.sql"
 import { ConnectionQuizSql } from "../../features/quiz/application/use-cases/connection-quiz.use-case.sql"
+import { CreateQuestionsQuizSql } from "../../features/quiz/application/use-cases/create-questions-quiz.use-case.sql"
+import { QuizRepositoryOrm } from "../../features/quiz/repository/typeorm/quiz.repository.orm"
+import { QuizQueryRepositoryOrm } from "../../features/quiz/repository/typeorm/quiz.query.repository.orm"
+import { QuizControllerSql } from "../../features/quiz/api/quiz.controller.sql"
 
 
 const typeOrmUseCases = [
@@ -93,6 +97,7 @@ const typeOrmUseCases = [
   DeleteBlogSASql,
   CreatePostSASql,
   ConnectionQuizSql,
+  CreateQuestionsQuizSql,
 ]
 const typeOrmRepositories = [
   AuthRepositoryOrm,
@@ -106,6 +111,8 @@ const typeOrmRepositories = [
   PostsRepositoryOrm,
   CommentsQueryRepositoryOrm,
   CommentsRepositoryOrm,
+  QuizRepositoryOrm,
+  QuizQueryRepositoryOrm,
 ]
 
 
@@ -117,6 +124,7 @@ export const typeOrmControllers = [
   PostsControllerSql,
   BloggerControllerSql,
   CommentsControllerSql,
+  QuizControllerSql,
 ]
 export const typeOrmProviders = [
   ...typeOrmUseCases,

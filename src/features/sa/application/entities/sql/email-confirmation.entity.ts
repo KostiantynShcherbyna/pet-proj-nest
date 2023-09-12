@@ -24,10 +24,10 @@ export class EmailConfirmationEntity {
 
   // @Column({ type: "uuid", nullable: true })
   @Column({ nullable: true })
-  ConfirmationCode: string | null
+  ConfirmationCode: string
 
   @Column({ nullable: true })
-  ExpirationDate: string | null
+  ExpirationDate: string
 
   @JoinColumn({ name: "UserId" })
   @ManyToOne(() => AccountEntity)

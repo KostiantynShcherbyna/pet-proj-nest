@@ -4,9 +4,9 @@ import { DataSource, EntityManager, QueryRunner, SelectQueryBuilder } from "type
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { IInsertQuestionOutputModel } from "../../../sa/api/models/output/insert-question.output-model"
 import { QuestionBodyInputModelSql } from "../../../sa/api/models/input/quiz/question.body.input-model.sql"
-import { QuestionEntity } from "../../application/entities/typeorm/question.entity"
-import { GameEntity, StatusEnum } from "../../application/entities/typeorm/game.entity"
-import { AnswerEntity } from "../../application/entities/typeorm/answer.entity"
+import { Question } from "../../application/entities/typeorm/question"
+import { Game, StatusEnum } from "../../application/entities/typeorm/game"
+import { Answer } from "../../application/entities/typeorm/answer"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 import {
   PAGE_NUMBER_DEFAULT,
@@ -55,31 +55,30 @@ export class QuizRepositoryOrm {
   //   return result.identifiers[0].GameId
   // }
 
-  async createAnswers({ questionId, answerStatus, userId, addedAt }: ICreateAnswerDto) {
-    const result = await this.dataSource.createQueryBuilder()
-      .insert()
-      .into(AnswerEntity)
-      .values({
-        QuestionId: questionId,
-        AnswerStatus: answerStatus,
-        UserId: userId,
-        AddedAt: addedAt,
-      })
-      .execute()
-    return result.identifiers[0].AnswerId
-  }
+  // async createAnswers({ questionId, answerStatus, userId, addedAt }: ICreateAnswerDto) {
+  //   const result = await this.dataSource.createQueryBuilder()
+  //     .insert()
+  //     .into(AnswerEntity)
+  //     .values({
+  //       QuestionId: questionId,
+  //       AnswerStatus: answerStatus,
+  //       UserId: userId,
+  //       AddedAt: addedAt,
+  //     })
+  //     .execute()
+  //   return result.identifiers[0].AnswerId
+  // }
 
   async createQuestion({ body, published, createdAt, updatedAt, correctAnswers }: ICreateQuestionDto, userId: string)
     : Promise<string | null> {
     const result = await this.dataSource.createQueryBuilder()
       .insert()
-      .into(QuestionEntity)
+      .into(Question)
       .values({
         Body: body,
         Published: published,
         CreatedAt: createdAt,
-        UpdatedAt: updatedAt,
-        CorrectAnswers: correctAnswers,
+        UpdatedAt: updatedAt || "",
       })
       .execute()
     return result.identifiers[0].QuestionId
@@ -89,7 +88,7 @@ export class QuizRepositoryOrm {
     : Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
       .delete()
-      .from(QuestionEntity)
+      .from(Question)
       .where(`QuestionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
@@ -98,7 +97,7 @@ export class QuizRepositoryOrm {
   async updateQuestion(questionId: string, { body, correctAnswers }: QuestionBodyInputModelSql, userId: string)
     : Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
-      .update(QuestionEntity)
+      .update(Question)
       .set({
         Body: body,
         CorrectAnswers: correctAnswers,
@@ -111,7 +110,7 @@ export class QuizRepositoryOrm {
   async publishQuestion(questionId: string, published: boolean, userId: string)
     : Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
-      .update(QuestionEntity)
+      .update(Question)
       .set({ Published: published })
       .where(`QuestionId = :questionId`, { questionId })
       .execute()
@@ -121,7 +120,7 @@ export class QuizRepositoryOrm {
   async incrementAnswerNumber(gameId: string, setDto: any)
     : Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
-      .update(GameEntity)
+      .update(Game)
       .set(setDto)
       .where(`GameId = :gameId`, { gameId })
       .execute()
@@ -131,8 +130,8 @@ export class QuizRepositoryOrm {
   async getQuestionIdsForAnswer2(published: boolean): Promise<string[] | null> {
     const questionIds = await this.dataSource.createQueryBuilder()
       .select(`q.QuestionId as "questionId"`)
-      .leftJoin(GameEntity, "g")
-      .from(QuestionEntity, "q")
+      .leftJoin(Game, "g")
+      .from(Question, "q")
       .where(`q.QuestionId in (:...g.QuestionIds)`)
       .andWhere(`q.Published = :published`, { published })
       .getRawMany()
@@ -142,7 +141,7 @@ export class QuizRepositoryOrm {
   async getQuestionIdsForAnswer(questionIds: string[], published: boolean) {
     const questions = await this.dataSource.createQueryBuilder()
       .select([`q.QuestionId as "id"`, `q.Body as "body"`])
-      .from(QuestionEntity, "q")
+      .from(Question, "q")
       .where(`q.QuestionId in (:...questionIds)`, { questionIds })
       .andWhere(`q.Published = :published`, { published })
       .orderBy("RANDOM()", "DESC")
@@ -151,9 +150,9 @@ export class QuizRepositoryOrm {
   }
 
 
-  async getQuestionIdsForConnect(published: boolean): Promise<QuestionEntity[] | null> {
+  async getQuestionIdsForConnect(published: boolean): Promise<Question[] | null> {
     const questionEntities = await this.dataSource.createQueryBuilder()
-      .from(QuestionEntity, "q")
+      .from(Question, "q")
       .where(`q.Published = :published`, { published })
       .orderBy("RANDOM()", "DESC")
       .limit(5)
@@ -184,9 +183,9 @@ export class QuizRepositoryOrm {
   // }
 
 
-  async getUserCurrentGame(userId: string, { pending, active }): Promise<GameEntity | null> {
+  async getUserCurrentGame(userId: string, { pending, active }): Promise<Game & Question | null> {
     const result = await this.dataSource.createQueryBuilder()
-      .from(GameEntity, "g")
+      .from(Game, "g")
       .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
       .andWhere(`g.Status = :pending or g.Status = :active`, { pending, active })
       .getRawOne()
@@ -212,7 +211,7 @@ export class QuizRepositoryOrm {
             `an.AnswerStatus as "answerStatus"`,
             `an.AddedAt as "addedAt"`
           ])
-          .from(AnswerEntity, "an")
+          .from(Answer, "an")
           .where(`an.UserId = ${userId}`,)
           .andWhere(`an.GameId = g.GameId`)
           .groupBy(`an.UserId`)
@@ -229,7 +228,7 @@ export class QuizRepositoryOrm {
             `qu.QuestionId as "id"`,
             `qu.Body as "body"`
           ])
-          .from(QuestionEntity, "qu")
+          .from(Question, "qu")
           .where(`qu.GameId = ${gameId}`)
           .orderBy(`qu."CreatedAt"`, "DESC")
       }, "questions")

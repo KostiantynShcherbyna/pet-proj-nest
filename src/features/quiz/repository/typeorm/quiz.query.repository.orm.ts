@@ -9,11 +9,11 @@ import {
   SortDirectionOrm
 } from "../../../../infrastructure/utils/constants"
 import { GetQuestionsQueryInputModel } from "../../../sa/api/models/input/quiz/get-questions.query.input-model"
-import { QuestionEntity } from "../../application/entities/typeorm/question.entity"
+import { Question } from "../../application/entities/typeorm/question"
 import { IQuestionsOutputModel } from "../../../sa/api/models/output/get-questions.output-model"
-import { GameEntity } from "../../application/entities/typeorm/game.entity"
+import { Game } from "../../application/entities/typeorm/game"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
-import { AnswerEntity } from "../../application/entities/typeorm/answer.entity"
+import { Answer } from "../../application/entities/typeorm/answer"
 
 
 @Injectable()
@@ -30,7 +30,7 @@ export class QuizQueryRepositoryOrm {
         `a.AnswerStatus as "answerStatus"`,
         `a.AddedAd as "addedAt"`
       ])
-      .from(AnswerEntity, "a")
+      .from(Answer, "a")
       .where(`a.AnswerId = :answerId`, { answerId })
       .getRawOne()
 
@@ -44,7 +44,7 @@ export class QuizQueryRepositoryOrm {
       .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
       .addSelect(qb => this.selectQuestions(qb), `Questions`)
-      .from(GameEntity, "g")
+      .from(Game, "g")
       .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
       .getRawOne()
 
@@ -58,7 +58,7 @@ export class QuizQueryRepositoryOrm {
       .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
       .addSelect(qb => this.selectQuestions(qb), `Questions`)
-      .from(GameEntity, "g")
+      .from(Game, "g")
       .where(`g.GameId = :gameId`, { gameId })
       .getRawOne()
 
@@ -73,7 +73,7 @@ export class QuizQueryRepositoryOrm {
     const offset = (pageNumber - 1) * pageSize
 
     const [questions, totalCount] = await this.dataSource.createQueryBuilder()
-      .from(QuestionEntity, "q")
+      .from(Question, "q")
       .orderBy(`q."${sortBy}"`, sortDirection)
       .limit(pageSize)
       .offset(offset)
@@ -123,7 +123,7 @@ export class QuizQueryRepositoryOrm {
             `an.AnswerStatus as "answerStatus"`,
             `an.AddedAt as "addedAt"`
           ])
-          .from(AnswerEntity, "an")
+          .from(Answer, "an")
           .where(`an.UserId = ${userId}`,)
           .andWhere(`an.GameId = g.GameId`)
           .groupBy(`an.UserId`)
@@ -137,7 +137,7 @@ export class QuizQueryRepositoryOrm {
       .from(qb => {
         return qb
           .select([`q.QuestionId as "id"`, `q.Body as "body"`])
-          .from(QuestionEntity, "q")
+          .from(Question, "q")
           .where(`q.QuestionId IN (:...g.QuestionIds)`)
           .orderBy(`q."CreatedAt"`, 'DESC')
       }, "questions")
@@ -151,7 +151,7 @@ export class QuizQueryRepositoryOrm {
             `qu.QuestionId as "id"`,
             `qu.Body as "body"`
           ])
-          .from(QuestionEntity, "qu")
+          .from(Question, "qu")
           .where(`qu.GameId = ${gameId}`)
           .orderBy(`qu."CreatedAt"`, "DESC")
       }, "questions")

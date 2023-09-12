@@ -14,6 +14,9 @@ import { EmailConfirmationEntity } from "../../features/sa/application/entities/
 import {
   SentConfirmationCodeDateEntity
 } from "../../features/sa/application/entities/sql/sent-confirmation-code-date.entity"
+import { Game } from "../../features/quiz/application/entities/typeorm/game"
+import { Question } from "../../features/quiz/application/entities/typeorm/question"
+import { Answer } from "../../features/quiz/application/entities/typeorm/answer"
 
 export const typeormConfig: PostgresConnectionOptions = {
   type: "postgres",
@@ -21,7 +24,7 @@ export const typeormConfig: PostgresConnectionOptions = {
   port: 5432,
   username: "nestjsk",
   password: "nestjsk",
-  database: "pet-proj-nest-typeorm-db",
+  database: "pet-proj-nest-orm-db",
   entities: [
     RecoveryCodeEntity,
     BanBlogUserEntity,
@@ -35,8 +38,11 @@ export const typeormConfig: PostgresConnectionOptions = {
     BanInfoEntity,
     EmailConfirmationEntity,
     SentConfirmationCodeDateEntity,
+    Game,
+    Question,
+    Answer,
   ],
   migrations: [__dirname + `/migrations/**/*{.ts,.js}`],
-  synchronize: false,
+  synchronize: true,
 }
 export default new DataSource(typeormConfig)

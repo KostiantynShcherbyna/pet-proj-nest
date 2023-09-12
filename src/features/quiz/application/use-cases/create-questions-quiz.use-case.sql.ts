@@ -8,16 +8,16 @@ import { Answer, AnswerStatusEnum } from "../entities/typeorm/answer"
 import { Column, DataSource } from "typeorm"
 import { randomUUID } from "crypto"
 
-export class CreateAnswersQuizCommandSql {
+export class CreateQuestionsQuizCommandSql {
   constructor(
-    public userId: string,
-    public answer: string,
+    public body: { body: string, correctAnswers: string[] },
+    public userId: string
   ) {
   }
 }
 
-@CommandHandler(CreateAnswersQuizCommandSql)
-export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCommandSql> {
+@CommandHandler(CreateQuestionsQuizCommandSql)
+export class CreateQuestionsQuizSql implements ICommandHandler<CreateQuestionsQuizCommandSql> {
   constructor(
     protected dataSource: DataSource,
     protected quizRepository: QuizRepositoryOrm,
@@ -25,7 +25,7 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
   ) {
   }
 
-  async execute(command: CreateAnswersQuizCommandSql) {
+  async execute(command: CreateQuestionsQuizCommandSql) {
     const foundUser = await this.usersRepository.findUserByUserIdQuiz(command.userId)
     if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
     if (foundUser.IsConfirmed === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
@@ -41,13 +41,14 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       ? game.FirstPlayerAnswerNumber
       : game.SecondPlayerAnswerNumber
 
-
+    // @ts-ignore
     const questionIds = game.Questions.map(question => question.QuestionId)
 
     const questions = await this.quizRepository.getQuestionIdsForAnswer(questionIds, true)
     if (!questions) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
     const question = questions[answerNumber]
+    // @ts-ignore
     const answerStatus = question.correctAnswers.includes(command.answer)
       ? AnswerStatusEnum.Correct
       : AnswerStatusEnum.Incorrect
@@ -59,9 +60,12 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     const addedAt = new Date(Date.now()).toISOString()
 
     const answer = new Answer()
+    // @ts-ignore
     answer.Game = game
+    // @ts-ignore
     answer.Question = question
     answer.AnswerStatus = answerStatus
+    // @ts-ignore
     answer.User = foundUser
     answer.AddedAt = addedAt
 

@@ -58,8 +58,8 @@ export class UsersRepositoryOrm {
       .into(EmailConfirmationEntity)
       .values({
         UserId: emailConfirmationDto.userId,
-        ConfirmationCode: emailConfirmationDto.confirmationCode,
-        ExpirationDate: emailConfirmationDto.expirationDate,
+        ConfirmationCode: emailConfirmationDto.confirmationCode || "",
+        ExpirationDate: emailConfirmationDto.expirationDate || "",
         IsConfirmed: emailConfirmationDto.isConfirmed
       })
       .execute()
@@ -117,6 +117,16 @@ export class UsersRepositoryOrm {
         `c.ExpirationDate as "expirationDate"`,
         `c.IsConfirmed as "isConfirmed"`
       ])
+      .from(AccountEntity, "a")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
+      .leftJoin(EmailConfirmationEntity, "c", `c.UserId = a.UserId`)
+      .where(`a.UserId = :userId`, { userId })
+      .getRawOne()
+    return user ? user : null
+  }
+
+  async findUserByUserIdQuiz(userId: string) {
+    const user = await this.dataSource.createQueryBuilder()
       .from(AccountEntity, "a")
       .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
       .leftJoin(EmailConfirmationEntity, "c", `c.UserId = a.UserId`)

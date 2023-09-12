@@ -54,7 +54,8 @@ import { GetQuestionsQueryInputModel } from "./models/input/quiz/get-questions.q
 import { QuizQueryRepositoryOrm } from "../../quiz/repository/typeorm/quiz.query.repository.orm"
 import { QuestionBodyInputModelSql } from "./models/input/quiz/question.body.input-model.sql"
 import { QuizRepositoryOrm } from "../../quiz/repository/typeorm/quiz.repository.orm"
-import { IdParamInputModelSql } from "./models/input/quiz/id.param.input-model.sql"
+import { CreateQuestionsQuizCommandSql } from "../../quiz/application/use-cases/create-questions-quiz.use-case.sql"
+
 
 @Controller("sa")
 export class SaControllerSql {
@@ -491,7 +492,9 @@ export class SaControllerSql {
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Body() body: QuestionBodyInputModelSql,
   ) {
-    const contract = await this.quizRepositoryOrm.createQuestion(body, deviceSession.userId)
+    const contract = await this.commandBus.execute(
+      new CreateQuestionsQuizCommandSql(body, deviceSession.userId)
+    )
   }
 
   @UseGuards(AccessGuard)
@@ -515,15 +518,15 @@ export class SaControllerSql {
 
   }
 
-  @UseGuards(AccessGuard)
-  @Put("quiz/questions/:id/publish")
-  async publishQuestion(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() params: IdParamInputModelSql,
-  ) {
-    const contract = await this.quizRepositoryOrm.publishQuestion(params.id, deviceSession.userId)
-
-  }
+  // @UseGuards(AccessGuard)
+  // @Put("quiz/questions/:id/publish")
+  // async publishQuestion(
+  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
+  //   @Param() params: IdParamInputModelSql,
+  // ) {
+  //   const contract = await this.quizRepositoryOrm.publishQuestion(params.id, deviceSession.userId)
+  //
+  // }
 
 
 }
