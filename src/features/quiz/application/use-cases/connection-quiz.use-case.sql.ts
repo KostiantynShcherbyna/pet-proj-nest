@@ -45,7 +45,7 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
     const newGame = new GameEntity()
     newGame.FirstPlayerId = command.userId
     newGame.PairCreatedDate = createdDate
-    newGame.QuestionIds = randomQuestionIds
+    newGame.Questions = randomQuestionIds
 
     const nwGame = await this.dataSource.manager.transaction(async manager => {
       return await this.quizRepository.saveEntity(newGame, manager)

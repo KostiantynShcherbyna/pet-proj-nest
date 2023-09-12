@@ -37,11 +37,13 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       })
     if (!game) return new Contract(null, ErrorEnums.GAME_NOT_STARTED)
 
-    const answerNumber = game.firstPlayerId = command.userId
-      ? game.firstPlayerAnswerNumber
-      : game.secondPlayerAnswerNumber
+    const answerNumber = game.FirstPlayerId === command.userId
+      ? game.FirstPlayerAnswerNumber
+      : game.SecondPlayerAnswerNumber
 
-    const questions = await this.quizRepository.getQuestionIdsForAnswer(game.id, true)
+    const questionIds = game.Questions.map(question => question.QuestionId)
+
+    const questions = await this.quizRepository.getQuestionIdsForAnswer(questionIds, true)
     if (!questions) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
     const question = questions[answerNumber]
@@ -49,15 +51,15 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       ? AnswerStatusEnum.Correct
       : AnswerStatusEnum.Incorrect
 
-    const setPlayerAnswerNumber = command.userId === game.firstPlayerId
+    const setPlayerAnswerNumber = command.userId === game.FirstPlayerId
       ? { FirstPlayerAnswerNumber: () => "FirstPlayerAnswerNumber + 1" }
       : { SecondPlayerAnswerNumber: () => "SecondPlayerAnswerNumber + 1" }
 
     const addedAt = new Date(Date.now()).toISOString()
 
     const answer = new AnswerEntity()
-    answer.GameId = game.id
-    answer.QuestionId = question.questionId
+    answer.Game = game
+    answer.Question = question
     answer.AnswerStatus = answerStatus
     answer.UserId = command.userId
     answer.AddedAt = addedAt

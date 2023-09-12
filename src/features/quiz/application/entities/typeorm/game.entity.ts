@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { QuestionEntity } from "./question.entity"
 
 export enum StatusEnum {
   PendingSecondPlayer = "PendingSecondPlayer",
@@ -46,8 +47,12 @@ export class GameEntity {
   @Column({ nullable: true, default: null })
   FinishGameDate: string | null
 
+  // @Column()
+  // QuestionIds: string[]
+
   @Column()
-  QuestionIds: string[]
+  @ManyToMany(() => QuestionEntity, quest => quest.QuestionId)
+  Questions: QuestionEntity[]
 
 }
 

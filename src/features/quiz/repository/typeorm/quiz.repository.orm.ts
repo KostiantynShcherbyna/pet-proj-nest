@@ -37,7 +37,7 @@ export class QuizRepositoryOrm {
   ) {
   }
 
-  async saveEntity(entity, manager: EntityManager) {
+  async saveEntity(entity: any, manager: EntityManager) {
     return await manager.save(entity)
   }
 
@@ -145,17 +145,17 @@ export class QuizRepositoryOrm {
       .from(QuestionEntity, "q")
       .where(`q.QuestionId in (:...questionIds)`, { questionIds })
       .andWhere(`q.Published = :published`, { published })
+      .orderBy("RANDOM()", "DESC")
       .getRawMany()
     return questions ? questions : null
   }
 
 
-  async getQuestionIdsForConnect(published: boolean): Promise<string[] | null> {
+  async getQuestionIdsForConnect(published: boolean): Promise<QuestionEntity[] | null> {
     const questionEntities = await this.dataSource.createQueryBuilder()
-      .select(`q.QuestionId as "questionId"`)
       .from(QuestionEntity, "q")
       .where(`q.Published = :published`, { published })
-      .orderBy("RANDOM()")
+      .orderBy("RANDOM()", "DESC")
       .limit(5)
       .getRawMany()
     return questionEntities ? questionEntities : null
@@ -184,14 +184,15 @@ export class QuizRepositoryOrm {
   // }
 
 
-  async getUserCurrentGame(userId: string, { pending, active }) {
+  async getUserCurrentGame(userId: string, { pending, active }): Promise<GameEntity | null> {
     const result = await this.dataSource.createQueryBuilder()
       .from(GameEntity, "g")
       .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
       .andWhere(`g.Status = :pending or g.Status = :active`, { pending, active })
       .getRawOne()
 
-    return this.createGameView(result)
+    // return this.createGameView(result)
+    return result ? result : null
   }
 
 
@@ -247,6 +248,7 @@ export class QuizRepositoryOrm {
       pairCreatedDate: rawGameView.PairCreatedDate,
       startGameDate: rawGameView.StartGameDate,
       finishGameDate: rawGameView.FinishGameDate,
+      questionIds: rawGameView.QuestionIds,
     }
   }
 

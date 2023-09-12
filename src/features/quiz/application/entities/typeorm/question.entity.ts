@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { GameEntity } from "./game.entity"
 
 
 @Entity()
@@ -22,4 +23,7 @@ export class QuestionEntity {
   @Column({ default: [] })
   CorrectAnswers: string[]
 
+  @Column()
+  @ManyToMany(() => GameEntity, game => game.Questions)
+  Games: GameEntity[]
 }
