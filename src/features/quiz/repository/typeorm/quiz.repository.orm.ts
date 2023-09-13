@@ -69,23 +69,22 @@ export class QuizRepositoryOrm {
   //   return result.identifiers[0].AnswerId
   // }
 
-  async createQuestion({ body, published, createdAt, updatedAt, correctAnswers }: ICreateQuestionDto, userId: string)
-    : Promise<string | null> {
-    const result = await this.dataSource.createQueryBuilder()
-      .insert()
-      .into(Question)
-      .values({
-        body: body,
-        published: published,
-        createdAt: createdAt,
-        updatedAt: updatedAt || "",
-      })
-      .execute()
-    return result.identifiers[0].QuestionId
-  }
+  // async createQuestion({ body, published, createdAt, updatedAt, correctAnswers }: ICreateQuestionDto, userId: string)
+  //   : Promise<string | null> {
+  //   const result = await this.dataSource.createQueryBuilder()
+  //     .insert()
+  //     .into(Question)
+  //     .values({
+  //       body: body,
+  //       published: published,
+  //       createdAt: createdAt,
+  //       updatedAt: updatedAt || "",
+  //     })
+  //     .execute()
+  //   return result.identifiers[0].QuestionId
+  // }
 
-  async deleteQuestion(questionId: string, userId: string)
-    : Promise<number | null> {
+  async deleteQuestion(questionId: string): Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
       .delete()
       .from(Question)
@@ -94,21 +93,17 @@ export class QuizRepositoryOrm {
     return result.affected ? result.affected : null
   }
 
-  async updateQuestion(questionId: string, { body, correctAnswers }: QuestionBodyInputModelSql, userId: string)
+  async updateQuestion(questionId: string, { body, correctAnswers }: QuestionBodyInputModelSql)
     : Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
       .update(Question)
-      .set({
-        body: body,
-        correctAnswers: correctAnswers,
-      })
+      .set({ body: body, correctAnswers: correctAnswers, })
       .where(`questionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
   }
 
-  async publishQuestion(questionId: string, published: boolean, userId: string)
-    : Promise<number | null> {
+  async publishQuestion(questionId: string, published: boolean): Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
       .update(Question)
       .set({ published: published })

@@ -1,7 +1,7 @@
 import { IsEnum, IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator"
 import { Type } from "class-transformer"
 import {
-  PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, PublishedStatus,
+  PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, PublishedStatus, SORT_BY_DEFAULT,
   SORT_BY_DEFAULT_SQL, SortDirection,
   SortDirectionOrm
 } from "../../../../../../infrastructure/utils/constants"
@@ -14,19 +14,16 @@ export class GetQuestionsQueryInputModel {
   bodySearchTerm: string = ""
 
   @IsOptional()
-  @IsString()
   @IsEnum(PublishedStatus)
-  @MaxLength(100)
-  publishedStatus: string = ""
+  publishedStatus: string
 
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  sortBy: string = SORT_BY_DEFAULT_SQL
+  sortBy: string = SORT_BY_DEFAULT
 
   @IsOptional()
-  @IsEnum(SortDirectionOrm)
-  @MaxLength(4)
+  @IsEnum(SortDirection)
   sortDirection: SortDirection = SortDirection.Desc
 
   @IsOptional()

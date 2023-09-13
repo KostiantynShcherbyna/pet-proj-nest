@@ -1,4 +1,15 @@
-import { IsArray, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from "class-validator"
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min
+} from "class-validator"
 import { Transform, Type } from "class-transformer"
 import {
   PAGE_NUMBER_DEFAULT,
@@ -13,14 +24,8 @@ import {
 import { trimValue } from "../../../../../../infrastructure/decorators/trim.decorator"
 
 
-export class QuestionBodyInputModelSql {
-  @Transform(({ value }) => trimValue(value, "body"))
+export class QuestionPublishBodyInputModelSql {
   @IsNotEmpty()
-  @IsString()
-  @MaxLength(POSTS_TITLE_MAX_LENGTH)
-  body: string
-
-  @IsNotEmpty()
-  @IsArray()
-  correctAnswers: string[]
+  @IsBoolean()
+  published: boolean
 }

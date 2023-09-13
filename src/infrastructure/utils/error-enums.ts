@@ -54,6 +54,7 @@ export enum ErrorEnums {
   // ↓↓↓ QUIZ
   GAME_CREATED_OR_STARTED = `You are already participating in active pair`,
   GAME_NOT_STARTED = `You are not in active pair`,
+  QUESTION_NOT_FOUND = `Question not found`,
 
 }
 

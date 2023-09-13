@@ -2,7 +2,7 @@ export interface IInsertQuestionOutputModel {
   id: string
   body: string
   correctAnswers: string[]
-  published: false
+  published: boolean
   createdAt: string
   updatedAt: string
 }

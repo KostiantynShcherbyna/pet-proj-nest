@@ -55,6 +55,7 @@ import { QuizQueryRepositoryOrm } from "../../quiz/repository/typeorm/quiz.query
 import { QuestionBodyInputModelSql } from "./models/input/quiz/question.body.input-model.sql"
 import { QuizRepositoryOrm } from "../../quiz/repository/typeorm/quiz.repository.orm"
 import { CreateQuestionsQuizCommandSql } from "../../quiz/application/use-cases/create-questions-quiz.use-case.sql"
+import { QuestionPublishBodyInputModelSql } from "./models/input/quiz/question-publish.body.input-model.sql"
 
 
 @Controller("sa")
@@ -476,14 +477,13 @@ export class SaControllerSql {
 
 
   // ↓↓↓ QUIZ QUESTIONS
-  @UseGuards(AccessGuard)
+  @UseGuards(BasicGuard)
   @Get("quiz/questions")
   async getQuestions(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() query: GetQuestionsQueryInputModel
   ) {
-    const contract = await this.quizQueryRepositoryOrm.getQuestions(query, deviceSession.userId)
-
+    const getContract = await this.quizQueryRepositoryOrm.getQuestions(query)
+    return getContract.data
   }
 
   @UseGuards(BasicGuard)
@@ -499,36 +499,43 @@ export class SaControllerSql {
     return question
   }
 
-  @UseGuards(AccessGuard)
+  @UseGuards(BasicGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete("quiz/questions/:id")
   async deleteQuestion(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() params: IdParamInputModelSql,
   ) {
-    const contract = await this.quizRepositoryOrm.deleteQuestion(params.id, deviceSession.userId)
-
+    const result = await this.quizRepositoryOrm.deleteQuestion(params.id)
+    if (result === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.QUESTION_NOT_FOUND, "id")
+    )
   }
 
-  @UseGuards(AccessGuard)
-  @Put("quiz/questions")
+  @UseGuards(BasicGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put("quiz/questions/:id")
   async updateQuestion(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() params: IdParamInputModelSql,
     @Body() body: QuestionBodyInputModelSql,
   ) {
-    const contract = await this.quizRepositoryOrm.updateQuestion(params.id, body, deviceSession.userId)
-
+    const result = await this.quizRepositoryOrm.updateQuestion(params.id, body)
+    if (result === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.QUESTION_NOT_FOUND, "id")
+    )
   }
 
-  // @UseGuards(AccessGuard)
-  // @Put("quiz/questions/:id/publish")
-  // async publishQuestion(
-  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
-  //   @Param() params: IdParamInputModelSql,
-  // ) {
-  //   const contract = await this.quizRepositoryOrm.publishQuestion(params.id, deviceSession.userId)
-  //
-  // }
+  @UseGuards(BasicGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put("quiz/questions/:id/publish")
+  async publishQuestion(
+    @Param() params: IdParamInputModelSql,
+    @Body() body: QuestionPublishBodyInputModelSql,
+  ) {
+    const result = await this.quizRepositoryOrm.publishQuestion(params.id, body.published)
+    if (result === null) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.QUESTION_NOT_FOUND, "id")
+    )
+  }
 
 
 }
