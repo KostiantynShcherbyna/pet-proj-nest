@@ -11,45 +11,44 @@ export enum StatusEnum {
 export class Game {
 
   @PrimaryGeneratedColumn("uuid")
-  GameId: string
+  gameId: string
 
   @Column("uuid")
-  FirstPlayerId: string
+  firstPlayerId: string
 
   @Column({ type: "uuid", nullable: true, default: null })
-  SecondPlayerId: string | null
+  secondPlayerId: string | null
 
   @Column({ default: 0 })
-  FirstPlayerScore: number
+  firstPlayerScore: number
 
   @Column({ default: 0 })
-  SecondPlayerScore: number
+  secondPlayerScore: number
 
   @Column({ default: 0 })
-  FirstPlayerAnswerNumber: number
+  firstPlayerAnswerNumber: number
 
   @Column({ default: 0 })
-  SecondPlayerAnswerNumber: number
+  secondPlayerAnswerNumber: number
 
   @Column({
     type: "enum",
     enum: StatusEnum,
     default: "PendingSecondPlayer"
   })
-  Status: string
+  status: string
 
   @Column()
-  PairCreatedDate: string
+  pairCreatedDate: string
 
   @Column({ nullable: true, default: null, type: "character varying" })
-  StartGameDate: string | null
+  startGameDate: string | null
 
   @Column({ nullable: true, default: null, type: "character varying" })
-  FinishGameDate: string | null
+  finishGameDate: string | null
 
-  @ManyToMany(() => Question, quest => quest.QuestionId)
-  @JoinTable()
-  Questions: Question[]
+  @Column({ array: true, type: "uuid" })
+  questionIds: string[]
 
 }
 

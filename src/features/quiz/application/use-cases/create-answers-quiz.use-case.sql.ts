@@ -37,14 +37,12 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       })
     if (!game) return new Contract(null, ErrorEnums.GAME_NOT_STARTED)
 
-    const answerNumber = game.FirstPlayerId === command.userId
-      ? game.FirstPlayerAnswerNumber
-      : game.SecondPlayerAnswerNumber
+    const answerNumber = game.firstPlayerId === command.userId
+      ? game.firstPlayerAnswerNumber
+      : game.secondPlayerAnswerNumber
 
 
-    const questionIds = game.Questions.map(question => question.QuestionId)
-
-    const questions = await this.quizRepository.getQuestionIdsForAnswer(questionIds, true)
+    const questions = await this.quizRepository.getQuestionIdsForAnswer(game.questionIds, true)
     if (!questions) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
     const question = questions[answerNumber]
@@ -52,23 +50,23 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       ? AnswerStatusEnum.Correct
       : AnswerStatusEnum.Incorrect
 
-    const setPlayerAnswerNumber = command.userId === game.FirstPlayerId
-      ? { FirstPlayerAnswerNumber: () => "FirstPlayerAnswerNumber + 1" }
-      : { SecondPlayerAnswerNumber: () => "SecondPlayerAnswerNumber + 1" }
+    const setPlayerAnswerNumber = command.userId === game.firstPlayerId
+      ? { firstPlayerAnswerNumber: () => "firstPlayerAnswerNumber + 1" }
+      : { secondPlayerAnswerNumber: () => "secondPlayerAnswerNumber + 1" }
 
     const addedAt = new Date(Date.now()).toISOString()
 
     const answer = new Answer()
-    answer.Game = game
-    answer.Question = question
-    answer.AnswerStatus = answerStatus
-    answer.User = foundUser
-    answer.AddedAt = addedAt
+    answer.gameId = game.gameId
+    answer.questionId = question.questionId
+    answer.answerStatus = answerStatus
+    answer.userId = foundUser.userId
+    answer.addedAt = addedAt
 
     const newAnswerId = await this.dataSource.manager.transaction(async manager => {
       const ar = await manager.save<Answer>(answer)
-      await manager.update(Game, { GameId: game.GameId }, setPlayerAnswerNumber)
-      return ar.AnswerId
+      await manager.update(Game, { GameId: game.gameId }, setPlayerAnswerNumber)
+      return ar.answerId
     })
 
     return new Contract(newAnswerId, null)

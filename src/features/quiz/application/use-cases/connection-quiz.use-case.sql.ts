@@ -35,23 +35,23 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
         pending: StatusEnum.PendingSecondPlayer,
         active: StatusEnum.Active
       })
-    if (game) return new Contract(null, ErrorEnums.GAME_CREATED_OR_STARTED)
+    // if (game) return new Contract(null, ErrorEnums.GAME_CREATED_OR_STARTED)
 
     const randomQuestionIds = await this.quizRepository.getQuestionIdsForConnect(true)
-    if (!randomQuestionIds) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+    // if (randomQuestionIds === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
     const createdDate = new Date(Date.now()).toISOString()
 
     const newGame = new Game()
-    newGame.FirstPlayerId = command.userId
-    newGame.PairCreatedDate = createdDate
-    newGame.Questions = randomQuestionIds
+    newGame.firstPlayerId = command.userId
+    newGame.pairCreatedDate = createdDate
+    newGame.questionIds = randomQuestionIds || []
 
     const nwGame = await this.dataSource.manager.transaction(async manager => {
       return await this.quizRepository.saveEntity(newGame, manager)
     })
 
-    return new Contract(nwGame.GameId, null)
+    return new Contract(nwGame.gameId, null)
   }
 
 }

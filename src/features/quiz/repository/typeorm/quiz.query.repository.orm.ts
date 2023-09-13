@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
-import { DataSource, SelectQueryBuilder } from "typeorm"
+import { Column, DataSource, SelectQueryBuilder } from "typeorm"
 import {
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
@@ -11,10 +11,14 @@ import {
 import { GetQuestionsQueryInputModel } from "../../../sa/api/models/input/quiz/get-questions.query.input-model"
 import { Question } from "../../application/entities/typeorm/question"
 import { IQuestionsOutputModel } from "../../../sa/api/models/output/get-questions.output-model"
-import { Game } from "../../application/entities/typeorm/game"
+import { Game, StatusEnum } from "../../application/entities/typeorm/game"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 import { Answer } from "../../application/entities/typeorm/answer"
 
+export interface IQuestionDto {
+  questionId: string
+  body: string
+}
 
 @Injectable()
 export class QuizQueryRepositoryOrm {
@@ -38,31 +42,95 @@ export class QuizQueryRepositoryOrm {
   }
 
   async getMyCurrentGame(userId: string) {
-    const result = await this.dataSource.createQueryBuilder()
-      .addSelect(qb => this.selectPlayerLogin(qb, `g.FirstPlayerId`), `FirstPlayerLogin`)
-      .addSelect(qb => this.selectPlayerLogin(qb, `g.SecondPlayerId`), `SecondPlayerLogin`)
-      .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
-      .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
-      .addSelect(qb => this.selectQuestions(qb), `Questions`)
-      .from(Game, "g")
-      .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
-      .getRawOne()
+    const game = await this.dataSource.createQueryBuilder(Game, "g")
+      // .addSelect(qb => this.selectPlayerLogin1(qb), `firstPlayerLogin`)
+      // .addSelect(qb => this.selectPlayerLogin2(qb), `secondPlayerLogin`)
+      .addSelect(qb => this.selectAnswers(qb, `g.firstPlayerId`), `firstPlayerAnswers`)
+      .addSelect(qb => this.selectAnswers(qb, `g.secondPlayerId`), `secondPlayerAnswers`)
+      .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+      .getOne()
 
-    return this.createGameOutputModel(result)
+    const questions = await this.dataSource.createQueryBuilder(Question, "q")
+      .select([`q.questionId`, `q.body`])
+      .where(`q.questionId in (:...questionIds)`, { questionIds: game?.questionIds })
+      .getOne()
+
+    // @ts-ignore
+    return game ? this.createGameOutputModel(game, questions) : null
+  }
+
+  async getGameById2(gameId: string) {
+    const game = await this.dataSource.createQueryBuilder(Game, "g")
+      .where(`g.gameId = :gameId`, { gameId })
+      .getOne()
+    if (game === null) return null
+
+    const firstPlayerLogin = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+      .where(`a.UserId = :userId`, { userId: game.firstPlayerId })
+      .getOne()
+    const firstPlayerAnswers = await this.dataSource.createQueryBuilder(Answer, "a")
+      .where(`a.userId = :userId`, { userId: game.secondPlayerId })
+      .getMany()
+
+    let secondPlayerLogin: AccountEntity | null = null
+    let secondPlayerAnswers: Answer[] | null = null
+    if (game.secondPlayerId) {
+      secondPlayerLogin = await this.dataSource.createQueryBuilder(AccountEntity, "a")
+        .where(`a.UserId = :userId`, { userId: game.secondPlayerId })
+        .getOne()
+      secondPlayerAnswers = await this.dataSource.createQueryBuilder(Answer, "a")
+        .where(`a.userId = :userId`, { userId: game.secondPlayerId })
+        .getMany()
+    }
+    const gameDto = {
+      ...game,
+      firstPlayerLogin: firstPlayerLogin?.Login || null,
+      firstPlayerAnswers: firstPlayerAnswers,
+      secondPlayerLogin: secondPlayerLogin?.Login || null,
+      secondPlayerAnswers: secondPlayerAnswers || []
+    }
+
+    if (!game.questionIds.length) return this.createGameOutputModel(gameDto, [])
+
+    const questions = await this.dataSource.createQueryBuilder(Question, "q")
+      .where(`q.questionId in (:...questionIds)`, { questionIds: game.questionIds })
+      .getMany()
+
+    return this.createGameOutputModel(gameDto, questions)
   }
 
   async getGameById(gameId: string) {
-    const result = await this.dataSource.createQueryBuilder()
-      .addSelect(qb => this.selectPlayerLogin(qb, `g.FirstPlayerId`), `FirstPlayerLogin`)
-      .addSelect(qb => this.selectPlayerLogin(qb, `g.SecondPlayerId`), `SecondPlayerLogin`)
-      .addSelect(qb => this.selectAnswers(qb, `g.FirstPlayerId`), `FirstPlayerAnswers`)
-      .addSelect(qb => this.selectAnswers(qb, `g.SecondPlayerId`), `SecondPlayerAnswers`)
-      .addSelect(qb => this.selectQuestions(qb), `Questions`)
-      .from(Game, "g")
-      .where(`g.GameId = :gameId`, { gameId })
+    const game = await this.dataSource.createQueryBuilder(Game, "g")
+      .select([
+        `g.gameId as "gameId"`,
+        `g.firstPlayerId as "firstPlayerId"`,
+        `g.secondPlayerId as "secondPlayerId"`,
+        `g.firstPlayerScore as "firstPlayerScore"`,
+        `g.secondPlayerScore as "secondPlayerScore"`,
+        `g.firstPlayerAnswerNumber as "firstPlayerAnswerNumber"`,
+        `g.secondPlayerAnswerNumber as "secondPlayerAnswerNumber"`,
+        `g.status as "status"`,
+        `g.pairCreatedDate as "pairCreatedDate"`,
+        `g.startGameDate as "startGameDate"`,
+        `g.finishGameDate as "finishGameDate"`,
+        `g.questionIds as "questionIds"`
+      ])
+      .addSelect(qb => this.selectPlayerLogin(qb, `g.firstPlayerId`), `firstPlayerLogin`)
+      .addSelect(qb => this.selectPlayerLogin(qb, `g.secondPlayerId`), `secondPlayerLogin`)
+      .addSelect(qb => this.selectAnswers(qb, `g.firstPlayerId`), `firstPlayerAnswers`)
+      .addSelect(qb => this.selectAnswers(qb, `g.secondPlayerId`), `secondPlayerAnswers`)
+      .where(`g.gameId = :gameId`, { gameId })
       .getRawOne()
 
-    return result ? this.createGameOutputModel(result) : null
+    let questions: IQuestionDto[] = []
+    if (game.questionIds.length) {
+      questions = await this.dataSource.createQueryBuilder(Question, "q")
+        .select([`q.questionId as "questionId"`, `q.body as "body"`])
+        .where(`q.questionId in (:...questionIds)`, { questionIds: game.questionIds })
+        .getRawMany()
+    }
+
+    return game ? this.createGameOutputModel2(game, questions) : null
   }
 
   async getQuestions(query: GetQuestionsQueryInputModel, userId: string): Promise<IQuestionsOutputModel> {
@@ -92,6 +160,13 @@ export class QuizQueryRepositoryOrm {
 
   }
 
+  async getQuestion(questionId: string) {
+    let question = await this.dataSource.createQueryBuilder(Question, "q")
+      .where(`q.questionId = :questionId`, { questionId })
+      .getOne()
+    return question ? { id: questionId, ...question } : null
+  }
+
 
   private createQuestionsView(questions: any[]) {
     return questions.map(question => {
@@ -109,9 +184,23 @@ export class QuizQueryRepositoryOrm {
 
   private selectPlayerLogin(qb: SelectQueryBuilder<any>, userId: string) {
     return qb
-      .select(`ac.Login`)
-      .from(AccountEntity, "ac")
-      .where(`ac.UserId = ${userId}`)
+      .select(`a.Login`)
+      .from(AccountEntity, "a")
+      .where(`a.UserId = ${userId}`)
+  }
+
+  private selectPlayerLogin1(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`a.Login`)
+      .from(AccountEntity, "a")
+      .where(`a.UserId = g.firstPlayerId`)
+  }
+
+  private selectPlayerLogin2(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`a.Login`)
+      .from(AccountEntity, "a")
+      .where(`a.UserId = g.secondPlayerId`)
   }
 
   private selectAnswers(qb: SelectQueryBuilder<any>, userId: string) {
@@ -119,15 +208,15 @@ export class QuizQueryRepositoryOrm {
       .from(qb => {
         return qb
           .select([
-            `an.QuestionId as "questionId"`,
-            `an.AnswerStatus as "answerStatus"`,
-            `an.AddedAt as "addedAt"`
+            `an.questionId`,
+            `an.answerStatus`,
+            `an.addedAt`
           ])
           .from(Answer, "an")
-          .where(`an.UserId = ${userId}`,)
-          .andWhere(`an.GameId = g.GameId`)
-          .groupBy(`an.UserId`)
-          .orderBy(`an."AddedAt"`, "DESC")
+          .where(`an.userId = ${userId}`)
+          .andWhere(`an.gameId = g.gameId`)
+          .groupBy(`an.questionId, an.answerStatus, an.addedAt`)
+          .orderBy(`an.addedAt`, "DESC")
       }, "answers")
 
   }
@@ -136,10 +225,10 @@ export class QuizQueryRepositoryOrm {
     return qb.select(`json_agg(to_jsonb("questions")) as "questions"`)
       .from(qb => {
         return qb
-          .select([`q.QuestionId as "id"`, `q.Body as "body"`])
+          .select([`q.questionId`, `q.body`])
           .from(Question, "q")
-          .where(`q.QuestionId IN (:...g.QuestionIds)`)
-          .orderBy(`q."CreatedAt"`, 'DESC')
+          .where(`q.questionId in (:...g.questionIds)`)
+          .orderBy(`q."createdAt"`, "DESC")
       }, "questions")
   }
 
@@ -185,31 +274,57 @@ export class QuizQueryRepositoryOrm {
   //     }, "questions")
   // }
 
-  private createGameOutputModel(rawGameView: any) {
-    const questions = rawGameView.SecondPlayerId ? rawGameView.Questions : []
+  private createGameOutputModel(gameDto: any, questions: Question[]) {
     return {
-      id: rawGameView.GameId,
+      id: gameDto.gameId,
       firstPlayerProgress: {
-        answers: rawGameView.FirstPlayerAnswers,
+        answers: gameDto.firstPlayerAnswers,
         player: {
-          id: rawGameView.FirstPlayerId,
-          login: rawGameView.FirstPlayerLogin,
+          id: gameDto.firstPlayerId,
+          login: gameDto.firstPlayerLogin
         },
-        score: rawGameView.FirstPlayerScore
+        score: gameDto.firstPlayerScore
       },
       secondPlayerProgress: {
-        answers: rawGameView.SecondPlayerAnswers,
+        answers: gameDto.secondPlayerAnswers,
         player: {
-          id: rawGameView.SecondPlayerId,
-          login: rawGameView.SecondPlayerLogin,
+          id: gameDto.secondPlayerId,
+          login: gameDto.secondPlayerLogin,
         },
-        score: rawGameView.SecondPlayerScore
+        score: gameDto.secondPlayerScore
       },
       questions: questions,
-      status: rawGameView.Status,
-      pairCreatedDate: rawGameView.PairCreatedDate,
-      startGameDate: rawGameView.StartGameDate,
-      finishGameDate: rawGameView.FinishGameDate,
+      status: gameDto.status,
+      pairCreatedDate: gameDto.pairCreatedDate,
+      startGameDate: gameDto.startGameDate,
+      finishGameDate: gameDto.finishGameDate,
+    }
+  }
+
+  private createGameOutputModel2(gameDto: any, questions: IQuestionDto[]) {
+    return {
+      id: gameDto.gameId,
+      firstPlayerProgress: {
+        answers: gameDto.firstPlayerAnswers,
+        player: {
+          id: gameDto.firstPlayerId,
+          login: gameDto.firstPlayerLogin
+        },
+        score: gameDto.firstPlayerScore
+      },
+      secondPlayerProgress: {
+        answers: gameDto.secondPlayerAnswers,
+        player: {
+          id: gameDto.secondPlayerId,
+          login: gameDto.secondPlayerLogin,
+        },
+        score: gameDto.secondPlayerScore
+      },
+      questions: questions,
+      status: gameDto.status,
+      pairCreatedDate: gameDto.pairCreatedDate,
+      startGameDate: gameDto.startGameDate,
+      finishGameDate: gameDto.finishGameDate,
     }
   }
 }

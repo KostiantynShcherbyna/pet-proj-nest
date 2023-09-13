@@ -6,24 +6,21 @@ import { Game } from "./game"
 export class Question {
 
   @PrimaryGeneratedColumn("uuid")
-  QuestionId: string
+  questionId: string
 
   @Column()
-  Body: string
+  body: string
+
+  @Column({ default: false })
+  published: boolean
 
   @Column()
-  Published: boolean
-
-  @Column()
-  CreatedAt: string
+  createdAt: string
 
   @Column({ nullable: true })
-  UpdatedAt: string
+  updatedAt: string
 
   @Column({ array: true, type: "character varying" })
-  CorrectAnswers: string[]
+  correctAnswers: string[]
 
-  @ManyToMany(() => Game, game => game.GameId)
-  @JoinTable()
-  Games: Game[]
 }

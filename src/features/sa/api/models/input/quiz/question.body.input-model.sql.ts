@@ -14,13 +14,12 @@ import { trimValue } from "../../../../../../infrastructure/decorators/trim.deco
 
 
 export class QuestionBodyInputModelSql {
-  @Transform(({ value }) => trimValue(value, "title"))
+  @Transform(({ value }) => trimValue(value, "body"))
   @IsNotEmpty()
   @IsString()
   @MaxLength(POSTS_TITLE_MAX_LENGTH)
   body: string
 
-  @Transform(({ value }) => trimValue(value, "shortDescription"))
   @IsNotEmpty()
   @IsString()
   @MaxLength(POSTS_SHORTDESCRIPTION_MAX_LENGTH)

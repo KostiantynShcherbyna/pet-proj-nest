@@ -75,10 +75,10 @@ export class QuizRepositoryOrm {
       .insert()
       .into(Question)
       .values({
-        Body: body,
-        Published: published,
-        CreatedAt: createdAt,
-        UpdatedAt: updatedAt || "",
+        body: body,
+        published: published,
+        createdAt: createdAt,
+        updatedAt: updatedAt || "",
       })
       .execute()
     return result.identifiers[0].QuestionId
@@ -89,7 +89,7 @@ export class QuizRepositoryOrm {
     const result = await this.dataSource.createQueryBuilder()
       .delete()
       .from(Question)
-      .where(`QuestionId = :questionId`, { questionId })
+      .where(`questionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
   }
@@ -99,10 +99,10 @@ export class QuizRepositoryOrm {
     const result = await this.dataSource.createQueryBuilder()
       .update(Question)
       .set({
-        Body: body,
-        CorrectAnswers: correctAnswers,
+        body: body,
+        correctAnswers: correctAnswers,
       })
-      .where(`QuestionId = :questionId`, { questionId })
+      .where(`questionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
   }
@@ -111,8 +111,8 @@ export class QuizRepositoryOrm {
     : Promise<number | null> {
     const result = await this.dataSource.createQueryBuilder()
       .update(Question)
-      .set({ Published: published })
-      .where(`QuestionId = :questionId`, { questionId })
+      .set({ published: published })
+      .where(`questionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
   }
@@ -122,42 +122,42 @@ export class QuizRepositoryOrm {
     const result = await this.dataSource.createQueryBuilder()
       .update(Game)
       .set(setDto)
-      .where(`GameId = :gameId`, { gameId })
+      .where(`gameId = :gameId`, { gameId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async getQuestionIdsForAnswer2(published: boolean): Promise<string[] | null> {
     const questionIds = await this.dataSource.createQueryBuilder()
-      .select(`q.QuestionId as "questionId"`)
+      .select(`q.questionId as "questionId"`)
       .leftJoin(Game, "g")
       .from(Question, "q")
-      .where(`q.QuestionId in (:...g.QuestionIds)`)
-      .andWhere(`q.Published = :published`, { published })
+      .where(`q.questionId in (:...g.questionIds)`)
+      .andWhere(`q.published = :published`, { published })
       .getRawMany()
     return questionIds ? questionIds : null
   }
 
   async getQuestionIdsForAnswer(questionIds: string[], published: boolean) {
     const questions = await this.dataSource.createQueryBuilder()
-      .select([`q.QuestionId as "id"`, `q.Body as "body"`])
       .from(Question, "q")
-      .where(`q.QuestionId in (:...questionIds)`, { questionIds })
-      .andWhere(`q.Published = :published`, { published })
+      .where(`q.questionId in (:...questionIds)`, { questionIds })
+      .andWhere(`q.published = :published`, { published })
       .orderBy("RANDOM()", "DESC")
       .getRawMany()
     return questions ? questions : null
   }
 
 
-  async getQuestionIdsForConnect(published: boolean): Promise<Question[] | null> {
+  async getQuestionIdsForConnect(published: boolean): Promise<string[] | null> {
     const questionEntities = await this.dataSource.createQueryBuilder()
+      .select(`q.questionId`)
       .from(Question, "q")
-      .where(`q.Published = :published`, { published })
+      .where(`q.published = :published`, { published })
       .orderBy("RANDOM()", "DESC")
       .limit(5)
       .getRawMany()
-    return questionEntities ? questionEntities : null
+    return questionEntities.length ? questionEntities : null
   }
 
   // async getQuestionEntities(gameId: string, published: boolean) {
@@ -186,8 +186,8 @@ export class QuizRepositoryOrm {
   async getUserCurrentGame(userId: string, { pending, active }): Promise<Game & Question | null> {
     const result = await this.dataSource.createQueryBuilder()
       .from(Game, "g")
-      .where(`g.FirstPlayerId = :userId or g.SecondPlayerId = :userId`, { userId })
-      .andWhere(`g.Status = :pending or g.Status = :active`, { pending, active })
+      .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+      .andWhere(`g.status = :pending or g.status = :active`, { pending, active })
       .getRawOne()
 
     // return this.createGameView(result)
@@ -197,9 +197,9 @@ export class QuizRepositoryOrm {
 
   private selectPlayerLogin(qb: SelectQueryBuilder<any>, userId: string) {
     return qb
-      .select(`ac.Login`)
+      .select(`ac.login`)
       .from(AccountEntity, "ac")
-      .where(`ac.UserId = ${userId}`)
+      .where(`ac.userId = ${userId}`)
   }
 
   private selectAnswers(qb: SelectQueryBuilder<any>, userId: string) {
@@ -207,15 +207,15 @@ export class QuizRepositoryOrm {
       .from(qb => {
         return qb
           .select([
-            `an.QuestionId as "questionId"`,
-            `an.AnswerStatus as "answerStatus"`,
-            `an.AddedAt as "addedAt"`
+            `an.questionId as "questionId"`,
+            `an.answerStatus as "answerStatus"`,
+            `an.addedAt as "addedAt"`
           ])
           .from(Answer, "an")
-          .where(`an.UserId = ${userId}`,)
-          .andWhere(`an.GameId = g.GameId`)
-          .groupBy(`an.UserId`)
-          .orderBy(`an."AddedAt"`, "DESC")
+          .where(`an.userId = ${userId}`,)
+          .andWhere(`an.gameId = g.gameId`)
+          .groupBy(`an.userId`)
+          .orderBy(`an."addedAt"`, "DESC")
       }, "answers")
 
   }

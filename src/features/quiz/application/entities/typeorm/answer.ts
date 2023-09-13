@@ -9,20 +9,23 @@ export enum AnswerStatusEnum { Correct = "Correct", Incorrect = "Incorrect"}
 export class Answer {
 
   @PrimaryGeneratedColumn("uuid")
-  AnswerId: string
+  answerId: string
 
   @Column({ type: "enum", enum: AnswerStatusEnum })
-  AnswerStatus: string
+  answerStatus: string
 
   @Column()
-  AddedAt: string
+  addedAt: string
 
-  @OneToOne(() => AccountEntity, user => user.UserId)
-  User: AccountEntity
+  @Column("uuid")
+  @OneToOne(() => AccountEntity)
+  userId: string
 
-  @OneToOne(() => Game, game => game.GameId)
-  Game: Game
+  @Column("uuid")
+  @OneToOne(() => Game)
+  gameId: string
 
-  @OneToOne(() => Question, quest => quest.QuestionId)
-  Question: Question
+  @Column("uuid")
+  @OneToOne(() => Question)
+  questionId: string
 }

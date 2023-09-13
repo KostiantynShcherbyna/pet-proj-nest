@@ -12,7 +12,7 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query, ServiceUnavailableException,
   UnauthorizedException,
   UseGuards
 } from "@nestjs/common"
@@ -486,15 +486,17 @@ export class SaControllerSql {
 
   }
 
-  @UseGuards(AccessGuard)
+  @UseGuards(BasicGuard)
   @Post("quiz/questions")
   async createQuestion(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Body() body: QuestionBodyInputModelSql,
   ) {
-    const contract = await this.commandBus.execute(
-      new CreateQuestionsQuizCommandSql(body, deviceSession.userId)
+    const createContract = await this.commandBus.execute(
+      new CreateQuestionsQuizCommandSql(body)
     )
+    const question = this.quizQueryRepositoryOrm.getQuestion(createContract.data)
+    if (question === null) throw new ServiceUnavailableException()
+    return question
   }
 
   @UseGuards(AccessGuard)
