@@ -6,7 +6,7 @@ import {
   POSTS_CONTENT_MAX_LENGTH,
   POSTS_SHORTDESCRIPTION_MAX_LENGTH,
   POSTS_TITLE_MAX_LENGTH,
-  PublishedStatus,
+  PublishedStatus, QUESTION_MAX_LENGTH,
   SORT_BY_DEFAULT_SQL,
   SortDirectionOrm
 } from "../../../../../../infrastructure/utils/constants"
@@ -17,7 +17,7 @@ export class QuestionBodyInputModelSql {
   @Transform(({ value }) => trimValue(value, "body"))
   @IsNotEmpty()
   @IsString()
-  @MaxLength(POSTS_TITLE_MAX_LENGTH)
+  @MaxLength(QUESTION_MAX_LENGTH)
   body: string
 
   @IsNotEmpty()

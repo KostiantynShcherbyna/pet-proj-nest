@@ -11,7 +11,7 @@ import {
 import { GetQuestionsQueryInputModel } from "../../../sa/api/models/input/quiz/get-questions.query.input-model"
 import { Question } from "../../application/entities/typeorm/question"
 import { IQuestionsOutputModel } from "../../../sa/api/models/output/get-questions.output-model"
-import { Game, StatusEnum } from "../../application/entities/typeorm/game"
+import { Game, QuizStatusEnum } from "../../application/entities/typeorm/game"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 import { Answer } from "../../application/entities/typeorm/answer"
 import { Contract } from "../../../../infrastructure/utils/contract"
@@ -37,7 +37,7 @@ export interface IGetGameByIdOutputModel {
     player: {
       id: string
       login: string
-    }
+    } | null
     score: number
   }
   questions: IQuestionDto[]
@@ -66,6 +66,27 @@ export class QuizQueryRepositoryOrm {
       .getRawOne()
 
     return result ? result : null
+  }
+
+  async getGame(gameId?: string, userId?: string) {
+    const qb = this.dataSource.createQueryBuilder(Game, "g")
+      .addSelect(qb => this.selectPlayerLogin(qb, `g.firstPlayerId`), `g_firstPlayerLogin`)
+      .addSelect(qb => this.selectPlayerLogin(qb, `g.secondPlayerId`), `g_secondPlayerLogin`)
+      .addSelect(qb => this.selectAnswers(qb, `g.firstPlayerId`), `g_firstPlayerAnswers`)
+      .addSelect(qb => this.selectAnswers(qb, `g.secondPlayerId`), `g_secondPlayerAnswers`)
+    if (gameId) qb.where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+    if (userId) qb.where(`g.gameId = :gameId`, { gameId })
+    const game = await qb.getRawOne()
+
+    let questions: IQuestionDto[] = []
+    if (game.g_questionIds.length) {
+      questions = await this.dataSource.createQueryBuilder(Question, "q")
+        .select([`q.questionId`, `q.body`])
+        .where(`q.questionId in (:...questionIds)`, { questionIds: game.g_questionIds })
+        .getRawMany()
+    }
+
+    return qb ? this.createGameOutputModel(qb, questions) : null
   }
 
   async getMyCurrentGame(userId: string) {
@@ -100,7 +121,7 @@ export class QuizQueryRepositoryOrm {
     let questions: IQuestionDto[] = []
     if (game.g_questionIds.length) {
       questions = await this.dataSource.createQueryBuilder(Question, "q")
-        .select([`q.questionId`, `q.body`])
+        .select([`q.questionId as "id"`, `q.body as "body"`])
         .where(`q.questionId in (:...questionIds)`, { questionIds: game.g_questionIds })
         .getRawMany()
     }
@@ -134,7 +155,7 @@ export class QuizQueryRepositoryOrm {
 
   }
 
-  async getQuestion(questionId: string) {
+  async getQuestion(questionId: string): Promise<Question | null> {
     let question = await this.dataSource.createQueryBuilder(Question, "q")
       .select([
         `q.questionId as "id"`,
@@ -284,6 +305,10 @@ export class QuizQueryRepositoryOrm {
   }
 
   private createGameOutputModel(gameDto: any, questions: IQuestionDto[]): IGetGameByIdOutputModel {
+    const secondPlayer = gameDto.g_secondPlayerId
+      ? { id: gameDto.g_secondPlayerId, login: gameDto.g_secondPlayerLogin }
+      : null
+
     return {
       id: gameDto.g_gameId,
       firstPlayerProgress: {
@@ -296,10 +321,7 @@ export class QuizQueryRepositoryOrm {
       },
       secondPlayerProgress: {
         answers: gameDto.g_secondPlayerAnswers,
-        player: {
-          id: gameDto.g_secondPlayerId,
-          login: gameDto.g_secondPlayerLogin,
-        },
+        player: secondPlayer,
         score: gameDto.g_secondPlayerScore
       },
       questions: questions,

@@ -43,7 +43,7 @@ export class QuizControllerSql {
 
   @Get(`:id`)
   @UseGuards(AccessGuard)
-  async getGame(
+  async getGameById(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
     @Param() params: IdParamInputModelSql,
   ) {

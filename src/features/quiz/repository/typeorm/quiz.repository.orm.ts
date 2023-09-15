@@ -5,7 +5,7 @@ import { Contract } from "../../../../infrastructure/utils/contract"
 import { IInsertQuestionOutputModel } from "../../../sa/api/models/output/insert-question.output-model"
 import { QuestionBodyInputModelSql } from "../../../sa/api/models/input/quiz/question.body.input-model.sql"
 import { Question } from "../../application/entities/typeorm/question"
-import { Game, StatusEnum } from "../../application/entities/typeorm/game"
+import { Game, QuizStatusEnum } from "../../application/entities/typeorm/game"
 import { Answer } from "../../application/entities/typeorm/answer"
 import { AccountEntity } from "../../../sa/application/entities/sql/account.entity"
 import {
@@ -144,15 +144,13 @@ export class QuizRepositoryOrm {
   }
 
 
-  async getQuestionIdsForConnect(published: boolean): Promise<string[] | null> {
-    const questionEntities = await this.dataSource.createQueryBuilder()
-      .select(`q.questionId`)
-      .from(Question, "q")
+  async getQuestions(published: boolean): Promise<Question[] | null> {
+    const questions = await this.dataSource.createQueryBuilder(Question, "q")
       .where(`q.published = :published`, { published })
       .orderBy("RANDOM()", "DESC")
       .limit(5)
-      .getRawMany()
-    return questionEntities.length ? questionEntities : null
+      .getMany()
+    return questions.length ? questions : null
   }
 
   // async getQuestionEntities(gameId: string, published: boolean) {

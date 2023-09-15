@@ -3,7 +3,7 @@ import { QuizRepositoryOrm } from "../../repository/typeorm/quiz.repository.orm"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
-import { Game, StatusEnum } from "../entities/typeorm/game"
+import { Game, QuizStatusEnum } from "../entities/typeorm/game"
 import { Answer } from "../entities/typeorm/answer"
 import { randomUUID } from "crypto"
 import { DataSource } from "typeorm"
@@ -32,14 +32,15 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
 
     const game = await this.quizRepository.getUserCurrentGame(
       command.userId, {
-        pending: StatusEnum.PendingSecondPlayer,
-        active: StatusEnum.Active
+        pending: QuizStatusEnum.PendingSecondPlayer,
+        active: QuizStatusEnum.Active
       })
     // if (game) return new Contract(null, ErrorEnums.GAME_CREATED_OR_STARTED)
 
-    const randomQuestionIds = await this.quizRepository.getQuestionIdsForConnect(true)
-    // if (randomQuestionIds === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+    const randomQuestions = await this.quizRepository.getQuestions(true)
+    // if (randomQuestions === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
+    const randomQuestionIds = randomQuestions?.map(question => question.questionId)
     const createdDate = new Date(Date.now()).toISOString()
 
     const newGame = new Game()

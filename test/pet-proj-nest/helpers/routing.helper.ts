@@ -6,6 +6,7 @@ const devicesController = `/security/devices`
 const postsController = `/posts`
 const saController = `/sa`
 const testingController = `/testing`
+const quizController = `/pair-game-quiz`
 
 
 export const endpoints = {
@@ -98,6 +99,13 @@ export const endpoints = {
     },
   },
 
+
+  publicController: {
+    connection() {
+      return `${quizController}/pairs/connection`
+    },
+  },
+
   // SA ↓↓↓
   saController: {
     postUser() {
@@ -120,6 +128,12 @@ export const endpoints = {
     },
     getBlogs() {
       return `${saController}/blogs`
+    },
+    createQuestion() {
+      return `${saController}/quiz/questions`
+    },
+    publishQuestion(questionId: string) {
+      return `${saController}/quiz/questions/${questionId}/publish`
     },
   },
 

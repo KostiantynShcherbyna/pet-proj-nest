@@ -131,4 +131,17 @@ export class SaTestingHelper {
     return { status: response.status, body: response.body }
   }
 
+
+  createQuestion(answersCount: number) {
+    const randomCorrectAnswers: string[] = []
+    for (let i = 0; i < answersCount; i++)
+      randomCorrectAnswers.push(faker.lorem.words({ min: 1, max: 2 }))
+
+    return {
+      body: faker.lorem.words({ min: 4, max: 6 } ),
+      correctAnswers: randomCorrectAnswers
+    }
+
+  }
+
 }

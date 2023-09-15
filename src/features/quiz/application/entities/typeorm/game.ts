@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Question } from "./question"
 
-export enum StatusEnum {
+export enum QuizStatusEnum {
   PendingSecondPlayer = "PendingSecondPlayer",
   Active = "Active",
   Finished = "Finished"
@@ -33,7 +33,7 @@ export class Game {
 
   @Column({
     type: "enum",
-    enum: StatusEnum,
+    enum: QuizStatusEnum,
     default: "PendingSecondPlayer"
   })
   status: string
@@ -47,7 +47,7 @@ export class Game {
   @Column({ nullable: true, default: null, type: "character varying" })
   finishGameDate: string | null
 
-  @Column({ array: true, type: "uuid" })
+  @Column({ type: "character varying", array: true })
   questionIds: string[]
 
 }

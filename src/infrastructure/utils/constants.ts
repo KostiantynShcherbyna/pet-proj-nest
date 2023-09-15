@@ -3,6 +3,7 @@ export const POSTS_TITLE_MAX_LENGTH = 30
 export const POSTS_SHORTDESCRIPTION_MAX_LENGTH = 100
 export const POSTS_CONTENT_MAX_LENGTH = 1000
 
+
 //  BLOGS body Validator
 export const BLOGS_NAME_MAX_LENGTH = 15
 export const BLOGS_DESCRIPTION_MAX_LENGTH = 500
@@ -36,6 +37,7 @@ export const PASSWORD_HASH_EXPIRES_TIME = "5m"
 
 export const BAN_REASON_MIN_LENGTH = 20
 
+export const QUESTION_MAX_LENGTH = 500
 
 export const EXPIRE_AT_ACCESS = +ACCESS_EXPIRES_TIME.slice(0, ACCESS_EXPIRES_TIME.length - 1)
 export const EXPIRE_AT_REFRESH = +REFRESH_EXPIRES_TIME.slice(0, REFRESH_EXPIRES_TIME.length - 1)

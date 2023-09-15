@@ -72,8 +72,7 @@ describe
   })
 
 
-  describe
-  (`AUTH`, () => {
+  describe(`AUTH`, () => {
 
     let inputDataUser0: CreateUserBodyInputModel
     it(`+ registration user0`, async () => {

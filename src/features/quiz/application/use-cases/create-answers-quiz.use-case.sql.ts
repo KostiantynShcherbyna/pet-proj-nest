@@ -3,7 +3,7 @@ import { QuizRepositoryOrm } from "../../repository/typeorm/quiz.repository.orm"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
-import { Game, StatusEnum } from "../entities/typeorm/game"
+import { Game, QuizStatusEnum } from "../entities/typeorm/game"
 import { Answer, AnswerStatusEnum } from "../entities/typeorm/answer"
 import { Column, DataSource } from "typeorm"
 import { randomUUID } from "crypto"
@@ -33,7 +33,7 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     const game = await this.quizRepository.getUserCurrentGame(
       command.userId, {
         pending: "",
-        active: StatusEnum.Active
+        active: QuizStatusEnum.Active
       })
     if (!game) return new Contract(null, ErrorEnums.GAME_NOT_STARTED)
 
