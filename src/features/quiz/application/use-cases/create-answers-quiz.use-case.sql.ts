@@ -30,19 +30,20 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
     if (foundUser.IsConfirmed === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
 
-    const game = await this.quizRepository.getUserCurrentGame(
-      command.userId, {
-        pending: "",
-        active: QuizStatusEnum.Active
-      })
-    if (!game) return new Contract(null, ErrorEnums.GAME_NOT_STARTED)
+    const currentGame = await this.quizRepository.getCurrentGame({
+      userId: command.userId,
+      pending: null,
+      active: QuizStatusEnum.Active
+    })
+    if (!currentGame) return new Contract(null, ErrorEnums.GAME_NOT_STARTED)
 
-    const answerNumber = game.firstPlayerId === command.userId
-      ? game.firstPlayerAnswerNumber
-      : game.secondPlayerAnswerNumber
+    const answerNumber = command.userId === currentGame.firstPlayerId
+      ? currentGame.firstPlayerAnswerNumber
+      : currentGame.secondPlayerAnswerNumber
 
-
-    const questions = await this.quizRepository.getQuestionIdsForAnswer(game.questionIds, true)
+    // Проверка на null, чтобы ts не ругался, т.к. при создании игры может быть null, но сюда null попасть не может
+    if (!currentGame.questionIds) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+    const questions = await this.quizRepository.getQuestionIdsForAnswer(currentGame.questionIds, true)
     if (!questions) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
     const question = questions[answerNumber]
@@ -50,26 +51,25 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       ? AnswerStatusEnum.Correct
       : AnswerStatusEnum.Incorrect
 
-    const setPlayerAnswerNumber = command.userId === game.firstPlayerId
+    const setPlayerAnswerNumber = command.userId === currentGame.firstPlayerId
       ? { firstPlayerAnswerNumber: () => "firstPlayerAnswerNumber + 1" }
       : { secondPlayerAnswerNumber: () => "secondPlayerAnswerNumber + 1" }
 
     const addedAt = new Date(Date.now()).toISOString()
 
-    const answer = new Answer()
-    answer.gameId = game.gameId
-    answer.questionId = question.questionId
-    answer.answerStatus = answerStatus
-    answer.userId = foundUser.userId
-    answer.addedAt = addedAt
+    const newAnswer = new Answer()
+    newAnswer.gameId = currentGame.gameId
+    newAnswer.questionId = question.questionId
+    newAnswer.answerStatus = answerStatus
+    newAnswer.userId = command.userId
+    newAnswer.addedAt = addedAt
 
-    const newAnswerId = await this.dataSource.manager.transaction(async manager => {
-      const ar = await manager.save<Answer>(answer)
-      await manager.update(Game, { GameId: game.gameId }, setPlayerAnswerNumber)
-      return ar.answerId
+    const answer = await this.dataSource.manager.transaction(async manager => {
+      await manager.update(Game, { gameId: currentGame.gameId }, setPlayerAnswerNumber)
+      return await manager.save(newAnswer)
     })
 
-    return new Contract(newAnswerId, null)
+    return new Contract(answer.answerId, null)
   }
 
 }

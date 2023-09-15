@@ -30,29 +30,46 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
     if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
     if (foundUser.isConfirmed === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
 
-    const game = await this.quizRepository.getUserCurrentGame(
-      command.userId, {
-        pending: QuizStatusEnum.PendingSecondPlayer,
-        active: QuizStatusEnum.Active
-      })
-    // if (game) return new Contract(null, ErrorEnums.GAME_CREATED_OR_STARTED)
-
-    const randomQuestions = await this.quizRepository.getQuestions(true)
-    // if (randomQuestions === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
-
-    const randomQuestionIds = randomQuestions?.map(question => question.questionId)
-    const createdDate = new Date(Date.now()).toISOString()
-
-    const newGame = new Game()
-    newGame.firstPlayerId = command.userId
-    newGame.pairCreatedDate = createdDate
-    newGame.questionIds = randomQuestionIds || []
-
-    const nwGame = await this.dataSource.manager.transaction(async manager => {
-      return await this.quizRepository.saveEntity(newGame, manager)
+    const userGame = await this.quizRepository.getCurrentGame({
+      userId: command.userId,
+      pending: QuizStatusEnum.PendingSecondPlayer,
+      active: QuizStatusEnum.Active
     })
+    // if (userGame) return new Contract(null, ErrorEnums.GAME_WAITING_OR_STARTED)
 
-    return new Contract(nwGame.gameId, null)
+    const pendingGame = await this.quizRepository.getPendingGame()
+
+    const operationDate = new Date(Date.now()).toISOString()
+    let finalGameId: string | null = null
+
+    if (!pendingGame) {
+      const randomQuestions = await this.quizRepository.getQuestions(true)
+      // if (randomQuestions === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+      const randomQuestionIds = randomQuestions?.map(question => question.questionId)
+
+      const newGame = new Game()
+      newGame.firstPlayerId = command.userId
+      newGame.pairCreatedDate = operationDate
+      newGame.questionIds = randomQuestionIds || []
+
+      const nwGame = await this.dataSource.manager.transaction(async manager =>
+        await manager.save(newGame))
+
+      finalGameId = nwGame.gameId
+    }
+    if (pendingGame) {
+      const updateGameDto = {
+        secondPlayerId: command.userId,
+        status: QuizStatusEnum.Active,
+        startGameDate: operationDate
+      }
+      await this.dataSource.manager.transaction(async manager =>
+        await manager.update(Game, { gameId: pendingGame.gameId }, updateGameDto))
+
+      finalGameId = pendingGame.gameId
+    }
+
+    return new Contract(finalGameId, null)
   }
 
 }

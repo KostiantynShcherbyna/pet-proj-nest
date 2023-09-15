@@ -26,21 +26,15 @@ export interface IGetGameByIdOutputModel {
   id: string
   firstPlayerProgress: {
     answers: string[]
-    player: {
-      id: string
-      login: string
-    }
+    player: { id: string, login: string }
     score: number
   }
   secondPlayerProgress: {
     answers: string[]
-    player: {
-      id: string
-      login: string
-    } | null
+    player: { id: string, login: string } | null
     score: number
   }
-  questions: IQuestionDto[]
+  questions: IQuestionDto[] | null
   status: string
   pairCreatedDate: string
   startGameDate: string
@@ -308,7 +302,7 @@ export class QuizQueryRepositoryOrm {
     const secondPlayer = gameDto.g_secondPlayerId
       ? { id: gameDto.g_secondPlayerId, login: gameDto.g_secondPlayerLogin }
       : null
-
+    const trueQuestions = questions ? questions : null
     return {
       id: gameDto.g_gameId,
       firstPlayerProgress: {
@@ -324,7 +318,7 @@ export class QuizQueryRepositoryOrm {
         player: secondPlayer,
         score: gameDto.g_secondPlayerScore
       },
-      questions: questions,
+      questions: trueQuestions,
       status: gameDto.g_status,
       pairCreatedDate: gameDto.g_pairCreatedDate,
       startGameDate: gameDto.g_startGameDate,

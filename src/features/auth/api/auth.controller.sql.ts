@@ -60,11 +60,7 @@ export class AuthControllerSql {
     @Res({ passthrough: true }) res: Response,
   ) {
     const loginContract = await this.commandBus.execute(
-      new LoginSqlCommand(
-        bodyAuth,
-        ip,
-        userAgent
-      )
+      new LoginSqlCommand(bodyAuth, ip, userAgent)
     )
     if (loginContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
     if (loginContract.error === ErrorEnums.USER_IS_BANNED) throw new UnauthorizedException()

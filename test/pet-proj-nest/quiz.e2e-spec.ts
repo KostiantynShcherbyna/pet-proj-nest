@@ -185,7 +185,7 @@ describe
 
   describe(`Public`, () => {
 
-    it(`+ connection`, async () => {
+    it(`+ connection 1`, async () => {
 
       const response = await request(server)
         .post(endpoints.publicController.connection())
@@ -207,6 +207,29 @@ describe
       expect(response.body.startGameDate).toBeNull()
       expect(response.body.finishGameDate).toBeNull()
 
+    })
+
+    it(`+ connection 2`, async () => {
+
+      const response = await request(server)
+        .post(endpoints.publicController.connection())
+        .auth(loginResults[0].accessToken, { type: "bearer" })
+
+      expect(response.status).toEqual(HttpStatus.CREATED)
+      expect(response.body.id).toEqual(expect.any(String))
+      expect(response.body.firstPlayerProgress.answers).toBeNull()
+      expect(response.body.firstPlayerProgress.player.id).toEqual(expect.any(String))
+      expect(response.body.firstPlayerProgress.player.login).toEqual(loginResults[0].login)
+      expect(response.body.firstPlayerProgress.score).toEqual(0)
+      expect(response.body.secondPlayerProgress.answers).toBeNull()
+      expect(response.body.secondPlayerProgress.player).toBeNull()
+      expect(response.body.secondPlayerProgress.score).toEqual(0)
+      expect(response.body.questions).toEqual(expect.any(Array))
+      expect(response.body.questions).toHaveLength(5)
+      expect(response.body.status).toEqual(QuizStatusEnum.PendingSecondPlayer)
+      expect(response.body.pairCreatedDate).toEqual(expect.any(String))
+      expect(response.body.startGameDate).toBeNull()
+      expect(response.body.finishGameDate).toBeNull()
 
     })
 

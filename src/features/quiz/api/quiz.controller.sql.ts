@@ -65,8 +65,8 @@ export class QuizControllerSql {
       throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id"))
     if (createContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
       throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "id"))
-    if (createContract.error === ErrorEnums.GAME_CREATED_OR_STARTED)
-      throw new ForbiddenException(callErrorMessage(ErrorEnums.GAME_CREATED_OR_STARTED, "id"))
+    if (createContract.error === ErrorEnums.GAME_WAITING_OR_STARTED)
+      throw new ForbiddenException(callErrorMessage(ErrorEnums.GAME_WAITING_OR_STARTED, "id"))
     if (createContract.error === ErrorEnums.FAIL_LOGIC)
       throw new ServiceUnavailableException()
 

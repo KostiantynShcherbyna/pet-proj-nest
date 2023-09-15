@@ -20,7 +20,6 @@ export class CreateQuestionsQuizCommandSql {
 export class CreateQuestionsQuizSql implements ICommandHandler<CreateQuestionsQuizCommandSql> {
   constructor(
     protected dataSource: DataSource,
-    protected quizRepository: QuizRepositoryOrm,
   ) {
   }
 
@@ -31,11 +30,9 @@ export class CreateQuestionsQuizSql implements ICommandHandler<CreateQuestionsQu
     question.correctAnswers = command.body.correctAnswers
     question.createdAt = createdAt
 
-    const newQuestionId = await this.dataSource.manager.transaction(async manager => {
-      const newQ = await manager.save<Question>(question)
-      return newQ.questionId
-    })
+    const newQuestion = await this.dataSource.manager.transaction(async manager =>
+      await manager.save(question))
 
-    return new Contract(newQuestionId, null)
+    return new Contract(newQuestion.questionId, null)
   }
 }

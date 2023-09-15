@@ -47,8 +47,8 @@ export class Game {
   @Column({ nullable: true, default: null, type: "character varying" })
   finishGameDate: string | null
 
-  @Column({ type: "character varying", array: true })
-  questionIds: string[]
+  @Column({ type: "character varying", array: true, nullable: true })
+  questionIds: string[] | null
 
 }
 

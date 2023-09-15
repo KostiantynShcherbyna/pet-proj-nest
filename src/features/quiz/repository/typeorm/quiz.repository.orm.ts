@@ -30,15 +30,17 @@ interface ICreateAnswerDto {
   addedAt: string
 }
 
+interface IGetCurrentGameDto {
+  userId: string
+  pending: QuizStatusEnum.PendingSecondPlayer | null
+  active: QuizStatusEnum.Active | null
+}
+
 @Injectable()
 export class QuizRepositoryOrm {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
   ) {
-  }
-
-  async saveEntity(entity: any, manager: EntityManager) {
-    return await manager.save(entity)
   }
 
   // async saveEntity(entity, queryRunner: QueryRunner) {
@@ -133,13 +135,11 @@ export class QuizRepositoryOrm {
     return questionIds ? questionIds : null
   }
 
-  async getQuestionIdsForAnswer(questionIds: string[], published: boolean) {
-    const questions = await this.dataSource.createQueryBuilder()
-      .from(Question, "q")
+  async getQuestionIdsForAnswer(questionIds: string[], published: boolean): Promise<Question[] | null> {
+    const questions = await this.dataSource.createQueryBuilder(Question, "q")
       .where(`q.questionId in (:...questionIds)`, { questionIds })
-      .andWhere(`q.published = :published`, { published })
-      .orderBy("RANDOM()", "DESC")
-      .getRawMany()
+      // .andWhere(`q.published = :published`, { published })
+      .getMany()
     return questions ? questions : null
   }
 
@@ -176,12 +176,32 @@ export class QuizRepositoryOrm {
   // }
 
 
-  async getUserCurrentGame(userId: string, { pending, active }): Promise<Game & Question | null> {
+  async getCurrentGame({ userId, pending, active }: IGetCurrentGameDto): Promise<Game & Question | null> {
+    const qb = this.dataSource.createQueryBuilder(Game, "g")
+      .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+    if (pending) qb.andWhere(`g.status = :pending`, { pending })
+    if (active) qb.andWhere(`g.status = :active`, { active })
+    const rawGame = await qb.getRawOne()
+
+    // return this.createGameView(rawGame)
+    return rawGame ? rawGame : null
+  }
+
+  async getUserCurrentGame2(userId: string, { pending, active }): Promise<Game & Question | null> {
     const result = await this.dataSource.createQueryBuilder()
       .from(Game, "g")
       .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
       .andWhere(`g.status = :pending or g.status = :active`, { pending, active })
       .getRawOne()
+
+    // return this.createGameView(result)
+    return result ? result : null
+  }
+
+  async getPendingGame(): Promise<Game | null> {
+    const result = await this.dataSource.createQueryBuilder(Game, "g")
+      .where(`g.status = :status`, { status: QuizStatusEnum.PendingSecondPlayer })
+      .getOne()
 
     // return this.createGameView(result)
     return result ? result : null

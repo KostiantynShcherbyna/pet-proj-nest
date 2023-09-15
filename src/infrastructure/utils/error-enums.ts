@@ -52,7 +52,7 @@ export enum ErrorEnums {
   LIKE_NOT_UPDATED = `Like not updated`,
 
   // ↓↓↓ QUIZ
-  GAME_CREATED_OR_STARTED = `You are already participating in active pair`,
+  GAME_WAITING_OR_STARTED = `You are already participating in active pair`,
   GAME_NOT_STARTED = `You are not in active pair`,
   QUESTION_NOT_FOUND = `Question not found`,
 
