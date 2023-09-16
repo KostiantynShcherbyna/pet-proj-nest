@@ -11,13 +11,13 @@ export class Question {
   @Column()
   body: string
 
-  @Column({ default: false })
+  @Column({ default: true })
   published: boolean
 
   @Column()
   createdAt: string
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   updatedAt: string
 
   @Column({ array: true, type: "character varying" })

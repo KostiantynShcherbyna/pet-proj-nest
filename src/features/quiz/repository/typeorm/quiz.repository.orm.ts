@@ -97,18 +97,20 @@ export class QuizRepositoryOrm {
 
   async updateQuestion(questionId: string, { body, correctAnswers }: QuestionBodyInputModelSql)
     : Promise<number | null> {
+    const updatedAt = new Date(Date.now()).toISOString()
     const result = await this.dataSource.createQueryBuilder()
       .update(Question)
-      .set({ body: body, correctAnswers: correctAnswers, })
+      .set({ body, correctAnswers, updatedAt })
       .where(`questionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
   }
 
   async publishQuestion(questionId: string, published: boolean): Promise<number | null> {
+    const updatedAt = new Date(Date.now()).toISOString()
     const result = await this.dataSource.createQueryBuilder()
       .update(Question)
-      .set({ published: published })
+      .set({ published, updatedAt })
       .where(`questionId = :questionId`, { questionId })
       .execute()
     return result.affected ? result.affected : null
@@ -176,15 +178,12 @@ export class QuizRepositoryOrm {
   // }
 
 
-  async getCurrentGame({ userId, pending, active }: IGetCurrentGameDto): Promise<Game & Question | null> {
+  async getCurrentGame({ userId, pending, active }: IGetCurrentGameDto): Promise<Game | null> {
     const qb = this.dataSource.createQueryBuilder(Game, "g")
       .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
-    if (pending) qb.andWhere(`g.status = :pending`, { pending })
-    if (active) qb.andWhere(`g.status = :active`, { active })
-    const rawGame = await qb.getRawOne()
-
-    // return this.createGameView(rawGame)
-    return rawGame ? rawGame : null
+      .andWhere(`g.status = :pending or g.status = :active`, { pending, active })
+    const game = await qb.getOne()
+    return game ? game : null
   }
 
   async getUserCurrentGame2(userId: string, { pending, active }): Promise<Game & Question | null> {

@@ -47,9 +47,10 @@ export class QuizControllerSql {
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
     @Param() params: IdParamInputModelSql,
   ) {
-    const userView = await this.quizQueryRepositorySql.getGameById(params.id)
-    if (userView === null) throw new UnauthorizedException()
-    return userView
+    const getContract = await this.quizQueryRepositorySql.getGameById(params.id, deviceSession.userId)
+    if (getContract.error === ErrorEnums.FOREIGN_GAME) throw new ForbiddenException()
+    if (getContract.data === null) throw new NotFoundException()
+    return getContract.data
   }
 
   @Post(`connection`)
@@ -70,9 +71,10 @@ export class QuizControllerSql {
     if (createContract.error === ErrorEnums.FAIL_LOGIC)
       throw new ServiceUnavailableException()
 
-    const newGame = await this.quizQueryRepositorySql.getGameById(createContract.data)
-    if (newGame === null) throw new ServiceUnavailableException()
-    return newGame
+    const getContract = await this.quizQueryRepositorySql.getGameById(createContract.data, deviceSession.userId)
+    if (getContract.error === ErrorEnums.FOREIGN_GAME) throw new ForbiddenException()
+    if (getContract.data === null) throw new NotFoundException()
+    return getContract.data
   }
 
   @Post(`my-current/answers`)
@@ -89,10 +91,9 @@ export class QuizControllerSql {
       throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id"))
     if (answersContract.error === ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
       throw new UnauthorizedException(callErrorMessage(ErrorEnums.USER_EMAIL_NOT_CONFIRMED, "id"))
-    if (answersContract.error === ErrorEnums.GAME_NOT_STARTED)
-      throw new ForbiddenException()
-    if (answersContract.error === ErrorEnums.FAIL_LOGIC)
-      throw new ServiceUnavailableException()
+    if (answersContract.error === ErrorEnums.GAME_NOT_STARTED) throw new ForbiddenException()
+    if (answersContract.error === ErrorEnums.OVERDO_ANSWER) throw new ForbiddenException()
+    if (answersContract.error === ErrorEnums.FAIL_LOGIC) throw new ServiceUnavailableException()
 
     const newAnswer = await this.quizQueryRepositorySql.getAnswer(answersContract.data)
     if (newAnswer === null) throw new ServiceUnavailableException()

@@ -16,6 +16,7 @@ import { AccountEntity } from "../../../sa/application/entities/sql/account.enti
 import { Answer } from "../../application/entities/typeorm/answer"
 import { Contract } from "../../../../infrastructure/utils/contract"
 import { IInsertQuestionOutputModel } from "../../../sa/api/models/output/insert-question.output-model"
+import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 
 export interface IQuestionDto {
   questionId: string
@@ -48,16 +49,11 @@ export class QuizQueryRepositoryOrm {
   ) {
   }
 
-  async getAnswer(answerId: string) {
-    const result = await this.dataSource.createQueryBuilder()
-      .select([
-        `a.AnswerId as "answerId"`,
-        `a.AnswerStatus as "answerStatus"`,
-        `a.AddedAd as "addedAt"`
-      ])
-      .from(Answer, "a")
-      .where(`a.AnswerId = :answerId`, { answerId })
-      .getRawOne()
+  async getAnswer(answerId: string): Promise<Answer | null> {
+    const result = await this.dataSource.createQueryBuilder(Answer, "a")
+      .select([`a.answerId`, `a.answerStatus`, `a.addedAt`])
+      .where(`a.answerId = :answerId`, { answerId })
+      .getOne()
 
     return result ? result : null
   }
@@ -90,8 +86,13 @@ export class QuizQueryRepositoryOrm {
       .addSelect(qb => this.selectAnswers(qb, `g.firstPlayerId`), `g_firstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.secondPlayerId`), `g_secondPlayerAnswers`)
       .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+      .andWhere(`g.status = :pending or g.status = :active`, {
+        pending: QuizStatusEnum.PendingSecondPlayer,
+        active: QuizStatusEnum.Active
+      })
       .getRawOne()
 
+    if (!game) return null
     let questions: IQuestionDto[] = []
     if (game.g_questionIds.length) {
       questions = await this.dataSource.createQueryBuilder(Question, "q")
@@ -103,7 +104,7 @@ export class QuizQueryRepositoryOrm {
     return game ? this.createGameOutputModel(game, questions) : null
   }
 
-  async getGameById(gameId: string): Promise<IGetGameByIdOutputModel | null> {
+  async getGameById(gameId: string, userId: string): Promise<Contract<IGetGameByIdOutputModel | null>> {
     const game = await this.dataSource.createQueryBuilder(Game, "g")
       .addSelect(qb => this.selectPlayerLogin(qb, `g.firstPlayerId`), `g_firstPlayerLogin`)
       .addSelect(qb => this.selectPlayerLogin(qb, `g.secondPlayerId`), `g_secondPlayerLogin`)
@@ -111,6 +112,12 @@ export class QuizQueryRepositoryOrm {
       .addSelect(qb => this.selectAnswers(qb, `g.secondPlayerId`), `g_secondPlayerAnswers`)
       .where(`g.gameId = :gameId`, { gameId })
       .getRawOne()
+
+    if (!game) return new Contract(null, null)
+    if (!game.g_secondPlayerId && game.g_firstPlayerId !== userId)
+      return new Contract(null, ErrorEnums.FOREIGN_GAME)
+    if (game.g_secondPlayerId && game.g_firstPlayerId !== userId && game.g_secondPlayerId !== userId)
+      return new Contract(null, ErrorEnums.FOREIGN_GAME)
 
     let questions: IQuestionDto[] = []
     if (game.g_questionIds.length) {
@@ -120,7 +127,9 @@ export class QuizQueryRepositoryOrm {
         .getRawMany()
     }
 
-    return game ? this.createGameOutputModel(game, questions) : null
+    return game
+      ? new Contract(this.createGameOutputModel(game, questions), null)
+      : new Contract(null, null)
   }
 
   async getQuestions(query: GetQuestionsQueryInputModel): Promise<Contract<IQuestionsOutputModel | null>> {
@@ -205,9 +214,9 @@ export class QuizQueryRepositoryOrm {
       .from(qb => {
         return qb
           .select([
-            `an.questionId`,
-            `an.answerStatus`,
-            `an.addedAt`
+            `an.questionId as "questionId"`,
+            `an.answerStatus as "answerStatus"`,
+            `an.addedAt as "addedAt"`
           ])
           .from(Answer, "an")
           .where(`an.userId = ${userId}`)
@@ -302,11 +311,12 @@ export class QuizQueryRepositoryOrm {
     const secondPlayer = gameDto.g_secondPlayerId
       ? { id: gameDto.g_secondPlayerId, login: gameDto.g_secondPlayerLogin }
       : null
-    const trueQuestions = questions ? questions : null
+    const trueQuestions = gameDto.g_status === QuizStatusEnum.Active ? questions : null
+    // const trueQuestions = questions ? questions : null
     return {
       id: gameDto.g_gameId,
       firstPlayerProgress: {
-        answers: gameDto.g_firstPlayerAnswers,
+        answers: gameDto.g_firstPlayerAnswers || [],
         player: {
           id: gameDto.g_firstPlayerId,
           login: gameDto.g_firstPlayerLogin
@@ -314,7 +324,7 @@ export class QuizQueryRepositoryOrm {
         score: gameDto.g_firstPlayerScore
       },
       secondPlayerProgress: {
-        answers: gameDto.g_secondPlayerAnswers,
+        answers: gameDto.g_secondPlayerAnswers || [],
         player: secondPlayer,
         score: gameDto.g_secondPlayerScore
       },

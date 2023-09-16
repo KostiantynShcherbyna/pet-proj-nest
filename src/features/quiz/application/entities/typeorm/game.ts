@@ -25,6 +25,9 @@ export class Game {
   @Column({ default: 0 })
   secondPlayerScore: number
 
+  @Column({ type: "uuid", nullable: true, default: null })
+  firstFinisherId: string | null
+
   @Column({ default: 0 })
   firstPlayerAnswerNumber: number
 
@@ -34,7 +37,7 @@ export class Game {
   @Column({
     type: "enum",
     enum: QuizStatusEnum,
-    default: "PendingSecondPlayer"
+    default: QuizStatusEnum.PendingSecondPlayer
   })
   status: string
 

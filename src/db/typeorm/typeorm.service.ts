@@ -60,6 +60,7 @@ import { CreateQuestionsQuizSql } from "../../features/quiz/application/use-case
 import { QuizRepositoryOrm } from "../../features/quiz/repository/typeorm/quiz.repository.orm"
 import { QuizQueryRepositoryOrm } from "../../features/quiz/repository/typeorm/quiz.query.repository.orm"
 import { QuizControllerSql } from "../../features/quiz/api/quiz.controller.sql"
+import { CreateAnswersQuizSql } from "../../features/quiz/application/use-cases/create-answers-quiz.use-case.sql"
 
 
 const typeOrmUseCases = [
@@ -98,6 +99,7 @@ const typeOrmUseCases = [
   CreatePostSASql,
   ConnectionQuizSql,
   CreateQuestionsQuizSql,
+  CreateAnswersQuizSql,
 ]
 const typeOrmRepositories = [
   AuthRepositoryOrm,

@@ -55,6 +55,8 @@ export enum ErrorEnums {
   GAME_WAITING_OR_STARTED = `You are already participating in active pair`,
   GAME_NOT_STARTED = `You are not in active pair`,
   QUESTION_NOT_FOUND = `Question not found`,
+  FOREIGN_GAME = `Foreign game`,
+  OVERDO_ANSWER = `Non-existent question`,
 
 }
 

@@ -135,6 +135,12 @@ export const endpoints = {
     publishQuestion(questionId: string) {
       return `${saController}/quiz/questions/${questionId}/publish`
     },
+    updateQuestion(questionId: string) {
+      return `${saController}/quiz/questions/${questionId}`
+    },
+    getQuestions() {
+      return `${saController}/quiz/questions/`
+    },
   },
 
 

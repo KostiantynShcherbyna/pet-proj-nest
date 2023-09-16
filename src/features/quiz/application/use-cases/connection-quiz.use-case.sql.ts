@@ -35,7 +35,7 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
       pending: QuizStatusEnum.PendingSecondPlayer,
       active: QuizStatusEnum.Active
     })
-    // if (userGame) return new Contract(null, ErrorEnums.GAME_WAITING_OR_STARTED)
+    if (userGame) return new Contract(null, ErrorEnums.GAME_WAITING_OR_STARTED)
 
     const pendingGame = await this.quizRepository.getPendingGame()
 
@@ -44,13 +44,13 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
 
     if (!pendingGame) {
       const randomQuestions = await this.quizRepository.getQuestions(true)
-      // if (randomQuestions === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+      if (randomQuestions === null) return new Contract(null, ErrorEnums.FAIL_LOGIC)
       const randomQuestionIds = randomQuestions?.map(question => question.questionId)
 
       const newGame = new Game()
       newGame.firstPlayerId = command.userId
       newGame.pairCreatedDate = operationDate
-      newGame.questionIds = randomQuestionIds || []
+      newGame.questionIds = randomQuestionIds
 
       const nwGame = await this.dataSource.manager.transaction(async manager =>
         await manager.save(newGame))

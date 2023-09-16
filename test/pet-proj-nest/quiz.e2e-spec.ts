@@ -142,7 +142,6 @@ describe
         })
       })
 
-      console.log("loginResults", loginResults)
     })
 
     it(`+ create questions`, async () => {
@@ -160,6 +159,7 @@ describe
 
       const isEquals = createResponses.every(resp => resp.status === HttpStatus.CREATED)
       expect(isEquals).toBeTruthy()
+      console.log("createResponses", createResponses)
       questions = createResponses.map(resp => resp.body)
 
     })
@@ -178,6 +178,33 @@ describe
       const isEquals = publishStatuses.every(status => status === HttpStatus.NO_CONTENT)
       expect(isEquals).toBeTruthy()
 
+    })
+    let updatedQuestion_0
+    it(`+ update question`, async () => {
+      updatedQuestion_0 = saHelper.createQuestion(2)
+
+      const response = await request(server)
+        .put(endpoints.saController.updateQuestion(questions[0].id))
+        .auth(superUser.login, superUser.password, { type: "basic" })
+        .send(updatedQuestion_0)
+
+      expect(response.status).toEqual(HttpStatus.NO_CONTENT)
+    })
+
+    it(`+ get question`, async () => {
+
+      const response = await request(server)
+        .get(endpoints.saController.getQuestions())
+        .auth(superUser.login, superUser.password, { type: "basic" })
+
+      const items = response.body.items.reverse()
+      console.log("questions[0]", questions[0].id, questions[0].body)
+      console.log("items[0].body", items[0].id, items[0].body)
+
+      expect(response.status).toEqual(HttpStatus.OK)
+      expect(items[0].id).toEqual(questions[0].id)
+      expect(items[0].body).toEqual(updatedQuestion_0.body)
+      expect(items[0].correctAnswers).toEqual(updatedQuestion_0.correctAnswers)
     })
 
   })
