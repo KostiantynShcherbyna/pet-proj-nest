@@ -36,9 +36,10 @@ export class QuizControllerSql {
   async getMyCurrentGame(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
-    const userView = await this.quizQueryRepositorySql.getMyCurrentGame(deviceSession.userId)
-    if (userView === null) throw new UnauthorizedException()
-    return userView
+    const getContract = await this.quizQueryRepositorySql.getMyCurrentGame(deviceSession.userId)
+    if (getContract.error === ErrorEnums.FOREIGN_GAME) throw new ForbiddenException()
+    if (getContract.data === null) throw new NotFoundException()
+    return getContract.data
   }
 
   @Get(`:id`)

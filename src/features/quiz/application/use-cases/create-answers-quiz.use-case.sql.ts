@@ -90,11 +90,11 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     // Проверка,чтобы TS не ругался на null
     if (!currentGameAfter) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 
-    if (currentGameAfter?.firstPlayerAnswerNumber > 4 && currentGameAfter?.secondPlayerAnswerNumber > 4) {
+    if (currentGameAfter.firstPlayerAnswerNumber > 4 && currentGameAfter.secondPlayerAnswerNumber > 4) {
       let extraScore
-      if (currentGameAfter.firstPlayerScore > 0 && command.userId === currentGameAfter.firstFinisherId)
+      if (currentGameAfter.firstPlayerScore > 0 && currentGameAfter.firstPlayerId === currentGameAfter.firstFinisherId)
         extraScore = { firstPlayerScore: () => "firstPlayerScore + 1" }
-      if (currentGameAfter.secondPlayerScore > 0 && command.userId === currentGameAfter.firstFinisherId)
+      if (currentGameAfter.secondPlayerScore > 0 && currentGameAfter.secondPlayerId === currentGameAfter.firstFinisherId)
         extraScore = { secondPlayerScore: () => "secondPlayerScore + 1" }
 
       await this.dataSource.manager.transaction(async manager =>

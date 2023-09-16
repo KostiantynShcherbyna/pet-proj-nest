@@ -79,20 +79,25 @@ export class QuizQueryRepositoryOrm {
     return qb ? this.createGameOutputModel(qb, questions) : null
   }
 
-  async getMyCurrentGame(userId: string) {
+  async getMyCurrentGame(userId: string): Promise<Contract<IGetGameByIdOutputModel | null>> {
     const game = await this.dataSource.createQueryBuilder(Game, "g")
       .addSelect(qb => this.selectPlayerLogin(qb, `g.firstPlayerId`), `g_firstPlayerLogin`)
       .addSelect(qb => this.selectPlayerLogin(qb, `g.secondPlayerId`), `g_secondPlayerLogin`)
       .addSelect(qb => this.selectAnswers(qb, `g.firstPlayerId`), `g_firstPlayerAnswers`)
       .addSelect(qb => this.selectAnswers(qb, `g.secondPlayerId`), `g_secondPlayerAnswers`)
-      .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
-      .andWhere(`g.status = :pending or g.status = :active`, {
+      // .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+      .where(`g.status = :pending or g.status = :active`, {
         pending: QuizStatusEnum.PendingSecondPlayer,
         active: QuizStatusEnum.Active
       })
       .getRawOne()
 
-    if (!game) return null
+    if (!game) return new Contract(null, null)
+    if (!game.g_secondPlayerId && game.g_firstPlayerId !== userId)
+      return new Contract(null, ErrorEnums.FOREIGN_GAME)
+    if (game.g_secondPlayerId && game.g_firstPlayerId !== userId && game.g_secondPlayerId !== userId)
+      return new Contract(null, ErrorEnums.FOREIGN_GAME)
+
     let questions: IQuestionDto[] = []
     if (game.g_questionIds.length) {
       questions = await this.dataSource.createQueryBuilder(Question, "q")
@@ -101,7 +106,9 @@ export class QuizQueryRepositoryOrm {
         .getRawMany()
     }
 
-    return game ? this.createGameOutputModel(game, questions) : null
+    return game
+      ? new Contract(this.createGameOutputModel(game, questions), null)
+      : new Contract(null, null)
   }
 
   async getGameById(gameId: string, userId: string): Promise<Contract<IGetGameByIdOutputModel | null>> {
@@ -309,9 +316,9 @@ export class QuizQueryRepositoryOrm {
 
   private createGameOutputModel(gameDto: any, questions: IQuestionDto[]): IGetGameByIdOutputModel {
     const secondPlayer = gameDto.g_secondPlayerId
-      ? { id: gameDto.g_secondPlayerId, login: gameDto.g_secondPlayerLogin }
-      : null
-    const trueQuestions = gameDto.g_status === QuizStatusEnum.Active ? questions : null
+      ? { id: gameDto.g_secondPlayerId, login: gameDto.g_secondPlayerLogin } : null
+    const trueQuestions = gameDto.g_status === QuizStatusEnum.Active || QuizStatusEnum.Finished
+      ? questions : null
     // const trueQuestions = questions ? questions : null
     return {
       id: gameDto.g_gameId,
