@@ -178,13 +178,23 @@ export class QuizRepositoryOrm {
   // }
 
 
-  async getCurrentGame({ userId, pending, active }: IGetCurrentGameDto): Promise<Game | null> {
-    const qb = this.dataSource.createQueryBuilder(Game, "g")
-      .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
-      .andWhere(`g.status = :pending or g.status = :active`, { pending, active })
-    const game = await qb.getOne()
+  async getCurrentGame(userId:string, status_1: QuizStatusEnum, status_2?: QuizStatusEnum): Promise<Game | null> {
+    const game = await this.dataSource.createQueryBuilder(Game, "g")
+      .where("(g.firstPlayerId = :userId OR g.secondPlayerId = :userId) AND g.status = ANY(:statuses::game_status_enum[])", {
+        userId,
+        statuses: [status_1, status_2]
+      })
+      .getOne()
     return game ? game : null
   }
+
+  // async getCurrentGame({ userId, pending, active }: IGetCurrentGameDto): Promise<Game | null> {
+  //   const game = await this.dataSource.createQueryBuilder(Game, "g")
+  //     .where(`g.firstPlayerId = :userId or g.secondPlayerId = :userId`, { userId })
+  //     .andWhere(`g.status = :pending or g.status = :active`, { pending, active })
+  //     .getOne()
+  //   return game ? game : null
+  // }
 
   async getUserCurrentGame2(userId: string, { pending, active }): Promise<Game & Question | null> {
     const result = await this.dataSource.createQueryBuilder()

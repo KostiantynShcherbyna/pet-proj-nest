@@ -30,11 +30,11 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
     if (foundUser.IsConfirmed === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
 
-    const currentGame = await this.quizRepository.getCurrentGame({
-      userId: command.userId,
-      pending: QuizStatusEnum.PendingSecondPlayer,
-      active: QuizStatusEnum.Active
-    })
+    const currentGame = await this.quizRepository.getCurrentGame(
+      command.userId,
+      QuizStatusEnum.PendingSecondPlayer,
+      QuizStatusEnum.Active
+    )
     if (!currentGame || currentGame.status === QuizStatusEnum.PendingSecondPlayer)
       return new Contract(null, ErrorEnums.GAME_NOT_STARTED)
 
@@ -82,11 +82,10 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
       return await manager.save(newAnswer)
     })
 
-    const currentGameAfter = await this.quizRepository.getCurrentGame({
-      userId: command.userId,
-      pending: null,
-      active: QuizStatusEnum.Active
-    })
+    const currentGameAfter = await this.quizRepository.getCurrentGame(
+      command.userId,
+      QuizStatusEnum.Active
+    )
     // Проверка,чтобы TS не ругался на null
     if (!currentGameAfter) return new Contract(null, ErrorEnums.FAIL_LOGIC)
 

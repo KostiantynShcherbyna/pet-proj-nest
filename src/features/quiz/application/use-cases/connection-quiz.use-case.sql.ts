@@ -30,11 +30,11 @@ export class ConnectionQuizSql implements ICommandHandler<ConnectionQuizCommandS
     if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
     if (foundUser.isConfirmed === false) return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)
 
-    const userGame = await this.quizRepository.getCurrentGame({
-      userId: command.userId,
-      pending: QuizStatusEnum.PendingSecondPlayer,
-      active: QuizStatusEnum.Active
-    })
+    const userGame = await this.quizRepository.getCurrentGame(
+      command.userId,
+      QuizStatusEnum.PendingSecondPlayer,
+      QuizStatusEnum.Active
+    )
     if (userGame) return new Contract(null, ErrorEnums.GAME_WAITING_OR_STARTED)
 
     const pendingGame = await this.quizRepository.getPendingGame()
