@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   ForbiddenException,
-  Get, InternalServerErrorException,
+  Get, HttpCode, HttpStatus, InternalServerErrorException,
   NotFoundException,
   Param,
   Post, ServiceUnavailableException,
@@ -55,6 +55,7 @@ export class QuizControllerSql {
   }
 
   @Post(`connection`)
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AccessGuard)
   async connection(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
@@ -79,6 +80,7 @@ export class QuizControllerSql {
   }
 
   @Post(`my-current/answers`)
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AccessGuard)
   async answers(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
