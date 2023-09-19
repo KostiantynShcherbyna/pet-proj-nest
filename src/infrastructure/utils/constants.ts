@@ -78,6 +78,7 @@ export enum PublishedStatus {
 
 export const SORT_BY_DEFAULT = "createdAt"
 export const SORT_BY_DEFAULT_SQL = "CreatedAt"
+export const SORT_BY_DEFAULT_QUIZ = "pairCreatedDate"
 export const PAGE_SIZE_DEFAULT = 10
 export const PAGE_NUMBER_DEFAULT = 1
 export const SEARCH_NAME_TERM_DEFAULT = ""

@@ -2,10 +2,13 @@ import {
   Body,
   Controller,
   ForbiddenException,
-  Get, HttpCode, HttpStatus, InternalServerErrorException,
+  Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
-  Post, ServiceUnavailableException,
+  Post, Query,
+  ServiceUnavailableException,
   UnauthorizedException,
   UseGuards
 } from "@nestjs/common"
@@ -13,7 +16,6 @@ import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { DeviceSessionReqInputModel } from "../../auth/api/models/input/device-session.req.input-model"
 import { QuizQueryRepositoryOrm } from "../repository/typeorm/quiz.query.repository.orm"
-import { QuizRepositoryOrm } from "../repository/typeorm/quiz.repository.orm"
 import { IdParamInputModelSql } from "./models/input/id.param.input-model"
 import { CommandBus } from "@nestjs/cqrs"
 import { ConnectionQuizCommandSql } from "../application/use-cases/connection-quiz.use-case.sql"
@@ -21,13 +23,14 @@ import { CreateAnswersQuizCommandSql } from "../application/use-cases/create-ans
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
 import { AnswerBodyInputModel } from "./models/input/answer.body.input-model"
+import { query } from "express"
+import { GetMyGamesQueryInputModel } from "./models/input/get-my-games.query.input-model.sql"
 
 @Controller(`pair-game-quiz/pairs`)
 export class QuizControllerSql {
   constructor(
     private commandBus: CommandBus,
     protected quizQueryRepositorySql: QuizQueryRepositoryOrm,
-    protected quizRepositorySql: QuizRepositoryOrm,
   ) {
   }
 
@@ -37,9 +40,25 @@ export class QuizControllerSql {
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
   ) {
     const getContract = await this.quizQueryRepositorySql.getMyCurrentGame(deviceSession.userId)
-    if (getContract.error === ErrorEnums.FOREIGN_GAME) throw new ForbiddenException()
     if (getContract.data === null) throw new NotFoundException()
     return getContract.data
+  }
+
+  @Get(`my`)
+  @UseGuards(AccessGuard)
+  async getMyGames(
+    @DeviceSession() deviceSession: DeviceSessionReqInputModel,
+    @Query() query: GetMyGamesQueryInputModel,
+  ) {
+    return await this.quizQueryRepositorySql.getMyGames(deviceSession.userId, query)
+  }
+
+  @Get(`my-statistic`)
+  @UseGuards(AccessGuard)
+  async getMyStatistic(
+    @DeviceSession() deviceSession: DeviceSessionReqInputModel,
+  ) {
+    return await this.quizQueryRepositorySql.getMyStatistic(deviceSession.userId)
   }
 
   @Get(`:id`)
