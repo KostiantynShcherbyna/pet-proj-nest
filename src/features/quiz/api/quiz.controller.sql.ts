@@ -26,7 +26,7 @@ import { AnswerBodyInputModel } from "./models/input/answer.body.input-model"
 import { query } from "express"
 import { GetMyGamesQueryInputModel } from "./models/input/get-my-games.query.input-model.sql"
 
-@Controller(`pair-game-quiz/pairs`)
+@Controller(`pair-game-quiz`)
 export class QuizControllerSql {
   constructor(
     private commandBus: CommandBus,
@@ -34,7 +34,7 @@ export class QuizControllerSql {
   ) {
   }
 
-  @Get(`my-current`)
+  @Get(`pairs/my-current`)
   @UseGuards(AccessGuard)
   async getMyCurrentGame(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
@@ -44,7 +44,7 @@ export class QuizControllerSql {
     return getContract.data
   }
 
-  @Get(`my`)
+  @Get(`pairs/my`)
   @UseGuards(AccessGuard)
   async getMyGames(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
@@ -53,7 +53,7 @@ export class QuizControllerSql {
     return await this.quizQueryRepositorySql.getMyGames(deviceSession.userId, query)
   }
 
-  @Get(`my-statistic`)
+  @Get(`users/my-statistic`)
   @UseGuards(AccessGuard)
   async getMyStatistic(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
@@ -61,7 +61,13 @@ export class QuizControllerSql {
     return await this.quizQueryRepositorySql.getMyStatistic(deviceSession.userId)
   }
 
-  @Get(`:id`)
+  // @Get(`users/top`)
+  // async getTop(
+  // ) {
+  //   return await this.quizQueryRepositorySql.getTop()
+  // }
+
+  @Get(`pairs/:id`)
   @UseGuards(AccessGuard)
   async getGameById(
     @DeviceSession() deviceSession: DeviceSessionReqInputModel,
@@ -73,7 +79,7 @@ export class QuizControllerSql {
     return getContract.data
   }
 
-  @Post(`connection`)
+  @Post(`pairs/connection`)
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessGuard)
   async connection(
@@ -98,7 +104,7 @@ export class QuizControllerSql {
     return getContract.data
   }
 
-  @Post(`my-current/answers`)
+  @Post(`pairs/my-current/answers`)
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessGuard)
   async answers(
