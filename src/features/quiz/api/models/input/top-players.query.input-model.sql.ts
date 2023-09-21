@@ -4,10 +4,9 @@ import { PAGE_NUMBER_DEFAULT, PAGE_SIZE_DEFAULT, SORT_BY_DEFAULT_QUIZ_TOP } from
 
 export class TopPlayersQueryInputModelSql {
   @IsOptional()
-  @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(1)
-  sort: string[] = SORT_BY_DEFAULT_QUIZ_TOP
+  @IsArray()
+  sort: string | string[] = SORT_BY_DEFAULT_QUIZ_TOP
 
   @IsOptional()
   @Type(() => Number)

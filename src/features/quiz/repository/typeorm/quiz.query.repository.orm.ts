@@ -3,7 +3,7 @@ import { InjectDataSource } from "@nestjs/typeorm"
 import { Column, DataSource, SelectQueryBuilder } from "typeorm"
 import {
   PAGE_NUMBER_DEFAULT,
-  PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SORT_BY_DEFAULT,
+  PAGE_SIZE_DEFAULT, SEARCH_LOGIN_TERM_DEFAULT, SORT_BY_DEFAULT, SORT_BY_DEFAULT_QUIZ_TOP,
   SORT_BY_DEFAULT_SQL,
   SortDirection,
   SortDirectionOrm
@@ -162,11 +162,18 @@ export class QuizQueryRepositoryOrm {
   }
 
   async getTop(query: TopPlayersQueryInputModelSql) {
+
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortDirection = SortDirectionOrm.Desc
-    // const sortBy = query.sortBy || SORT_BY_DEFAULT
     const offset = (pageNumber - 1) * pageSize
+
+    const orderBy: any = []
+    if (typeof query.sort === "string") orderBy.push([query.sort, SortDirectionOrm.Desc])
+    for (const sort of query.sort) {
+      const words = sort.split(" ")
+      words[1] = words[1].toUpperCase()
+      orderBy.push(words)
+    }
 
     const playersCount = await this.dataSource.createQueryBuilder(Game, "g")
       .select([
@@ -178,7 +185,7 @@ export class QuizQueryRepositoryOrm {
     const totalCount = Number(playersCount.firstPlayersCount) + Number(playersCount.secondPlayersCount)
     const pagesCount = Math.ceil(totalCount / pageSize)
 
-    let playersData = await this.dataSource.createQueryBuilder(Game, "g")
+    const playersQB = this.dataSource.createQueryBuilder(Game, "g")
       .select(`a.UserId`, "id")
       .addSelect(`a.Login`, "login")
       .addSelect(qb => this.sumScorePlayer(qb), "sumScore")
@@ -190,9 +197,11 @@ export class QuizQueryRepositoryOrm {
       .leftJoin(AccountEntity, "a", `a.UserId = g.firstPlayerId or a.UserId = g.secondPlayerId`)
       .limit(pageSize)
       .offset(offset)
-      .getRawMany()
 
-    const resultsView = this.createTopView(playersData)
+    for (let i = 0; i < orderBy.length; i++) {
+      playersQB.addOrderBy(`"${orderBy[i][0]}"`, orderBy[i][1])
+    }
+    const resultsView = this.createTopView(await playersQB.getRawMany())
 
     return {
       pagesCount: pagesCount,
@@ -201,95 +210,8 @@ export class QuizQueryRepositoryOrm {
       totalCount: totalCount,
       items: resultsView
     }
-    // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
-    //   .select("count(*)", "gamesCount")
-    //   .addSelect(qb => this.sumScorePlayers(qb), "sumScore")
-    //   .addSelect(qb => this.avgScore(qb), "avgScores")
-    //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
-    //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
-    //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
-    //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-    //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-    //   .getRawMany()
-
-    // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
-    //   .select("count(*)", "gamesCount")
-    //   .addSelect(`SUM(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
-    //   .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
-    //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
-    //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
-    //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
-    //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-    //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-    //   .getRawMany()
-
 
   }
-
-  // async getTop(queryPost: any) {
-  //   const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
-  //   const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
-  //   const offset = (pageNumber - 1) * pageSize
-  //
-  //   const players = await this.dataSource.createQueryBuilder(Game, "g")
-  //     .select(`g.firstPlayerId`)
-  //     .addSelect(`g.secondPlayerId`)
-  //     .getMany()
-  //
-  //   const pagesCount = Math.ceil(players.length / pageSize)
-  //
-  //   const firstPlayerIds = players.map(i => i.firstPlayerId)
-  //   // @ts-ignore
-  //   const secondPlayerIds: string[] = players.map(i => i.secondPlayerId).filter(e => e)
-  //   const userIds = Array.from(new Set([...firstPlayerIds, ...secondPlayerIds])).slice(offset)
-  //
-  //   let playersData: any = []
-  //   for (const userId of userIds) {
-  //     playersData.push(await this.dataSource.createQueryBuilder(Game, "g")
-  //       .select("count(*)", "gamesCount")
-  //       .addSelect(`SUM(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
-  //       .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
-  //       .addSelect(qb => this.winsCount(qb, userId), "winsCount")
-  //       .addSelect(qb => this.lossesCount(qb, userId), "lossesCount")
-  //       .addSelect(qb => this.drawsCount(qb, userId), "drawsCount")
-  //       .where(`g.firstPlayerId = :userId`, { userId })
-  //       .orWhere(`g.secondPlayerId = :userId`, { userId })
-  //       .getRawOne())
-  //   }
-  //   const resultsView = this.createTopView(playersData)
-  //
-  //   return {
-  //     pagesCount: pagesCount,
-  //     page: pageNumber,
-  //     pageSize: pageSize,
-  //     totalCount: Number(players.length),
-  //     items: resultsView
-  //   }
-  //   // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
-  //   //   .select("count(*)", "gamesCount")
-  //   //   .addSelect(qb => this.sumScorePlayers(qb), "sumScore")
-  //   //   .addSelect(qb => this.avgScore(qb), "avgScores")
-  //   //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
-  //   //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
-  //   //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
-  //   //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-  //   //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-  //   //   .getRawMany()
-  //
-  //   // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
-  //   //   .select("count(*)", "gamesCount")
-  //   //   .addSelect(`SUM(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
-  //   //   .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
-  //   //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
-  //   //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
-  //   //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
-  //   //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-  //   //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
-  //   //   .getRawMany()
-  //
-  //
-  // }
-
 
   async getGameById(gameId: string, userId: string): Promise<Contract<IGetGameByIdOutputModel | null>> {
     const game = await this.dataSource.createQueryBuilder(Game, "g")
@@ -434,6 +356,12 @@ export class QuizQueryRepositoryOrm {
   }
 
   private sumScorePlayer(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`SUM(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
+      .from(Game, "g")
+  }
+
+  private sumScorePlayer2(qb: SelectQueryBuilder<any>) {
     return qb
       .select(`SUM(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
       .from(Game, "g")
