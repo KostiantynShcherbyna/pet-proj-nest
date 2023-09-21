@@ -25,6 +25,7 @@ import { callErrorMessage } from "../../../infrastructure/adapters/exception-mes
 import { AnswerBodyInputModel } from "./models/input/answer.body.input-model"
 import { query } from "express"
 import { GetMyGamesQueryInputModel } from "./models/input/get-my-games.query.input-model.sql"
+import { TopPlayersQueryInputModelSql } from "./models/input/top-players.query.input-model.sql"
 
 @Controller(`pair-game-quiz`)
 export class QuizControllerSql {
@@ -61,11 +62,12 @@ export class QuizControllerSql {
     return await this.quizQueryRepositorySql.getMyStatistic(deviceSession.userId)
   }
 
-  // @Get(`users/top`)
-  // async getTop(
-  // ) {
-  //   return await this.quizQueryRepositorySql.getTop()
-  // }
+  @Get(`users/top`)
+  async getTop(
+    @Query() query: TopPlayersQueryInputModelSql,
+  ) {
+    return await this.quizQueryRepositorySql.getTop(query)
+  }
 
   @Get(`pairs/:id`)
   @UseGuards(AccessGuard)

@@ -11,7 +11,7 @@ export class Question {
   @Column()
   body: string
 
-  @Column({ default: false })
+  @Column({ default: true })
   published: boolean
 
   @Column()

@@ -20,6 +20,9 @@ import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
 import { GetMyGamesQueryInputModel } from "../../api/models/input/get-my-games.query.input-model.sql"
 import { Posts } from "../../../posts/application/entites/mongoose/posts.schema"
+import { PostLikeEntity } from "../../../posts/application/entites/typeorm/post-like.entity"
+import { GetPostsQueryInputModel } from "../../../posts/api/models/input/get-posts.query.input-model"
+import { TopPlayersQueryInputModelSql } from "../../api/models/input/top-players.query.input-model.sql"
 
 export interface IQuestionDto {
   questionId: string
@@ -147,76 +150,143 @@ export class QuizQueryRepositoryOrm {
     const result = await this.dataSource.createQueryBuilder(Game, "g")
       .select("count(*)", "gamesCount")
       .addSelect(`SUM(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
-      // .addSelect(qb => this.scoreSum(qb, userId), "sumScore")
       .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
-      // .addSelect(qb => this.scoreAvg(qb, userId), "avgScores")
       .addSelect(qb => this.winsCount(qb, userId), "winsCount")
       .addSelect(qb => this.lossesCount(qb, userId), "lossesCount")
       .addSelect(qb => this.drawsCount(qb, userId), "drawsCount")
-      .where(`g.firstPlayerId = :userId`, { userId: userId })
-      .orWhere(`g.secondPlayerId = :userId`, { userId: userId })
+      .where(`g.firstPlayerId = :userId`, { userId })
+      .orWhere(`g.secondPlayerId = :userId`, { userId })
       .getRawOne()
 
     return this.createScoreView(result)
   }
 
-  // async getTop() {
-  //   const result = await this.dataSource.createQueryBuilder(Game, "g")
-  //     .select([`count(*) as "gamesCount"`, `a.Login as "login"`])
-  //     .addSelect(`SUM(CASE WHEN g.firstPlayerId = '${userId}' THEN g5.firstPlayerScore ELSE g5.secondPlayerScore END)`, "sumScore")
-  //     .addSelect(`TRUNC(AVG(CASE WHEN g6.firstPlayerId = '${userId}' THEN g6.firstPlayerScore ELSE g6.secondPlayerScore END), 2)`, "avgScores")
-  //     .addSelect(qb => this.winsCount(qb, userId), "winsCount")
-  //     .addSelect(qb => this.lossesCount(qb, userId), "lossesCount")
-  //     .addSelect(qb => this.drawsCount(qb, userId), "drawsCount")
-  //     .leftJoin(AccountEntity, "a", `a.UserId = g.firstPlayerId or a.UserId = g.secondPlayerId`)
-  //     .getRawMany()
-  //
-  //
-  // }
+  async getTop(query: TopPlayersQueryInputModelSql) {
+    const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
+    const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
+    const sortDirection = SortDirectionOrm.Desc
+    // const sortBy = query.sortBy || SORT_BY_DEFAULT
+    const offset = (pageNumber - 1) * pageSize
 
-  // async getMyStatistic(userId: string) {
+    const playersCount = await this.dataSource.createQueryBuilder(Game, "g")
+      .select([
+        `count(g.firstPlayerId) AS "firstPlayersCount"`,
+        `count(g.secondPlayerId) AS "secondPlayersCount"`
+      ])
+      .getRawOne()
+
+    const totalCount = Number(playersCount.firstPlayersCount) + Number(playersCount.secondPlayersCount)
+    const pagesCount = Math.ceil(totalCount / pageSize)
+
+    let playersData = await this.dataSource.createQueryBuilder(Game, "g")
+      .select(`a.UserId`, "id")
+      .addSelect(`a.Login`, "login")
+      .addSelect(qb => this.sumScorePlayer(qb), "sumScore")
+      .addSelect(qb => this.avgScorePlayer(qb), "avgScores")
+      .addSelect(qb => this.winsCountPlayer(qb), "winsCount")
+      .addSelect(qb => this.drawsCountPlayer(qb), "drawsCount")
+      .addSelect(qb => this.lossesCountPlayer(qb), "lossesCount")
+      .addSelect(qb => this.gamesCountPlayer(qb), "gamesCount")
+      .leftJoin(AccountEntity, "a", `a.UserId = g.firstPlayerId or a.UserId = g.secondPlayerId`)
+      .limit(pageSize)
+      .offset(offset)
+      .getRawMany()
+
+    const resultsView = this.createTopView(playersData)
+
+    return {
+      pagesCount: pagesCount,
+      page: pageNumber,
+      pageSize: pageSize,
+      totalCount: totalCount,
+      items: resultsView
+    }
+    // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
+    //   .select("count(*)", "gamesCount")
+    //   .addSelect(qb => this.sumScorePlayers(qb), "sumScore")
+    //   .addSelect(qb => this.avgScore(qb), "avgScores")
+    //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
+    //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
+    //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
+    //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+    //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+    //   .getRawMany()
+
+    // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
+    //   .select("count(*)", "gamesCount")
+    //   .addSelect(`SUM(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
+    //   .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
+    //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
+    //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
+    //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
+    //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+    //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+    //   .getRawMany()
+
+
+  }
+
+  // async getTop(queryPost: any) {
+  //   const pageSize = +queryPost.pageSize || PAGE_SIZE_DEFAULT
+  //   const pageNumber = +queryPost.pageNumber || PAGE_NUMBER_DEFAULT
+  //   const offset = (pageNumber - 1) * pageSize
   //
-  //   const gamesCount = await this.dataSource.createQueryBuilder(Game, "g")
-  //     .where(`g.firstPlayerId = :userId`, { userId: userId })
-  //     .orWhere(`g.secondPlayerId = :userId`, { userId: userId })
-  //     .getCount()
-  //   const sumScore = await this.dataSource.createQueryBuilder(Game, "g")
-  //     .select("SUM(g.firstPlayerScore)", "firstPlayerScoreSum")
-  //     .addSelect("SUM(g.secondPlayerScore)", "secondPlayerScoreSum")
-  //     .addSelect("ROUND(AVG(g.firstPlayerScore), 2)", "firstPlayerScoreAvg")
-  //     .addSelect("ROUND(AVG(g.secondPlayerScore), 2)", "secondPlayerScoreAvg")
-  //     .addSelect(qb => this.winsCount(qb, userId), "winsCount")
-  //     .addSelect(qb => this.lossesCount(qb, userId), "lossesCount")
-  //     .addSelect(qb => this.drawsCount(qb, userId), "drawsCount")
-  //     .where(`g.firstPlayerId = :userId`, { userId: userId })
-  //     .orWhere(`g.secondPlayerId = :userId`, { userId: userId })
-  //     .getRawOne()
-  //   // const winsCount = await this.dataSource.createQueryBuilder(Game, "g")
-  //   //   .where(`g.firstPlayerId = :userId and g.firstPlayerScore > g.secondPlayerScore`, { userId: userId })
-  //   //   .orWhere(`g.secondPlayerId = :userId and g.secondPlayerScore > g.firstPlayerScore`, { userId: userId })
-  //   //   .getCount()
-  //   // const lossesCount = await this.dataSource.createQueryBuilder(Game, "g")
-  //   //   .where(`g.firstPlayerId = :userId and g.firstPlayerScore < g.secondPlayerScore`, { userId: userId })
-  //   //   .orWhere(`g.secondPlayerId = :userId and g.secondPlayerScore < g.firstPlayerScore`, { userId: userId })
-  //   //   .getCount()
-  //   const drawsCount = await this.dataSource.createQueryBuilder(Game, "g")
-  //     .where(`g.firstPlayerId = :userId and g.firstPlayerScore = g.secondPlayerScore`, { userId: userId })
-  //     .orWhere(`g.secondPlayerId = :userId and g.secondPlayerScore = g.firstPlayerScore`, { userId: userId })
-  //     .getCount()
-  //   // const winsCount = await this.dataSource.createQueryBuilder(Game, "g")
-  //   //   .select("SUM(firstPlayerScore)", "firstPlayerScoreSum")
-  //   //   .addSelect("SUM(secondPlayerScore)", "secondPlayerScoreSum")
-  //   //   .where(`g.firstPlayerId = :userId`, { userId: userId })
-  //   //   .orWhere(`g.secondPlayerId = :userId`, { userId: userId })
-  //   //   .getRawOne()
-  //   //
+  //   const players = await this.dataSource.createQueryBuilder(Game, "g")
+  //     .select(`g.firstPlayerId`)
+  //     .addSelect(`g.secondPlayerId`)
+  //     .getMany()
   //
-  //   // const avgScores = await this.dataSource.createQueryBuilder(Game, "g")
-  //   //   .select("ROUND(AVG(firstPlayerScore), 2)", "firstPlayerScore")
-  //   //   .addSelect("ROUND(AVG(secondPlayerScore), 2)", "secondPlayerScore")
-  //   //   .where(`g.firstPlayerId = :userId`, { userId: userId })
-  //   //   .orWhere(`g.secondPlayerId = :userId`, { userId: userId })
-  //   //   .getRawOne()
+  //   const pagesCount = Math.ceil(players.length / pageSize)
+  //
+  //   const firstPlayerIds = players.map(i => i.firstPlayerId)
+  //   // @ts-ignore
+  //   const secondPlayerIds: string[] = players.map(i => i.secondPlayerId).filter(e => e)
+  //   const userIds = Array.from(new Set([...firstPlayerIds, ...secondPlayerIds])).slice(offset)
+  //
+  //   let playersData: any = []
+  //   for (const userId of userIds) {
+  //     playersData.push(await this.dataSource.createQueryBuilder(Game, "g")
+  //       .select("count(*)", "gamesCount")
+  //       .addSelect(`SUM(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
+  //       .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
+  //       .addSelect(qb => this.winsCount(qb, userId), "winsCount")
+  //       .addSelect(qb => this.lossesCount(qb, userId), "lossesCount")
+  //       .addSelect(qb => this.drawsCount(qb, userId), "drawsCount")
+  //       .where(`g.firstPlayerId = :userId`, { userId })
+  //       .orWhere(`g.secondPlayerId = :userId`, { userId })
+  //       .getRawOne())
+  //   }
+  //   const resultsView = this.createTopView(playersData)
+  //
+  //   return {
+  //     pagesCount: pagesCount,
+  //     page: pageNumber,
+  //     pageSize: pageSize,
+  //     totalCount: Number(players.length),
+  //     items: resultsView
+  //   }
+  //   // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
+  //   //   .select("count(*)", "gamesCount")
+  //   //   .addSelect(qb => this.sumScorePlayers(qb), "sumScore")
+  //   //   .addSelect(qb => this.avgScore(qb), "avgScores")
+  //   //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
+  //   //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
+  //   //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
+  //   //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+  //   //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+  //   //   .getRawMany()
+  //
+  //   // const playersData = await this.dataSource.createQueryBuilder(Game, "g")
+  //   //   .select("count(*)", "gamesCount")
+  //   //   .addSelect(`SUM(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
+  //   //   .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId in (:...uniquePlayerIds) THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
+  //   //   .addSelect(qb => this.winsCountPlayer(qb, uniquePlayerIds), "winsCount")
+  //   //   .addSelect(qb => this.lossesCountPlayer(qb, uniquePlayerIds), "lossesCount")
+  //   //   .addSelect(qb => this.drawsCountPlayer(qb, uniquePlayerIds), "drawsCount")
+  //   //   .where(`g.firstPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+  //   //   .orWhere(`g.secondPlayerId in (:...uniquePlayerIds)`, { uniquePlayerIds })
+  //   //   .getRawMany()
+  //
   //
   // }
 
@@ -316,54 +386,87 @@ export class QuizQueryRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(Game, "gw")
-      .where(`gw.firstPlayerId = :userId and gw.firstPlayerScore > gw.secondPlayerScore`, { userId: userId })
-      .orWhere(`gw.secondPlayerId = :userId and gw.secondPlayerScore > gw.firstPlayerScore`, { userId: userId })
+      .where(`gw.firstPlayerId = :userId and gw.firstPlayerScore > gw.secondPlayerScore`, { userId })
+      .orWhere(`gw.secondPlayerId = :userId and gw.secondPlayerScore > gw.firstPlayerScore`, { userId })
   }
+
 
   private lossesCount(qb: SelectQueryBuilder<any>, userId: string) {
     return qb
       .select(`count(*)`)
       .from(Game, "gl")
-      .where(`gl.firstPlayerId = :userId and gl.firstPlayerScore < gl.secondPlayerScore`, { userId: userId })
-      .orWhere(`gl.secondPlayerId = :userId and gl.secondPlayerScore < gl.firstPlayerScore`, { userId: userId })
+      .where(`gl.firstPlayerId = :userId and gl.firstPlayerScore < gl.secondPlayerScore`, { userId })
+      .orWhere(`gl.secondPlayerId = :userId and gl.secondPlayerScore < gl.firstPlayerScore`, { userId })
   }
+
 
   private drawsCount(qb: SelectQueryBuilder<any>, userId: string) {
     return qb
       .select(`count(*)`)
       .from(Game, "gd")
-      .where(`gd.firstPlayerId = :userId and gd.firstPlayerScore = gd.secondPlayerScore`, { userId: userId })
-      .orWhere(`gd.secondPlayerId = :userId and gd.secondPlayerScore = gd.firstPlayerScore`, { userId: userId })
+      .where(`gd.firstPlayerId = :userId and gd.firstPlayerScore = gd.secondPlayerScore`, { userId })
+      .orWhere(`gd.secondPlayerId = :userId and gd.secondPlayerScore = gd.firstPlayerScore`, { userId })
   }
 
-  private firstPlayerScoreSum(qb: SelectQueryBuilder<any>, userId: string) {
+  private winsCountPlayer(qb: SelectQueryBuilder<any>) {
     return qb
-      .select("SUM(g1.firstPlayerScore)")
-      .from(Game, "g1")
-      .where(`g1.firstPlayerId = :userId`, { userId: userId })
+      .select(`count(*)`)
+      .from(Game, "g")
+      .where(`g.firstPlayerId = a.UserId and g.firstPlayerScore > g.secondPlayerScore`)
+      .orWhere(`g.secondPlayerId = a.UserId and g.secondPlayerScore > g.firstPlayerScore`)
   }
 
-  private scoreSum(qb: SelectQueryBuilder<any>, userId: string) {
+
+  private lossesCountPlayer(qb: SelectQueryBuilder<any>) {
     return qb
-      .select(`SUM(CASE WHEN g5.firstPlayerId = '${userId}' THEN g5.firstPlayerScore ELSE g5.secondPlayerScore END)`)
-      .from(Game, "g5")
+      .select(`count(*)`)
+      .from(Game, "g")
+      .where(`g.firstPlayerId = a.UserId and g.firstPlayerScore < g.secondPlayerScore`)
+      .orWhere(`g.secondPlayerId = a.UserId and g.secondPlayerScore < g.firstPlayerScore`)
   }
 
-  private scoreAvg(qb: SelectQueryBuilder<any>, userId: string) {
+  private drawsCountPlayer(qb: SelectQueryBuilder<any>) {
     return qb
-      .select(`TRUNC(AVG(CASE WHEN g6.firstPlayerId = '${userId}' THEN g6.firstPlayerScore ELSE g6.secondPlayerScore END), 2)`)
-      .from(Game, "g6")
+      .select(`count(*)`)
+      .from(Game, "g")
+      .where(`g.firstPlayerId = a.UserId and g.firstPlayerScore = g.secondPlayerScore`)
+      .orWhere(`g.secondPlayerId = a.UserId and g.secondPlayerScore = g.firstPlayerScore`)
   }
+
+  private sumScorePlayer(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`SUM(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
+      .from(Game, "g")
+  }
+
+  private gamesCountPlayer(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`COUNT(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
+      .from(Game, "g")
+  }
+
+  private avgScorePlayer(qb: SelectQueryBuilder<any>) {
+    return qb
+      .select(`ROUND(AVG(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`)
+      .from(Game, "g")
+  }
+
+
+  private playersCount(qb: SelectQueryBuilder<any>) {
+    return qb.select(`json_agg(to_jsonb("playersCount"))`)
+      .from(qb => {
+        return qb
+          .select([
+            `count(g.firstPlayerId) AS "firstPlayersCount"`,
+            `count(g.secondPlayerId) AS "secondPlayersCount"`
+          ])
+          .from(Game, "g")
+          .groupBy(`g.firstPlayerId, g.secondPlayerId`)
+      }, "playersCount")
+  }
+
 
   private createScoreView(result: any) {
-    // return {
-    //   avgScores: 2.43,
-    //   drawsCount: 1,
-    //   gamesCount: 7,
-    //   lossesCount: 3,
-    //   sumScore: 17,
-    //   winsCount: 3,
-    // }
     return {
       sumScore: +result.sumScore,
       avgScores: +result.avgScores,
@@ -374,27 +477,21 @@ export class QuizQueryRepositoryOrm {
     }
   }
 
-  private secondPlayerScoreSum(qb: SelectQueryBuilder<any>, userId: string) {
-    return qb
-      .select("SUM(g2.secondPlayerScore)")
-      .from(Game, "g2")
-      .where(`g2.secondPlayerId = :userId`, { userId: userId })
+  private createTopView(results: any[]) {
+    return results.map(result => ({
+        sumScore: +result.sumScore,
+        avgScores: +result.avgScores,
+        gamesCount: +result.gamesCount,
+        winsCount: +result.winsCount,
+        lossesCount: +result.lossesCount,
+        drawsCount: +result.drawsCount,
+        player: {
+          id: result.id,
+          login: result.login
+        }
+      })
+    )
   }
-
-  private firstPlayerScoreAvg(qb: SelectQueryBuilder<any>, userId: string) {
-    return qb
-      .select("ROUND(AVG(g3.firstPlayerScore), 2)")
-      .from(Game, "g3")
-      .where(`g3.firstPlayerId = :userId`, { userId: userId })
-  }
-
-  private secondPlayerScoreAvg(qb: SelectQueryBuilder<any>, userId: string) {
-    return qb
-      .select("ROUND(AVG(g4.secondPlayerScore), 2)")
-      .from(Game, "g4")
-      .where(`g4.secondPlayerId = :userId`, { userId: userId })
-  }
-
 
   private selectAnswers(qb: SelectQueryBuilder<any>, userId: string) {
     return qb.select(`json_agg(to_jsonb("answers"))`)
@@ -411,6 +508,23 @@ export class QuizQueryRepositoryOrm {
           .groupBy(`an.questionId, an.answerStatus, an.addedAt`)
           .orderBy(`an."addedAt"`, "ASC")
       }, "answers")
+
+  }
+
+  private playersResult(qb: SelectQueryBuilder<any>, userId: string) {
+    return qb.select(`json_agg(to_jsonb("playersResult"))`)
+      .from(qb => {
+        return qb
+          .select("count(*)", "gamesCount")
+          .addSelect(`SUM(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`, "sumScore")
+          .addSelect(`ROUND(AVG(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`, "avgScores")
+          .addSelect(qb => this.winsCount(qb, userId), "winsCount")
+          .addSelect(qb => this.lossesCount(qb, userId), "lossesCount")
+          .addSelect(qb => this.drawsCount(qb, userId), "drawsCount")
+          .where(`g.firstPlayerId = :userId`, { userId })
+          .orWhere(`g.secondPlayerId = :userId`, { userId })
+          .groupBy(`gamesCount, sumScore, avgScores, winsCount, lossesCount, drawsCount`)
+      }, "playersResult")
 
   }
 
@@ -443,7 +557,6 @@ export class QuizQueryRepositoryOrm {
   }
 
   private createGameViews(gamesDto: any): IGetGameByIdOutputModel[] {
-
     return gamesDto.map(gameDto => {
       const secondPlayer = gameDto.g_secondPlayerId
         ? { id: gameDto.g_secondPlayerId, login: gameDto.g_secondPlayerLogin } : null
@@ -470,7 +583,26 @@ export class QuizQueryRepositoryOrm {
         finishGameDate: gameDto.g_finishGameDate,
       }
     })
-
-
   }
+
+
+  // private newestLikesBuilder(qb: SelectQueryBuilder<any>) {
+  //   return qb.select(`json_agg(to_jsonb("firstPlayer"))`)
+  //     .from(qb => {
+  //       return qb
+  //         .select([
+  //           `ple.UserId as "userId"`,
+  //           `ple.UserLogin as "login"`,
+  //           `ple.AddedAt as "addedAt"`
+  //         ])
+  //         .from(PostLikeEntity, "ple")
+  //         // .leftJoin(BanInfoEntity, "bi", `bi.UserId = ple.UserId`)
+  //         .where(`ple.PostId = p.PostId`)
+  //         .andWhere(`ple.Status = :likeStatus`, { likeStatus: "Like" })
+  //         // .andWhere(`bi.IsBanned = :isBanned`, { isBanned: false })
+  //         .groupBy(`ple.UserId, ple.UserLogin, ple.AddedAt`)
+  //         .orderBy(`ple."AddedAt"`, "DESC")
+  //         .limit(3)
+  //     }, "newestLikes")
+  // }
 }
