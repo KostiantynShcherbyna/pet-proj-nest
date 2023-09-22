@@ -54,6 +54,15 @@ export class QuizControllerSql {
     return await this.quizQueryRepositorySql.getMyGames(deviceSession.userId, query)
   }
 
+  // @Get(`pairs/my/:id`)
+  // @UseGuards(AccessGuard)
+  // async getMyGames(
+  //   @Param() param,
+  //   @Query() query: GetMyGamesQueryInputModel,
+  // ) {
+  //   return await this.quizQueryRepositorySql.getMyGames(param.id, query)
+  // }
+
   @Get(`users/my-statistic`)
   @UseGuards(AccessGuard)
   async getMyStatistic(
@@ -61,6 +70,14 @@ export class QuizControllerSql {
   ) {
     return await this.quizQueryRepositorySql.getMyStatistic(deviceSession.userId)
   }
+
+  // @Get(`users/my-statistic/:id`)
+  // @UseGuards(AccessGuard)
+  // async getMyStatistic(
+  //   @Param() param,
+  // ) {
+  //   return await this.quizQueryRepositorySql.getMyStatistic(param.id)
+  // }
 
   @Get(`users/top`)
   async getTop(

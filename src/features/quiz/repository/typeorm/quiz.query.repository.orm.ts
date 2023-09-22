@@ -168,40 +168,58 @@ export class QuizQueryRepositoryOrm {
     const offset = (pageNumber - 1) * pageSize
 
     const orderBy: any = []
-    if (typeof query.sort === "string") orderBy.push([query.sort, SortDirectionOrm.Desc])
-    for (const sort of query.sort) {
-      const words = sort.split(" ")
-      words[1] = words[1].toUpperCase()
-      orderBy.push(words)
+    if (typeof query.sort === "string") {
+      const words = query.sort.split(" ")
+      words[1] = words[1] ? words[1].toUpperCase() : ""
+      orderBy.push([words[0], words[1] || SortDirectionOrm.Desc])
     }
+    if (typeof query.sort !== "string")
+      for (const sort of query.sort) {
+        const words = sort.split(" ")
+        words[1] = words[1].toUpperCase()
+        orderBy.push(words)
+      }
 
-    const playersCount = await this.dataSource.createQueryBuilder(Game, "g")
-      .select([
-        `count(g.firstPlayerId) AS "firstPlayersCount"`,
-        `count(g.secondPlayerId) AS "secondPlayersCount"`
-      ])
-      .getRawOne()
 
-    const totalCount = Number(playersCount.firstPlayersCount) + Number(playersCount.secondPlayersCount)
+    const playerIds = await this.dataSource.createQueryBuilder(Game, "g")
+      .select(`g.firstPlayerId`)
+      .addSelect(`g.secondPlayerId`)
+      .getMany()
+
+    const playerIdSet = new Set()
+    for (const playerId of playerIds) {
+      playerIdSet.add(playerId.firstPlayerId)
+      playerIdSet.add(playerId.secondPlayerId)
+    }
+    const uniquePlayerIds = [...playerIdSet]
+
+    const totalCount = uniquePlayerIds.length
     const pagesCount = Math.ceil(totalCount / pageSize)
 
     const playersQB = this.dataSource.createQueryBuilder(Game, "g")
       .select(`a.UserId`, "id")
       .addSelect(`a.Login`, "login")
+      .addSelect(qb => this.gamesCountPlayer(qb), "gamesCount")
       .addSelect(qb => this.sumScorePlayer(qb), "sumScore")
       .addSelect(qb => this.avgScorePlayer(qb), "avgScores")
       .addSelect(qb => this.winsCountPlayer(qb), "winsCount")
       .addSelect(qb => this.drawsCountPlayer(qb), "drawsCount")
       .addSelect(qb => this.lossesCountPlayer(qb), "lossesCount")
-      .addSelect(qb => this.gamesCountPlayer(qb), "gamesCount")
       .leftJoin(AccountEntity, "a", `a.UserId = g.firstPlayerId or a.UserId = g.secondPlayerId`)
       .limit(pageSize)
       .offset(offset)
+      .distinct(true)
 
     for (let i = 0; i < orderBy.length; i++) {
-      playersQB.addOrderBy(`"${orderBy[i][0]}"`, orderBy[i][1])
+      const column = orderBy[i][0] // Название столбца
+      const order = orderBy[i][1] // Направление сортировки (ASC или DESC)
+
+      // Добавляем сортировку к объекту playersQB
+      playersQB.addOrderBy(`"${column}"`, order)
     }
-    const resultsView = this.createTopView(await playersQB.getRawMany())
+    const stats = await playersQB.getRawMany()
+
+    const resultsView = this.createTopView(stats)
 
     return {
       pagesCount: pagesCount,
@@ -357,28 +375,48 @@ export class QuizQueryRepositoryOrm {
 
   private sumScorePlayer(qb: SelectQueryBuilder<any>) {
     return qb
-      .select(`SUM(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
+      .select(`SUM(CASE 
+                WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore 
+                WHEN g.secondPlayerId = a.UserId THEN g.secondPlayerScore 
+                ELSE 0 
+           END)`)
       .from(Game, "g")
   }
 
   private sumScorePlayer2(qb: SelectQueryBuilder<any>) {
     return qb
-      .select(`SUM(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
+      .select(`COUNT(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
       .from(Game, "g")
   }
 
+
   private gamesCountPlayer(qb: SelectQueryBuilder<any>) {
     return qb
-      .select(`COUNT(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END)`)
+      .select(`COUNT(CASE WHEN g.firstPlayerId = a.UserId OR g.secondPlayerId = a.UserId THEN 1 ELSE NULL END)`)
       .from(Game, "g")
   }
 
   private avgScorePlayer(qb: SelectQueryBuilder<any>) {
     return qb
-      .select(`ROUND(AVG(CASE WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`)
+      .select(`ROUND(AVG(CASE 
+                WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore 
+                WHEN g.secondPlayerId = a.UserId THEN g.secondPlayerScore 
+                ELSE NULL
+           END), 2)`)
       .from(Game, "g")
   }
 
+  // private avgScorePlayer(qb: SelectQueryBuilder<any>) {
+  //   return qb
+  //     .select(`ROUND(AVG(CASE
+  //               WHEN g.firstPlayerId = a.UserId THEN g.firstPlayerScore
+  //               WHEN g.secondPlayerId = a.UserId THEN g.secondPlayerScore
+  //               ELSE 0
+  //          END), 2)`)
+  //     .from(Game, "g")
+  // }
+
+// const ar = `ROUND(AVG(CASE WHEN g.firstPlayerId = '${userId}' THEN g.firstPlayerScore ELSE g.secondPlayerScore END), 2)`
 
   private playersCount(qb: SelectQueryBuilder<any>) {
     return qb.select(`json_agg(to_jsonb("playersCount"))`)
