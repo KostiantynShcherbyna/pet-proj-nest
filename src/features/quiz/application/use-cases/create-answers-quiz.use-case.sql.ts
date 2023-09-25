@@ -5,8 +5,9 @@ import { ErrorEnums } from "../../../../infrastructure/utils/error-enums"
 import { UsersRepositoryOrm } from "../../../sa/repository/typeorm/users.repository.orm"
 import { Game, QuizStatusEnum } from "../entities/typeorm/game"
 import { Answer, AnswerStatusEnum } from "../entities/typeorm/answer"
-import { Column, DataSource } from "typeorm"
-import { randomUUID } from "crypto"
+import { DataSource } from "typeorm"
+import { addSeconds } from "date-fns"
+import schedule from "node-schedule"
 
 export class CreateAnswersQuizCommandSql {
   constructor(
@@ -74,11 +75,26 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
     newAnswer.addedAt = timeStamp
 
     const answer = await this.dataSource.manager.transaction(async manager => {
-      answerNumber === 4 && currentGame.firstFinisherId === null
-        ? await manager.update(Game, { gameId: currentGame.gameId },
+      if (answerNumber === 4 && currentGame.firstFinisherId === null) {
+        await manager.update(Game, { gameId: currentGame.gameId },
           { ...setPlayerAnswerNumber, ...increaseScore, firstFinisherId: command.userId })
-        : await manager.update(Game, { gameId: currentGame.gameId },
-          { ...setPlayerAnswerNumber, ...increaseScore })
+        const setTimeStamp = addSeconds(new Date(timeStamp), 10)
+        schedule.scheduleJob(setTimeStamp, async ()=> {
+          const currentGameAfter = await this.quizRepository.getCurrentGame(command.userId, QuizStatusEnum.Active)
+          if (!currentGameAfter) return new Contract(null, ErrorEnums.FAIL_LOGIC)
+          let extraScore
+          if (currentGameAfter.firstPlayerScore > 0 && currentGameAfter.firstPlayerId === currentGameAfter.firstFinisherId)
+            extraScore = { firstPlayerScore: () => "firstPlayerScore + 1" }
+          if (currentGameAfter.secondPlayerScore > 0 && currentGameAfter.secondPlayerId === currentGameAfter.firstFinisherId)
+            extraScore = { secondPlayerScore: () => "secondPlayerScore + 1" }
+
+          await this.dataSource.manager.transaction(async manager =>
+            await manager.update(Game, { gameId: currentGame.gameId },
+              { ...extraScore, status: QuizStatusEnum.Finished, finishGameDate: timeStamp })
+          )
+        })
+      } else await manager.update(Game, { gameId: currentGame.gameId },
+        { ...setPlayerAnswerNumber, ...increaseScore })
       return await manager.save(newAnswer)
     })
 
