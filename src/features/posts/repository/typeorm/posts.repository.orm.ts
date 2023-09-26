@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
-import { DataSource, QueryRunner } from "typeorm"
+import { DataSource, EntityManager, QueryRunner } from "typeorm"
 import { PostEntity } from "../../application/entites/typeorm/post.entity"
 import { PostLikeEntity } from "../../application/entites/typeorm/post-like.entity"
 import { CommentEntity } from "../../../comments/application/entities/sql/comment.entity"
@@ -29,6 +29,10 @@ export class PostsRepositoryOrm {
     return result.identifiers[0].PostId
   }
 
+  async savePost(post: PostEntity, manager: EntityManager): Promise<PostEntity> {
+    return await manager.save(post)
+  }
+
   async deletePosts(blogId: string, queryRunner: QueryRunner): Promise<number | null> {
     const result = await queryRunner.manager.createQueryBuilder()
       .delete()
@@ -52,6 +56,13 @@ export class PostsRepositoryOrm {
       .from(PostEntity, "p")
       .where(`p.PostId = :postId`, { postId })
       .getRawOne()
+    return post ? post : null
+  }
+
+  async findPostEntity(postId: string) {
+    const post = await this.dataSource.createQueryBuilder(PostEntity, "p")
+      .where(`p.PostId = :postId`, { postId })
+      .getOne()
     return post ? post : null
   }
 

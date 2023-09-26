@@ -91,28 +91,6 @@ export class Blogs {
     }))
   banInfo: IBanInfo
 
-  // @Prop([
-  //   {
-  //     userId: {
-  //       type: String,
-  //     },
-  //     userLogin: {
-  //       type: String,
-  //       required: true,
-  //     },
-  //     isBanned: {
-  //       type: Boolean,
-  //       required: true,
-  //     },
-  //     banReason: {
-  //       type: String,
-  //     },
-  //     banDate: {
-  //       type: Date,
-  //     },
-  //   }
-  // ])
-  // bannedUsers: any
 
   static createBlog(bodyBlog: CreateBlogCommand, login: string, BlogsModel: BlogsModel,): BlogsDocument {
     const date = new Date().toISOString()

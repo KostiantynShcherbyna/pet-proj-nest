@@ -79,7 +79,7 @@ export class CreateAnswersQuizSql implements ICommandHandler<CreateAnswersQuizCo
         await manager.update(Game, { gameId: currentGame.gameId },
           { ...setPlayerAnswerNumber, ...increaseScore, firstFinisherId: command.userId })
         const setTimeStamp = addSeconds(new Date(timeStamp), 10)
-        schedule.scheduleJob(setTimeStamp, async ()=> {
+        schedule.scheduleJob(setTimeStamp, async () => {
           const currentGameAfter = await this.quizRepository.getCurrentGame(command.userId, QuizStatusEnum.Active)
           if (!currentGameAfter) return new Contract(null, ErrorEnums.FAIL_LOGIC)
           let extraScore

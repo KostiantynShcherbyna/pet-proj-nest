@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectDataSource } from "@nestjs/typeorm"
-import { DataSource, QueryRunner } from "typeorm"
+import { DataSource, EntityManager, QueryRunner } from "typeorm"
 import { CreateBlogCommand } from "../../../blogger/application/use-cases/mongoose/create-blog.use-case"
 import { BlogEntity } from "../../application/entities/sql/blog.entity"
 import { BanBlogUserEntity } from "../../application/entities/sql/ban-blog-user.entity"
@@ -32,6 +32,13 @@ export class BlogsRepositoryOrm {
     return blog ? blog : null
   }
 
+  async findBlogEntity(blogId: string) {
+    const blog = await this.dataSource.createQueryBuilder(BlogEntity, "b")
+      .where("b.BlogId = :blogId", { blogId })
+      .getOne()
+    return blog ? blog : null
+  }
+
   async createBlog(bodyBlog: CreateBlogCommand, login: string): Promise<string> {
     const date = new Date(Date.now()).toISOString()
     const result = await this.dataSource.createQueryBuilder()
@@ -50,6 +57,10 @@ export class BlogsRepositoryOrm {
       })
       .execute()
     return result.identifiers[0].BlogId
+  }
+
+  async saveBlog(data: BlogEntity, manager: EntityManager) {
+    return await manager.save(data)
   }
 
   async createBlogSA({ name, description, websiteUrl }: IcreateBlogSADto): Promise<string> {
