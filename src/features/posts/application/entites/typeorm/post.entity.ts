@@ -66,3 +66,10 @@ class UpdatePostEvent {
   }
 }
 
+export class DeletePostEvent extends AggregateRoot {
+  constructor(public post: PostEntity) {
+    super()
+    this.autoCommit = true
+  }
+}
+

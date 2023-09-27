@@ -242,7 +242,7 @@ export class BlogsQueryRepositoryOrm {
 
     const [blogs, totalCount] = await this.dataSource.createQueryBuilder(BlogEntity, "b")
       .where(`b.Name ilike :name`, { name: `%${searchNameTerm}%` })
-      .orderBy(`b."${sortBy}"`, sortDirection)
+      .orderBy(`b.${sortBy}`, sortDirection)
       .limit(pageSize)
       .offset(offset)
       .getManyAndCount()
@@ -281,7 +281,11 @@ export class BlogsQueryRepositoryOrm {
         description: blog.Description,
         websiteUrl: blog.WebsiteUrl,
         createdAt: blog.CreatedAt,
-        isMembership: blog.IsMembership
+        isMembership: blog.IsMembership,
+        blogOwnerInfo: {
+          userId: blog.UserId,
+          userLogin: blog.UserLogin
+        }
       }
     })
   }

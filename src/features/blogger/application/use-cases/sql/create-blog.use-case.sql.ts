@@ -33,7 +33,8 @@ export class CreateBlogBloggerSql implements ICommandHandler<CreateBlogCommandSq
     const foundUser = await this.usersRepositorySql.findUserByUserId(command.userId)
     if (foundUser === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-    const newBlog = BlogEntity.createBlog(command, foundUser.login)
+    const timeStamp = new Date(Date.now()).toISOString()
+    const newBlog = BlogEntity.createBlog(command, foundUser.login, timeStamp)
     const savedBlog = await this.dataSource.manager.transaction(
       async manager => await this.blogsRepositorySql.saveBlog(newBlog, manager))
     newBlog.getUncommittedEvents().forEach(e => this.eventBus.publish(e))

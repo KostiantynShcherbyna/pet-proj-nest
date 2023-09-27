@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
 import { CreateBlogCommand } from "../../../../blogger/application/use-cases/mongoose/create-blog.use-case"
-import { AggregateRoot } from "@nestjs/cqrs"
+import { AggregateRoot, IEvent } from "@nestjs/cqrs"
 import { UpdateBlogBodyInputModel } from "../../../../blogger/api/models/input/update-blog.body.input-model"
 
 
@@ -19,7 +19,7 @@ export class BlogEntity extends AggregateRoot {
   @Column()
   WebsiteUrl: string
 
-  @Column()
+  @Column({ default: false })
   IsMembership: boolean
 
   @Column()
@@ -31,18 +31,19 @@ export class BlogEntity extends AggregateRoot {
   @Column({ nullable: true })
   UserLogin: string
 
-  @Column({ nullable: true })
+  @Column({ default: false })
   IsBanned: boolean
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   BanDate: string
 
 
-  static createBlog(bodyBlog: CreateBlogCommand, login: string): BlogEntity {
+  static createBlog(bodyBlog: CreateBlogCommand, login: string, timeStamp: string): BlogEntity {
     const blog = new BlogEntity()
     blog.Name = bodyBlog.name
     blog.Description = bodyBlog.description
     blog.WebsiteUrl = bodyBlog.websiteUrl
+    blog.CreatedAt = timeStamp
     blog.UserId = bodyBlog.userId
     blog.UserLogin = login
 
@@ -59,14 +60,22 @@ export class BlogEntity extends AggregateRoot {
     this.apply(new UpdateBlogEvent(this))
   }
 
+
 }
 
 class CreateBlogEvent {
-  constructor(public newBlog: BlogEntity) {
+  constructor(public blog: BlogEntity) {
   }
 }
 
 class UpdateBlogEvent {
   constructor(public blog: BlogEntity) {
+  }
+}
+
+export class DeleteBlogEvent extends AggregateRoot {
+  constructor(public blog: BlogEntity) {
+    super()
+    this.autoCommit = true;
   }
 }

@@ -7,13 +7,12 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
   Put,
-  Query, ServiceUnavailableException,
-  UnauthorizedException,
+  Query,
+  ServiceUnavailableException,
   UseGuards
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
@@ -34,22 +33,8 @@ import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { DeviceSessionInputModel } from "../../blogger/api/models/input/device-session.input-model"
 import { GetPostsCommentsQueryInputModel } from "../../blogger/api/models/input/get-posts-comments.query.input-model"
-import { UpdateBlogBodyInputModel } from "../../blogger/api/models/input/update-blog.body.input-model"
-import { CreateBlogBodyInputModel } from "../../blogger/api/models/input/create-blog.body.input-model"
-import { BlogIdParamInputModelSql } from "../../blogger/api/models/input/blogId.param.input-model.sql"
-import { CreatePostBodyInputModel } from "../../blogger/api/models/input/create-post.body.input-model"
-import { UpdatePostParamInputModelSql } from "../../blogger/api/models/input/update-post.param.input-model.sql"
-import { UpdatePostBodyInputModel } from "../../blogger/api/models/input/update-post.body.input-model"
 import { BanUserBodyInputModelSql } from "../../blogger/api/models/input/ban-user.body.input-model.sql"
 import { BanUserBloggerCommandSql } from "../../blogger/application/use-cases/sql/ban-user-blogger.use-case.sql"
-import { PostsQueryRepositoryOrm } from "../../posts/repository/typeorm/posts.query.repository.orm"
-import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/comments.query.repository.orm"
-import { CreateBlogSACommandSql } from "../application/use-cases/sql/create-blog.use-case.sql"
-import { UpdateBlogSACommandSql } from "../application/use-cases/sql/update-blog.use-case.sql"
-import { DeleteBlogSACommandSql } from "../application/use-cases/sql/delete-blog.use-case.sql"
-import { CreatePostSACommandSql } from "../application/use-cases/sql/create-post.use-case.sql"
-import { UpdatePostSACommandSql } from "../application/use-cases/sql/update-post.use-case.sql"
-import { DeletePostSACommandSql } from "../application/use-cases/sql/delete-post.use-case.sql"
 import { GetQuestionsQueryInputModel } from "./models/input/quiz/get-questions.query.input-model"
 import { QuizQueryRepositoryOrm } from "../../quiz/repository/typeorm/quiz.query.repository.orm"
 import { QuestionBodyInputModelSql } from "./models/input/quiz/question.body.input-model.sql"
@@ -64,8 +49,6 @@ export class SaControllerSql {
     private commandBus: CommandBus,
     protected usersSqlQueryRepository: UsersQueryRepositoryOrm,
     protected blogsQueryRepositorySql: BlogsQueryRepositoryOrm,
-    protected postsQueryRepositorySql: PostsQueryRepositoryOrm,
-    protected commentsQueryRepositorySql: CommentsQueryRepositoryOrm,
     protected quizQueryRepositoryOrm: QuizQueryRepositoryOrm,
     protected quizRepositoryOrm: QuizRepositoryOrm,
   ) {
@@ -99,11 +82,7 @@ export class SaControllerSql {
     @Param() param: BindInputModel,
   ) {
     const foundBlogContract = await this.commandBus.execute(
-      new BindBlogCommandSql(
-        param.id,
-        param.userId
-      )
-    )
+      new BindBlogCommandSql(param.id, param.userId))
     if (foundBlogContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
@@ -197,89 +176,7 @@ export class SaControllerSql {
   }
 
 
-//  ↓↓↓ BLOGGER
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Get("blogs/comments")
-  async getPostsComments(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Query() queryPostsComments: GetPostsCommentsQueryInputModel,
-  ) {
-    const postsComments = await this.commentsQueryRepositorySql.findAllBlogComments(
-      queryPostsComments,
-      deviceSession.userId,
-    )
-    return postsComments
-  }
-
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Put("blogs/:id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updateBlog(
-    // @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() param: IdParamInputModelSql,
-    @Body() bodyBlog: UpdateBlogBodyInputModel
-  ) {
-    const updateBlogResult = await this.commandBus.execute(
-      new UpdateBlogSACommandSql(param.id, bodyBlog)
-    )
-    if (updateBlogResult.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-    )
-    if (updateBlogResult.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
-    )
-    return
-  }
-
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Delete("blogs/:id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(
-    // @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() param: IdParamInputModelSql
-  ) {
-    const deleteBlogResult = await this.commandBus.execute(
-      new DeleteBlogSACommandSql(param.id)
-    )
-    if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-    )
-    if (deleteBlogResult.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
-    )
-    if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_DELETED) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_DELETED, "id")
-    )
-    if (deleteBlogResult.error === ErrorEnums.BLOG_NOT_DELETED) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POSTS_NOT_DELETED, "id")
-    )
-    return
-  }
-
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Post("blogs")
-  async createBlog(
-    @Body() bodyBlog: CreateBlogBodyInputModel,
-  ) {
-    const newBlogContract = await this.commandBus.execute(
-      new CreateBlogSACommandSql(
-        bodyBlog.name,
-        bodyBlog.description,
-        bodyBlog.websiteUrl
-      )
-    )
-    if (newBlogContract.error === ErrorEnums.USER_NOT_FOUND) throw new UnauthorizedException()
-    const newBlogView = await this.blogsQueryRepositorySql.findNewBlog(newBlogContract.data)
-    return newBlogView
-  }
-
+//  ↓↓↓ BLOGS
 
   @UseGuards(BasicGuard)
   // @UseGuards(AccessGuard)
@@ -288,140 +185,7 @@ export class SaControllerSql {
     // @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryBlog: GetBlogsQueryInputModel
   ) {
-    const blogs = await this.blogsQueryRepositorySql.findBlogsSA(queryBlog)
-    return blogs
-  }
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Get("blogs/:blogId/posts")
-  async getPosts(
-    // @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Query() queryBlog: GetBlogsQueryInputModel,
-    @Param() param: BlogIdParamInputModelSql,
-  ) {
-    const postsContract = await this.postsQueryRepositorySql.findBlogPosts(
-      queryBlog,
-      param.blogId,
-      // deviceSession.userId,
-    )
-    if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    )
-    if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
-    return postsContract.data
-  }
-
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Post("blogs/:blogId/posts")
-  async createPost(
-    // @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
-    @Param() param: BlogIdParamInputModelSql,
-    @Body() bodyBlogPost: CreatePostBodyInputModel
-  ) {
-    const newPostContract = await this.commandBus.execute(
-      new CreatePostSACommandSql(
-        bodyBlogPost.title,
-        bodyBlogPost.shortDescription,
-        bodyBlogPost.content,
-        param.blogId,
-      )
-    )
-    if (newPostContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    )
-    if (newPostContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
-
-    const newPostView = await this.postsQueryRepositorySql.findPost(newPostContract.data)
-    if (!newPostView) throw new NotFoundException()
-    return newPostView
-  }
-
-
-  // @UseGuards(AccessGuard)
-  // @Get("blogs/:blogId/posts")
-  // async getPosts(
-  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
-  //   @Param() param: CreatePostParamInputModel,
-  //   @Query() queryPost: GetPostsQueryInputModel,
-  // ) {
-  //   const postsContract = await this.postsQueryRepositorySql.findPosts(
-  //     queryPost,
-  //     deviceSession.userId,
-  //     param.blogId,
-  //   )
-  //   if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-  //   )
-  //   if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
-  //   return postsContract.data
-  // }
-
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Put("blogs/:blogId/posts/:postId")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePost(
-    @Param() param: UpdatePostParamInputModelSql,
-    // @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Body() bodyPost: UpdatePostBodyInputModel,
-  ) {
-    const updateContract = await this.commandBus.execute(
-      new UpdatePostSACommandSql(
-        bodyPost,
-        param.blogId,
-        param.postId,
-        // deviceSession.userId,
-      )
-    )
-    if (updateContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    )
-    if (updateContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
-    )
-    if (updateContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "postId")
-    )
-    if (updateContract.error === ErrorEnums.FOREIGN_POST) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_POST, "postId")
-    )
-    if (updateContract.error === ErrorEnums.POST_NOT_UPDATED) throw new InternalServerErrorException()
-    return
-  }
-
-
-  @UseGuards(BasicGuard)
-  // @UseGuards(AccessGuard)
-  @Delete("blogs/:blogId/posts/:postId")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(
-    @Param() param: UpdatePostParamInputModelSql,
-    // @DeviceSession() deviceSession: DeviceSessionInputModel,
-  ) {
-    const deleteContract = await this.commandBus.execute(
-      new DeletePostSACommandSql(
-        param.blogId,
-        param.postId,
-        // deviceSession.userId,
-      )
-    )
-    if (deleteContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-    )
-    if (deleteContract.error === ErrorEnums.POST_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.POST_NOT_FOUND, "postId")
-    )
-    if (deleteContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "postId")
-    )
-    if (deleteContract.error === ErrorEnums.FOREIGN_POST) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_POST, "postId")
-    )
-    return
+    return await this.blogsQueryRepositorySql.findBlogsSA(queryBlog)
   }
 
 
