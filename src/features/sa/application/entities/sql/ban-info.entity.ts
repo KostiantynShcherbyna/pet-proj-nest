@@ -7,14 +7,14 @@ export class BanInfoEntity {
   @PrimaryColumn({ type: "uuid" })
   UserId: string
 
-  @Column()
+  @Column({ default: false })
   IsBanned: boolean
 
-  @Column({ nullable: true })
-  BanDate: string
+  @Column({ type: "character varying", nullable: true })
+  BanDate: string | null
 
-  @Column({ nullable: true })
-  BanReason: string
+  @Column({ type: "character varying", nullable: true})
+  BanReason: string | null
 
   @JoinColumn({ name: "UserId" })
   @OneToOne(() => AccountEntity)

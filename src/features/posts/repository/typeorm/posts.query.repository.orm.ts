@@ -63,7 +63,7 @@ export class PostsQueryRepositoryOrm {
       // .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
       .leftJoin(PostLikeEntity, "pl", `pl.PostId = p.PostId and pl.UserId = :userId`, { userId })
       // .where(`b.IsBanned = :isBanned`, { isBanned: false })
-      .orderBy(`p."${sortBy}"`, sortDirection)
+      .orderBy(`p.${sortBy}`, sortDirection)
       .limit(pageSize)
       .offset(offset)
       .getRawMany()
@@ -87,42 +87,13 @@ export class PostsQueryRepositoryOrm {
     const sortDirection = SortDirectionOrm.Desc
 
     const post = await this.dataSource.createQueryBuilder(PostEntity, "p")
-      .select([
-        `p.PostId as "postId"`,
-        `p.Content as "content"`,
-        `p.Title as "title"`,
-        `p.ShortDescription as "shortDescription"`,
-        `p.BlogId as "blogId"`,
-        `p.BlogName as "blogName"`,
-        `p.CreatedAt as "createdAt"`,
-        `pl.Status as "myStatus"`,
-        `pl.UserId as "userId"`,
-        `pl.UserLogin as "userLogin"`
-      ])
+      .addSelect(qb => this.likesCountBuilder(qb, "Like", "pl1"), `likesCount`)
+      .addSelect(qb => this.likesCountBuilder(qb, "Dislike", "pl2"), `dislikesCount`)
+      .addSelect(qb => this.newestLikesBuilder(qb), `newestLikes`)
       .leftJoin(PostLikeEntity, "pl", `pl.PostId = p.PostId and pl.UserId = :userId`, { userId })
       .where(`p.PostId = :postId`, { postId })
       .getRawOne()
-    const likesCount = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
-      .where(`p.PostId = :postId`, { postId })
-      .andWhere(`p.Status = :likeStatus`, { likeStatus: "Like" })
-      .getCount()
-    const dislikesCount = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
-      .where(`p.PostId = :postId`, { postId })
-      .andWhere(`p.Status = :likeStatus`, { likeStatus: "Dislike" })
-      .getCount()
-    const newestLikes = await this.dataSource.createQueryBuilder(PostLikeEntity, "p")
-      .select([
-        `p.UserId as "userId"`,
-        `p.UserLogin as "login"`,
-        `p.AddedAt as "addedAt"`
-      ])
-      .where(`p.PostId = :postId`, { postId })
-      .andWhere(`p.Status = :likeStatus`, { likeStatus: "Like" })
-      .orderBy(`p."AddedAt"`, sortDirection)
-      .limit(3)
-      .getRawMany()
-
-    return post ? this.changePostView({ ...post, likesCount, dislikesCount }, newestLikes) : null
+    return post ? this.changePostView(post) : null
   }
 
   async findBlogPosts(queryPost: GetPostsQueryInputModel, blogId: string, userId?: string): Promise<Contract<null | PostsView>> {
@@ -201,23 +172,41 @@ export class PostsQueryRepositoryOrm {
     })
   }
 
-  private changePostView(post: any, newestLikes: any[]) {
+  private changePostView(post: any) {
     return {
-      id: post.postId,
-      title: post.title,
-      shortDescription: post.shortDescription,
-      content: post.content,
-      blogId: post.blogId,
-      blogName: post.blogName,
-      createdAt: post.createdAt,
+      id: post.p_PostId,
+      title: post.p_Title,
+      shortDescription: post.p_ShortDescription,
+      content: post.p_Content,
+      blogId: post.p_BlogId,
+      blogName: post.p_BlogName,
+      createdAt: post.p_CreatedAt,
       extendedLikesInfo: {
         likesCount: Number(post.likesCount) || 0,
         dislikesCount: Number(post.dislikesCount) || 0,
-        myStatus: post.myStatus || LikeStatus.None,
-        newestLikes: newestLikes,
+        myStatus: post.pl_Status || LikeStatus.None,
+        newestLikes: post.newestLikes || [],
       },
     }
   }
+
+  // private changePostView(post: any, newestLikes: any[]) {
+  //   return {
+  //     id: post.postId,
+  //     title: post.title,
+  //     shortDescription: post.shortDescription,
+  //     content: post.content,
+  //     blogId: post.blogId,
+  //     blogName: post.blogName,
+  //     createdAt: post.createdAt,
+  //     extendedLikesInfo: {
+  //       likesCount: Number(post.likesCount) || 0,
+  //       dislikesCount: Number(post.dislikesCount) || 0,
+  //       myStatus: post.myStatus || LikeStatus.None,
+  //       newestLikes: newestLikes,
+  //     },
+  //   }
+  // }
 
   private likesCountBuilder(qb: SelectQueryBuilder<any>, ls: string, alias: string) {
     return qb
@@ -225,7 +214,7 @@ export class PostsQueryRepositoryOrm {
       .from(PostLikeEntity, alias)
       .leftJoin(BanInfoEntity, "b", `b.UserId = ${alias}.UserId`)
       .where(`${alias}.PostId = p.PostId`)
-      .andWhere(`${alias}.Status = :likeStatus`, { likeStatus: ls })
+      .andWhere(`${alias}.Status = '${ls}'`)
       .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
@@ -233,20 +222,20 @@ export class PostsQueryRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(PostLikeEntity, "pl1")
-      // .leftJoin(BanInfoEntity, "b", `b.UserId = pl1.UserId`)
+      .leftJoin(BanInfoEntity, "b", `b.UserId = pl1.UserId`)
       .where(`pl1.PostId = p.PostId`)
       .andWhere(`pl1.Status = 'Like'`)
-    // .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
   private likesCountBuilder2(qb: SelectQueryBuilder<any>) {
     return qb
       .select(`count(*)`)
       .from(PostLikeEntity, "pl2")
-      // .leftJoin(BanInfoEntity, "b", `b.UserId = pl2.UserId`)
+      .leftJoin(BanInfoEntity, "b", `b.UserId = pl2.UserId`)
       .where(`pl2.PostId = p.PostId`)
       .andWhere(`pl2.Status = 'Dislike'`)
-    // .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
   private newestLikesBuilder(qb: SelectQueryBuilder<any>) {
@@ -259,10 +248,10 @@ export class PostsQueryRepositoryOrm {
             `ple.AddedAt as "addedAt"`
           ])
           .from(PostLikeEntity, "ple")
-          // .leftJoin(BanInfoEntity, "bi", `bi.UserId = ple.UserId`)
+          .leftJoin(BanInfoEntity, "bi", `bi.UserId = ple.UserId`)
           .where(`ple.PostId = p.PostId`)
           .andWhere(`ple.Status = :likeStatus`, { likeStatus: "Like" })
-          // .andWhere(`bi.IsBanned = :isBanned`, { isBanned: false })
+          .andWhere(`bi.IsBanned = :isBanned`, { isBanned: false })
           .groupBy(`ple.UserId, ple.UserLogin, ple.AddedAt`)
           .orderBy(`ple."AddedAt"`, "DESC")
           .limit(3)

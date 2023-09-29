@@ -6,7 +6,7 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
-  HttpStatus,
+  HttpStatus, InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -41,6 +41,8 @@ import { QuestionBodyInputModelSql } from "./models/input/quiz/question.body.inp
 import { QuizRepositoryOrm } from "../../quiz/repository/typeorm/quiz.repository.orm"
 import { CreateQuestionsQuizCommandSql } from "../../quiz/application/use-cases/create-questions-quiz.use-case.sql"
 import { QuestionPublishBodyInputModelSql } from "./models/input/quiz/question-publish.body.input-model.sql"
+import { BanUserCommandSql } from "../application/use-cases/sql/ban-user.use-case.sql"
+import { BanUserBodyInputModel } from "./models/input/users/ban-user.body.input-model"
 
 
 @Controller("sa")
@@ -103,26 +105,26 @@ export class SaControllerSql {
 
 
   // USERS ↓↓↓
-  // @UseGuards(BasicGuard)
-  // @Put("users/:id/ban")
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async banUser(
-  //   @Param() param: IdParamInputModelSql,
-  //   @Body() bodyUserBan: BanUserBodyInputModel
-  // ) {
-  //   const banContract = await this.commandBus.execute(
-  //     new BanUserCommandSql(
-  //       param.id,
-  //       bodyUserBan.isBanned,
-  //       bodyUserBan.banReason,
-  //     )
-  //   )
-  //   if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
-  //   )
-  //   if (banContract.error === ErrorEnums.USER_NOT_BANNED) throw new InternalServerErrorException()
-  //   return
-  // }
+  @UseGuards(BasicGuard)
+  @Put("users/:id/ban")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async banUser(
+    @Param() param: IdParamInputModelSql,
+    @Body() bodyUserBan: BanUserBodyInputModel
+  ) {
+    const banContract = await this.commandBus.execute(
+      new BanUserCommandSql(
+        param.id,
+        bodyUserBan.isBanned,
+        bodyUserBan.banReason,
+      )
+    )
+    if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
+    )
+    if (banContract.error === ErrorEnums.USER_NOT_BANNED) throw new InternalServerErrorException()
+    return
+  }
 
   @UseGuards(BasicGuard)
   @Get("users")
@@ -189,55 +191,55 @@ export class SaControllerSql {
   }
 
 
-  // ↓↓↓ USERS
-  @UseGuards(AccessGuard)
-  @Put("users/:id/ban")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async banUser(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() param: IdParamInputModelSql,
-    @Body() bodyUserBan: BanUserBodyInputModelSql
-  ) {
-    const banContract = await this.commandBus.execute(
-      new BanUserBloggerCommandSql(
-        deviceSession.userId,
-        param.id,
-        bodyUserBan,
-      )
-    )
-    if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
-    )
-    if (banContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
-    )
-    if (banContract.error === ErrorEnums.USER_NOT_BANNED) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.USER_NOT_BANNED, "id")
-    )
-    return
-  }
-
-  @UseGuards(AccessGuard)
-  @Get("users/blogs/:id")
-  async getBannedUsersOfBlog(
-    @DeviceSession() deviceSession: DeviceSessionInputModel,
-    @Param() param: IdParamInputModelSql,
-    @Query() queryBlog: GetPostsCommentsQueryInputModel
-  ) {
-    const bannedBlogUsersContract = await this.blogsQueryRepositorySql.findBanBlogUsers(
-      param.id,
-      true,
-      queryBlog,
-      deviceSession.userId,
-    )
-    if (bannedBlogUsersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-    )
-    if (bannedBlogUsersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
-      callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
-    )
-    return bannedBlogUsersContract.data
-  }
+  // // ↓↓↓ USERS
+  // @UseGuards(AccessGuard)
+  // @Put("users/:id/ban")
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async banUserBlogger(
+  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
+  //   @Param() param: IdParamInputModelSql,
+  //   @Body() bodyUserBan: BanUserBodyInputModelSql
+  // ) {
+  //   const banContract = await this.commandBus.execute(
+  //     new BanUserBloggerCommandSql(
+  //       deviceSession.userId,
+  //       param.id,
+  //       bodyUserBan,
+  //     )
+  //   )
+  //   if (banContract.error === ErrorEnums.USER_NOT_FOUND) throw new NotFoundException(
+  //     callErrorMessage(ErrorEnums.USER_NOT_FOUND, "id")
+  //   )
+  //   if (banContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+  //     callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
+  //   )
+  //   if (banContract.error === ErrorEnums.USER_NOT_BANNED) throw new NotFoundException(
+  //     callErrorMessage(ErrorEnums.USER_NOT_BANNED, "id")
+  //   )
+  //   return
+  // }
+  //
+  // @UseGuards(AccessGuard)
+  // @Get("users/blogs/:id")
+  // async getBannedUsersOfBlog(
+  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
+  //   @Param() param: IdParamInputModelSql,
+  //   @Query() queryBlog: GetPostsCommentsQueryInputModel
+  // ) {
+  //   const bannedBlogUsersContract = await this.blogsQueryRepositorySql.findBanBlogUsers(
+  //     param.id,
+  //     true,
+  //     queryBlog,
+  //     deviceSession.userId,
+  //   )
+  //   if (bannedBlogUsersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+  //   )
+  //   if (bannedBlogUsersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+  //     callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
+  //   )
+  //   return bannedBlogUsersContract.data
+  // }
 
 
   // ↓↓↓ QUIZ QUESTIONS

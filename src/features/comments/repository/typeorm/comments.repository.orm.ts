@@ -117,16 +117,20 @@ export class CommentsRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le1")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = le1.UserId`)
       .where(`le1.LikeId = q.CommentId`)
       .andWhere(`le1.Status = 'Like'`)
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
   private likesCountBuilder2(qb: SelectQueryBuilder<any>) {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le2")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = le2.UserId`)
       .where(`le2.LikeId = q.CommentId`)
       .andWhere(`le2.Status = 'Dislike'`)
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
 }

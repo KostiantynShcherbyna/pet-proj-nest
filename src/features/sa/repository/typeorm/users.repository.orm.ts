@@ -65,17 +65,13 @@ export class UsersRepositoryOrm {
       .execute()
   }
 
-  // async createBanInfo(userId: string, queryRunner: QueryRunner) {
-  //   await queryRunner.manager.createQueryBuilder(BanInfoEntity, "b")
-  //     .insert()
-  //     .values({
-  //       UserId: userId,
-  //       IsBanned: false,
-  //       BanReason: "",
-  //       BanDate: ""
-  //     })
-  //     .execute()
-  // }
+  async createBanInfo(userId: string, queryRunner: QueryRunner) {
+    await queryRunner.manager.createQueryBuilder()
+      .insert()
+      .into(BanInfoEntity)
+      .values({ UserId: userId })
+      .execute()
+  }
 
   // async createNewEmailConfirmation(confirmationCodeDto: ICreateConfirmationCodeDto) {
   //   console.log("newConfirmationCode", confirmationCodeDto.confirmationCode)
@@ -189,6 +185,9 @@ export class UsersRepositoryOrm {
         `a.Email as "email"`,
         `a.PasswordHash as "passwordHash"`,
         `a.CreatedAt as "createdAt"`,
+        `b.IsBanned as "isBanned"`,
+        `b.BanDate as "banDate"`,
+        `b.BanReason as "banReason"`,
         `e.ConfirmationCode as "confirmationCode"`,
         `e.ExpirationDate as "expirationDate"`,
         `e.IsConfirmed as "isConfirmed"`
@@ -211,13 +210,14 @@ export class UsersRepositoryOrm {
     return result.affected ? result.affected : null
   }
 
-  // async deleteBanInfo(userId: string, queryRunner: QueryRunner) {
-  //   const result = await queryRunner.manager.createQueryBuilder(BanInfoEntity, "b")
-  //     .delete()
-  //     .where(`b.UserId = :userId`, { userId })
-  //     .execute()
-  //   return result.affected ? result.affected : null
-  // }
+  async deleteBanInfo(userId: string, queryRunner: QueryRunner) {
+    const result = await queryRunner.manager.createQueryBuilder()
+      .delete()
+      .from(BanInfoEntity)
+      .where(`UserId = :userId`, { userId })
+      .execute()
+    return result.affected ? result.affected : null
+  }
 
   async deleteSentConfirmationCodeDates(userId: string, queryRunner: QueryRunner) {
     const result = await queryRunner.manager.createQueryBuilder()
@@ -246,20 +246,35 @@ export class UsersRepositoryOrm {
     return result.affected ? result.affected : null
   }
 
-  // async updateUserBan(userId, isBanned, banReason?, banDate?) {
-  //   const updateResult = isBanned
-  //     ? await this.dataSource.query(`
-  //       update public."ban_info_entity"
-  //       set "IsBanned" = $2, "BanReason" = $3, "BanDate" = $4
-  //       where "UserId" = $1
-  //       `, [userId, isBanned, banReason, banDate])
-  //     : await this.dataSource.query(`
-  //       update public."ban_info_entity"
-  //       set "IsBanned" = $2, "BanReason" = null, "BanDate" = null
-  //       where "UserId" = $1
-  //       `, [userId, isBanned])
-  //   return updateResult.length ? updateResult[1] : null
-  // }
+  async updateUserBan(userId, isBanned, banReason?, banDate?) {
+    const result = isBanned
+      ? await this.dataSource.createQueryBuilder()
+        .update(BanInfoEntity)
+        .set({ IsBanned: isBanned, BanReason: banReason, BanDate: banDate })
+        .where(`UserId = :userId`, { userId })
+        .execute()
+      : await this.dataSource.createQueryBuilder()
+        .update(BanInfoEntity)
+        .set({ IsBanned: isBanned, BanReason: null, BanDate: null })
+        .where(`UserId = :userId`, { userId })
+        .execute()
+    return result.affected ? result.affected : null
+  }
+
+  async updateUserBan2(userId, isBanned, banReason?, banDate?) {
+    const updateResult = isBanned
+      ? await this.dataSource.query(`
+        update public."ban_info_entity"
+        set "IsBanned" = $2, "BanReason" = $3, "BanDate" = $4
+        where "UserId" = $1
+        `, [userId, isBanned, banReason, banDate])
+      : await this.dataSource.query(`
+        update public."ban_info_entity"
+        set "IsBanned" = $2, "BanReason" = null, "BanDate" = null
+        where "UserId" = $1
+        `, [userId, isBanned])
+    return updateResult.length ? updateResult[1] : null
+  }
 
   async updatePasswordHash(userId: string, passwordHash: string) {
     const result = await this.dataSource.createQueryBuilder()

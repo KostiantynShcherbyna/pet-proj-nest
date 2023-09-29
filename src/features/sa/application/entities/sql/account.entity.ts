@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm"
+import { BanInfoEntity } from "./ban-info.entity"
 
 @Entity()
 export class AccountEntity {
@@ -17,5 +18,6 @@ export class AccountEntity {
 
   @Column()
   CreatedAt: string
+
 
 }

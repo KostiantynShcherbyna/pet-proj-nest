@@ -152,7 +152,7 @@ export class CommentsQueryRepositoryOrm {
   }
 
   async findComment({ commentId, userId }) {
-    const comment = await this.dataSource.createQueryBuilder()
+    const comment = await this.dataSource.createQueryBuilder(CommentEntity, "a")
       .select([
         `a."PostId" as "postId"`,
         `a."Content" as "content"`,
@@ -160,18 +160,19 @@ export class CommentsQueryRepositoryOrm {
         `a."CommentId" as "commentId"`,
         `a."UserId" as "userId"`,
         `a."UserLogin" as "userLogin"`,
-        `le.Status as "myStatus"`
+        `le.Status as "myStatus"`,
+        `b.IsBanned as "isBanned"`
       ])
       .addSelect(qb => this.likesCountBuilder1(qb), `likesCount`)
       .addSelect(qb => this.likesCountBuilder2(qb), `dislikesCount`)
       .leftJoin(CommentLikeEntity, "le", `le.CommentId = a.CommentId and le.UserId = :userId`, { userId })
-      .from(CommentEntity, "a")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = a.UserId`)
       .where(`a.CommentId = :commentId`, { commentId })
       .getRawOne()
 
-    return comment
-      ? new Contract(this.changeCommentView(comment), null)
-      : new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
+    if (!comment) return new Contract(null, ErrorEnums.COMMENT_NOT_FOUND)
+    if (comment.isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
+    return new Contract(this.changeCommentView(comment), null)
   }
 
 
@@ -244,16 +245,20 @@ export class CommentsQueryRepositoryOrm {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le1")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = le1.UserId`)
       .where(`le1.CommentId = a.CommentId`)
       .andWhere(`le1.Status = 'Like'`)
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
   private likesCountBuilder2(qb: SelectQueryBuilder<any>) {
     return qb
       .select(`count(*)`)
       .from(CommentLikeEntity, "le2")
+      .leftJoin(BanInfoEntity, "b", `b.UserId = le2.UserId`)
       .where(`le2.CommentId = a.CommentId`)
       .andWhere(`le2.Status = 'Dislike'`)
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
   }
 
 

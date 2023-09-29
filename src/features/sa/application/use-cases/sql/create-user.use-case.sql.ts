@@ -31,27 +31,29 @@ export class CreateUserSql implements ICommandHandler<CreateUserSqlCommand> {
     if (user?.email === command.email) return new Contract(null, ErrorEnums.USER_EMAIL_EXIST)
     if (user?.login === command.login) return new Contract(null, ErrorEnums.USER_LOGIN_EXIST)
 
+    const passwordHash = await generateHashManager(command.password)
+    const newUserDataDto = {
+      login: command.login,
+      email: command.email,
+      passwordHash: passwordHash,
+      createdAt: new Date(Date.now()).toISOString()
+    }
+    const emailConfirmationDto = {
+      confirmationCode: null,
+      expirationDate: null,
+      isConfirmed: true
+    }
+
     let newUserId
     const queryRunner = this.dataSource.createQueryRunner()
     try {
       await queryRunner.startTransaction()
-      const passwordHash = await generateHashManager(command.password)
-      const newUserDataDto = {
-        login: command.login,
-        email: command.email,
-        passwordHash: passwordHash,
-        createdAt: new Date(Date.now()).toISOString()
-      }
       newUserId = await this.usersSqlRepository.createUser(newUserDataDto, queryRunner)
-
-      const emailConfirmationDto = {
-        userId: newUserId,
-        confirmationCode: null,
-        expirationDate: null,
-        isConfirmed: true
-      }
-      await this.usersSqlRepository.createEmailConfirmation({emailConfirmationDto : emailConfirmationDto, queryRunner : queryRunner})
-      // await this.usersSqlRepository.createBanInfo(newUserId.userId, queryRunner)
+      await this.usersSqlRepository.createEmailConfirmation({
+        emailConfirmationDto: { ...emailConfirmationDto, userId: newUserId },
+        queryRunner: queryRunner
+      })
+      await this.usersSqlRepository.createBanInfo(newUserId, queryRunner)
       await queryRunner.commitTransaction()
     } catch (err) {
       console.log("CreateUserSql", err)
