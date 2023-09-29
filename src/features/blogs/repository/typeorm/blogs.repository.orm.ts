@@ -98,14 +98,13 @@ export class BlogsRepositoryOrm {
   }
 
   async findBanUsersInfo(blogId: string, userId: string) {
-    const banUsersInfo = await this.dataSource.createQueryBuilder()
+    const banUsersInfo = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
       .select([
         `b.BlogId as "id"`,
         `b.UserId as "userId"`,
         `b.IsBanned as "isBanned"`,
         `b.BanId as "banId"`
       ])
-      .from(BanBlogUserEntity, "b")
       .where("b.BlogId = :blogId", { blogId })
       .andWhere("b.UserId = :userId", { userId })
       .getRawOne()

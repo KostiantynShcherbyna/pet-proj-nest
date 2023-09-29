@@ -191,10 +191,8 @@ export class BlogsQueryRepositoryOrm {
   async findBanBlogUsers(blogId: string, isBanned: boolean, query: GetPostsCommentsQueryInputModel, userId: string): Promise<Contract<null | BannedBlogUsersView>> {
 
     const blog = await this.blogsSqlRepository.findBlog(blogId)
-    if (blog === null)
-      return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
-    if (blog.userId !== userId)
-      return new Contract(null, ErrorEnums.FOREIGN_BLOG)
+    if (blog === null) return new Contract(null, ErrorEnums.BLOG_NOT_FOUND)
+    if (blog.userId !== userId) return new Contract(null, ErrorEnums.FOREIGN_BLOG)
 
     const searchLoginTerm = query.searchLoginTerm || SEARCH_LOGIN_TERM_DEFAULT
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
@@ -202,6 +200,12 @@ export class BlogsQueryRepositoryOrm {
     const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
+
+    const totalCount = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
+      .leftJoin(AccountEntity, "a", `a.UserId = b.UserId`, { login: `%${searchLoginTerm}%` })
+      .where(`b.BlogId = :blogId`, { blogId })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned })
+      .getCount()
 
     const banInfos = await this.dataSource.createQueryBuilder(BanBlogUserEntity, "b")
       .select([
@@ -214,19 +218,19 @@ export class BlogsQueryRepositoryOrm {
       .leftJoin(AccountEntity, "a", `a.UserId = b.UserId`, { login: `%${searchLoginTerm}%` })
       .where(`b.BlogId = :blogId`, { blogId })
       .andWhere(`b.IsBanned = :isBanned`, { isBanned })
-      .orderBy(`a."${sortBy}"`, sortDirection)
+      .orderBy(`a.${sortBy}`, sortDirection)
       .limit(pageSize)
       .offset(offset)
       .getRawMany()
 
     const banInfoViews = this.createBanInfoOfBlogViews(banInfos)
-    const pagesCount = Math.ceil(1 / pageSize)
+    const pagesCount = Math.ceil(totalCount / pageSize)
 
     return new Contract({
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(1),
+      totalCount: Number(totalCount),
       items: banInfoViews
     }, null)
   }

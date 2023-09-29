@@ -34,7 +34,7 @@ export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandS
     if (!userForBan)
       return new Contract(null, ErrorEnums.USER_NOT_FOUND)
 
-    const foundBanUsersInfo = await this.blogsRepositorySql.findBanUsersInfo(command.bodyUserBan.blogId, command.ownerId)
+    const foundBanUsersInfo = await this.blogsRepositorySql.findBanUsersInfo(command.bodyUserBan.blogId, command.bannedUserId)
     if (!foundBanUsersInfo && !command.bodyUserBan.isBanned)
       return new Contract(true, null)
     if (foundBanUsersInfo?.isBanned === command.bodyUserBan.isBanned)
@@ -47,7 +47,7 @@ export class BanUserBloggerSql implements ICommandHandler<BanUserBloggerCommandS
         userId: command.bannedUserId,
         isBanned: true,
         banReason: command.bodyUserBan.banReason,
-        banDate: new Date(Date.now()).toISOString(),
+        banDate: new Date(Date.now()).toISOString()
       })
       : await this.blogsRepositorySql.unbanUserOfBlog({
         blogId: command.bodyUserBan.blogId,

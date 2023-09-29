@@ -319,25 +319,25 @@ export class BloggerControllerSql {
   }
 
   @UseGuards(AccessGuard)
-  @Get("users/blogs/:id")
+  @Get("users/blog/:id")
   async getBannedUsersOfBlog(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Param() param: IdParamInputModelSql,
     @Query() queryBlog: GetPostsCommentsQueryInputModel
   ) {
-    const bannedBlogusersContract = await this.blogsQueryRepositorySql.findBanBlogUsers(
+    const bannedBlogUsersContract = await this.blogsQueryRepositorySql.findBanBlogUsers(
       param.id,
       true,
       queryBlog,
       deviceSession.userId,
     )
-    if (bannedBlogusersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+    if (bannedBlogUsersContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
       callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
     )
-    if (bannedBlogusersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
+    if (bannedBlogUsersContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException(
       callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
     )
-    return bannedBlogusersContract.data
+    return bannedBlogUsersContract.data
   }
 
 
