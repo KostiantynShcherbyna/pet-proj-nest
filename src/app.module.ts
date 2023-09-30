@@ -33,7 +33,8 @@ const services = [
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env", load: [configuration] }),
+    // ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env", load: [configuration] }),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(typeormConfig),
     // MongooseModule.forRoot(mongooseConfig.connection),
     // MongooseModule.forFeature(mongooseConfig.features),

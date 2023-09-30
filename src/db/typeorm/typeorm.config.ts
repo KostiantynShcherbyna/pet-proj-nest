@@ -17,14 +17,15 @@ import {
 import { Game } from "../../features/quiz/application/entities/typeorm/game"
 import { Question } from "../../features/quiz/application/entities/typeorm/question"
 import { Answer } from "../../features/quiz/application/entities/typeorm/answer"
+import * as process from "process"
+import { configuration } from "../../infrastructure/settings/configuration"
 
 export const typeormConfig: PostgresConnectionOptions = {
   type: "postgres",
-  host: "localhost",
-  port: 5432,
-  username: "nestjsk",
-  password: "nestjsk",
-  database: "pet-proj-nest-orm-db",
+  host: "ep-dark-lake-89337374.us-east-2.aws.neon.tech",
+  username: "KostiantynShcherbyna",
+  password: "qaG6gWhyF3RM",
+  database: "pet-proj-nest-orm",
   entities: [
     RecoveryCodeEntity,
     BanBlogUserEntity,
@@ -44,5 +45,34 @@ export const typeormConfig: PostgresConnectionOptions = {
   ],
   migrations: [__dirname + `/migrations/**/*{.ts,.js}`],
   synchronize: true,
+  ssl: true
 }
 export default new DataSource(typeormConfig)
+// export const typeormConfig: PostgresConnectionOptions = {
+//   type: "postgres",
+//   host: "localhost",
+//   port: 5432,
+//   username: "nestjsk",
+//   password: "nestjsk",
+//   database: "pet-proj-nest-orm-db",
+//   entities: [
+//     RecoveryCodeEntity,
+//     BanBlogUserEntity,
+//     BlogEntity,
+//     CommentEntity,
+//     CommentLikeEntity,
+//     DeviceEntity,
+//     PostLikeEntity,
+//     PostEntity,
+//     AccountEntity,
+//     BanInfoEntity,
+//     EmailConfirmationEntity,
+//     SentConfirmationCodeDateEntity,
+//     Game,
+//     Question,
+//     Answer,
+//   ],
+//   migrations: [__dirname + `/migrations/**/*{.ts,.js}`],
+//   synchronize: true,
+// }
+// export default new DataSource(typeormConfig)

@@ -11,6 +11,11 @@ export const configuration = () => {
     POSTGRESQL_TESTING: process.env.POSTGRESQL_TESTING,
     USERNAME: process.env.USERNAME,
     USER_PASSWORD: process.env.USER_PASSWORD,
+
+    NEON_HOST: process.env.NEON_HOST,
+    NEON_USERNAME: process.env.NEON_USERNAME,
+    NEON_PASSWORD: process.env.NEON_USERNAME,
+    NEON_DB_NAME: process.env.NEON_USERNAME,
   }
 }
 export type ConfigType = ReturnType<typeof configuration>
