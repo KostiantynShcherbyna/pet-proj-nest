@@ -97,8 +97,14 @@ export class TestingController {
   @Delete("all-data")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllData() {
-    return await this.dataSource.query(`SELECT truncate_tables('nestjsk');`)
+    return await this.dataSource.query(`SELECT truncate_tables('KostiantynShcherbyna');`)
   }
+
+  // @Delete("all-data")
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async deleteAllData() {
+  //   return await this.dataSource.query(`SELECT truncate_tables('nestjsk');`)
+  // }
 
 
   // @Get("user")
