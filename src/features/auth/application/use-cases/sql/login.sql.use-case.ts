@@ -45,11 +45,8 @@ export class LoginSql implements ICommandHandler<LoginSqlCommand> {
       login: command.loginBody.loginOrEmail,
       email: command.loginBody.loginOrEmail
     })
-    if (user === null)
-      return new Contract(null, ErrorEnums.USER_NOT_FOUND)
-    if (user.isBanned === true)
-      return new Contract(null, ErrorEnums.USER_IS_BANNED)
-
+    if (user === null) return new Contract(null, ErrorEnums.USER_NOT_FOUND)
+    if (user.isBanned === true) return new Contract(null, ErrorEnums.USER_IS_BANNED)
 
     if (user.isConfirmed === false)
       return new Contract(null, ErrorEnums.USER_EMAIL_NOT_CONFIRMED)

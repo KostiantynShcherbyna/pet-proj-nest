@@ -7,7 +7,8 @@ import {
   PAGE_NUMBER_DEFAULT,
   PAGE_SIZE_DEFAULT,
   SORT_BY_DEFAULT_SQL,
-  SortDirection, SortDirectionOrm
+  SortDirection,
+  SortDirectionOrm
 } from "../../../../infrastructure/utils/constants"
 import { GetPostsCommentsQueryInputModel } from "../../../blogs/api/models/input/get-posts-comments.query.input-model"
 import { InjectDataSource } from "@nestjs/typeorm"
@@ -17,8 +18,8 @@ import { PostsQueryRepositoryOrm } from "../../../posts/repository/typeorm/posts
 import { CommentEntity } from "../../application/entities/sql/comment.entity"
 import { CommentLikeEntity } from "../../application/entities/sql/comment-like.entity"
 import { BanInfoEntity } from "../../../sa/application/entities/sql/ban-info.entity"
-import { PostLikeEntity } from "../../../posts/application/entites/typeorm/post-like.entity"
 import { PostEntity } from "../../../posts/application/entites/typeorm/post.entity"
+import { BlogEntity } from "../../../blogs/application/entities/sql/blog.entity"
 
 
 @Injectable()
@@ -31,73 +32,39 @@ export class CommentsQueryRepositoryOrm {
   }
 
   async findAllBlogComments(query: GetPostsCommentsQueryInputModel, userId: string) {
-
     const pageSize = +query.pageSize || PAGE_SIZE_DEFAULT
     const pageNumber = +query.pageNumber || PAGE_NUMBER_DEFAULT
-    const sortDirection = query.sortDirection || SortDirection.Desc
+    const sortDirection = query.sortDirection === SortDirection.Asc ? SortDirectionOrm.Asc : SortDirectionOrm.Desc
     const sortBy = query.sortBy.charAt(0).toUpperCase() + query.sortBy.slice(1) || SORT_BY_DEFAULT_SQL
     const offset = (pageNumber - 1) * pageSize
 
-    const commentsTotalCount = await this.dataSource.query(`
-    select count(*)
-    from public."comment_entity" a
-    left join public."post_entity" b on b."PostId" = a."PostId"
-    left join public."blog_entity" c on c."BlogId" = b."BlogId"
-    where c."UserId" = $1
-    `, [userId])
+    const commentsTotalCount = await this.dataSource.createQueryBuilder(CommentEntity, "c")
+      .leftJoin(PostEntity, "p", `p.PostId = c.PostId`)
+      .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
+      .where(`b.UserId = :userId`, { userId })
+      .getCount()
 
-    const pagesCount = Math.ceil(commentsTotalCount[0].count / pageSize)
+    const pagesCount = Math.ceil(commentsTotalCount / pageSize)
 
-    const queryForm = `
-    select a."CommentId" as "id", a."Content" as "content", a."CreatedAt" as "createdAt",
-           a."UserId" as "userId", a."UserLogin" as "userLogin",
-           b."PostId" as "postId", b."Title" as "title", b."BlogId" as "blogId", b."BlogName" as "blogName",
-           (select "Status" from public."comment_like_entity" where "CommentId" = a."CommentId" and "UserId" = $1) as "myStatus",
-           (
-            select count(*)
-            from public."comment_like_entity" a
-            left join public."comment_entity" b on b."CommentId" = a."CommentId"
-            left join public."post_entity" c on c."PostId" = b."PostId"
-            left join public."ban_info_entity" d on d."UserId" = a."UserId"
-            left join public."blog_entity" e on e."BlogId" = c."BlogId"
-            where a."Status" = 'Like'
-            and d."IsBanned" = 'false'
-            and e."UserId" = $1
-           ) as "likesCount", 
-           (
-            select count(*)
-            from public."comment_like_entity" a
-            left join public."comment_entity" b on b."CommentId" = a."CommentId"
-            left join public."post_entity" c on c."PostId" = b."PostId"
-            left join public."ban_info_entity" d on d."UserId" = a."UserId"
-            left join public."blog_entity" e on e."BlogId" = c."BlogId"
-            where a."Status" = 'Dislike'
-            and d."IsBanned" = 'false'
-            and e."UserId" = $1
-           ) as "dislikesCount"
-    from public."comment_entity" a
-    left join public."post_entity" b on b."PostId" = a."PostId"
-    left join public."blog_entity" c on c."BlogId" = b."BlogId"
-    where c."UserId" = $1
-    order by a."${sortBy}" ${
-      sortBy !== "createdAt" ? "COLLATE \"C\"" : ""
-    } ${sortDirection}
-    limit $2
-    offset $3
-    `
-    const comments = await this.dataSource.query(
-      queryForm, [
-        userId, // 1
-        pageSize, // 2
-        offset, // 3
-      ])
+    const comments = await this.dataSource.createQueryBuilder(CommentEntity, "c")
+      .addSelect(qb => this.likesCountBuilder(qb, "cl", LikeStatus.Like, userId), "likesCount")
+      .addSelect(qb => this.likesCountBuilder(qb, "cdl", LikeStatus.Dislike, userId), "dislikesCount")
+      .addSelect(qb => this.myLikeStatusBuilder(qb, "ms", userId), "myStatus")
+      .leftJoinAndSelect(PostEntity, "p", `p.PostId = c.PostId`)
+      .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
+      .where(`b.UserId = :userId`, { userId })
+      .orderBy(`c.${sortBy}`, sortDirection)
+      .limit(pageSize)
+      .offset(offset)
+      .getRawMany()
+
     const blogCommentsView = this.blogCommentsView(comments)
 
     return {
       pagesCount: pagesCount,
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: Number(commentsTotalCount[0].count),
+      totalCount: Number(commentsTotalCount),
       items: blogCommentsView
     }
   }
@@ -134,7 +101,7 @@ export class CommentsQueryRepositoryOrm {
       .leftJoin(CommentLikeEntity, "le", `le.CommentId = a.CommentId and le.UserId = :userId`, { userId })
       .from(CommentEntity, "a")
       .where(`a.PostId = :postId`, { postId })
-      .orderBy(`a."${sortBy}"`, sortDirection)
+      .orderBy(`a.${sortBy}`, sortDirection)
       .limit(pageSize)
       .offset(offset)
       .getRawMany()
@@ -180,23 +147,23 @@ export class CommentsQueryRepositoryOrm {
 
     return comments.map(comment => {
       return {
-        id: comment.id,
-        content: comment.content,
+        id: comment.c_CommentId,
+        content: comment.c_Content,
         commentatorInfo: {
-          userId: comment.userId,
-          userLogin: comment.userLogin,
+          userId: comment.c_UserId,
+          userLogin: comment.c_UserLogin,
         },
-        createdAt: comment.createdAt,
+        createdAt: comment.c_CreatedAt,
         likesInfo: {
           likesCount: Number(comment.likesCount),
           dislikesCount: Number(comment.dislikesCount),
           myStatus: comment.myStatus || LikeStatus.None,
         },
         postInfo: {
-          id: comment.postId,
-          title: comment.title,
-          blogId: comment.blogId,
-          blogName: comment.blogName,
+          id: comment.p_PostId,
+          title: comment.p_Title,
+          blogId: comment.p_BlogId,
+          blogName: comment.p_BlogName,
         }
       }
     })
@@ -259,6 +226,27 @@ export class CommentsQueryRepositoryOrm {
       .where(`le2.CommentId = a.CommentId`)
       .andWhere(`le2.Status = 'Dislike'`)
       .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
+  }
+
+  private likesCountBuilder(qb: SelectQueryBuilder<any>, alias: string, ls: LikeStatus, userId: string) {
+    return qb
+      .select(`count(*)`)
+      .from(CommentLikeEntity, alias)
+      .leftJoin(BanInfoEntity, "bi", `bi.UserId = ${alias}.UserId`)
+      .where(`${alias}.Status = '${ls}'`)
+      .andWhere(`c.CommentId = ${alias}.CommentId`)
+      .andWhere(`p.PostId = c.PostId`)
+      .andWhere(`b.BlogId = p.BlogId`)
+      .andWhere(`b.UserId = :userId`, { userId })
+      .andWhere(`bi.IsBanned = :isBanned`, { isBanned: false })
+  }
+
+  private myLikeStatusBuilder(qb: SelectQueryBuilder<any>, alias1: string, userId: string) {
+    return qb
+      .select(`${alias1}.Status`)
+      .from(CommentLikeEntity, alias1)
+      .where(`${alias1}.CommentId = c.CommentId`)
+      .andWhere(`${alias1}.UserId = :userId`, { userId })
   }
 
 

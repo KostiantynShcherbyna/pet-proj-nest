@@ -66,7 +66,7 @@ export class BlogsQueryRepositoryOrm {
     const [blogs, totalCount] = await this.dataSource.createQueryBuilder(BlogEntity, "a")
       .where(`a.Name ilike :name`, { name: `%${searchNameTerm}%` })
       .andWhere(`(a.UserId = :userId or a.UserId = :userId is Null)`, { userId })
-      // .andWhere(`a.IsBanned = :isBanned`, { isBanned: false })
+      .andWhere(`a.IsBanned = :isBanned`, { isBanned: false })
       .orderBy(`a."${sortBy}"`, sortDirection)
       .limit(pageSize)
       .offset(offset)

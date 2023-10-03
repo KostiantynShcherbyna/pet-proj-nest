@@ -43,6 +43,9 @@ import { CreateQuestionsQuizCommandSql } from "../../quiz/application/use-cases/
 import { QuestionPublishBodyInputModelSql } from "./models/input/quiz/question-publish.body.input-model.sql"
 import { BanUserCommandSql } from "../application/use-cases/sql/ban-user.use-case.sql"
 import { BanUserBodyInputModel } from "./models/input/users/ban-user.body.input-model"
+import { BanBlogParamInputModelSql } from "./models/input/blogs/ban-blog.param.input-model.sql"
+import { BanBlogBodyInputModel } from "./models/input/blogs/ban-blog.body.input-model"
+import { BanBlogCommandSql } from "../application/use-cases/sql/ban-blog.use-case.sql"
 
 
 @Controller("sa")
@@ -57,24 +60,24 @@ export class SaControllerSql {
   }
 
 
-  // @UseGuards(BasicGuard)
-  // @Put("blogs/:id/ban")
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async banBlog(
-  //   @Param() param: BanBlogParamInputModelSql,
-  //   @Body() bodyBlogBan: BanBlogBodyInputModel,
-  // ) {
-  //   const banContract = await this.commandBus.execute(
-  //     new BanBlogCommandSql(
-  //       param.id,
-  //       bodyBlogBan.isBanned,
-  //     )
-  //   )
-  //   if (banContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
-  //   )
-  //   return
-  // }
+  @UseGuards(BasicGuard)
+  @Put("blogs/:id/ban")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async banBlog(
+    @Param() param: BanBlogParamInputModelSql,
+    @Body() bodyBlogBan: BanBlogBodyInputModel,
+  ) {
+    const banContract = await this.commandBus.execute(
+      new BanBlogCommandSql(
+        param.id,
+        bodyBlogBan.isBanned,
+      )
+    )
+    if (banContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
+      callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "id")
+    )
+    return
+  }
 
 
   @UseGuards(BasicGuard)

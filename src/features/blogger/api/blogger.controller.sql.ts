@@ -61,7 +61,7 @@ export class BloggerControllerSql {
 
   @UseGuards(AccessGuard)
   @Get("blogs/comments")
-  async getPostsComments(
+  async getBlogComments(
     @DeviceSession() deviceSession: DeviceSessionInputModel,
     @Query() queryPostsComments: GetPostsCommentsQueryInputModel,
   ) {
