@@ -83,15 +83,14 @@ export class PostsQueryRepositoryOrm {
   }
 
   async findPost(postId: string, userId?: string): Promise<null | CreateBloggerPostOutputModel> {
-
-    const sortDirection = SortDirectionOrm.Desc
-
     const post = await this.dataSource.createQueryBuilder(PostEntity, "p")
       .addSelect(qb => this.likesCountBuilder(qb, "Like", "pl1"), `likesCount`)
       .addSelect(qb => this.likesCountBuilder(qb, "Dislike", "pl2"), `dislikesCount`)
       .addSelect(qb => this.newestLikesBuilder(qb), `newestLikes`)
       .leftJoin(PostLikeEntity, "pl", `pl.PostId = p.PostId and pl.UserId = :userId`, { userId })
+      .leftJoin(BlogEntity, "b", `b.BlogId = p.BlogId`)
       .where(`p.PostId = :postId`, { postId })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
       .getRawOne()
     return post ? this.changePostView(post) : null
   }
