@@ -50,6 +50,7 @@ export class BlogsQueryRepositoryOrm {
         `b.IsMembership as "isMembership"`,
       ])
       .where("b.BlogId = :blogId", { blogId })
+      .andWhere(`b.IsBanned = :isBanned`, { isBanned: false })
       .getRawOne()
     return blog ? blog : null
   }
@@ -289,6 +290,10 @@ export class BlogsQueryRepositoryOrm {
         blogOwnerInfo: {
           userId: blog.UserId,
           userLogin: blog.UserLogin
+        },
+        banInfo: {
+          isBanned: blog.IsBanned,
+          banDate: blog.BanDate
         }
       }
     })
