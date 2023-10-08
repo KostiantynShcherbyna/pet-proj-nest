@@ -13,13 +13,14 @@ import {
   Put,
   Query,
   UnauthorizedException,
-  UseGuards
+  UploadedFile,
+  UseGuards,
+  UseInterceptors
 } from "@nestjs/common"
 import { CommandBus } from "@nestjs/cqrs"
 import { AccessGuard } from "../../../infrastructure/guards/access.guard"
 import { DeviceSession } from "../../../infrastructure/decorators/device-session.decorator"
 import { DeviceSessionInputModel } from "./models/input/device-session.input-model"
-import { IdParamInputModel } from "./models/input/id.param.input-model"
 import { UpdateBlogBodyInputModel } from "./models/input/update-blog.body.input-model"
 import { ErrorEnums } from "../../../infrastructure/utils/error-enums"
 import { callErrorMessage } from "../../../infrastructure/adapters/exception-message.adapter"
@@ -28,8 +29,6 @@ import { DeviceSessionOptionalInputModel } from "./models/input/device-session-o
 import { DeviceSessionOptional } from "../../../infrastructure/decorators/device-session-optional.decorator"
 import { CreatePostBodyInputModel } from "./models/input/create-post.body.input-model"
 import { UpdatePostBodyInputModel } from "./models/input/update-post.body.input-model"
-import { BanUserBodyInputModel } from "./models/input/ban-user.body.input-model"
-import { BanUserBloggerCommand } from "../application/use-cases/mongoose/ban-user-blogger.use-case"
 import { CreateBlogBodyInputModel } from "./models/input/create-blog.body.input-model"
 import { BlogsQueryRepositoryOrm } from "../../blogs/repository/typeorm/blogs.query.repository.orm"
 import { CreateBlogCommandSql } from "../application/use-cases/sql/create-blog.use-case.sql"
@@ -46,6 +45,8 @@ import { BanUserBodyInputModelSql } from "./models/input/ban-user.body.input-mod
 import { BanUserBloggerCommandSql } from "../application/use-cases/sql/ban-user-blogger.use-case.sql"
 import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-comments.query.input-model"
 import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/comments.query.repository.orm"
+import { FileInterceptor } from "@nestjs/platform-express"
+import { UploadWallpaperCommandSql } from "../application/use-cases/sql/upload-wallpaper.use-case.sql"
 
 
 @Controller("blogger")
@@ -207,26 +208,6 @@ export class BloggerControllerSql {
   }
 
 
-  // @UseGuards(AccessGuard)
-  // @Get("blogs/:blogId/posts")
-  // async getPosts(
-  //   @DeviceSession() deviceSession: DeviceSessionInputModel,
-  //   @Param() param: CreatePostParamInputModel,
-  //   @Query() queryPost: GetPostsQueryInputModel,
-  // ) {
-  //   const postsContract = await this.postsQueryRepositorySql.findPosts(
-  //     queryPost,
-  //     deviceSession.userId,
-  //     param.blogId,
-  //   )
-  //   if (postsContract.error === ErrorEnums.BLOG_NOT_FOUND) throw new NotFoundException(
-  //     callErrorMessage(ErrorEnums.BLOG_NOT_FOUND, "blogId")
-  //   )
-  //   if (postsContract.error === ErrorEnums.FOREIGN_BLOG) throw new ForbiddenException()
-  //   return postsContract.data
-  // }
-
-
   @UseGuards(AccessGuard)
   @Put("blogs/:blogId/posts/:postId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -338,6 +319,40 @@ export class BloggerControllerSql {
       callErrorMessage(ErrorEnums.FOREIGN_BLOG, "id")
     )
     return bannedBlogUsersContract.data
+  }
+
+
+  @UseGuards(AccessGuard)
+  @Post("blogs/:blogId/images/wallpaper")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadWallpaper(
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    @Param() params: BlogIdParamInputModelSql,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    return await this.commandBus.execute(
+      new UploadWallpaperCommandSql(
+        params.blogId,
+        deviceSession.userId,
+        file.originalname,
+        file.buffer,
+      )
+    )
+  }
+
+  @UseGuards(AccessGuard)
+  @Post("blogs/:blogId/images/main")
+  async uploadMainBlogIcon(
+    @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+    // @Param() param: BlogIdParamInputModelSql,
+    // @Body() bodyBlogPost: CreatePostBodyInputModel
+    // @UseInterceptors(FileInterceptor('file'))
+    // @UploadedFile() file: Express.Multer.File
+  ) {
+    // const newPostContract = await this.commandBus.execute(
+    //   new UploadWallpaperCommandSql()
+    // )
+    // return
   }
 
 

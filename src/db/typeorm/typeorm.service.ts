@@ -61,6 +61,7 @@ import { QuizRepositoryOrm } from "../../features/quiz/repository/typeorm/quiz.r
 import { QuizQueryRepositoryOrm } from "../../features/quiz/repository/typeorm/quiz.query.repository.orm"
 import { QuizControllerSql } from "../../features/quiz/api/quiz.controller.sql"
 import { CreateAnswersQuizSql } from "../../features/quiz/application/use-cases/create-answers-quiz.use-case.sql"
+import { UploadWallpaperSql } from "../../features/blogger/application/use-cases/sql/upload-wallpaper.use-case.sql"
 
 
 const typeOrmUseCases = [
@@ -100,6 +101,7 @@ const typeOrmUseCases = [
   ConnectionQuizSql,
   CreateQuestionsQuizSql,
   CreateAnswersQuizSql,
+  UploadWallpaperSql,
 ]
 const typeOrmRepositories = [
   AuthRepositoryOrm,
