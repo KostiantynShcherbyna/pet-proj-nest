@@ -1,12 +1,17 @@
-import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs"
+import { CommandHandler, EventBus, EventPublisher, ICommandHandler } from "@nestjs/cqrs"
+import { Contract } from "../../../../../infrastructure/utils/contract"
+import { ErrorEnums } from "../../../../../infrastructure/utils/error-enums"
 import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repository.orm"
 import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
+import { BlogEntity } from "../../../../blogs/application/entities/sql/blog.entity"
 import { DataSource } from "typeorm"
+import { saveFileUtil } from "../../../../../infrastructure/utils/save-file.util"
+import { join } from "node:path"
 import * as Buffer from "buffer"
+import { ensureDirExists } from "../../../../../infrastructure/utils/ensure-dir-exists.util"
 import { StorageFilesAdapter } from "../../../../../infrastructure/adapters/storage-files.adapter"
-import { WallpaperS3Adapter } from "../../../../../infrastructure/adapters/wallpaper.s3.adapter"
 
-export class UploadWallpaperCommandSql {
+export class UploadWallpaperS3CommandSql {
   constructor(
     public blogId: string,
     public userId: string,
@@ -17,35 +22,24 @@ export class UploadWallpaperCommandSql {
 }
 
 
-@CommandHandler(UploadWallpaperCommandSql)
-export class UploadWallpaperSql implements ICommandHandler<UploadWallpaperCommandSql> {
+@CommandHandler(UploadWallpaperS3CommandSql)
+export class UploadWallpaperS3Sql implements ICommandHandler<UploadWallpaperS3CommandSql> {
   constructor(
     protected dataSource: DataSource,
     protected eventBus: EventBus,
     protected blogsRepositorySql: BlogsRepositoryOrm,
     protected usersRepositorySql: UsersRepositoryOrm,
-    protected wallpaperS3Adapter: WallpaperS3Adapter,
+    protected filesStorageAdapter: StorageFilesAdapter,
   ) {
   }
 
-  async execute(command: UploadWallpaperCommandSql) {
+  async execute(command: UploadWallpaperS3CommandSql) {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
-    const relativeFolderPath = await this.wallpaperS3Adapter.saveWallpaper({
-      userId: command.userId,
+    await this.filesStorageAdapter.saveWallpaper({
       blogId: command.blogId,
       fileName: command.fileName,
       wallpaperBuffer: command.wallpaperBuffer,
     })
-
-    return {
-      wallpaper: {
-        url: relativeFolderPath,
-        width: 0,
-        height: 0,
-        fileSize: 0
-      },
-    }
   }
-
 
 }

@@ -10,22 +10,6 @@ async function bootstrap() {
 
   appSettings(app)
 
-  // app.use(cookieParser());
-  // app.enableCors()
-  // useContainer(app.select(AppModule), { fallbackOnErrors: true })
-
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     transform: true,
-  //     stopAtFirstError: true,
-  //     exceptionFactory: errorsFactory
-  //   }),
-  // )
-  // app.useGlobalFilters(
-  //   new ErrorExceptionFilter(),
-  //   new HttpExceptionFilter()
-  // )
-
   const configService = app.get(ConfigService);
   const port = configService.get('PORT', 5000);
   await app.listen(port)

@@ -44,10 +44,13 @@ export const typeormConfig: PostgresConnectionOptions = {
     Answer,
   ],
   migrations: [__dirname + `/migrations/**/*{.ts,.js}`],
-  synchronize: true,
+  synchronize: false,
   ssl: true
 }
 export default new DataSource(typeormConfig)
+
+
+
 // export const typeormConfig: PostgresConnectionOptions = {
 //   type: "postgres",
 //   host: "localhost",

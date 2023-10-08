@@ -66,7 +66,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (
       exceptionResponse instanceof Object
-      && exceptionResponse !== null
       && exceptionResponse.field
     ) return [exceptionResponse]
 

@@ -47,6 +47,7 @@ import { GetPostsCommentsQueryInputModel } from "./models/input/get-posts-commen
 import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/comments.query.repository.orm"
 import { FileInterceptor } from "@nestjs/platform-express"
 import { UploadWallpaperCommandSql } from "../application/use-cases/sql/upload-wallpaper.use-case.sql"
+import { WallpaperBodyInputModelSql } from "./models/input/wallpaper.body.input-model.sql"
 
 
 @Controller("blogger")
@@ -328,9 +329,9 @@ export class BloggerControllerSql {
   async uploadWallpaper(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() params: BlogIdParamInputModelSql,
-    @UploadedFile() file: Express.Multer.File
+    @Body() file: WallpaperBodyInputModelSql
   ) {
-    return await this.commandBus.execute(
+    const uploadResult = await this.commandBus.execute(
       new UploadWallpaperCommandSql(
         params.blogId,
         deviceSession.userId,
@@ -339,6 +340,24 @@ export class BloggerControllerSql {
       )
     )
   }
+
+  // @UseGuards(AccessGuard)
+  // @Post("blogs/:blogId/images/wallpaper")
+  // @UseInterceptors(FileInterceptor("file"))
+  // async uploadWallpaper(
+  //   @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
+  //   @Param() params: BlogIdParamInputModelSql,
+  //   @UploadedFile() file: Express.Multer.File
+  // ) {
+  //   const uploadResult = await this.commandBus.execute(
+  //     new UploadWallpaperCommandSql(
+  //       params.blogId,
+  //       deviceSession.userId,
+  //       file.originalname,
+  //       file.buffer,
+  //     )
+  //   )
+  // }
 
   @UseGuards(AccessGuard)
   @Post("blogs/:blogId/images/main")

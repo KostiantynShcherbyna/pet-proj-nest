@@ -51,6 +51,7 @@
     "reflect-metadata": "^0.1.13",
     "require-main-filename": "^2.0.0",
     "rxjs": "^7.2.0",
+    "sharp": "^0.32.6",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
