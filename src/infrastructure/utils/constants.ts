@@ -104,3 +104,16 @@ export enum Secrets {
   REFRESH_JWT_SECRET = "REFRESH_JWT_SECRET",
   PASSWORD_RECOVERY_CODE_SECRET = "PASSWORD_RECOVERY_CODE_SECRET",
 }
+
+export enum WallpaperNormalTypes {
+  Png = "image/png",
+  Jpg = "image/jpg",
+  Jpeg = "image/jpeg",
+}
+
+export enum WallpaperNormalDimensions {
+  Width = 1028,
+  Height = 312,
+}
+
+export const WALLPAPER_NORMAL_SIZE = 100 * (2 ** 10) // 100 KB

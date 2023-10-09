@@ -63,6 +63,9 @@ import { QuizControllerSql } from "../../features/quiz/api/quiz.controller.sql"
 import { CreateAnswersQuizSql } from "../../features/quiz/application/use-cases/create-answers-quiz.use-case.sql"
 import { UploadWallpaperSql } from "../../features/blogger/application/use-cases/sql/upload-wallpaper.use-case.sql"
 import { DeleteWallpaperSql } from "../../features/blogger/application/use-cases/sql/delete-wallpaper.use-case.sql"
+import { FilesStorageAdapter } from "../../infrastructure/adapters/files-storage.adapter"
+import { FilesS3StorageAdapter } from "../../infrastructure/adapters/files-s3-storage.adapter"
+import { BlogWallpaperDecorator } from "../../infrastructure/decorators/blog-wallpaper.decorator"
 
 
 const typeOrmUseCases = [

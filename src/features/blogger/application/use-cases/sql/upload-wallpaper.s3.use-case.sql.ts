@@ -9,7 +9,8 @@ import { saveFileUtil } from "../../../../../infrastructure/utils/save-file.util
 import { join } from "node:path"
 import * as Buffer from "buffer"
 import { ensureDirExists } from "../../../../../infrastructure/utils/ensure-dir-exists.util"
-import { StorageFilesAdapter } from "../../../../../infrastructure/adapters/storage-files.adapter"
+import { FilesStorageAdapter } from "../../../../../infrastructure/adapters/files-storage.adapter"
+import { FilesS3StorageAdapter } from "../../../../../infrastructure/adapters/files-s3-storage.adapter"
 
 export class UploadWallpaperS3CommandSql {
   constructor(
@@ -29,17 +30,27 @@ export class UploadWallpaperS3Sql implements ICommandHandler<UploadWallpaperS3Co
     protected eventBus: EventBus,
     protected blogsRepositorySql: BlogsRepositoryOrm,
     protected usersRepositorySql: UsersRepositoryOrm,
-    protected filesStorageAdapter: StorageFilesAdapter,
+    protected wallpaperS3Adapter: FilesS3StorageAdapter,
   ) {
   }
 
   async execute(command: UploadWallpaperS3CommandSql) {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
-    await this.filesStorageAdapter.saveWallpaper({
+    const relativeFolderPath = await this.wallpaperS3Adapter.saveWallpaper({
+      userId: command.userId,
       blogId: command.blogId,
       fileName: command.fileName,
       wallpaperBuffer: command.wallpaperBuffer,
     })
+
+    return {
+      wallpaper: {
+        url: relativeFolderPath,
+        width: 0,
+        height: 0,
+        fileSize: 0
+      },
+    }
   }
 
 }

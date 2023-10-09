@@ -9,7 +9,7 @@ import { saveFileUtil } from "../../../../../infrastructure/utils/save-file.util
 import { join } from "node:path"
 import * as Buffer from "buffer"
 import { ensureDirExists } from "../../../../../infrastructure/utils/ensure-dir-exists.util"
-import { StorageFilesAdapter } from "../../../../../infrastructure/adapters/storage-files.adapter"
+import { FilesStorageAdapter } from "../../../../../infrastructure/adapters/files-storage.adapter"
 
 export class DeleteWallpaperCommandSql {
   constructor(
@@ -29,7 +29,7 @@ export class DeleteWallpaperSql implements ICommandHandler<DeleteWallpaperComman
     protected eventBus: EventBus,
     protected blogsRepositorySql: BlogsRepositoryOrm,
     protected usersRepositorySql: UsersRepositoryOrm,
-    protected filesStorageAdapter: StorageFilesAdapter,
+    protected filesStorageAdapter: FilesStorageAdapter,
   ) {
   }
 

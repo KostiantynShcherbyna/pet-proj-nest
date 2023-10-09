@@ -12,7 +12,7 @@ interface ISaveWallpaperDto {
 }
 
 @Injectable()
-export class StorageFilesAdapter {
+export class FilesStorageAdapter {
   async saveWallpaper({ blogId, fileName, wallpaperBuffer }: ISaveWallpaperDto) {
     const relativeFolderPath = join("blogs", "wallpapers", blogId, fileName)
     await ensureDirExists(relativeFolderPath)

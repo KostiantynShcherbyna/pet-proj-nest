@@ -1,24 +1,22 @@
-import { IsNotEmpty, IsNumber, IsString, Validate } from "class-validator"
-import { WallpaperDecorator } from "../../../../../infrastructure/decorators/wallpaper.decorator"
+import { IsEnum, IsNotEmpty, IsNumber, IsString, Max, Validate } from "class-validator"
+import { BlogWallpaperDecorator } from "../../../../../infrastructure/decorators/blog-wallpaper.decorator"
+import { WALLPAPER_NORMAL_SIZE, WallpaperNormalTypes } from "../../../../../infrastructure/utils/constants"
 
 export class WallpaperBodyInputModelSql {
-  // @IsNotEmpty()
-  // @IsString()
-  // blogId: string; // Замените на нужный тип данных для вашего blogId
-
   @IsNotEmpty()
+  @IsString()
   originalname: string
 
   @IsNotEmpty()
-  @Validate(WallpaperDecorator, [{ size: 1000, height: 100, width: 100 }])
+  @Validate(BlogWallpaperDecorator, [100, 100])
   buffer: Buffer
 
-  // Добавьте другие проверки, например, для типа файла и размера
   @IsNotEmpty()
-  @IsString()
-  fileType: string // Добавьте тип файла (например, 'image/png')
+  @IsEnum(WallpaperNormalTypes)
+  mimetype: string // Добавьте тип файла (например, 'image/png')
 
   @IsNotEmpty()
   @IsNumber()
+  @Max(WALLPAPER_NORMAL_SIZE)
   size: number // Добавьте максимальный размер файла в KB
 }

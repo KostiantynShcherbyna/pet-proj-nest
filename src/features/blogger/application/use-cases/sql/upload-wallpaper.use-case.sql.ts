@@ -3,8 +3,8 @@ import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repo
 import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
 import { DataSource } from "typeorm"
 import * as Buffer from "buffer"
-import { StorageFilesAdapter } from "../../../../../infrastructure/adapters/storage-files.adapter"
-import { WallpaperS3Adapter } from "../../../../../infrastructure/adapters/wallpaper.s3.adapter"
+import { FilesStorageAdapter } from "../../../../../infrastructure/adapters/files-storage.adapter"
+import { FilesS3StorageAdapter } from "../../../../../infrastructure/adapters/files-s3-storage.adapter"
 
 export class UploadWallpaperCommandSql {
   constructor(
@@ -16,7 +16,6 @@ export class UploadWallpaperCommandSql {
   }
 }
 
-
 @CommandHandler(UploadWallpaperCommandSql)
 export class UploadWallpaperSql implements ICommandHandler<UploadWallpaperCommandSql> {
   constructor(
@@ -24,28 +23,18 @@ export class UploadWallpaperSql implements ICommandHandler<UploadWallpaperComman
     protected eventBus: EventBus,
     protected blogsRepositorySql: BlogsRepositoryOrm,
     protected usersRepositorySql: UsersRepositoryOrm,
-    protected wallpaperS3Adapter: WallpaperS3Adapter,
+    protected filesStorageAdapter: FilesStorageAdapter,
   ) {
   }
 
   async execute(command: UploadWallpaperCommandSql) {
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
-    const relativeFolderPath = await this.wallpaperS3Adapter.saveWallpaper({
-      userId: command.userId,
+
+    await this.filesStorageAdapter.saveWallpaper({
       blogId: command.blogId,
       fileName: command.fileName,
       wallpaperBuffer: command.wallpaperBuffer,
     })
 
-    return {
-      wallpaper: {
-        url: relativeFolderPath,
-        width: 0,
-        height: 0,
-        fileSize: 0
-      },
-    }
   }
-
-
 }

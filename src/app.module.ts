@@ -17,6 +17,9 @@ import { BlogIdIsExistSql } from "./infrastructure/decorators/blogId.decorator.s
 import { typeormConfig } from "./db/typeorm/typeorm.config"
 import { typeOrmControllers, typeOrmProviders } from "./db/typeorm/typeorm.service"
 import { mongooseConfig } from "./db/mongoose/mongoose.config"
+import { FilesStorageAdapter } from "./infrastructure/adapters/files-storage.adapter"
+import { FilesS3StorageAdapter } from "./infrastructure/adapters/files-s3-storage.adapter"
+import { BlogWallpaperDecorator } from "./infrastructure/decorators/blog-wallpaper.decorator"
 
 
 const services = [
@@ -29,6 +32,9 @@ const services = [
   // BlogIdIsExist,
   BlogIdIsExistSql,
   EmailAdapter,
+  FilesStorageAdapter,
+  FilesS3StorageAdapter,
+  BlogWallpaperDecorator,
 ]
 
 @Module({

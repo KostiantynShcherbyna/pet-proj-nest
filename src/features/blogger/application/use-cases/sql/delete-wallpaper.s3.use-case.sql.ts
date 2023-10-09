@@ -3,7 +3,7 @@ import { UsersRepositoryOrm } from "../../../../sa/repository/typeorm/users.repo
 import { BlogsRepositoryOrm } from "../../../../blogs/repository/typeorm/blogs.repository.orm"
 import { DataSource } from "typeorm"
 import * as Buffer from "buffer"
-import { DeleteFileS3Adapter } from "../../../../../infrastructure/adapters/delete-file.s3.adapter"
+import { FilesS3StorageAdapter } from "../../../../../infrastructure/adapters/files-s3-storage.adapter"
 
 export class DeleteWallpaperS3CommandSql {
   constructor(
@@ -21,7 +21,7 @@ export class DeleteWallpaperS3Sql implements ICommandHandler<DeleteWallpaperS3Co
     protected eventBus: EventBus,
     protected blogsRepositorySql: BlogsRepositoryOrm,
     protected usersRepositorySql: UsersRepositoryOrm,
-    protected deleteFileS3Adapter: DeleteFileS3Adapter,
+    protected wallpaperS3Adapter: FilesS3StorageAdapter,
   ) {
   }
 
@@ -29,7 +29,7 @@ export class DeleteWallpaperS3Sql implements ICommandHandler<DeleteWallpaperS3Co
     // await validateOrRejectFunc(bodyBlog, BodyBlogModel)
 
 
-    await this.deleteFileS3Adapter.execute(command.userId, "")
+    await this.wallpaperS3Adapter.deleteWallpaper(command.userId, "")
   }
 
 }

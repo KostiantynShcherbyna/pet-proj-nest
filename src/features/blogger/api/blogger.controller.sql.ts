@@ -48,6 +48,12 @@ import { CommentsQueryRepositoryOrm } from "../../comments/repository/typeorm/co
 import { FileInterceptor } from "@nestjs/platform-express"
 import { UploadWallpaperCommandSql } from "../application/use-cases/sql/upload-wallpaper.use-case.sql"
 import { WallpaperBodyInputModelSql } from "./models/input/wallpaper.body.input-model.sql"
+import { BlogWallpaperDecorator } from "../../../infrastructure/decorators/blog-wallpaper.decorator"
+import {
+  WALLPAPER_NORMAL_SIZE,
+  WallpaperNormalDimensions,
+  WallpaperNormalTypes
+} from "../../../infrastructure/utils/constants"
 
 
 @Controller("blogger")
@@ -329,8 +335,9 @@ export class BloggerControllerSql {
   async uploadWallpaper(
     @DeviceSessionOptional() deviceSession: DeviceSessionOptionalInputModel,
     @Param() params: BlogIdParamInputModelSql,
-    @Body() file: WallpaperBodyInputModelSql
+    @UploadedFile(BlogWallpaperDecorator) file: Express.Multer.File
   ) {
+    console.log("file", file)
     const uploadResult = await this.commandBus.execute(
       new UploadWallpaperCommandSql(
         params.blogId,

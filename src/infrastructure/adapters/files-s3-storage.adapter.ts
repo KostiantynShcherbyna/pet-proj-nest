@@ -10,7 +10,7 @@ interface ISaveWallpaperTO {
 }
 
 @Injectable()
-export class WallpaperS3Adapter {
+export class FilesS3StorageAdapter {
   constructor() {
     this.client = new S3Client({})
   }
